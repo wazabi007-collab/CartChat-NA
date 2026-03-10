@@ -1,19 +1,5 @@
 services:
   # ─── Caddy (Reverse Proxy + Auto SSL) ────────────
-  caddy:
-    image: caddy:2-alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-data:/data
-      - caddy-config:/config
-    depends_on:
-      - app
-    networks:
-      - oshicart
-    restart: unless-stopped
 
   # ─── Next.js App (Production) ────────────────────
   app:
@@ -24,8 +10,8 @@ services:
         - NEXT_PUBLIC_SUPABASE_URL=https://oshicart.octovianexus.com/supabase
         - NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
         - NEXT_PUBLIC_SITE_URL=https://oshicart.octovianexus.com
-    expose:
-      - "3000"
+    ports:
+      - "3080:3000"
     environment:
       - NEXT_PUBLIC_SUPABASE_URL=https://oshicart.octovianexus.com/supabase
       - SUPABASE_URL=http://supabase-kong:8000
@@ -100,7 +86,13 @@ services:
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
       GOTRUE_EXTERNAL_PHONE_ENABLED: "true"
       GOTRUE_SMS_AUTOCONFIRM: "false"
-      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "false"
+      GOTRUE_SMTP_HOST: smtp.resend.com
+      GOTRUE_SMTP_PORT: 465
+      GOTRUE_SMTP_USER: resend
+      GOTRUE_SMTP_PASS: ${RESEND_API_KEY}
+      GOTRUE_SMTP_SENDER_NAME: OshiCart
+      GOTRUE_SMTP_ADMIN_EMAIL: noreply@send.octovianexus.com
       # TODO: Replace with real Twilio credentials for production
       GOTRUE_SMS_PROVIDER: "twilio"
       GOTRUE_SMS_TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
@@ -229,6 +221,8 @@ services:
 
   # ─── Supabase Kong (API Gateway) ────────────────
   supabase-kong:
+    ports:
+      - "8090:8000"
     image: kong:2.8.1
     environment:
       KONG_DATABASE: "off"
@@ -256,8 +250,6 @@ services:
     restart: unless-stopped
 
 volumes:
-  caddy-data:
-  caddy-config:
   supabase-db-data:
   supabase-storage-data:
 

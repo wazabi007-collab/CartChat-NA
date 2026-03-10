@@ -5,13 +5,13 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - "3080:3000"
     volumes:
       - .:/app
       - /app/node_modules
       - /app/.next
     environment:
-      - NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
+      - NEXT_PUBLIC_SUPABASE_URL=http://localhost:8090
       - SUPABASE_URL=http://supabase-kong:8000
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
       - SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}
@@ -26,8 +26,6 @@ services:
   # ─── Supabase Postgres ─────────────────────────────────
   supabase-db:
     image: supabase/postgres:15.8.1.060
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chatcart_secret}
       POSTGRES_DB: postgres
@@ -73,7 +71,7 @@ services:
     environment:
       GOTRUE_API_HOST: "0.0.0.0"
       GOTRUE_API_PORT: "9999"
-      API_EXTERNAL_URL: http://localhost:8000
+      API_EXTERNAL_URL: http://localhost:8090
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD:-chatcart_secret}@supabase-db:5432/postgres
       GOTRUE_SITE_URL: http://localhost:3000
@@ -87,7 +85,13 @@ services:
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
       GOTRUE_EXTERNAL_PHONE_ENABLED: "true"
       GOTRUE_SMS_AUTOCONFIRM: "true"
-      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "false"
+      GOTRUE_SMTP_HOST: smtp.resend.com
+      GOTRUE_SMTP_PORT: "465"
+      GOTRUE_SMTP_USER: resend
+      GOTRUE_SMTP_PASS: ${RESEND_API_KEY} 
+      GOTRUE_SMTP_SENDER_NAME: OshiCart
+      GOTRUE_SMTP_ADMIN_EMAIL: noreply@send.octovianexus.com
       GOTRUE_SMS_PROVIDER: "twilio"
       GOTRUE_SMS_TWILIO_ACCOUNT_SID: "test"
       GOTRUE_SMS_TWILIO_AUTH_TOKEN: "test"
@@ -229,7 +233,7 @@ services:
   supabase-kong:
     image: kong:2.8.1
     ports:
-      - "8000:8000"
+      - "8090:8000"
       - "8443:8443"
     environment:
       KONG_DATABASE: "off"
@@ -266,7 +270,7 @@ services:
       DEFAULT_ORGANIZATION_NAME: ChatCart NA
       DEFAULT_PROJECT_NAME: chatcart-na
       SUPABASE_URL: http://supabase-kong:8000
-      SUPABASE_PUBLIC_URL: http://localhost:8000
+      SUPABASE_PUBLIC_URL: http://localhost:8090
       SUPABASE_ANON_KEY: ${ANON_KEY}
       SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
       AUTH_JWT_SECRET: ${JWT_SECRET}

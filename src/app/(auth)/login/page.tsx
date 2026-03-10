@@ -6,17 +6,41 @@ import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState<"email" | "otp">("email");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const supabase = createClient();
 
-  async function handleSignIn(e: React.FormEvent) {
+  async function handleSendOTP(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
+    });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    } else {
+      setStep("otp");
+      setLoading(false);
+    }
+  }
+
+  async function handleVerifyOTP(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: otp,
+      type: "email",
+    });
 
     if (error) {
       setError(error.message);
@@ -35,44 +59,66 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border p-6">
-          <form onSubmit={handleSignIn} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              />
-            </div>
-            {error && <p className="text-red-600 text-sm">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 font-medium"
-            >
-              {loading ? "Signing in..." : "Sign In"}
-            </button>
-          </form>
+          {step === "email" ? (
+            <form onSubmit={handleSendOTP} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+              {error && <p className="text-red-600 text-sm">{error}</p>}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 font-medium"
+              >
+                {loading ? "Sending code..." : "Send Sign-in Code"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOTP} className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Enter the 6-digit code sent to{" "}
+                <span className="font-medium">{email}</span>
+              </p>
+              <div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="123456"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  required
+                  maxLength={6}
+                  className="w-full px-3 py-2 border rounded-md text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+              {error && <p className="text-red-600 text-sm">{error}</p>}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 font-medium"
+              >
+                {loading ? "Verifying..." : "Sign In"}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setStep("email"); setOtp(""); setError(""); }}
+                className="w-full text-sm text-gray-500 hover:text-gray-700"
+              >
+                Use a different email
+              </button>
+            </form>
+          )}
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-4">

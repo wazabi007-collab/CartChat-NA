@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
@@ -11,7 +11,24 @@ export default function SignupPage() {
   const [step, setStep] = useState<"form" | "otp">("form");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [countdown, setCountdown] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const supabase = createClient();
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
+
+  function startCountdown() {
+    setCountdown(300);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) { clearInterval(timerRef.current!); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+  }
 
   async function handleSendOTP(e: React.FormEvent) {
     e.preventDefault();
@@ -34,6 +51,7 @@ export default function SignupPage() {
     } else {
       setStep("otp");
       setLoading(false);
+      startCountdown();
     }
   }
 
@@ -135,9 +153,37 @@ export default function SignupPage() {
               >
                 {loading ? "Verifying..." : "Create My Store"}
               </button>
+              <div className="text-center text-sm text-gray-500">
+                {countdown > 0 ? (
+                  <span>
+                    Code expires in{" "}
+                    <span className="font-medium text-gray-700">
+                      {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
+                    </span>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setLoading(true);
+                      setError("");
+                      const { error } = await supabase.auth.signInWithOtp({
+                        email,
+                        options: { data: { whatsapp_number: whatsapp }, shouldCreateUser: true },
+                      });
+                      setLoading(false);
+                      if (error) setError(error.message);
+                      else startCountdown();
+                    }}
+                    className="text-green-600 hover:underline"
+                  >
+                    Resend code
+                  </button>
+                )}
+              </div>
               <button
                 type="button"
-                onClick={() => { setStep("form"); setOtp(""); setError(""); }}
+                onClick={() => { setStep("form"); setOtp(""); setError(""); if (timerRef.current) clearInterval(timerRef.current); }}
                 className="w-full text-sm text-gray-500 hover:text-gray-700"
               >
                 Use a different email

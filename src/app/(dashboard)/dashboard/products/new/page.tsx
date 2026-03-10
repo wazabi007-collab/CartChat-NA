@@ -375,14 +375,14 @@ export default function NewProductPage() {
               </div>
             ))}
             {imageFiles.length < 3 && (
-              <label className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
+              <label className="relative w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
                 <Upload size={20} className="text-gray-400" />
                 <span className="text-xs text-gray-400 mt-1">Upload</span>
                 <input
                   type="file"
-                  accept="image/*,image/heic,image/heif"
+                  accept="image/*"
                   onChange={handleImageSelect}
-                  className="sr-only"
+                  className="absolute inset-0 opacity-0 cursor-pointer"
                 />
               </label>
             )}

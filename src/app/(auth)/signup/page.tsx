@@ -7,6 +7,7 @@ import Link from "next/link";
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const supabase = createClient();
@@ -16,7 +17,15 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signUp({ email, password });
+    const formattedPhone = whatsapp.startsWith("+") ? whatsapp : `+${whatsapp}`;
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { whatsapp_number: formattedPhone },
+      },
+    });
 
     if (error) {
       setError(error.message);
@@ -38,6 +47,23 @@ export default function SignupPage() {
 
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <form onSubmit={handleSignUp} className="space-y-4">
+            <div>
+              <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700 mb-1">
+                WhatsApp Number
+              </label>
+              <input
+                id="whatsapp"
+                type="tel"
+                placeholder="+264811234567"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                required
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                This is the number customers will WhatsApp you on
+              </p>
+            </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email

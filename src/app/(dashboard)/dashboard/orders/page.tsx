@@ -19,7 +19,7 @@ export default async function OrdersPage({
 
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("id")
+    .select("id, tier")
     .eq("user_id", user.id)
     .single();
 
@@ -117,12 +117,18 @@ export default async function OrdersPage({
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-sm flex-wrap">
                 <span className="text-gray-500">
                   {order.delivery_method === "delivery"
                     ? "Delivery"
                     : "Pickup"}
                 </span>
+                {order.delivery_date && (
+                  <span className="text-gray-500">
+                    · {order.delivery_date}
+                    {order.delivery_time ? ` ${order.delivery_time}` : ""}
+                  </span>
+                )}
                 {order.proof_of_payment_url && (
                   <a
                     href={order.proof_of_payment_url}
@@ -149,6 +155,16 @@ export default async function OrdersPage({
 
               <div className="mt-3 pt-3 border-t flex flex-wrap gap-2">
                 <OrderActions orderId={order.id} currentStatus={order.status} />
+                {merchant.tier !== "free" && (
+                  <a
+                    href={`/invoice/${order.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 text-sm bg-gray-50 text-gray-700 rounded-md hover:bg-gray-100"
+                  >
+                    View Invoice
+                  </a>
+                )}
                 <a
                   href={whatsappLink(
                     order.customer_whatsapp,

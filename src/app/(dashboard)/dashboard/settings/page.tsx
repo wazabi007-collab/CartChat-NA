@@ -5,7 +5,15 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { BANKS_NAMIBIA } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
-import { Save } from "lucide-react";
+import { Save, Plus, X } from "lucide-react";
+
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+interface DeliverySlots {
+  enabled: boolean;
+  days: number[];
+  times: string[];
+}
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -15,6 +23,7 @@ export default function SettingsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [merchantId, setMerchantId] = useState("");
+  const [newTimeSlot, setNewTimeSlot] = useState("");
 
   const [form, setForm] = useState({
     store_name: "",
@@ -24,6 +33,12 @@ export default function SettingsPage() {
     bank_account_number: "",
     bank_account_holder: "",
     bank_branch_code: "",
+  });
+
+  const [deliverySlots, setDeliverySlots] = useState<DeliverySlots>({
+    enabled: false,
+    days: [],
+    times: [],
   });
 
   useEffect(() => {
@@ -50,6 +65,9 @@ export default function SettingsPage() {
           bank_account_holder: merchant.bank_account_holder || "",
           bank_branch_code: merchant.bank_branch_code || "",
         });
+        if (merchant.delivery_slots) {
+          setDeliverySlots(merchant.delivery_slots as DeliverySlots);
+        }
       }
       setLoading(false);
     }
@@ -79,6 +97,7 @@ export default function SettingsPage() {
         bank_account_number: form.bank_account_number || null,
         bank_account_holder: form.bank_account_holder || null,
         bank_branch_code: form.bank_branch_code || null,
+        delivery_slots: deliverySlots.enabled ? deliverySlots : null,
       })
       .eq("id", merchantId);
 
@@ -89,6 +108,29 @@ export default function SettingsPage() {
       router.refresh();
     }
     setSaving(false);
+  }
+
+  function toggleDay(day: number) {
+    setDeliverySlots((prev) => ({
+      ...prev,
+      days: prev.days.includes(day)
+        ? prev.days.filter((d) => d !== day)
+        : [...prev.days, day].sort(),
+    }));
+  }
+
+  function addTimeSlot() {
+    const trimmed = newTimeSlot.trim();
+    if (!trimmed || deliverySlots.times.includes(trimmed)) return;
+    setDeliverySlots((prev) => ({ ...prev, times: [...prev.times, trimmed] }));
+    setNewTimeSlot("");
+  }
+
+  function removeTimeSlot(slot: string) {
+    setDeliverySlots((prev) => ({
+      ...prev,
+      times: prev.times.filter((t) => t !== slot),
+    }));
   }
 
   if (loading) {
@@ -104,6 +146,7 @@ export default function SettingsPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Store Settings</h1>
 
       <form onSubmit={handleSave} className="space-y-6">
+        {/* Store Details */}
         <div className="bg-white rounded-lg border p-6 space-y-4">
           <h2 className="font-medium text-gray-900">Store Details</h2>
           <div>
@@ -147,6 +190,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Bank Details */}
         <div className="bg-white rounded-lg border p-6 space-y-4">
           <h2 className="font-medium text-gray-900">Bank Details</h2>
           <p className="text-xs text-gray-400">
@@ -216,6 +260,109 @@ export default function SettingsPage() {
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
+        </div>
+
+        {/* Delivery Scheduling */}
+        <div className="bg-white rounded-lg border p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-medium text-gray-900">Delivery Scheduling</h2>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Let customers choose a delivery date and time slot
+              </p>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={deliverySlots.enabled}
+                  onChange={(e) =>
+                    setDeliverySlots((p) => ({ ...p, enabled: e.target.checked }))
+                  }
+                  className="sr-only"
+                />
+                <div
+                  className={`w-10 h-6 rounded-full transition-colors ${
+                    deliverySlots.enabled ? "bg-green-600" : "bg-gray-300"
+                  }`}
+                />
+                <div
+                  className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                    deliverySlots.enabled ? "translate-x-5" : "translate-x-1"
+                  }`}
+                />
+              </div>
+            </label>
+          </div>
+
+          {deliverySlots.enabled && (
+            <>
+              {/* Days */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  Available days
+                </p>
+                <div className="flex gap-2 flex-wrap">
+                  {DAY_LABELS.map((label, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => toggleDay(i)}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                        deliverySlots.days.includes(i)
+                          ? "bg-green-600 text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Time slots */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  Time slots
+                </p>
+                <div className="space-y-2 mb-3">
+                  {deliverySlots.times.map((slot) => (
+                    <div
+                      key={slot}
+                      className="flex items-center justify-between bg-gray-50 rounded-md px-3 py-2 text-sm"
+                    >
+                      <span className="text-gray-700">{slot}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeTimeSlot(slot)}
+                        className="text-gray-400 hover:text-red-500"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="e.g. Morning (8:00 - 12:00)"
+                    value={newTimeSlot}
+                    onChange={(e) => setNewTimeSlot(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTimeSlot())}
+                    className="flex-1 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={addTimeSlot}
+                    className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
+                  >
+                    <Plus size={14} />
+                    Add
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}

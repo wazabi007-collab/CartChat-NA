@@ -16,15 +16,39 @@ import { MAX_IMAGE_SIZE } from "@/lib/constants";
 import type { CartItem } from "@/components/storefront/cart-provider";
 import type { DeliveryMethod } from "@/types/database";
 
+interface DeliverySlots {
+  enabled: boolean;
+  days: number[];
+  times: string[];
+}
+
 interface Props {
   merchantId: string;
   storeName: string;
   storeSlug: string;
+  merchantTier: string;
   whatsappNumber: string;
   bankName: string | null;
   bankAccountNumber: string | null;
   bankAccountHolder: string | null;
   bankBranchCode: string | null;
+  deliverySlots: DeliverySlots | null;
+}
+
+function getAvailableDates(days: number[]): { label: string; value: string }[] {
+  const result: { label: string; value: string }[] = [];
+  const today = new Date();
+  for (let i = 1; i <= 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    if (days.includes(d.getDay())) {
+      result.push({
+        label: d.toLocaleDateString("en-NA", { weekday: "long", day: "numeric", month: "short" }),
+        value: d.toISOString().split("T")[0],
+      });
+    }
+  }
+  return result;
 }
 
 type CheckoutStep = "form" | "success";
@@ -33,11 +57,13 @@ export function CheckoutForm({
   merchantId,
   storeName,
   storeSlug,
+  merchantTier,
   whatsappNumber,
   bankName,
   bankAccountNumber,
   bankAccountHolder,
   bankBranchCode,
+  deliverySlots,
 }: Props) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState("");
@@ -46,9 +72,12 @@ export function CheckoutForm({
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
+  const [deliveryDate, setDeliveryDate] = useState("");
+  const [deliveryTime, setDeliveryTime] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<CheckoutStep>("form");
+  const [orderId, setOrderId] = useState<string | null>(null);
   const [orderNumber, setOrderNumber] = useState<number | null>(null);
 
   // Load cart from localStorage
@@ -102,6 +131,14 @@ export function CheckoutForm({
       setError("Please enter a delivery address");
       return;
     }
+    if (
+      deliveryMethod === "delivery" &&
+      deliverySlots?.enabled &&
+      (!deliveryDate || !deliveryTime)
+    ) {
+      setError("Please select a delivery date and time slot");
+      return;
+    }
 
     setSubmitting(true);
 
@@ -141,6 +178,8 @@ export function CheckoutForm({
           delivery_method: deliveryMethod,
           delivery_address:
             deliveryMethod === "delivery" ? deliveryAddress.trim() : null,
+          delivery_date: deliveryDate || null,
+          delivery_time: deliveryTime || null,
           subtotal_nad: subtotal,
           proof_of_payment_url: proofUrl,
           notes: notes.trim() || null,
@@ -173,6 +212,7 @@ export function CheckoutForm({
       // Clear cart
       localStorage.removeItem(`oshicart-cart-${storeSlug}`);
 
+      setOrderId(order.id);
       setOrderNumber(order.order_number);
       setStep("success");
     } catch (err) {
@@ -187,6 +227,10 @@ export function CheckoutForm({
     const itemLines = cartItems
       .map((item) => `• ${item.name} x${item.quantity} — ${formatPrice(item.price * item.quantity)}`)
       .join("\n");
+    const invoiceUrl =
+      merchantTier !== "free" && orderId
+        ? `${window.location.origin}/invoice/${orderId}`
+        : null;
     const waMessage = [
       `Hi ${storeName}! 🛒 New order #${orderNumber}`,
       ``,
@@ -197,8 +241,14 @@ export function CheckoutForm({
       itemLines,
       ``,
       `*Subtotal:* ${formatPrice(subtotal)}`,
-      `*Delivery:* ${deliveryMethod === "delivery" ? `Delivery to: ${deliveryAddress}` : "Pickup"}`,
+      `*Delivery:* ${
+        deliveryMethod === "delivery"
+          ? `Delivery to: ${deliveryAddress}`
+          : "Pickup"
+      }`,
+      ...(deliveryDate ? [`*Scheduled:* ${deliveryDate}${deliveryTime ? ` — ${deliveryTime}` : ""}`] : []),
       ...(notes ? [`*Notes:* ${notes}`] : []),
+      ...(invoiceUrl ? [``, `*Invoice:* ${invoiceUrl}`] : []),
     ].join("\n");
     const waUrl = whatsappLink(whatsappNumber, waMessage);
 
@@ -369,6 +419,70 @@ export function CheckoutForm({
               placeholder="Enter your full delivery address"
             />
           </div>
+        )}
+
+        {/* Delivery scheduling */}
+        {deliveryMethod === "delivery" && deliverySlots?.enabled && (
+          <>
+            {(() => {
+              const availableDates = getAvailableDates(deliverySlots.days);
+              return availableDates.length > 0 ? (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Delivery Date *
+                    </label>
+                    <select
+                      value={deliveryDate}
+                      onChange={(e) => setDeliveryDate(e.target.value)}
+                      required
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="">Select a date...</option>
+                      {availableDates.map((d) => (
+                        <option key={d.value} value={d.value}>
+                          {d.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {deliverySlots.times.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Time Slot *
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {deliverySlots.times.map((slot) => (
+                          <label
+                            key={slot}
+                            className={`flex items-center justify-center border rounded-md p-2 cursor-pointer text-sm text-center transition-colors ${
+                              deliveryTime === slot
+                                ? "border-green-600 bg-green-50 text-green-700 font-medium"
+                                : "border-gray-300 text-gray-600 hover:border-gray-400"
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="deliveryTime"
+                              value={slot}
+                              checked={deliveryTime === slot}
+                              onChange={() => setDeliveryTime(slot)}
+                              className="sr-only"
+                            />
+                            {slot}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm text-amber-600 bg-amber-50 rounded-md p-3">
+                  No delivery slots available in the next 14 days. Please contact the merchant directly.
+                </p>
+              );
+            })()}
+          </>
         )}
 
         <div>

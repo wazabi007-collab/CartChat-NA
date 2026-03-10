@@ -184,7 +184,22 @@ export function CheckoutForm({
 
   // Success state
   if (step === "success") {
-    const waMessage = `Hi ${storeName}, I just placed order #${orderNumber} on OshiCart.\n\nName: ${customerName}\nDelivery: ${deliveryMethod}\nTotal: ${formatPrice(subtotal)}`;
+    const itemLines = cartItems
+      .map((item) => `• ${item.name} x${item.quantity} — ${formatPrice(item.price * item.quantity)}`)
+      .join("\n");
+    const waMessage = [
+      `Hi ${storeName}! 🛒 New order #${orderNumber}`,
+      ``,
+      `*Customer:* ${customerName}`,
+      `*WhatsApp:* ${customerWhatsapp}`,
+      ``,
+      `*Items:*`,
+      itemLines,
+      ``,
+      `*Subtotal:* ${formatPrice(subtotal)}`,
+      `*Delivery:* ${deliveryMethod === "delivery" ? `Delivery to: ${deliveryAddress}` : "Pickup"}`,
+      ...(notes ? [`*Notes:* ${notes}`] : []),
+    ].join("\n");
     const waUrl = whatsappLink(whatsappNumber, waMessage);
 
     return (

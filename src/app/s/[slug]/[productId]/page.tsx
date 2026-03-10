@@ -1,0 +1,177 @@
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { formatPrice } from "@/lib/utils";
+import { SITE_NAME, SITE_URL } from "@/lib/constants";
+import { AddToCartButton } from "./add-to-cart-button";
+
+interface Props {
+  params: Promise<{ slug: string; productId: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug, productId } = await params;
+  const supabase = await createClient();
+
+  const { data: merchant } = await supabase
+    .from("merchants")
+    .select("id, store_name")
+    .eq("store_slug", slug)
+    .eq("is_active", true)
+    .single();
+
+  if (!merchant) return { title: "Not Found" };
+
+  const { data: product } = await supabase
+    .from("products")
+    .select("name, description, images, price_nad")
+    .eq("id", productId)
+    .eq("merchant_id", merchant.id)
+    .eq("is_available", true)
+    .single();
+
+  if (!product) return { title: "Not Found" };
+
+  return {
+    title: `${product.name} | ${merchant.store_name}`,
+    description: product.description || `${product.name} - ${formatPrice(product.price_nad)}`,
+    openGraph: {
+      title: `${product.name} - ${formatPrice(product.price_nad)}`,
+      description: product.description || `Buy ${product.name} from ${merchant.store_name}`,
+      url: `${SITE_URL}/s/${slug}/${productId}`,
+      ...(product.images?.[0] && { images: [{ url: product.images[0] }] }),
+      type: "website",
+    },
+  };
+}
+
+export default async function ProductDetailPage({ params }: Props) {
+  const { slug, productId } = await params;
+  const supabase = await createClient();
+
+  // Fetch merchant
+  const { data: merchant } = await supabase
+    .from("merchants")
+    .select("id, store_name")
+    .eq("store_slug", slug)
+    .eq("is_active", true)
+    .single();
+
+  if (!merchant) notFound();
+
+  // Fetch product, verify it belongs to this merchant
+  const { data: product } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", productId)
+    .eq("merchant_id", merchant.id)
+    .eq("is_available", true)
+    .single();
+
+  if (!product) notFound();
+
+  const images = product.images ?? [];
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Back link */}
+      <div className="bg-white border-b">
+        <div className="max-w-4xl mx-auto px-4 py-3">
+          <Link
+            href={`/s/${slug}`}
+            className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to {merchant.store_name}
+          </Link>
+        </div>
+      </div>
+
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        <div className="bg-white rounded-lg border overflow-hidden">
+          {/* Image section */}
+          {images.length > 0 ? (
+            <div className="relative">
+              {images.length === 1 ? (
+                <div className="aspect-square sm:aspect-[4/3] relative bg-gray-100">
+                  <img
+                    src={images[0]}
+                    alt={product.name}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+                  {images.map((img: string, idx: number) => (
+                    <div
+                      key={idx}
+                      className="aspect-square sm:aspect-[4/3] flex-shrink-0 w-full snap-center relative bg-gray-100"
+                    >
+                      <img
+                        src={img}
+                        alt={`${product.name} - Image ${idx + 1}`}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              {images.length > 1 && (
+                <div className="flex justify-center gap-1.5 py-2 bg-white">
+                  {images.map((_: string, idx: number) => (
+                    <div
+                      key={idx}
+                      className="w-2 h-2 rounded-full bg-gray-300"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="aspect-square sm:aspect-[4/3] bg-gray-100 flex items-center justify-center">
+              <span className="text-gray-300 text-6xl">
+                {product.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+
+          {/* Product info */}
+          <div className="p-4 sm:p-6">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              {product.name}
+            </h1>
+            <p className="text-2xl font-bold text-green-600 mt-2">
+              {formatPrice(product.price_nad)}
+            </p>
+
+            {product.description && (
+              <div className="mt-4">
+                <p className="text-gray-700 text-sm sm:text-base whitespace-pre-line">
+                  {product.description}
+                </p>
+              </div>
+            )}
+
+            <div className="mt-6">
+              <AddToCartButton
+                productId={product.id}
+                name={product.name}
+                price={product.price_nad}
+                imageUrl={images[0] ?? null}
+              />
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t bg-white mt-8">
+        <div className="max-w-4xl mx-auto px-4 py-4 text-center text-xs text-gray-400">
+          Powered by {SITE_NAME}
+        </div>
+      </footer>
+    </div>
+  );
+}

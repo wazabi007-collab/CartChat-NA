@@ -382,7 +382,7 @@ export default function NewProductPage() {
                   type="file"
                   accept="image/*,image/heic,image/heif"
                   onChange={handleImageSelect}
-                  className="hidden"
+                  className="sr-only"
                   multiple
                 />
               </label>

@@ -32,11 +32,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-    if (!allowedTypes.includes(file.type)) {
+    // Validate file type (HEIC/HEIF are iPhone native formats)
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif"];
+    if (!allowedTypes.includes(file.type) && !file.type.startsWith("image/")) {
       return NextResponse.json(
-        { error: "Invalid file type. Allowed: JPEG, PNG, WebP, GIF" },
+        { error: "Invalid file type. Please upload an image." },
         { status: 400 }
       );
     }

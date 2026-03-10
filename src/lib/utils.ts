@@ -59,11 +59,11 @@ export function cn(...classes: (string | undefined | null | false)[]): string {
 export const TIER_LIMITS = {
   free: {
     maxProducts: 20,
-    maxOrdersPerMonth: 50,
+    maxOrdersPerMonth: 20,
   },
   pro: {
-    maxProducts: Infinity,
-    maxOrdersPerMonth: Infinity,
+    maxProducts: 150,
+    maxOrdersPerMonth: 300,
   },
   business: {
     maxProducts: Infinity,

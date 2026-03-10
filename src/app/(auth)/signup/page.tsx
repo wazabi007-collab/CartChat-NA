@@ -200,7 +200,7 @@ export default function SignupPage() {
             </Link>
           </p>
           <div className="flex items-center gap-2 justify-center text-xs text-gray-400">
-            <span>Free forever for 20 products</span>
+            <span>30-day free trial</span>
             <span>·</span>
             <span>No credit card needed</span>
           </div>

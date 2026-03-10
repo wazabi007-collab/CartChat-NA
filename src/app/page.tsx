@@ -60,7 +60,7 @@ export default function LandingPage() {
             </Link>
           </div>
           <p className="text-sm text-gray-400 mt-3">
-            Free forever for up to 20 products. No credit card needed.
+30-day free trial. No credit card needed.
           </p>
         </div>
       </section>
@@ -130,17 +130,17 @@ export default function LandingPage() {
           </h3>
           <div className="grid md:grid-cols-3 gap-6">
             <PricingCard
-              name="Free"
+              name="Free Trial"
               price="N$0"
-              period="forever"
+              period="30 days"
               features={[
                 "20 products",
-                "50 orders/month",
+                "20 orders/month",
                 "Product catalog",
                 "Order management",
                 "EFT proof upload",
               ]}
-              cta="Get Started"
+              cta="Start Free Trial"
               href="/signup"
               highlighted={false}
             />
@@ -149,13 +149,13 @@ export default function LandingPage() {
               price="N$99"
               period="/month"
               features={[
-                "Unlimited products",
-                "Unlimited orders",
+                "150 products",
+                "300 orders/month",
                 "Full analytics",
                 "Priority support",
                 "Everything in Free",
               ]}
-              cta="Start Free, Upgrade Later"
+              cta="Get Started"
               href="/signup"
               highlighted={true}
             />
@@ -164,9 +164,10 @@ export default function LandingPage() {
               price="N$249"
               period="/month"
               features={[
+                "Unlimited products",
+                "Unlimited orders",
                 "3 staff accounts",
                 "Custom branding",
-                "Featured in directory",
                 "Phone support",
                 "Everything in Pro",
               ]}

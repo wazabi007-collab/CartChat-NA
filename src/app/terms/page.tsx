@@ -59,9 +59,10 @@ export default function TermsPage() {
             5. Service Tiers
           </h2>
           <p>
-            Free tier includes up to 20 products and 50 orders per month. Paid
-            tiers offer expanded limits. OshiCart reserves the right to
-            modify pricing with 30 days notice.
+            Free trial includes up to 20 products and 20 orders for 30 days.
+            Pro plan includes 150 products and 300 orders per month.
+            Business plan includes unlimited products and unlimited orders.
+            OshiCart reserves the right to modify pricing with 30 days notice.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
             6. Termination

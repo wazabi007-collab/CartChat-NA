@@ -30,7 +30,7 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 function getStorageKey(slug: string) {
-  return `chatcart-cart-${slug}`;
+  return `oshicart-cart-${slug}`;
 }
 
 export function CartProvider({

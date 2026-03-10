@@ -4,8 +4,11 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
+  const publicUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serverUrl = process.env.SUPABASE_URL || publicUrl;
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    publicUrl,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
@@ -22,12 +25,17 @@ export async function updateSession(request: NextRequest) {
           );
         },
       },
+      global: {
+        fetch: (input, init) => {
+          const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+          const rewritten = url.replace(publicUrl, serverUrl);
+          return fetch(rewritten, init);
+        },
+      },
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
 
   // Protect dashboard routes
   if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {

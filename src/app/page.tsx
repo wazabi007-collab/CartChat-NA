@@ -14,8 +14,14 @@ export default function LandingPage() {
       {/* Header */}
       <header className="border-b">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">ChatCart NA</h1>
+          <h1 className="text-xl font-bold text-gray-900">OshiCart</h1>
           <div className="flex items-center gap-3">
+            <Link
+              href="/stores"
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              Browse Stores
+            </Link>
             <Link
               href="/login"
               className="text-sm text-gray-600 hover:text-gray-900"
@@ -42,7 +48,7 @@ export default function LandingPage() {
           </h2>
           <p className="text-lg text-gray-500 mt-4 max-w-xl mx-auto">
             Stop juggling WhatsApp messages, screenshots, and EFT proofs.
-            ChatCart gives your business a professional catalog, order
+            OshiCart gives your business a professional catalog, order
             management, and payment tracking — all through WhatsApp.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
@@ -179,7 +185,7 @@ export default function LandingPage() {
             Ready to grow your WhatsApp business?
           </h3>
           <p className="text-gray-500 mt-2">
-            Join Namibian sellers who are saving hours every day with ChatCart.
+            Join Namibian sellers who are saving hours every day with OshiCart.
           </p>
           <Link
             href="/signup"
@@ -193,8 +199,11 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t py-8 px-4">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
-          <p>ChatCart NA — Made in Namibia</p>
+          <p>OshiCart — Made in Namibia</p>
           <div className="flex gap-4">
+            <Link href="/stores" className="hover:text-gray-600">
+              Browse Stores
+            </Link>
             <Link href="/terms" className="hover:text-gray-600">
               Terms
             </Link>

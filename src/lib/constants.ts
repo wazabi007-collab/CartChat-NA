@@ -1,4 +1,4 @@
-export const SITE_NAME = "ChatCart NA";
+export const SITE_NAME = "OshiCart";
 export const SITE_DESCRIPTION =
   "Create your WhatsApp store in 5 minutes. Free for Namibian businesses.";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";

@@ -13,11 +13,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ChatCart NA — WhatsApp Store for Namibian Businesses",
+  title: "OshiCart — WhatsApp Store for Namibian Businesses",
   description:
     "Create your WhatsApp store in 5 minutes. Free product catalog, order management, and payment proof — built for Namibia.",
   openGraph: {
-    title: "ChatCart NA",
+    title: "OshiCart",
     description: "Create your WhatsApp store in 5 minutes. Free for Namibian businesses.",
     type: "website",
   },

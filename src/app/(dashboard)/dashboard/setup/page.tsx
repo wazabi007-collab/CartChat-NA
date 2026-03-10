@@ -118,7 +118,7 @@ export default function StoreSetupPage() {
                 />
                 {form.store_name && (
                   <p className="text-xs text-gray-400 mt-1">
-                    Your store link: chatcartna.com/s/
+                    Your store link: oshicart.octovianexus.com/s/
                     {slugify(form.store_name) || "..."}
                   </p>
                 )}

@@ -1,35 +1,49 @@
 services:
-  # ─── Next.js App ───────────────────────────────────────
+  # ─── Caddy (Reverse Proxy + Auto SSL) ────────────
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+    networks:
+      - oshicart
+    restart: unless-stopped
+
+  # ─── Next.js App (Production) ────────────────────
   app:
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_SUPABASE_URL=https://oshicart.octovianexus.com/supabase
+        - NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
+        - NEXT_PUBLIC_SITE_URL=https://oshicart.octovianexus.com
+    expose:
+      - "3000"
     environment:
-      - NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
+      - NEXT_PUBLIC_SUPABASE_URL=https://oshicart.octovianexus.com/supabase
       - SUPABASE_URL=http://supabase-kong:8000
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
       - SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}
-      - NEXT_PUBLIC_SITE_URL=http://localhost:3000
-      - WATCHPACK_POLLING=true
+      - NEXT_PUBLIC_SITE_URL=https://oshicart.octovianexus.com
     depends_on:
       supabase-kong:
         condition: service_healthy
     networks:
-      - chatcart
+      - oshicart
+    restart: unless-stopped
 
-  # ─── Supabase Postgres ─────────────────────────────────
+  # ─── Supabase Postgres ───────────────────────────
   supabase-db:
     image: supabase/postgres:15.8.1.060
-    ports:
-      - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chatcart_secret}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: postgres
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXP: 3600
@@ -41,9 +55,10 @@ services:
       timeout: 5s
       retries: 10
     networks:
-      - chatcart
+      - oshicart
+    restart: unless-stopped
 
-  # ─── Database Init (set role passwords before auth starts) ─
+  # ─── Database Init ──────────────────────────────
   supabase-db-init:
     image: supabase/postgres:15.8.1.060
     entrypoint: ["sh", "-c"]
@@ -57,26 +72,24 @@ services:
         "
         echo "Role passwords set!"
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chatcart_secret}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
       supabase-db:
         condition: service_healthy
     networks:
-      - chatcart
+      - oshicart
     restart: "no"
 
-  # ─── Supabase Auth (GoTrue) ────────────────────────────
+  # ─── Supabase Auth (GoTrue) ─────────────────────
   supabase-auth:
     image: supabase/gotrue:v2.170.0
-    ports:
-      - "9999:9999"
     environment:
       GOTRUE_API_HOST: "0.0.0.0"
       GOTRUE_API_PORT: "9999"
-      API_EXTERNAL_URL: http://localhost:8000
+      API_EXTERNAL_URL: https://oshicart.octovianexus.com/supabase
       GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD:-chatcart_secret}@supabase-db:5432/postgres
-      GOTRUE_SITE_URL: http://localhost:3000
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@supabase-db:5432/postgres
+      GOTRUE_SITE_URL: https://oshicart.octovianexus.com
       GOTRUE_URI_ALLOW_LIST: ""
       GOTRUE_DISABLE_SIGNUP: "false"
       GOTRUE_JWT_ADMIN_ROLES: service_role
@@ -86,54 +99,52 @@ services:
       GOTRUE_JWT_SECRET: ${JWT_SECRET}
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
       GOTRUE_EXTERNAL_PHONE_ENABLED: "true"
-      GOTRUE_SMS_AUTOCONFIRM: "true"
+      GOTRUE_SMS_AUTOCONFIRM: "false"
       GOTRUE_MAILER_AUTOCONFIRM: "true"
+      # TODO: Replace with real Twilio credentials for production
       GOTRUE_SMS_PROVIDER: "twilio"
-      GOTRUE_SMS_TWILIO_ACCOUNT_SID: "test"
-      GOTRUE_SMS_TWILIO_AUTH_TOKEN: "test"
-      GOTRUE_SMS_TWILIO_MESSAGE_SERVICE_SID: "test"
-      GOTRUE_SMS_TEST_OTP: "264811234567:123456,264812345678:123456,264819999999:123456,264811111111:123456,264812222222:123456,264813333333:123456,264814444444:123456,264815555555:123456"
-      GOTRUE_SMS_TEST_OTP_VALID_UNTIL: "2030-01-01T00:00:00Z"
-      GOTRUE_RATE_LIMIT_OTP: "100"
+      GOTRUE_SMS_TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      GOTRUE_SMS_TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      GOTRUE_SMS_TWILIO_MESSAGE_SERVICE_SID: ${TWILIO_MESSAGE_SERVICE_SID}
+      GOTRUE_RATE_LIMIT_OTP: "10"
     depends_on:
       supabase-db-init:
         condition: service_completed_successfully
     networks:
-      - chatcart
+      - oshicart
+    restart: unless-stopped
 
-  # ─── Database Migration (runs after auth creates schema) ─
+  # ─── Database Migration ─────────────────────────
   supabase-db-migrate:
     image: supabase/postgres:15.8.1.060
     entrypoint: ["sh", "-c"]
     command:
       - |
-        echo "Waiting for auth schema to be created..."
+        echo "Waiting for auth schema..."
         sleep 10
         until PGPASSWORD=$${POSTGRES_PASSWORD} psql -h supabase-db -U postgres -d postgres -c "SELECT 1 FROM pg_namespace WHERE nspname = 'auth'" | grep -q 1; do
           echo "auth schema not ready, waiting..."
           sleep 3
         done
-        echo "auth schema found. Running migration..."
+        echo "Running migration..."
         PGPASSWORD=$${POSTGRES_PASSWORD} psql -h supabase-db -U postgres -d postgres -f /migrations/001_initial_schema.sql
         echo "Migration complete!"
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chatcart_secret}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./supabase/migrations/001_initial_schema.sql:/migrations/001_initial_schema.sql:ro
     depends_on:
       supabase-auth:
         condition: service_started
     networks:
-      - chatcart
+      - oshicart
     restart: "no"
 
-  # ─── Supabase REST (PostgREST) ─────────────────────────
+  # ─── Supabase REST (PostgREST) ──────────────────
   supabase-rest:
     image: postgrest/postgrest:v12.2.8
-    ports:
-      - "3001:3000"
     environment:
-      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD:-chatcart_secret}@supabase-db:5432/postgres
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@supabase-db:5432/postgres
       PGRST_DB_SCHEMAS: public,storage,graphql_public
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${JWT_SECRET}
@@ -144,19 +155,18 @@ services:
       supabase-db-init:
         condition: service_completed_successfully
     networks:
-      - chatcart
+      - oshicart
+    restart: unless-stopped
 
-  # ─── Supabase Storage ──────────────────────────────────
+  # ─── Supabase Storage ───────────────────────────
   supabase-storage:
     image: supabase/storage-api:v1.14.3
-    ports:
-      - "5000:5000"
     environment:
       ANON_KEY: ${ANON_KEY}
       SERVICE_KEY: ${SERVICE_ROLE_KEY}
       POSTGREST_URL: http://supabase-rest:3000
       PGRST_JWT_SECRET: ${JWT_SECRET}
-      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD:-chatcart_secret}@supabase-db:5432/postgres
+      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD}@supabase-db:5432/postgres
       FILE_SIZE_LIMIT: 5242880
       STORAGE_BACKEND: file
       FILE_STORAGE_BACKEND_PATH: /var/lib/storage
@@ -174,45 +184,36 @@ services:
       supabase-rest:
         condition: service_started
     networks:
-      - chatcart
+      - oshicart
+    restart: unless-stopped
 
-  # ─── Storage Buckets Migration ──────────────────────────
+  # ─── Storage Buckets Migration ──────────────────
   supabase-storage-migrate:
     image: supabase/postgres:15.8.1.060
     entrypoint: ["sh", "-c"]
     command:
       - |
-        echo "Waiting for storage schema and functions..."
+        echo "Waiting for storage prerequisites..."
         sleep 20
-        until PGPASSWORD=$${POSTGRES_PASSWORD} psql -h supabase-db -U postgres -d postgres -c "SELECT 1 FROM pg_namespace WHERE nspname = 'storage'" | grep -q 1; do
-          echo "storage schema not ready, waiting..."
-          sleep 5
-        done
-        echo "storage schema found. Waiting for storage.buckets table..."
-        until PGPASSWORD=$${POSTGRES_PASSWORD} psql -h supabase-db -U postgres -d postgres -c "SELECT 1 FROM information_schema.tables WHERE table_schema = 'storage' AND table_name = 'buckets'" | grep -q 1; do
-          echo "storage.buckets table not ready, waiting..."
-          sleep 5
-        done
-        echo "Waiting for storage functions (foldername)..."
         until PGPASSWORD=$${POSTGRES_PASSWORD} psql -h supabase-db -U postgres -d postgres -c "SELECT 1 FROM pg_proc WHERE proname = 'foldername' AND pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'storage')" | grep -q 1; do
-          echo "storage.foldername not ready, waiting..."
+          echo "storage not ready, waiting..."
           sleep 5
         done
-        echo "All storage prerequisites ready. Running migration..."
+        echo "Running storage migration..."
         PGPASSWORD=$${POSTGRES_PASSWORD} psql -h supabase-db -U postgres -d postgres -f /migrations/002_storage_buckets.sql
         echo "Storage buckets created!"
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chatcart_secret}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./supabase/migrations/002_storage_buckets.sql:/migrations/002_storage_buckets.sql:ro
     depends_on:
       supabase-storage:
         condition: service_started
     networks:
-      - chatcart
+      - oshicart
     restart: "no"
 
-  # ─── Supabase Image Proxy ──────────────────────────────
+  # ─── Supabase Image Proxy ──────────────────────
   supabase-imgproxy:
     image: darthsim/imgproxy:v3.8.0
     environment:
@@ -223,14 +224,12 @@ services:
     volumes:
       - supabase-storage-data:/var/lib/storage
     networks:
-      - chatcart
+      - oshicart
+    restart: unless-stopped
 
-  # ─── Supabase Kong (API Gateway) ───────────────────────
+  # ─── Supabase Kong (API Gateway) ────────────────
   supabase-kong:
     image: kong:2.8.1
-    ports:
-      - "8000:8000"
-      - "8443:8443"
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
@@ -239,7 +238,7 @@ services:
       KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
       KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
     volumes:
-      - ./docker/kong.yml:/var/lib/kong/kong.yml:ro
+      - ./docker/kong.prod.yml:/var/lib/kong/kong.yml:ro
     depends_on:
       supabase-auth:
         condition: service_started
@@ -253,55 +252,15 @@ services:
       timeout: 10s
       retries: 10
     networks:
-      - chatcart
-
-  # ─── Supabase Studio (Dashboard UI) ────────────────────
-  supabase-studio:
-    image: supabase/studio:20241202-71e5240
-    ports:
-      - "3100:3000"
-    environment:
-      STUDIO_PG_META_URL: http://supabase-meta:8080
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chatcart_secret}
-      DEFAULT_ORGANIZATION_NAME: ChatCart NA
-      DEFAULT_PROJECT_NAME: chatcart-na
-      SUPABASE_URL: http://supabase-kong:8000
-      SUPABASE_PUBLIC_URL: http://localhost:8000
-      SUPABASE_ANON_KEY: ${ANON_KEY}
-      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
-      AUTH_JWT_SECRET: ${JWT_SECRET}
-      LOGFLARE_API_KEY: ""
-      LOGFLARE_URL: ""
-      NEXT_PUBLIC_ENABLE_LOGS: "false"
-      NEXT_ANALYTICS_BACKEND_PROVIDER: postgres
-    depends_on:
-      supabase-kong:
-        condition: service_healthy
-    networks:
-      - chatcart
-
-  # ─── Supabase Meta (pg-meta) ───────────────────────────
-  supabase-meta:
-    image: supabase/postgres-meta:v0.84.2
-    ports:
-      - "8085:8080"
-    environment:
-      PG_META_PORT: 8080
-      PG_META_DB_HOST: supabase-db
-      PG_META_DB_PORT: 5432
-      PG_META_DB_NAME: postgres
-      PG_META_DB_USER: supabase_admin
-      PG_META_DB_PASSWORD: ${POSTGRES_PASSWORD:-chatcart_secret}
-    depends_on:
-      supabase-db:
-        condition: service_healthy
-    networks:
-      - chatcart
+      - oshicart
+    restart: unless-stopped
 
 volumes:
+  caddy-data:
+  caddy-config:
   supabase-db-data:
   supabase-storage-data:
 
 networks:
-  chatcart:
+  oshicart:
     driver: bridge

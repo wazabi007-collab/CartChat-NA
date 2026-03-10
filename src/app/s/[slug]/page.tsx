@@ -2,9 +2,10 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { formatPrice, whatsappLink } from "@/lib/utils";
+import { whatsappLink } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { ProductCard } from "@/components/storefront/product-card";
+import { TrackView } from "@/components/storefront/track-view";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: merchant.store_name,
       description: merchant.description || `Shop at ${merchant.store_name}`,
       url: `${SITE_URL}/s/${slug}`,
-      ...(merchant.logo_url && { images: [{ url: merchant.logo_url }] }),
+      images: merchant.logo_url ? [{ url: merchant.logo_url }] : [],
       type: "website",
     },
   };
@@ -99,11 +100,12 @@ export default async function StorefrontPage({ params }: Props) {
 
   const waLink = whatsappLink(
     merchant.whatsapp_number,
-    `Hi ${merchant.store_name}, I'm browsing your store on ChatCart!`
+    `Hi ${merchant.store_name}, I'm browsing your store on OshiCart!`
   );
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <TrackView merchantId={merchant.id} />
       {/* Store Header */}
       <header className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-6">

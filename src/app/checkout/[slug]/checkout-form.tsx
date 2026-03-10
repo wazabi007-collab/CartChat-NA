@@ -54,7 +54,7 @@ export function CheckoutForm({
   // Load cart from localStorage
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(`chatcart-cart-${storeSlug}`);
+      const stored = localStorage.getItem(`oshicart-cart-${storeSlug}`);
       if (stored) {
         const items = JSON.parse(stored) as CartItem[];
         setCartItems(items);
@@ -171,7 +171,7 @@ export function CheckoutForm({
       }
 
       // Clear cart
-      localStorage.removeItem(`chatcart-cart-${storeSlug}`);
+      localStorage.removeItem(`oshicart-cart-${storeSlug}`);
 
       setOrderNumber(order.order_number);
       setStep("success");
@@ -184,7 +184,7 @@ export function CheckoutForm({
 
   // Success state
   if (step === "success") {
-    const waMessage = `Hi ${storeName}, I just placed order #${orderNumber} on ChatCart.\n\nName: ${customerName}\nDelivery: ${deliveryMethod}\nTotal: ${formatPrice(subtotal)}`;
+    const waMessage = `Hi ${storeName}, I just placed order #${orderNumber} on OshiCart.\n\nName: ${customerName}\nDelivery: ${deliveryMethod}\nTotal: ${formatPrice(subtotal)}`;
     const waUrl = whatsappLink(whatsappNumber, waMessage);
 
     return (

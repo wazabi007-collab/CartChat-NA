@@ -4,8 +4,11 @@ import { cookies } from "next/headers";
 export async function createClient() {
   const cookieStore = await cookies();
 
+  const publicUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serverUrl = process.env.SUPABASE_URL || publicUrl;
+
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    publicUrl,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
@@ -21,6 +24,13 @@ export async function createClient() {
             // The `setAll` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing sessions.
           }
+        },
+      },
+      global: {
+        fetch: (input, init) => {
+          const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+          const rewritten = url.replace(publicUrl, serverUrl);
+          return fetch(rewritten, init);
         },
       },
     }

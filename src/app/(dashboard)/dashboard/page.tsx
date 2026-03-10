@@ -63,7 +63,7 @@ export default async function DashboardPage() {
             className="text-green-600 hover:underline"
             target="_blank"
           >
-            chatcartna.com{storeUrl}
+            oshicart.octovianexus.com{storeUrl}
           </Link>
         </p>
       </div>

@@ -152,7 +152,7 @@ export default async function OrdersPage({
                 <a
                   href={whatsappLink(
                     order.customer_whatsapp,
-                    `Hi ${order.customer_name}, regarding your ChatCart order #${order.order_number}...`
+                    `Hi ${order.customer_name}, regarding your OshiCart order #${order.order_number}...`
                   )}
                   target="_blank"
                   rel="noopener noreferrer"

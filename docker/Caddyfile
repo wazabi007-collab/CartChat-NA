@@ -1,0 +1,29 @@
+oshicart.octovianexus.com {
+	# Next.js app — main site
+	handle /* {
+		reverse_proxy app:3000
+	}
+
+	# Supabase API — proxied through /supabase/*
+	handle /supabase/* {
+		uri strip_prefix /supabase
+		reverse_proxy supabase-kong:8000
+	}
+
+	# Security headers
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	# Gzip compression
+	encode gzip
+
+	# Logging
+	log {
+		output stdout
+		format console
+	}
+}

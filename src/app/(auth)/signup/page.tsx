@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignupPage() {
@@ -11,7 +10,6 @@ export default function SignupPage() {
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
   const supabase = createClient();
 
   async function handleSendOTP(e: React.FormEvent) {
@@ -48,18 +46,17 @@ export default function SignupPage() {
 
     if (error) {
       setError(error.message);
+      setLoading(false);
     } else {
-      router.push("/dashboard/setup");
-      router.refresh();
+      window.location.href = "/dashboard/setup";
     }
-    setLoading(false);
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">ChatCart NA</h1>
+          <h1 className="text-2xl font-bold text-gray-900">OshiCart</h1>
           <p className="text-gray-500 mt-1">
             Create your WhatsApp store in 5 minutes
           </p>

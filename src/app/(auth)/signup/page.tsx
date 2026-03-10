@@ -35,6 +35,19 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
+    // Check if account already exists
+    const checkRes = await fetch("/api/check-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const { exists } = await checkRes.json();
+    if (exists) {
+      setError("An account with this email already exists. Please sign in instead.");
+      setLoading(false);
+      return;
+    }
+
     const formattedPhone = whatsapp.startsWith("+") ? whatsapp : `+${whatsapp}`;
 
     const { error } = await supabase.auth.signInWithOtp({
@@ -69,9 +82,16 @@ export default function SignupPage() {
     if (error) {
       setError(error.message);
       setLoading(false);
-    } else {
-      window.location.href = "/dashboard/setup";
+      return;
     }
+
+    // Redirect to setup for new users, dashboard for existing ones
+    const { data: merchant } = await supabase
+      .from("merchants")
+      .select("id")
+      .single();
+
+    window.location.href = merchant ? "/dashboard" : "/dashboard/setup";
   }
 
   return (

@@ -87,9 +87,9 @@ services:
       GOTRUE_SMS_AUTOCONFIRM: "true"
       GOTRUE_MAILER_AUTOCONFIRM: "false"
       GOTRUE_SMTP_HOST: smtp.resend.com
-      GOTRUE_SMTP_PORT: "465"
+      GOTRUE_SMTP_PORT: "587"
       GOTRUE_SMTP_USER: resend
-      GOTRUE_SMTP_PASS: ${RESEND_API_KEY} 
+      GOTRUE_SMTP_PASS: ${RESEND_API_KEY}
       GOTRUE_SMTP_SENDER_NAME: OshiCart
       GOTRUE_SMTP_ADMIN_EMAIL: noreply@octovianexus.com
       GOTRUE_SMS_PROVIDER: "twilio"

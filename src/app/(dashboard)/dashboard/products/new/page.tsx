@@ -383,7 +383,6 @@ export default function NewProductPage() {
                   accept="image/*,image/heic,image/heif"
                   onChange={handleImageSelect}
                   className="sr-only"
-                  multiple
                 />
               </label>
             )}

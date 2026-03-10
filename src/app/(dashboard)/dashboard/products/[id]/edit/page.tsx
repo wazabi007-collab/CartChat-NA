@@ -468,7 +468,6 @@ export default function EditProductPage() {
                   accept="image/*,image/heic,image/heif"
                   onChange={handleImageSelect}
                   className="sr-only"
-                  multiple
                 />
               </label>
             )}

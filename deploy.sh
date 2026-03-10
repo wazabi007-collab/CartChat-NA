@@ -19,3 +19,4 @@ echo "==> Checking app health..."
 docker compose logs app --tail 5
 
 echo "==> Deploy complete!"
+# Auto-deploy configured

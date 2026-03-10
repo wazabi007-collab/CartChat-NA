@@ -465,7 +465,7 @@ export default function EditProductPage() {
                 <span className="text-xs text-gray-400 mt-1">Upload</span>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,image/heic,image/heif"
                   onChange={handleImageSelect}
                   className="hidden"
                   multiple

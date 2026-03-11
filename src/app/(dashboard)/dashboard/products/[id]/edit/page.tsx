@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -31,7 +31,8 @@ export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
   const productId = params.id as string;
-  const supabase = createClient();
+  // useMemo gives a stable reference — prevents loadData from re-running on every keystroke
+  const supabase = useMemo(() => createClient(), []);
 
   const [product, setProduct] = useState<Product | null>(null);
   const [name, setName] = useState("");
@@ -286,6 +287,7 @@ export default function EditProductPage() {
 
       <form
         onSubmit={handleSubmit}
+        data-testid="edit-product-form"
         className="bg-white rounded-lg border p-6 max-w-2xl space-y-6"
       >
         {globalError && (
@@ -358,6 +360,7 @@ export default function EditProductPage() {
           </label>
           <textarea
             id="description"
+            data-testid="product-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
@@ -482,6 +485,7 @@ export default function EditProductPage() {
           <button
             type="submit"
             disabled={loading}
+            data-testid="save-product-btn"
             className={cn(
               "flex items-center gap-2 bg-green-600 text-white px-6 py-2.5 rounded-lg font-medium text-sm transition-colors",
               loading

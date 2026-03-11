@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Package, ShoppingCart, Eye, ArrowRight } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { SITE_URL } from "@/lib/constants";
+import { CopyStoreLink } from "./copy-store-link";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -49,6 +51,7 @@ export default async function DashboardPage() {
   );
 
   const storeUrl = `/s/${merchant.store_slug}`;
+  const storeAbsoluteUrl = `${SITE_URL}/s/${merchant.store_slug}`;
 
   return (
     <div className="md:ml-56">
@@ -56,15 +59,9 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900">
           Welcome, {merchant.store_name}
         </h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <p className="text-gray-500 text-sm mt-1 flex items-center gap-1 flex-wrap">
           Your store:{" "}
-          <Link
-            href={storeUrl}
-            className="text-green-600 hover:underline"
-            target="_blank"
-          >
-            oshicart.octovianexus.com{storeUrl}
-          </Link>
+          <CopyStoreLink url={storeAbsoluteUrl} />
         </p>
       </div>
 

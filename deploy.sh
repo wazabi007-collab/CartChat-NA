@@ -7,16 +7,16 @@ echo "==> Pulling latest changes..."
 git pull origin master
 
 echo "==> Rebuilding app container..."
-docker compose build app --no-cache
+docker compose -f docker-compose.prod.yml build app --no-cache
 
 echo "==> Restarting app..."
-docker compose up -d app
+docker compose -f docker-compose.prod.yml up -d
 
 echo "==> Waiting for app to start..."
 sleep 5
 
 echo "==> Checking app health..."
-docker compose logs app --tail 5
+docker compose -f docker-compose.prod.yml logs app --tail 5
 
 echo "==> Deploy complete!"
 # Auto-deploy configured

@@ -1,40 +1,59 @@
 # Changelog
 
+## 2026-03-11 (Session 3) — P0 Deployed to Production
+
+### P0 Features Deployed & Verified (24/24 E2E passing)
+- Inventory tracking, industry selection, delivery fee, stock badges, low stock alerts, checkout validation
+- Migrations 005, 006, 007 applied to production DB
+- Old 11-arg `place_order` function dropped; 12-arg v2 active
+
+### Deploy Script Fix (deploy.sh)
+- **Root cause**: `deploy.sh` used bare `docker compose` instead of `docker compose -f docker-compose.prod.yml`
+- This caused Kong to load `docker/kong.yml` (dev keys) instead of `docker/kong.prod.yml` (prod keys)
+- Symptom: storefront "Store Not Found" — Kong 401 → Supabase query returned nothing
+- **Fix**: Updated all `docker compose` calls in `deploy.sh` to include `-f docker-compose.prod.yml`
+
+### Migration Apply Method Documented
+- Migration files are NOT volume-mounted in DB container (only 001, 002 are)
+- Apply via stdin: `cat supabase/migrations/XXX.sql | docker compose -f docker-compose.prod.yml exec -T supabase-db psql -U postgres -d postgres`
+
+---
+
 ## 2026-03-11 (Session 2) — P0 Feature Sprint
 
-### Inventory Tracking System (BUILT — pending deploy)
+### Inventory Tracking System (BUILT & DEPLOYED)
 - Added `track_inventory`, `stock_quantity`, `low_stock_threshold`, `allow_backorder` to products
 - `place_order()` v2: FOR UPDATE row locks + stock deduction per item
 - `restock_on_cancel()` trigger: auto-restocks when order cancelled
 - `stock_adjustments` audit table tracks every stock change with reason
 - **Files**: migrations 005, 006, 007
 
-### Industry Selection at Signup (BUILT — pending deploy)
+### Industry Selection at Signup (BUILT & DEPLOYED)
 - 28 Namibia-relevant industries (grocery, butchery, salon, takeaway, etc.)
 - Dropdown added to store setup Step 1
 - Stored as `industry` column on merchants
 - **Files**: `src/lib/constants.ts`, `src/app/(dashboard)/dashboard/setup/page.tsx`
 
-### Flat-Rate Delivery Fee (BUILT — pending deploy)
+### Flat-Rate Delivery Fee (BUILT & DEPLOYED)
 - Merchant sets delivery fee in Settings (NAD)
 - Fee displayed at checkout when customer selects delivery
 - Fee snapshot stored on order record
 - WhatsApp message includes fee + total
 - **Files**: `settings/page.tsx`, `checkout-form.tsx`, `checkout/page.tsx`
 
-### Storefront Stock Display (BUILT — pending deploy)
+### Storefront Stock Display (BUILT & DEPLOYED)
 - Product cards show "Out of Stock" (red) / "Only X left!" (orange) badges
 - Out-of-stock products have disabled Add to Cart button
 - Product detail page shows stock status badge
 - **Files**: `product-card.tsx`, storefront pages
 
-### Dashboard Low Stock Alerts (BUILT — pending deploy)
+### Dashboard Low Stock Alerts (BUILT & DEPLOYED)
 - Dashboard home shows orange alert card when products are low/out of stock
 - Lists top 5 lowest-stock products with current quantity
 - Link to products page to update stock
 - **File**: `src/app/(dashboard)/dashboard/page.tsx`
 
-### Product Form Inventory Controls (BUILT — pending deploy)
+### Product Form Inventory Controls (BUILT & DEPLOYED)
 - Track Inventory toggle on new/edit product forms
 - When enabled: stock quantity, low stock threshold, allow backorder fields
 - **Files**: `products/new/page.tsx`, `products/[id]/edit/page.tsx`

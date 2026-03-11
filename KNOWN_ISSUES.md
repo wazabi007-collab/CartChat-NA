@@ -1,6 +1,24 @@
 # Known Issues
 
-All issues from 2026-03-11 session have been resolved and deployed.
+All P0 features deployed. 24/24 E2E tests passing on production.
+
+## Deployment Warnings
+
+### CRITICAL: Always verify env vars after deploy
+- After every deploy, check that Kong keys match the app's anon key
+- `docker exec oshicart-supabase-kong-1 cat /var/lib/kong/kong.yml | head -7`
+- `docker compose -f docker-compose.prod.yml exec -T app env | grep SUPABASE`
+- If keys don't match: Kong returns 401, Supabase queries silently fail, storefronts show "Store Not Found"
+- Root cause discovered in Session 3: `deploy.sh` was using wrong compose file, loading dev Kong config with different JWT keys
+
+### CRITICAL: Always use `-f docker-compose.prod.yml`
+- Bare `docker compose` uses the default `docker-compose.yml` (dev config)
+- Dev config has different Kong keys, different Dockerfile, different env vars
+- `deploy.sh` has been fixed but always double-check
+
+### Migration files not volume-mounted
+- Only migrations 001 and 002 are volume-mounted into the DB container
+- Apply new migrations via stdin: `cat supabase/migrations/XXX.sql | docker compose -f docker-compose.prod.yml exec -T supabase-db psql -U postgres -d postgres`
 
 ## Resolved
 
@@ -19,19 +37,14 @@ All issues from 2026-03-11 session have been resolved and deployed.
 ### BUG-005: OTP code expiry too short — FIXED & DEPLOYED
 - Set to 5 minutes via GOTRUE_MAILER_OTP_EXP and GOTRUE_SMS_OTP_EXP
 
-## P0 Features — Built, Pending Deploy
+### BUG-006: deploy.sh wrong compose file — FIXED
+- Was using bare `docker compose` → loaded dev Kong config with wrong keys
+- Fixed to use `docker compose -f docker-compose.prod.yml` everywhere
 
-### GAP-001: Inventory/stock tracking — BUILT (commit `66dfbb6`)
-- Migrations 005-007 ready, frontend complete
-- Needs: deploy to server + apply migrations
-
-### GAP-002: Industry selection at signup — BUILT (commit `66dfbb6`)
-- 28 Namibia industries in dropdown
-- Needs: deploy to server + apply migration 005
-
-### GAP-003: Delivery fee — BUILT (commit `66dfbb6`)
-- Flat rate in settings, shown at checkout
-- Needs: deploy to server + apply migration 005
+### P0 Features — All Deployed
+- GAP-001: Inventory/stock tracking
+- GAP-002: Industry selection at signup
+- GAP-003: Delivery fee
 
 ## Open Feature Gaps (P1 — 30-day backlog)
 
@@ -54,6 +67,3 @@ All issues from 2026-03-11 session have been resolved and deployed.
 ### GAP-008: No payment gateway
 - Only manual EFT; no card/mobile money
 - PayToday/PayFast for Namibia
-
-## Previous Bugs — All Resolved
-24/24 E2E tests passing. All stores visible, images loading, checkout working, auth working.

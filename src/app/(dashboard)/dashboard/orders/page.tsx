@@ -98,6 +98,11 @@ export default async function OrdersPage({
                     >
                       {order.status}
                     </span>
+                    {order.payment_method && order.payment_method !== "eft" && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                        {order.payment_method === "cod" ? "COD" : order.payment_method === "momo" ? "MoMo" : order.payment_method === "ewallet" ? "eWallet" : "EFT"}
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm text-gray-600 mt-1">
                     {order.customer_name}
@@ -112,9 +117,18 @@ export default async function OrdersPage({
                     })}
                   </p>
                 </div>
-                <p className="font-bold text-gray-900">
-                  {formatPrice(order.subtotal_nad)}
-                </p>
+                <div className="text-right">
+                  <p className="font-bold text-gray-900">
+                    {formatPrice(order.subtotal_nad - (order.discount_nad || 0) + (order.delivery_fee_nad || 0))}
+                  </p>
+                  {(order.discount_nad > 0 || order.delivery_fee_nad > 0) && (
+                    <p className="text-xs text-gray-400">
+                      {order.discount_nad > 0 ? `-${formatPrice(order.discount_nad)} disc` : ""}
+                      {order.discount_nad > 0 && order.delivery_fee_nad > 0 ? " · " : ""}
+                      {order.delivery_fee_nad > 0 ? `+${formatPrice(order.delivery_fee_nad)} delivery` : ""}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center gap-2 text-sm flex-wrap">

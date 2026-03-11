@@ -1,36 +1,62 @@
 # Session State — Active Working Memory
 
-## 2026-03-11 — P0 Deployed & Verified
+## 2026-03-11 — P1 Features In Progress
 
 ### Sync Status
 | Location | Commit | Status |
 |----------|--------|--------|
-| Local | `cc4c96f` + deploy.sh fix | P0 code + deploy fix |
-| GitHub | `cc4c96f` | Pushed (deploy.sh fix not yet pushed) |
-| Server | `cc4c96f` | Deployed, migrations applied, 24/24 tests passing |
+| Local | `c79f2e7` + P1 WIP | P1 code in progress (not committed) |
+| GitHub | `c79f2e7` | P0 + deploy fix pushed |
+| Server | `c79f2e7` | P0 deployed, 24/24 tests passing |
 
 ### P0 Features (All Deployed)
+All P0 features deployed and verified. See CHANGELOG.md for details.
 
-| Feature | Status |
-|---------|--------|
-| Inventory tracking (stock qty, deduct, restock) | Deployed |
-| Industry selection at signup (28 Namibia categories) | Deployed |
-| Flat-rate delivery fee | Deployed |
-| Storefront stock badges | Deployed |
-| Dashboard low stock alerts | Deployed |
-| Checkout stock validation + error handling | Deployed |
+### P1 Features In Progress
 
-### Migrations Applied on Server
-- `005_inventory_and_industry.sql` — inventory columns, industry, delivery fee, stock_adjustments table
-- `006_place_order_v2.sql` — place_order with stock deduction + FOR UPDATE locks (old 11-arg version dropped)
-- `007_cancel_restock_trigger.sql` — auto-restock on order cancel
+| Feature | Files Created/Modified | Status |
+|---------|----------------------|--------|
+| Multiple payment methods (COD, MoMo, eWallet) | migration 008, settings, checkout-form, checkout page, orders page | Code ~90% complete |
+| Discount/coupon codes | migration 009, coupons page (CRUD), checkout-form, nav | Code ~90% complete |
+| place_order v3 RPC | migration 010 (payment_method + coupon validation) | Code complete |
+| Invoice updates (discount + delivery fee + payment method) | invoice page | ~70% — select updated, tfoot NOT yet updated |
 
-### Deploy Issue Found & Fixed
-- `deploy.sh` was using bare `docker compose` (picks up default `docker-compose.yml`)
-- This caused Kong to load `docker/kong.yml` with **wrong JWT keys** instead of `docker/kong.prod.yml`
-- Symptom: storefront showed "Store Not Found" (401 from Kong → Supabase returned nothing)
-- **Fix**: Updated `deploy.sh` to use `docker compose -f docker-compose.prod.yml` everywhere
-- **Lesson**: After every deploy, verify Kong keys match app env vars
+### What's Done
+- **Migration 008** (`008_payment_methods.sql`) — payment_method enum, merchant payment config columns, orders.payment_method
+- **Migration 009** (`009_coupons.sql`) — coupons table, RLS, orders.coupon_id + discount_nad
+- **Migration 010** (`010_place_order_v3.sql`) — v3 RPC with coupon validation + payment_method (drops old v2)
+- **Types** (`database.ts`) — added PaymentMethod, DiscountType, EwalletProvider
+- **Constants** (`constants.ts`) — PAYMENT_METHODS, EWALLET_PROVIDERS arrays
+- **Settings page** — payment methods checkboxes, MoMo number, eWallet provider/number fields
+- **Checkout form** — full rewrite: payment method selector, coupon code input/apply, payment instruction panels per method, updated RPC call, WhatsApp message with payment + discount info
+- **Checkout page** — passes new merchant payment props to CheckoutForm
+- **Coupons dashboard** (`/dashboard/coupons`) — full CRUD page (create, edit, delete, list)
+- **Nav** — added Coupons link with Ticket icon
+- **Orders page** — shows payment method badge, total with discount/delivery breakdown
+
+### What's Remaining
+- **Invoice page tfoot** — needs discount/delivery fee/total calculation in tfoot (edit was interrupted)
+- **Invoice payment details section** — should show payment method-specific info (COD note, MoMo, eWallet)
+- **Invoice amount reference** — currently shows subtotal, should show total (subtotal - discount + delivery)
+- Test the build locally
+- Deploy to server (apply migrations 008-010, rebuild)
+- Run E2E tests
+
+### Key Architecture Decisions (P1)
+- `payment_method` is a PostgreSQL enum: eft, cod, momo, ewallet
+- `accepted_payment_methods` on merchants is text[] (not enum array) for simpler Supabase client handling
+- Coupons validated server-side in place_order RPC (FOR UPDATE lock prevents race condition)
+- Client sends coupon code, server calculates discount (never trusts client discount amount)
+- Coupon codes stored uppercase, input auto-uppercased
+- MoMo/eWallet: manual proof-of-payment workflow (no API integration — none available in Namibia)
+- COD: no proof upload needed
+- Bank of Namibia Instant Payment System expected Q3 2026 — may enable unified wallet API later
+
+### Research Findings (MoMo + eWallet)
+- MTC MoMo: NO public API in Namibia (unlike other MTN markets)
+- Bank eWallets: FNB eWallet, PayPulse (Standard Bank), EasyWallet (Bank Windhoek), PayToday (Nedbank) — no public e-commerce APIs
+- Best aggregator: mPay Namibia (mpay-namibia.com) has REST API — medium-term integration option
+- V1 approach: manual payment + proof screenshot (same as existing EFT flow)
 
 ### Deploy Checklist (for future deploys)
 1. `ssh root@187.124.15.31 && cd /opt/oshicart`
@@ -55,7 +81,3 @@ TEST_STORE_SLUG=playwright-test-store
 - Migration files are NOT volume-mounted in the DB container (only 001 and 002 are)
 - Apply new migrations via: `cat supabase/migrations/XXX.sql | docker compose -f docker-compose.prod.yml exec -T supabase-db psql -U postgres -d postgres`
 - Do NOT use `-f /migrations/XXX.sql` inside the container — file won't exist
-
-### Pending
-- Push `deploy.sh` fix to GitHub
-- P1 features: discount codes, COD, customer list, variants, payment gateway

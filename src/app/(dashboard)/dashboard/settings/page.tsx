@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { BANKS_NAMIBIA } from "@/lib/constants";
+import { BANKS_NAMIBIA, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { Save, Plus, X } from "lucide-react";
 
@@ -34,6 +34,10 @@ export default function SettingsPage() {
     bank_account_holder: "",
     bank_branch_code: "",
     delivery_fee_display: "0",
+    accepted_payment_methods: ["eft"] as string[],
+    momo_number: "",
+    ewallet_number: "",
+    ewallet_provider: "",
   });
 
   const [deliverySlots, setDeliverySlots] = useState<DeliverySlots>({
@@ -66,6 +70,10 @@ export default function SettingsPage() {
           bank_account_holder: merchant.bank_account_holder || "",
           bank_branch_code: merchant.bank_branch_code || "",
           delivery_fee_display: merchant.delivery_fee_nad ? (merchant.delivery_fee_nad / 100).toFixed(2) : "0",
+          accepted_payment_methods: merchant.accepted_payment_methods || ["eft"],
+          momo_number: merchant.momo_number || "",
+          ewallet_number: merchant.ewallet_number || "",
+          ewallet_provider: merchant.ewallet_provider || "",
         });
         if (merchant.delivery_slots) {
           setDeliverySlots(merchant.delivery_slots as DeliverySlots);
@@ -103,6 +111,10 @@ export default function SettingsPage() {
         bank_branch_code: form.bank_branch_code || null,
         delivery_slots: deliverySlots.enabled ? deliverySlots : null,
         delivery_fee_nad: deliveryFeeCents,
+        accepted_payment_methods: form.accepted_payment_methods,
+        momo_number: form.momo_number || null,
+        ewallet_number: form.ewallet_number || null,
+        ewallet_provider: form.ewallet_provider || null,
       })
       .eq("id", merchantId);
 
@@ -265,6 +277,91 @@ export default function SettingsPage() {
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
+        </div>
+
+        {/* Payment Methods */}
+        <div className="bg-white rounded-lg border p-6 space-y-4">
+          <h2 className="font-medium text-gray-900">Payment Methods</h2>
+          <p className="text-xs text-gray-400">
+            Choose which payment methods customers can use at checkout
+          </p>
+          <div className="space-y-3">
+            {PAYMENT_METHODS.map((method) => (
+              <label key={method.value} className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.accepted_payment_methods.includes(method.value)}
+                  onChange={(e) => {
+                    setForm((p) => ({
+                      ...p,
+                      accepted_payment_methods: e.target.checked
+                        ? [...p.accepted_payment_methods, method.value]
+                        : p.accepted_payment_methods.filter((m) => m !== method.value),
+                    }));
+                  }}
+                  className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                />
+                <span className="text-sm text-gray-700">
+                  {method.icon} {method.label}
+                </span>
+              </label>
+            ))}
+          </div>
+
+          {form.accepted_payment_methods.includes("momo") && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                MoMo Number
+              </label>
+              <input
+                type="tel"
+                value={form.momo_number}
+                onChange={(e) => setForm((p) => ({ ...p, momo_number: e.target.value }))}
+                placeholder="+264 81 123 4567"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Customers will send MTC Money/Maris payment to this number
+              </p>
+            </div>
+          )}
+
+          {form.accepted_payment_methods.includes("ewallet") && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  eWallet Provider
+                </label>
+                <select
+                  value={form.ewallet_provider}
+                  onChange={(e) => setForm((p) => ({ ...p, ewallet_provider: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">Select provider...</option>
+                  {EWALLET_PROVIDERS.map((provider) => (
+                    <option key={provider.value} value={provider.value}>
+                      {provider.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  eWallet Number
+                </label>
+                <input
+                  type="tel"
+                  value={form.ewallet_number}
+                  onChange={(e) => setForm((p) => ({ ...p, ewallet_number: e.target.value }))}
+                  placeholder="+264 81 123 4567"
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Customers will send eWallet payment to this number
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Delivery Fee */}

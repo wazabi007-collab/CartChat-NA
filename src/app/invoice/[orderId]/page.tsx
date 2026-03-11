@@ -31,11 +31,12 @@ export default async function InvoicePage({ params }: Props) {
     .select(`
       id, order_number, customer_name, customer_whatsapp,
       delivery_method, delivery_address, delivery_date, delivery_time,
-      subtotal_nad, status, notes, created_at,
+      subtotal_nad, delivery_fee_nad, discount_nad, payment_method, status, notes, created_at,
       merchants (
         store_name, whatsapp_number, tier,
         bank_name, bank_account_number, bank_account_holder, bank_branch_code
-      )
+      ),
+      coupons (code)
     `)
     .eq("id", orderId)
     .single();

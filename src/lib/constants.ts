@@ -18,6 +18,20 @@ export const BANKS_NAMIBIA = [
   "Other",
 ] as const;
 
+export const PAYMENT_METHODS = [
+  { value: "eft", label: "Bank Transfer (EFT)", icon: "🏦" },
+  { value: "cod", label: "Cash on Delivery", icon: "💵" },
+  { value: "momo", label: "MTC MoMo / Maris", icon: "📱" },
+  { value: "ewallet", label: "eWallet", icon: "📲" },
+] as const;
+
+export const EWALLET_PROVIDERS = [
+  { value: "fnb_ewallet", label: "FNB eWallet" },
+  { value: "paypulse", label: "PayPulse (Standard Bank)" },
+  { value: "easywallet", label: "EasyWallet (Bank Windhoek)" },
+  { value: "paytoday", label: "PayToday (Nedbank)" },
+] as const;
+
 export const INDUSTRIES_NAMIBIA = [
   { value: "grocery", label: "Grocery & Supermarket" },
   { value: "butchery", label: "Butchery & Meat" },

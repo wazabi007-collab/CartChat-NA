@@ -9,6 +9,9 @@ export type Json =
 export type MerchantTier = "free" | "pro" | "business";
 export type OrderStatus = "pending" | "confirmed" | "completed" | "cancelled";
 export type DeliveryMethod = "pickup" | "delivery";
+export type PaymentMethod = "eft" | "cod" | "momo" | "ewallet";
+export type DiscountType = "percentage" | "fixed";
+export type EwalletProvider = "fnb_ewallet" | "paypulse" | "easywallet" | "paytoday";
 
 export interface Database {
   public: {

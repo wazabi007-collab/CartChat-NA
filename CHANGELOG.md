@@ -1,5 +1,46 @@
 # Changelog
 
+## 2026-03-11 (Session 4) — P1 Payment Methods + Coupons (WIP)
+
+### Multiple Payment Methods (IN PROGRESS)
+- Added `payment_method` enum: `eft`, `cod`, `momo`, `ewallet`
+- Merchant settings: checkboxes for accepted methods, MoMo number, eWallet provider/number
+- Checkout: payment method selector with instruction panels per method
+  - **EFT**: bank details + proof upload (existing)
+  - **COD**: cash on delivery note, no proof needed
+  - **MoMo**: merchant's MoMo number + proof upload
+  - **eWallet**: FNB eWallet / PayPulse / EasyWallet / PayToday + proof upload
+- Orders page: payment method badge, total with discount/delivery breakdown
+- **Files**: migration 008, settings page, checkout-form, checkout page, orders page
+
+### Discount/Coupon Codes (IN PROGRESS)
+- New `coupons` table with RLS, indexes, grants
+- Coupon types: fixed amount (NAD cents) or percentage
+- Validation: expiry, start date, max uses, min order amount
+- Server-side coupon validation in place_order RPC (FOR UPDATE lock for concurrency)
+- New `/dashboard/coupons` CRUD page (create, edit, delete, list with status badges)
+- Checkout: coupon code input, apply/remove, discount in order summary
+- WhatsApp message includes discount + payment method info
+- **Files**: migration 009, coupons page, checkout-form, nav
+
+### place_order v3 RPC (IN PROGRESS)
+- Adds `p_payment_method`, `p_coupon_code`, `p_discount_nad` parameters
+- Server calculates discount (never trusts client), validates coupon, increments usage
+- Drops old v2 function
+- **File**: migration 010
+
+### Invoice Updates (IN PROGRESS)
+- SELECT updated to include delivery_fee_nad, discount_nad, payment_method, coupons(code)
+- Tfoot and payment details section still need updating
+
+### Research: Namibia Mobile Money & eWallet Landscape
+- MTC MoMo: no public API in Namibia; manual proof-of-payment workflow for V1
+- Bank eWallets: FNB eWallet, PayPulse, EasyWallet, PayToday — no e-commerce APIs
+- mPay Namibia (mpay-namibia.com) has REST API — potential medium-term integration
+- Bank of Namibia Instant Payment System expected Q3 2026
+
+---
+
 ## 2026-03-11 (Session 3) — P0 Deployed to Production
 
 ### P0 Features Deployed & Verified (24/24 E2E passing)

@@ -35,7 +35,7 @@ export default async function CheckoutPage({ params }: Props) {
   const { data: merchant } = await supabase
     .from("merchants")
     .select(
-      "id, store_name, tier, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad"
+      "id, store_name, tier, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider"
     )
     .eq("store_slug", slug)
     .eq("is_active", true)
@@ -104,6 +104,10 @@ export default async function CheckoutPage({ params }: Props) {
           bankBranchCode={merchant.bank_branch_code}
           deliverySlots={merchant.delivery_slots as { enabled: boolean; days: number[]; times: string[] } | null}
           deliveryFeeNad={merchant.delivery_fee_nad ?? 0}
+          acceptedPaymentMethods={merchant.accepted_payment_methods ?? ["eft"]}
+          momoNumber={merchant.momo_number ?? null}
+          ewalletNumber={merchant.ewallet_number ?? null}
+          ewalletProvider={merchant.ewallet_provider ?? null}
         />
       </main>
 

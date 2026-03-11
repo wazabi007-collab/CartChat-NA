@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -9,12 +9,14 @@ import {
   MessageCircle,
   Loader2,
   AlertCircle,
+  Tag,
+  X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice, whatsappLink } from "@/lib/utils";
-import { MAX_IMAGE_SIZE } from "@/lib/constants";
+import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
 import type { CartItem } from "@/components/storefront/cart-provider";
-import type { DeliveryMethod } from "@/types/database";
+import type { DeliveryMethod, PaymentMethod } from "@/types/database";
 
 interface DeliverySlots {
   enabled: boolean;
@@ -34,6 +36,16 @@ interface Props {
   bankBranchCode: string | null;
   deliverySlots: DeliverySlots | null;
   deliveryFeeNad: number;
+  acceptedPaymentMethods: string[];
+  momoNumber: string | null;
+  ewalletNumber: string | null;
+  ewalletProvider: string | null;
+}
+
+interface CouponApplied {
+  code: string;
+  discount_type: "percentage" | "fixed";
+  discount_value: number;
 }
 
 function getAvailableDates(days: number[]): { label: string; value: string }[] {
@@ -52,6 +64,21 @@ function getAvailableDates(days: number[]): { label: string; value: string }[] {
   return result;
 }
 
+function calculateDiscount(coupon: CouponApplied, subtotal: number): number {
+  if (coupon.discount_type === "percentage") {
+    return Math.min(subtotal, Math.floor((subtotal * coupon.discount_value) / 100));
+  }
+  return Math.min(subtotal, coupon.discount_value);
+}
+
+function getPaymentLabel(method: string): string {
+  return PAYMENT_METHODS.find((m) => m.value === method)?.label ?? method;
+}
+
+function getEwalletLabel(provider: string | null): string {
+  return EWALLET_PROVIDERS.find((p) => p.value === provider)?.label ?? "eWallet";
+}
+
 type CheckoutStep = "form" | "success";
 
 export function CheckoutForm({
@@ -66,6 +93,10 @@ export function CheckoutForm({
   bankBranchCode,
   deliverySlots,
   deliveryFeeNad,
+  acceptedPaymentMethods,
+  momoNumber,
+  ewalletNumber,
+  ewalletProvider,
 }: Props) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState("");
@@ -81,6 +112,19 @@ export function CheckoutForm({
   const [step, setStep] = useState<CheckoutStep>("form");
   const [orderId, setOrderId] = useState<string | null>(null);
   const [orderNumber, setOrderNumber] = useState<number | null>(null);
+
+  // Payment method
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    (acceptedPaymentMethods[0] as PaymentMethod) || "eft"
+  );
+
+  // Coupon
+  const [couponCode, setCouponCode] = useState("");
+  const [couponApplied, setCouponApplied] = useState<CouponApplied | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+
+  const supabase = useMemo(() => createClient(), []);
 
   // Load cart from localStorage
   useEffect(() => {
@@ -100,10 +144,12 @@ export function CheckoutForm({
     0
   );
 
+  const discount = couponApplied ? calculateDiscount(couponApplied, subtotal) : 0;
   const deliveryFee = deliveryMethod === "delivery" ? deliveryFeeNad : 0;
-  const total = subtotal + deliveryFee;
+  const total = subtotal - discount + deliveryFee;
 
   const hasBankDetails = bankName && bankAccountNumber;
+  const needsProof = paymentMethod !== "cod";
 
   const handleProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -114,6 +160,64 @@ export function CheckoutForm({
     }
     setError(null);
     setProofFile(file);
+  };
+
+  const handleApplyCoupon = async () => {
+    const code = couponCode.trim().toUpperCase();
+    if (!code) return;
+
+    setApplyingCoupon(true);
+    setCouponError(null);
+
+    const { data, error: fetchError } = await supabase
+      .from("coupons")
+      .select("code, discount_type, discount_value, min_order_nad, max_uses, current_uses, starts_at, expires_at")
+      .eq("merchant_id", merchantId)
+      .eq("code", code)
+      .eq("is_active", true)
+      .single();
+
+    if (fetchError || !data) {
+      setCouponError("Invalid coupon code");
+      setApplyingCoupon(false);
+      return;
+    }
+
+    // Client-side validations (server re-validates in RPC)
+    const now = new Date();
+    if (data.expires_at && new Date(data.expires_at) < now) {
+      setCouponError("This coupon has expired");
+      setApplyingCoupon(false);
+      return;
+    }
+    if (data.starts_at && new Date(data.starts_at) > now) {
+      setCouponError("This coupon is not yet active");
+      setApplyingCoupon(false);
+      return;
+    }
+    if (data.max_uses !== null && data.current_uses >= data.max_uses) {
+      setCouponError("This coupon has reached its usage limit");
+      setApplyingCoupon(false);
+      return;
+    }
+    if (data.min_order_nad && subtotal < data.min_order_nad) {
+      setCouponError(`Minimum order of ${formatPrice(data.min_order_nad)} required`);
+      setApplyingCoupon(false);
+      return;
+    }
+
+    setCouponApplied({
+      code: data.code,
+      discount_type: data.discount_type as "percentage" | "fixed",
+      discount_value: data.discount_value,
+    });
+    setApplyingCoupon(false);
+  };
+
+  const handleRemoveCoupon = () => {
+    setCouponApplied(null);
+    setCouponCode("");
+    setCouponError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -148,8 +252,6 @@ export function CheckoutForm({
     setSubmitting(true);
 
     try {
-      const supabase = createClient();
-
       // Upload proof of payment if provided
       let proofUrl: string | null = null;
       if (proofFile) {
@@ -173,7 +275,7 @@ export function CheckoutForm({
         proofUrl = urlData.publicUrl;
       }
 
-      // Create order via RPC (bypasses anon RETURNING RLS restriction)
+      // Create order via RPC
       const { data: orderData, error: orderError } = await supabase.rpc(
         "place_order",
         {
@@ -195,14 +297,19 @@ export function CheckoutForm({
             quantity: item.quantity,
           })),
           p_delivery_fee: deliveryFee,
+          p_payment_method: paymentMethod,
+          p_coupon_code: couponApplied?.code || null,
+          p_discount_nad: 0, // server calculates
         }
       );
 
       if (orderError) {
-        // Surface stock errors clearly to customer
         const msg = orderError.message || "";
         if (msg.includes("Insufficient stock")) {
           throw new Error(msg.replace(/^.*Insufficient stock/, "Insufficient stock"));
+        }
+        if (msg.includes("coupon") || msg.includes("Coupon")) {
+          throw new Error(msg.replace(/^.*?(Invalid|Coupon)/, "$1"));
         }
         throw new Error("Failed to create order. Please try again.");
       }
@@ -244,8 +351,10 @@ export function CheckoutForm({
       itemLines,
       ``,
       `*Subtotal:* ${formatPrice(subtotal)}`,
+      ...(discount > 0 ? [`*Discount:* -${formatPrice(discount)}${couponApplied ? ` (${couponApplied.code})` : ""}`] : []),
       ...(deliveryFee > 0 ? [`*Delivery Fee:* ${formatPrice(deliveryFee)}`] : []),
       `*Total:* ${formatPrice(total)}`,
+      `*Payment:* ${getPaymentLabel(paymentMethod)}`,
       `*Delivery:* ${
         deliveryMethod === "delivery"
           ? `Delivery to: ${deliveryAddress}`
@@ -268,7 +377,9 @@ export function CheckoutForm({
           <span className="font-bold text-gray-900">#{orderNumber}</span>
         </p>
         <p className="text-sm text-gray-500 mt-1">
-          Please contact the merchant on WhatsApp to confirm your order.
+          {paymentMethod === "cod"
+            ? "Please have cash ready for payment on delivery/pickup."
+            : "Please contact the merchant on WhatsApp to confirm your order."}
         </p>
 
         <div className="mt-6 space-y-3">
@@ -330,6 +441,14 @@ export function CheckoutForm({
                 <span className="text-gray-600">Subtotal</span>
                 <span className="text-gray-900">{formatPrice(subtotal)}</span>
               </div>
+              {discount > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-green-600">
+                    Discount {couponApplied ? `(${couponApplied.code})` : ""}
+                  </span>
+                  <span className="text-green-600">-{formatPrice(discount)}</span>
+                </div>
+              )}
               {deliveryFee > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Delivery Fee</span>
@@ -342,6 +461,56 @@ export function CheckoutForm({
               </div>
             </div>
           </>
+        )}
+      </div>
+
+      {/* Coupon Code */}
+      <div className="bg-white rounded-lg border p-4 space-y-3">
+        <h2 className="font-bold text-gray-900 flex items-center gap-2">
+          <Tag className="w-4 h-4" />
+          Discount Code
+        </h2>
+        {couponApplied ? (
+          <div className="flex items-center justify-between bg-green-50 rounded-md px-3 py-2">
+            <span className="text-sm text-green-700 font-medium">
+              {couponApplied.code} applied —{" "}
+              {couponApplied.discount_type === "percentage"
+                ? `${couponApplied.discount_value}% off`
+                : `${formatPrice(couponApplied.discount_value)} off`}
+            </span>
+            <button
+              type="button"
+              onClick={handleRemoveCoupon}
+              className="text-green-600 hover:text-red-500"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={couponCode}
+              onChange={(e) => {
+                setCouponCode(e.target.value.toUpperCase());
+                setCouponError(null);
+              }}
+              placeholder="Enter code"
+              maxLength={20}
+              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent uppercase"
+            />
+            <button
+              type="button"
+              onClick={handleApplyCoupon}
+              disabled={applyingCoupon || !couponCode.trim()}
+              className="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 disabled:opacity-50"
+            >
+              {applyingCoupon ? "..." : "Apply"}
+            </button>
+          </div>
+        )}
+        {couponError && (
+          <p className="text-sm text-red-600">{couponError}</p>
         )}
       </div>
 
@@ -517,46 +686,122 @@ export function CheckoutForm({
         </div>
       </div>
 
-      {/* Bank Details & Proof of Payment */}
-      {hasBankDetails && (
-        <div className="bg-white rounded-lg border p-4 space-y-4">
-          <h2 className="font-bold text-gray-900">Payment via EFT</h2>
+      {/* Payment Method */}
+      <div className="bg-white rounded-lg border p-4 space-y-4">
+        <h2 className="font-bold text-gray-900">Payment Method</h2>
+
+        <div className="grid grid-cols-2 gap-2">
+          {acceptedPaymentMethods.map((method) => {
+            const info = PAYMENT_METHODS.find((m) => m.value === method);
+            if (!info) return null;
+            return (
+              <label
+                key={method}
+                className={`border rounded-md p-3 cursor-pointer text-center transition-colors ${
+                  paymentMethod === method
+                    ? "border-green-600 bg-green-50 text-green-700"
+                    : "border-gray-300 text-gray-600 hover:border-gray-400"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value={method}
+                  checked={paymentMethod === method}
+                  onChange={() => setPaymentMethod(method as PaymentMethod)}
+                  className="sr-only"
+                />
+                <div className="text-lg">{info.icon}</div>
+                <span className="font-medium text-xs block mt-1">{info.label}</span>
+              </label>
+            );
+          })}
+        </div>
+
+        {/* Payment Instructions */}
+        {paymentMethod === "eft" && hasBankDetails && (
           <div className="bg-gray-50 rounded-md p-3 text-sm space-y-1">
+            <p className="font-medium text-gray-900 mb-2">Bank Transfer Details</p>
             <p>
               <span className="text-gray-500">Bank:</span>{" "}
               <span className="font-medium text-gray-900">{bankName}</span>
             </p>
             <p>
               <span className="text-gray-500">Account Holder:</span>{" "}
-              <span className="font-medium text-gray-900">
-                {bankAccountHolder}
-              </span>
+              <span className="font-medium text-gray-900">{bankAccountHolder}</span>
             </p>
             <p>
               <span className="text-gray-500">Account Number:</span>{" "}
-              <span className="font-medium text-gray-900">
-                {bankAccountNumber}
-              </span>
+              <span className="font-medium text-gray-900">{bankAccountNumber}</span>
             </p>
             {bankBranchCode && (
               <p>
                 <span className="text-gray-500">Branch Code:</span>{" "}
-                <span className="font-medium text-gray-900">
-                  {bankBranchCode}
-                </span>
+                <span className="font-medium text-gray-900">{bankBranchCode}</span>
               </p>
             )}
             <p className="mt-2 text-gray-500">
               Amount: <span className="font-bold text-green-600">{formatPrice(total)}</span>
             </p>
           </div>
+        )}
 
+        {paymentMethod === "cod" && (
+          <div className="bg-amber-50 rounded-md p-3 text-sm text-amber-800">
+            <p className="font-medium">Cash on Delivery</p>
+            <p className="mt-1">
+              Pay <span className="font-bold">{formatPrice(total)}</span> in cash when your order is{" "}
+              {deliveryMethod === "delivery" ? "delivered" : "picked up"}.
+            </p>
+          </div>
+        )}
+
+        {paymentMethod === "momo" && (
+          <div className="bg-blue-50 rounded-md p-3 text-sm text-blue-800 space-y-1">
+            <p className="font-medium">MTC MoMo / Maris Payment</p>
+            {momoNumber ? (
+              <>
+                <p>
+                  Send <span className="font-bold">{formatPrice(total)}</span> to:
+                </p>
+                <p className="font-bold text-lg">{momoNumber}</p>
+                <p className="text-xs mt-1">
+                  Use MTC Money (*133#) or MTC Maris app. Upload proof below.
+                </p>
+              </>
+            ) : (
+              <p>Contact the merchant for their MoMo number.</p>
+            )}
+          </div>
+        )}
+
+        {paymentMethod === "ewallet" && (
+          <div className="bg-purple-50 rounded-md p-3 text-sm text-purple-800 space-y-1">
+            <p className="font-medium">{getEwalletLabel(ewalletProvider)} Payment</p>
+            {ewalletNumber ? (
+              <>
+                <p>
+                  Send <span className="font-bold">{formatPrice(total)}</span> to:
+                </p>
+                <p className="font-bold text-lg">{ewalletNumber}</p>
+                <p className="text-xs mt-1">
+                  Upload proof of payment below after sending.
+                </p>
+              </>
+            ) : (
+              <p>Contact the merchant for their eWallet number.</p>
+            )}
+          </div>
+        )}
+
+        {/* Proof of Payment upload (not for COD) */}
+        {needsProof && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Proof of Payment (optional)
             </label>
             <p className="text-xs text-gray-500 mb-2">
-              Upload a screenshot of your EFT payment. Max 5MB.
+              Upload a screenshot of your payment confirmation. Max 5MB.
             </p>
             <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-md p-4 cursor-pointer hover:border-green-500 transition-colors">
               <Upload className="w-5 h-5 text-gray-400" />
@@ -571,8 +816,8 @@ export function CheckoutForm({
               />
             </label>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Error */}
       {error && (

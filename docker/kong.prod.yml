@@ -3,10 +3,10 @@ _format_version: "1.1"
 consumers:
   - username: anon
     keyauth_credentials:
-      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzczMTU3NjAwLCJleHAiOjIwODg1MTc2MDB9.5fgjCN-TFB6CTGDr1JRtLiBC8pFRlf7BmYO_u4wqPAg
+      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3MzEzNTUzNiwiZXhwIjoyMDg4NDk1NTM2LCJyb2xlIjoiYW5vbiJ9.fTdNndhbgVcQFJrsFDq9f0YQoIjdN5gYbq_lw3P-Gnw
   - username: service_role
     keyauth_credentials:
-      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3NzMxNTc2MDAsImV4cCI6MjA4ODUxNzYwMH0.UyouoE4c23rZlk--gfy-9e9hh9wyDyn4_WIhbTEjE8Q
+      - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc3MzEzNTUzNiwiZXhwIjoyMDg4NDk1NTM2LCJyb2xlIjoic2VydmljZV9yb2xlIn0.F3q5l33WiEkif2LH-CwLkqMQoW6n9mpx6bauRPkBhzs
 
 acls:
   - consumer: anon

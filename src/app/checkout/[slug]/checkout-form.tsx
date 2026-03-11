@@ -183,14 +183,12 @@ export function CheckoutForm({
           p_delivery_time: deliveryTime || null,
           p_notes: notes.trim() || null,
           p_proof_url: proofUrl,
-          p_items: JSON.stringify(
-            cartItems.map((item) => ({
-              productId: item.productId,
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-            }))
-          ),
+          p_items: cartItems.map((item) => ({
+            productId: item.productId,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          })),
         }
       );
 

@@ -19,8 +19,13 @@ const SUPABASE_URL =
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 
-// @supabase/auth-js default storageKey; @supabase/ssr uses this as the cookie name
-const STORAGE_KEY = "supabase.auth.token";
+// @supabase/supabase-js computes the storage key (= cookie name) as:
+//   `sb-${new URL(supabaseUrl).hostname.split('.')[0]}-auth-token`
+// This MUST match what the app's createServerClient / createBrowserClient uses.
+const SUPABASE_PUBLIC_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || SUPABASE_URL;
+const STORAGE_KEY = `sb-${new URL(SUPABASE_PUBLIC_URL).hostname.split(".")[0]}-auth-token`;
+
 const BASE64_PREFIX = "base64-";
 
 /** Encodes a UTF-8 string as Base64-URL (no padding), matching @supabase/ssr. */

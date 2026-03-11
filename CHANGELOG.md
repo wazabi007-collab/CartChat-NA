@@ -22,6 +22,15 @@
 - **Fix**: Changed `as { ... }` to `as unknown as { ... }` in two places
 - **File**: `src/app/invoice/[orderId]/page.tsx`
 
+### Public storage images 401 (FIXED)
+- **Root cause**: Kong required `apikey` for all `/storage/v1/` routes, but `<img>` tags can't send headers
+- **Fix**: Added open route for `/storage/v1/object/public/` in `kong.prod.yml` (no auth required)
+- **File**: `docker/kong.prod.yml`
+
+### Deploy script using wrong compose file (FIXED)
+- **Root cause**: `deploy.sh` used `docker compose` (dev) instead of `docker compose -f docker-compose.prod.yml`
+- **Fix**: Updated deploy script on server to use prod compose file
+
 ### place_order RPC (CREATED)
 - **Purpose**: Bypass anon RLS restriction on INSERT...RETURNING
 - **File**: `supabase/migrations/004_place_order_rpc.sql`

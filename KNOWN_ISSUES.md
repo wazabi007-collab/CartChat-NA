@@ -1,12 +1,17 @@
 # Known Issues
 
-P0 deployed. P1 (payment methods + coupons) in progress locally — not yet deployed.
+P0 + P1 deployed. Logo/branding deployed. 24/24 E2E passing.
 
-## P1 Deployed
-- Migrations 008-010 applied to production
-- place_order v3 RPC bugfix: `v_coupon` record access caused error when no coupon — fixed with separate `v_coupon_id` variable
-- All P1 code deployed and verified (24/24 E2E passing)
-- No E2E tests for new payment methods or coupons yet (existing tests all pass)
+## Current Status
+- P0 features: All deployed (inventory, industry, delivery fee)
+- P1 features: All deployed (payment methods, coupons, invoice updates)
+- Branding: SVG logo deployed across all pages + favicon
+- No E2E tests for new payment methods or coupons yet (existing 24 tests all pass)
+
+## Open Feature Gaps (P2 — next sprint)
+- GAP-006: Customer list + order history
+- GAP-007: Product variants (size/color)
+- GAP-008: Payment gateway (PayToday/PayFast)
 
 ## Deployment Warnings
 
@@ -52,24 +57,7 @@ P0 deployed. P1 (payment methods + coupons) in progress locally — not yet depl
 - GAP-002: Industry selection at signup
 - GAP-003: Delivery fee
 
-## Open Feature Gaps (P1 — 30-day backlog)
+## Completed Feature Gaps
 
-### GAP-004: No discount/coupon codes
-- TakeApp has this on Business plan; OshiCart has none
-- Proven conversion driver
-
-### GAP-005: No cash on delivery option
-- Many Namibian customers prefer COD
-- Only EFT currently supported
-
-### GAP-006: No customer list or order history
-- No way for merchant to see repeat customers
-- Data exists in orders table, just no UI
-
-### GAP-007: No product variants
-- Size/color options not supported
-- Needed for fashion, food customization
-
-### GAP-008: No payment gateway
-- Only manual EFT; no card/mobile money
-- PayToday/PayFast for Namibia
+### GAP-004: Discount/coupon codes — DEPLOYED
+### GAP-005: Cash on delivery + MoMo + eWallet — DEPLOYED

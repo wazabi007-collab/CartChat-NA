@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-03-11 (Session 6) — Logo + Branding
+
+### OshiCart SVG Logo (CREATED & DEPLOYED)
+- Recreated logo as high-quality SVG from low-res PNG (357x162 → infinite resolution)
+- Speech bubble + shopping cart icon in blue `#2B5EA7`
+- Text: "Oshi" in blue + "Cart" in green `#4A9B3E`
+- **logo.svg** — full horizontal logo (icon + text) for headers/nav
+- **icon.svg** — icon-only version for favicon/app icon
+- Replaced text "OshiCart" with logo image on: landing page, login, signup, dashboard sidebar, mobile nav, stores page
+- Set favicon to `icon.svg` via layout.tsx metadata
+- **Files**: `public/logo.svg`, `public/icon.svg`, `page.tsx`, `login/page.tsx`, `signup/page.tsx`, `nav.tsx`, `stores/page.tsx`, `layout.tsx`
+
+---
+
 ## 2026-03-11 (Session 5) — P1 Deployed to Production
 
 ### Invoice Page Complete

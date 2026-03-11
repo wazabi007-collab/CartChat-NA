@@ -1,25 +1,26 @@
 # Session State — Active Working Memory
 
-## 2026-03-11 — P1 Features In Progress
+## 2026-03-11 — P1 Deployed + Branding
 
 ### Sync Status
 | Location | Commit | Status |
 |----------|--------|--------|
-| Local | `e756c4e` + RPC fix | P1 complete |
-| GitHub | `e756c4e` | P1 WIP pushed |
-| Server | `e756c4e` + RPC hotfix | P1 deployed, 24/24 tests passing |
+| Local | `ca7a7ff` | P1 deployed + logo |
+| GitHub | `ca7a7ff` | All pushed |
+| Server | `ca7a7ff` | P1 + logo deployed, 24/24 tests passing |
 
 ### P0 Features (All Deployed)
 All P0 features deployed and verified. See CHANGELOG.md for details.
 
-### P1 Features In Progress
+### P1 Features (All Deployed)
 
 | Feature | Files Created/Modified | Status |
 |---------|----------------------|--------|
-| Multiple payment methods (COD, MoMo, eWallet) | migration 008, settings, checkout-form, checkout page, orders page | Code ~90% complete |
-| Discount/coupon codes | migration 009, coupons page (CRUD), checkout-form, nav | Code ~90% complete |
-| place_order v3 RPC | migration 010 (payment_method + coupon validation) | Code complete |
-| Invoice updates (discount + delivery fee + payment method) | invoice page | Code complete |
+| Multiple payment methods (COD, MoMo, eWallet) | migration 008, settings, checkout-form, checkout page, orders page | Deployed |
+| Discount/coupon codes | migration 009, coupons page (CRUD), checkout-form, nav | Deployed |
+| place_order v3 RPC | migration 010 (payment_method + coupon validation) | Deployed |
+| Invoice updates (discount + delivery fee + payment method) | invoice page | Deployed |
+| OshiCart SVG logo + favicon | logo.svg, icon.svg, 6 pages updated | Deployed |
 
 ### What's Done
 - **Migration 008** (`008_payment_methods.sql`) — payment_method enum, merchant payment config columns, orders.payment_method
@@ -36,6 +37,9 @@ All P0 features deployed and verified. See CHANGELOG.md for details.
 
 ### What's Remaining
 - Write E2E tests for new payment methods + coupons
+- GAP-006: Customer list + order history (UI only, data exists)
+- GAP-007: Product variants (size/color)
+- GAP-008: Payment gateway (PayToday/PayFast)
 
 ### Key Architecture Decisions (P1)
 - `payment_method` is a PostgreSQL enum: eft, cod, momo, ewallet

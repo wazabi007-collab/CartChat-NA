@@ -5,8 +5,8 @@
 ### Sync Status
 | Location | Commit | Status |
 |----------|--------|--------|
-| Local | `c79f2e7` + P1 WIP | P1 code in progress (not committed) |
-| GitHub | `c79f2e7` | P0 + deploy fix pushed |
+| Local | `679cbe3` + invoice fix | P1 committed + invoice updates |
+| GitHub | `679cbe3` | P1 WIP pushed |
 | Server | `c79f2e7` | P0 deployed, 24/24 tests passing |
 
 ### P0 Features (All Deployed)
@@ -19,7 +19,7 @@ All P0 features deployed and verified. See CHANGELOG.md for details.
 | Multiple payment methods (COD, MoMo, eWallet) | migration 008, settings, checkout-form, checkout page, orders page | Code ~90% complete |
 | Discount/coupon codes | migration 009, coupons page (CRUD), checkout-form, nav | Code ~90% complete |
 | place_order v3 RPC | migration 010 (payment_method + coupon validation) | Code complete |
-| Invoice updates (discount + delivery fee + payment method) | invoice page | ~70% — select updated, tfoot NOT yet updated |
+| Invoice updates (discount + delivery fee + payment method) | invoice page | Code complete |
 
 ### What's Done
 - **Migration 008** (`008_payment_methods.sql`) — payment_method enum, merchant payment config columns, orders.payment_method
@@ -35,12 +35,9 @@ All P0 features deployed and verified. See CHANGELOG.md for details.
 - **Orders page** — shows payment method badge, total with discount/delivery breakdown
 
 ### What's Remaining
-- **Invoice page tfoot** — needs discount/delivery fee/total calculation in tfoot (edit was interrupted)
-- **Invoice payment details section** — should show payment method-specific info (COD note, MoMo, eWallet)
-- **Invoice amount reference** — currently shows subtotal, should show total (subtotal - discount + delivery)
-- Test the build locally
 - Deploy to server (apply migrations 008-010, rebuild)
 - Run E2E tests
+- Write E2E tests for new payment methods + coupons
 
 ### Key Architecture Decisions (P1)
 - `payment_method` is a PostgreSQL enum: eft, cod, momo, ewallet

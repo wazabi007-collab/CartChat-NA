@@ -29,9 +29,12 @@
 - Drops old v2 function
 - **File**: migration 010
 
-### Invoice Updates (IN PROGRESS)
-- SELECT updated to include delivery_fee_nad, discount_nad, payment_method, coupons(code)
-- Tfoot and payment details section still need updating
+### Invoice Updates (COMPLETE)
+- SELECT updated to include delivery_fee_nad, discount_nad, payment_method, coupons(code), momo_number, ewallet_number, ewallet_provider
+- Tfoot: subtotal → discount (with coupon code) → delivery fee → total breakdown
+- Payment details: EFT (bank details), COD (cash due), MoMo (number + ref), eWallet (provider + number + ref)
+- Fallback for pre-migration orders without payment_method
+- Build verified locally — no errors
 
 ### Research: Namibia Mobile Money & eWallet Landscape
 - MTC MoMo: no public API in Namibia; manual proof-of-payment workflow for V1

@@ -3,10 +3,9 @@
 P0 deployed. P1 (payment methods + coupons) in progress locally — not yet deployed.
 
 ## P1 Work In Progress
-- Invoice tfoot not yet updated (discount/delivery fee/total calculation)
-- Invoice payment details section not yet updated for COD/MoMo/eWallet
 - Migrations 008-010 not yet applied to production
 - No E2E tests for new payment methods or coupons yet
+- All P1 code complete — invoice, checkout, orders, settings, coupons CRUD
 
 ## Deployment Warnings
 

@@ -34,7 +34,8 @@ export default async function InvoicePage({ params }: Props) {
       subtotal_nad, delivery_fee_nad, discount_nad, payment_method, status, notes, created_at,
       merchants (
         store_name, whatsapp_number, tier,
-        bank_name, bank_account_number, bank_account_holder, bank_branch_code
+        bank_name, bank_account_number, bank_account_holder, bank_branch_code,
+        momo_number, ewallet_number, ewallet_provider
       ),
       coupons (code)
     `)
@@ -51,7 +52,12 @@ export default async function InvoicePage({ params }: Props) {
     bank_account_number: string | null;
     bank_account_holder: string | null;
     bank_branch_code: string | null;
+    momo_number: string | null;
+    ewallet_number: string | null;
+    ewallet_provider: string | null;
   } | null;
+
+  const coupon = order.coupons as unknown as { code: string } | null;
 
   if (!merchant || (merchant.tier === "free")) {
     return (
@@ -162,10 +168,28 @@ export default async function InvoicePage({ params }: Props) {
               ))}
             </tbody>
             <tfoot>
+              <tr className="border-t border-gray-200">
+                <td colSpan={3} className="py-1.5 text-right text-gray-600">Subtotal</td>
+                <td className="py-1.5 text-right text-gray-900">{formatPrice(order.subtotal_nad)}</td>
+              </tr>
+              {(order.discount_nad ?? 0) > 0 && (
+                <tr>
+                  <td colSpan={3} className="py-1.5 text-right text-green-700">
+                    Discount{coupon ? ` (${coupon.code})` : ""}
+                  </td>
+                  <td className="py-1.5 text-right text-green-700">-{formatPrice(order.discount_nad)}</td>
+                </tr>
+              )}
+              {(order.delivery_fee_nad ?? 0) > 0 && (
+                <tr>
+                  <td colSpan={3} className="py-1.5 text-right text-gray-600">Delivery Fee</td>
+                  <td className="py-1.5 text-right text-gray-900">{formatPrice(order.delivery_fee_nad)}</td>
+                </tr>
+              )}
               <tr className="border-t-2 border-gray-200">
                 <td colSpan={3} className="py-3 text-right font-bold text-gray-900">Total</td>
                 <td className="py-3 text-right font-bold text-green-700 text-lg">
-                  {formatPrice(order.subtotal_nad)}
+                  {formatPrice(order.subtotal_nad - (order.discount_nad ?? 0) + (order.delivery_fee_nad ?? 0))}
                 </td>
               </tr>
             </tfoot>
@@ -179,10 +203,18 @@ export default async function InvoicePage({ params }: Props) {
             </div>
           )}
 
-          {/* Bank details */}
-          {merchant.bank_name && merchant.bank_account_number && (
-            <div className="border-t pt-6">
-              <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">Payment Details (EFT)</p>
+          {/* Payment details */}
+          <div className="border-t pt-6">
+            <p className="text-xs text-gray-400 uppercase tracking-wide mb-3">
+              Payment Details
+              {order.payment_method === "eft" && " (EFT)"}
+              {order.payment_method === "cod" && " (Cash on Delivery)"}
+              {order.payment_method === "momo" && " (MTC MoMo)"}
+              {order.payment_method === "ewallet" && " (eWallet)"}
+            </p>
+
+            {/* EFT bank details */}
+            {order.payment_method === "eft" && merchant.bank_name && merchant.bank_account_number && (
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                 <span className="text-gray-500">Bank</span>
                 <span className="text-gray-900 font-medium">{merchant.bank_name}</span>
@@ -203,10 +235,75 @@ export default async function InvoicePage({ params }: Props) {
                 <span className="text-gray-500">Reference</span>
                 <span className="text-gray-900 font-medium">Order #{order.order_number}</span>
                 <span className="text-gray-500">Amount</span>
+                <span className="text-green-700 font-bold">
+                  {formatPrice(order.subtotal_nad - (order.discount_nad ?? 0) + (order.delivery_fee_nad ?? 0))}
+                </span>
+              </div>
+            )}
+
+            {/* COD */}
+            {order.payment_method === "cod" && (
+              <div className="text-sm">
+                <p className="text-gray-700">Cash payment due on delivery.</p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
+                  <span className="text-gray-500">Amount Due</span>
+                  <span className="text-green-700 font-bold">
+                    {formatPrice(order.subtotal_nad - (order.discount_nad ?? 0) + (order.delivery_fee_nad ?? 0))}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* MoMo */}
+            {order.payment_method === "momo" && (
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                <span className="text-gray-500">Send to MoMo Number</span>
+                <span className="text-gray-900 font-medium">{merchant.momo_number ?? "—"}</span>
+                <span className="text-gray-500">Reference</span>
+                <span className="text-gray-900 font-medium">Order #{order.order_number}</span>
+                <span className="text-gray-500">Amount</span>
+                <span className="text-green-700 font-bold">
+                  {formatPrice(order.subtotal_nad - (order.discount_nad ?? 0) + (order.delivery_fee_nad ?? 0))}
+                </span>
+              </div>
+            )}
+
+            {/* eWallet */}
+            {order.payment_method === "ewallet" && (
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                <span className="text-gray-500">Provider</span>
+                <span className="text-gray-900 font-medium">
+                  {merchant.ewallet_provider === "fnb_ewallet" ? "FNB eWallet"
+                    : merchant.ewallet_provider === "paypulse" ? "PayPulse"
+                    : merchant.ewallet_provider === "easywallet" ? "EasyWallet"
+                    : merchant.ewallet_provider === "paytoday" ? "PayToday"
+                    : merchant.ewallet_provider ?? "—"}
+                </span>
+                <span className="text-gray-500">Send to Number</span>
+                <span className="text-gray-900 font-medium">{merchant.ewallet_number ?? "—"}</span>
+                <span className="text-gray-500">Reference</span>
+                <span className="text-gray-900 font-medium">Order #{order.order_number}</span>
+                <span className="text-gray-500">Amount</span>
+                <span className="text-green-700 font-bold">
+                  {formatPrice(order.subtotal_nad - (order.discount_nad ?? 0) + (order.delivery_fee_nad ?? 0))}
+                </span>
+              </div>
+            )}
+
+            {/* Fallback for old orders without payment_method */}
+            {!order.payment_method && merchant.bank_name && merchant.bank_account_number && (
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                <span className="text-gray-500">Bank</span>
+                <span className="text-gray-900 font-medium">{merchant.bank_name}</span>
+                <span className="text-gray-500">Account Number</span>
+                <span className="text-gray-900 font-medium">{merchant.bank_account_number}</span>
+                <span className="text-gray-500">Reference</span>
+                <span className="text-gray-900 font-medium">Order #{order.order_number}</span>
+                <span className="text-gray-500">Amount</span>
                 <span className="text-green-700 font-bold">{formatPrice(order.subtotal_nad)}</span>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Footer */}
           <div className="mt-8 pt-6 border-t text-center text-xs text-gray-400">

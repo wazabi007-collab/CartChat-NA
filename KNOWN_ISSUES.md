@@ -1,17 +1,23 @@
 # Known Issues
 
-## BUG-001: Checkout order creation — FIXED
-- **Status**: Code fix applied locally, needs server deploy
-- **Fix**: Removed `JSON.stringify()` from p_items in checkout-form.tsx
+All issues from 2026-03-11 session have been resolved and deployed.
 
-## BUG-002: Auth cookie injection in tests — FIXED
-- **Status**: Code fix applied locally, needs test verification
-- **Fix**: Changed cookie name from `supabase.auth.token` to dynamically computed `sb-{ref}-auth-token`
+## Resolved
 
-## BUG-003: kong.prod.yml local/server key mismatch — FIXED
-- **Status**: Local file synced with production server keys
-- **File**: `docker/kong.prod.yml`
+### BUG-001: Checkout order creation — FIXED & DEPLOYED
+- Removed `JSON.stringify()` from p_items in checkout-form.tsx
 
-## DEPLOY NEEDED: Server rebuild for checkout fix
-- The checkout JSON.stringify fix is committed but server still runs old Docker image
-- 3 checkout tests will fail until: `git pull && docker compose -f docker-compose.prod.yml build app && docker compose -f docker-compose.prod.yml up -d app`
+### BUG-002: Auth cookie injection in tests — FIXED & DEPLOYED
+- Cookie name dynamically computed as `sb-{ref}-auth-token` from NEXT_PUBLIC_SUPABASE_URL
+
+### BUG-003: kong.prod.yml key mismatch — FIXED & DEPLOYED
+- Local file synced with production server keys
+
+### BUG-004: Public storage images 401 — FIXED & DEPLOYED
+- Added open Kong route for `/storage/v1/object/public/`
+
+### BUG-005: OTP code expiry too short — FIXED & DEPLOYED
+- Set to 5 minutes via GOTRUE_MAILER_OTP_EXP and GOTRUE_SMS_OTP_EXP
+
+## No Open Issues
+24/24 E2E tests passing. All stores visible, images loading, checkout working, auth working.

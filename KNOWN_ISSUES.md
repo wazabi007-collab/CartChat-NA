@@ -2,10 +2,11 @@
 
 P0 deployed. P1 (payment methods + coupons) in progress locally — not yet deployed.
 
-## P1 Work In Progress
-- Migrations 008-010 not yet applied to production
-- No E2E tests for new payment methods or coupons yet
-- All P1 code complete — invoice, checkout, orders, settings, coupons CRUD
+## P1 Deployed
+- Migrations 008-010 applied to production
+- place_order v3 RPC bugfix: `v_coupon` record access caused error when no coupon — fixed with separate `v_coupon_id` variable
+- All P1 code deployed and verified (24/24 E2E passing)
+- No E2E tests for new payment methods or coupons yet (existing tests all pass)
 
 ## Deployment Warnings
 

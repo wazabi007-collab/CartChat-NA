@@ -1,6 +1,26 @@
 # Changelog
 
-## 2026-03-11 (Session 4) — P1 Payment Methods + Coupons (WIP)
+## 2026-03-11 (Session 5) — P1 Deployed to Production
+
+### Invoice Page Complete
+- Tfoot: subtotal → discount (coupon code) → delivery fee → total
+- Payment details: EFT/COD/MoMo/eWallet sections with correct merchant info
+- Fallback for pre-migration orders without payment_method
+
+### BUG-007: place_order v3 RPC — `v_coupon` record not assigned (FIXED & DEPLOYED)
+- **Root cause**: PL/pgSQL `v_coupon.id` raised error when no coupon code provided (record unassigned)
+- **Fix**: Added separate `v_coupon_id uuid := NULL` variable, assign only when coupon validated
+- **File**: `supabase/migrations/010_place_order_v3.sql`
+
+### P1 Deployment
+- Migrations 008-010 applied to production
+- App rebuilt and restarted via deploy.sh
+- Kong keys verified, env vars verified
+- 24/24 E2E tests passing
+
+---
+
+## 2026-03-11 (Session 4) — P1 Payment Methods + Coupons
 
 ### Multiple Payment Methods (IN PROGRESS)
 - Added `payment_method` enum: `eft`, `cod`, `momo`, `ewallet`

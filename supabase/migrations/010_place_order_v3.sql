@@ -33,6 +33,7 @@ DECLARE
   v_product      record;
   v_prev_qty     integer;
   v_coupon       record;
+  v_coupon_id    uuid    := NULL;
   v_discount     integer := 0;
 BEGIN
   -- Validate and apply coupon if provided
@@ -75,8 +76,10 @@ BEGIN
       v_discount := LEAST(p_subtotal_nad, v_coupon.discount_value);
     END IF;
 
+    v_coupon_id := v_coupon.id;
+
     -- Increment usage
-    UPDATE coupons SET current_uses = current_uses + 1 WHERE id = v_coupon.id;
+    UPDATE coupons SET current_uses = current_uses + 1 WHERE id = v_coupon_id;
   END IF;
 
   -- Create order
@@ -91,7 +94,7 @@ BEGIN
     p_delivery_address, p_delivery_date, p_delivery_time,
     p_subtotal_nad, p_delivery_fee, p_notes, p_proof_url,
     p_payment_method::payment_method,
-    v_coupon.id,
+    v_coupon_id,
     v_discount
   )
   RETURNING id, orders.order_number INTO v_order_id, v_order_num;

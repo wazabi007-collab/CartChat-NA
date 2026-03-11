@@ -5,9 +5,9 @@
 ### Sync Status
 | Location | Commit | Status |
 |----------|--------|--------|
-| Local | `679cbe3` + invoice fix | P1 committed + invoice updates |
-| GitHub | `679cbe3` | P1 WIP pushed |
-| Server | `c79f2e7` | P0 deployed, 24/24 tests passing |
+| Local | `e756c4e` + RPC fix | P1 complete |
+| GitHub | `e756c4e` | P1 WIP pushed |
+| Server | `e756c4e` + RPC hotfix | P1 deployed, 24/24 tests passing |
 
 ### P0 Features (All Deployed)
 All P0 features deployed and verified. See CHANGELOG.md for details.
@@ -35,8 +35,6 @@ All P0 features deployed and verified. See CHANGELOG.md for details.
 - **Orders page** — shows payment method badge, total with discount/delivery breakdown
 
 ### What's Remaining
-- Deploy to server (apply migrations 008-010, rebuild)
-- Run E2E tests
 - Write E2E tests for new payment methods + coupons
 
 ### Key Architecture Decisions (P1)

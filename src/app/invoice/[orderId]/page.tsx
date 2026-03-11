@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .single();
 
   if (!order) return { title: "Invoice" };
-  const merchant = order.merchants as { store_name: string } | null;
+  const merchant = order.merchants as unknown as { store_name: string } | null;
   return { title: `Invoice #${order.order_number} — ${merchant?.store_name ?? ""}` };
 }
 
@@ -42,7 +42,7 @@ export default async function InvoicePage({ params }: Props) {
 
   if (!order) notFound();
 
-  const merchant = order.merchants as {
+  const merchant = order.merchants as unknown as {
     store_name: string;
     whatsapp_number: string;
     tier: string;

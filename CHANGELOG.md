@@ -1,6 +1,54 @@
 # Changelog
 
-## 2026-03-11
+## 2026-03-11 (Session 2) — P0 Feature Sprint
+
+### Inventory Tracking System (BUILT — pending deploy)
+- Added `track_inventory`, `stock_quantity`, `low_stock_threshold`, `allow_backorder` to products
+- `place_order()` v2: FOR UPDATE row locks + stock deduction per item
+- `restock_on_cancel()` trigger: auto-restocks when order cancelled
+- `stock_adjustments` audit table tracks every stock change with reason
+- **Files**: migrations 005, 006, 007
+
+### Industry Selection at Signup (BUILT — pending deploy)
+- 28 Namibia-relevant industries (grocery, butchery, salon, takeaway, etc.)
+- Dropdown added to store setup Step 1
+- Stored as `industry` column on merchants
+- **Files**: `src/lib/constants.ts`, `src/app/(dashboard)/dashboard/setup/page.tsx`
+
+### Flat-Rate Delivery Fee (BUILT — pending deploy)
+- Merchant sets delivery fee in Settings (NAD)
+- Fee displayed at checkout when customer selects delivery
+- Fee snapshot stored on order record
+- WhatsApp message includes fee + total
+- **Files**: `settings/page.tsx`, `checkout-form.tsx`, `checkout/page.tsx`
+
+### Storefront Stock Display (BUILT — pending deploy)
+- Product cards show "Out of Stock" (red) / "Only X left!" (orange) badges
+- Out-of-stock products have disabled Add to Cart button
+- Product detail page shows stock status badge
+- **Files**: `product-card.tsx`, storefront pages
+
+### Dashboard Low Stock Alerts (BUILT — pending deploy)
+- Dashboard home shows orange alert card when products are low/out of stock
+- Lists top 5 lowest-stock products with current quantity
+- Link to products page to update stock
+- **File**: `src/app/(dashboard)/dashboard/page.tsx`
+
+### Product Form Inventory Controls (BUILT — pending deploy)
+- Track Inventory toggle on new/edit product forms
+- When enabled: stock quantity, low stock threshold, allow backorder fields
+- **Files**: `products/new/page.tsx`, `products/[id]/edit/page.tsx`
+
+### Gap Analysis & Planning Docs (CREATED)
+- `GAP_ANALYSIS.md` — 70-feature OshiCart vs TakeApp comparison
+- `INDUSTRY_DROPDOWN_NA.md` — Namibia industry taxonomy + personalization spec
+- `INVENTORY_SPEC.md` — Full stock tracking system specification
+- `IMPLEMENTATION_TASKS.md` — P0 + P1 task checklist
+- `MIGRATION_PLAN.md` — SQL migrations + deploy/rollback steps
+
+---
+
+## 2026-03-11 (Session 1)
 
 ### BUG-001: Checkout "Failed to create order" (FIXED & DEPLOYED)
 - **Root cause**: `JSON.stringify()` on `p_items` passed a scalar string instead of JSONB array to `place_order` RPC

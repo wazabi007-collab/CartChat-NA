@@ -1,29 +1,51 @@
 # Session State — Active Working Memory
 
-## 2026-03-11 — All Bugs Fixed, Deployed, Verified
+## 2026-03-11 — P0 Implementation Complete, Pending Deploy
 
-### Test Results: 24/24 PASS
-All E2E tests green against production `https://oshicart.octovianexus.com`.
-
-### All Systems In Sync
+### Sync Status
 | Location | Commit | Status |
 |----------|--------|--------|
-| Local | `d06b0d3` | In sync |
-| GitHub | `d06b0d3` | In sync |
-| Server | `d06b0d3` | In sync |
+| Local | `66dfbb6` | P0 code committed |
+| GitHub | `66dfbb6` | Pushed |
+| Server | `3472351` | Behind — needs pull + migrations + rebuild |
 
-### Bugs Fixed & Deployed This Session
+### P0 Features Built (commit `66dfbb6`)
 
-| Bug | Root Cause | Fix | Status |
-|-----|-----------|-----|--------|
-| BUG-001: Checkout fails | `JSON.stringify()` on p_items | Removed stringify | Deployed |
-| BUG-002: Auth cookie name | Wrong cookie name `supabase.auth.token` | Compute `sb-oshicart-auth-token` dynamically | Deployed |
-| BUG-003: Kong key mismatch | Stale JWT keys in kong.prod.yml | Synced with server .env | Deployed |
-| BUG-004: Images 401 | Kong required apikey for public storage | Added open route for `/storage/v1/object/public/` | Deployed |
-| BUG-005: OTP expires too fast | Default 60s expiry | Set `GOTRUE_MAILER_OTP_EXP=300` + `GOTRUE_SMS_OTP_EXP=300` | Deployed |
-| Deploy script wrong compose | Used dev compose instead of prod | Fixed `deploy.sh` to use `-f docker-compose.prod.yml` | Fixed on server |
-| Login page missing OTP timer | No countdown or resend button | Added 5-min countdown + resend button | Deployed |
-| GitHub Actions deploy failing | Missing SSH key secret | Removed workflow — manual deploys only | Done |
+| Feature | Files Changed | Status |
+|---------|--------------|--------|
+| Inventory tracking (stock qty, deduct, restock) | migrations 005-007, product forms, products list | Code complete |
+| Industry selection at signup (28 Namibia categories) | constants.ts, setup page | Code complete |
+| Flat-rate delivery fee | settings, checkout-form, checkout page | Code complete |
+| Storefront stock badges | product-card.tsx, storefront pages | Code complete |
+| Dashboard low stock alerts | dashboard page | Code complete |
+| Checkout stock validation + error handling | checkout-form.tsx | Code complete |
+
+### Migrations to Apply on Deploy
+```bash
+# SSH to server, then:
+cd /opt/oshicart && git pull origin master
+docker compose -f docker-compose.prod.yml exec supabase-db psql -U postgres -d postgres -f /migrations/005_inventory_and_industry.sql
+docker compose -f docker-compose.prod.yml exec supabase-db psql -U postgres -d postgres -f /migrations/006_place_order_v2.sql
+docker compose -f docker-compose.prod.yml exec supabase-db psql -U postgres -d postgres -f /migrations/007_cancel_restock_trigger.sql
+bash deploy.sh
+```
+
+### Key Architecture Decisions
+- Stock deducted on order creation (not confirmation) — prevents overselling
+- PostgreSQL `FOR UPDATE` row locks for concurrency safety
+- `restock_on_cancel()` trigger auto-restocks when order cancelled
+- `stock_adjustments` audit table tracks every stock change
+- Delivery fee stored as snapshot on orders (not recalculated)
+
+### Planning Docs Created
+- `GAP_ANALYSIS.md` — 70-feature OshiCart vs TakeApp comparison
+- `INDUSTRY_DROPDOWN_NA.md` — 28 Namibia industries + personalization spec
+- `INVENTORY_SPEC.md` — Full stock system spec
+- `IMPLEMENTATION_TASKS.md` — P0 (7-day) + P1 (30-day) checklist
+- `MIGRATION_PLAN.md` — SQL migrations + deployment steps + rollback
+
+### Previous Session: All Bugs Fixed & Deployed
+24/24 E2E tests passing. BUG-001 through BUG-005 all resolved.
 
 ### Test Env Vars for Production
 ```
@@ -35,31 +57,7 @@ TEST_MERCHANT_EMAIL=playwright-e2e@oshicart.test
 TEST_STORE_SLUG=playwright-test-store
 ```
 
-### Current Work: Feature Gap Analysis & P0 Planning (2026-03-11)
-
-**Completed**: Full competitive gap analysis (OshiCart vs TakeApp)
-
-**Deliverables Created**:
-- `GAP_ANALYSIS.md` — 70-feature comparison table with priority, impact, complexity
-- `INDUSTRY_DROPDOWN_NA.md` — 28 Namibia industries + personalization defaults
-- `INVENTORY_SPEC.md` — Full stock tracking system spec (deduction, restock, concurrency)
-- `IMPLEMENTATION_TASKS.md` — Checklist: 11 P0 tasks (7-day), 6 P1 tasks (30-day)
-- `MIGRATION_PLAN.md` — 3 SQL migrations (005, 006, 007) + deployment steps
-
-**P0 Features (Ship in 7 Days)**:
-1. Stock quantity tracking + auto-deduct on order
-2. Industry selection at signup (28 Namibia categories)
-3. Flat-rate delivery fee
-4. Storefront stock badges + checkout validation
-5. Cancel order → auto restock
-
-**P1 Features (Ship in 30 Days)**:
-1. Discount/coupon codes
-2. Cash on delivery
-3. Customer list + order history
-4. Product variants
-5. Payment gateway (PayToday/PayFast)
-
-**Key Decision**: Stock deducted on order creation (not confirmation) to prevent overselling. Uses PostgreSQL FOR UPDATE row locks for concurrency.
-
-### Pending: Approval to Begin Implementation
+### Pending
+- Deploy P0 to production (pull + migrations + rebuild)
+- Run E2E tests after deploy to verify no regressions
+- P1 features: discount codes, COD, customer list, variants, payment gateway

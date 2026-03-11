@@ -19,31 +19,41 @@ All issues from 2026-03-11 session have been resolved and deployed.
 ### BUG-005: OTP code expiry too short — FIXED & DEPLOYED
 - Set to 5 minutes via GOTRUE_MAILER_OTP_EXP and GOTRUE_SMS_OTP_EXP
 
-## Open Feature Gaps (P0 — Identified 2026-03-11)
+## P0 Features — Built, Pending Deploy
 
-### GAP-001: No inventory/stock tracking
-- Products only have `is_available` boolean toggle
-- No quantity, no auto-deduct, no low-stock alerts
-- Risk: overselling, customer distrust
-- **Spec**: `INVENTORY_SPEC.md` | **Migration**: 005, 006, 007
+### GAP-001: Inventory/stock tracking — BUILT (commit `66dfbb6`)
+- Migrations 005-007 ready, frontend complete
+- Needs: deploy to server + apply migrations
 
-### GAP-002: No industry selection at signup
-- Merchants get generic onboarding with no personalization
-- Risk: slower time-to-value, lower activation
-- **Spec**: `INDUSTRY_DROPDOWN_NA.md` | **Migration**: 005
+### GAP-002: Industry selection at signup — BUILT (commit `66dfbb6`)
+- 28 Namibia industries in dropdown
+- Needs: deploy to server + apply migration 005
 
-### GAP-003: No delivery fee
-- Merchants can't charge for delivery (all free by default)
-- Risk: merchants lose money on deliveries
-- **Migration**: 005
+### GAP-003: Delivery fee — BUILT (commit `66dfbb6`)
+- Flat rate in settings, shown at checkout
+- Needs: deploy to server + apply migration 005
 
-### GAP-004: No discount/coupon codes (P1)
+## Open Feature Gaps (P1 — 30-day backlog)
+
+### GAP-004: No discount/coupon codes
 - TakeApp has this on Business plan; OshiCart has none
 - Proven conversion driver
 
-### GAP-005: No cash on delivery option (P1)
+### GAP-005: No cash on delivery option
 - Many Namibian customers prefer COD
 - Only EFT currently supported
+
+### GAP-006: No customer list or order history
+- No way for merchant to see repeat customers
+- Data exists in orders table, just no UI
+
+### GAP-007: No product variants
+- Size/color options not supported
+- Needed for fashion, food customization
+
+### GAP-008: No payment gateway
+- Only manual EFT; no card/mobile money
+- PayToday/PayFast for Namibia
 
 ## Previous Bugs — All Resolved
 24/24 E2E tests passing. All stores visible, images loading, checkout working, auth working.

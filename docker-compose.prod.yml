@@ -99,6 +99,8 @@ services:
       GOTRUE_SMS_TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
       GOTRUE_SMS_TWILIO_MESSAGE_SERVICE_SID: ${TWILIO_MESSAGE_SERVICE_SID}
       GOTRUE_RATE_LIMIT_OTP: "10"
+      GOTRUE_MAILER_OTP_EXP: "300"
+      GOTRUE_SMS_OTP_EXP: "300"
     depends_on:
       supabase-db-init:
         condition: service_completed_successfully

@@ -40,6 +40,10 @@ export default function EditProductPage() {
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [isAvailable, setIsAvailable] = useState(true);
+  const [trackInventory, setTrackInventory] = useState(false);
+  const [stockQuantity, setStockQuantity] = useState(0);
+  const [lowStockThreshold, setLowStockThreshold] = useState(5);
+  const [allowBackorder, setAllowBackorder] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
   // Existing images (URLs) and new files
@@ -92,6 +96,10 @@ export default function EditProductPage() {
       setDescription(prod.description || "");
       setCategoryId(prod.category_id || "");
       setIsAvailable(prod.is_available);
+      setTrackInventory(prod.track_inventory ?? false);
+      setStockQuantity(prod.stock_quantity ?? 0);
+      setLowStockThreshold(prod.low_stock_threshold ?? 5);
+      setAllowBackorder(prod.allow_backorder ?? false);
       setExistingImages(prod.images || []);
 
       // Load categories
@@ -225,6 +233,10 @@ export default function EditProductPage() {
           category_id: validation.data.category_id || null,
           is_available: validation.data.is_available ?? true,
           images: allImages,
+          track_inventory: trackInventory,
+          stock_quantity: trackInventory ? stockQuantity : 0,
+          low_stock_threshold: lowStockThreshold,
+          allow_backorder: allowBackorder,
           updated_at: new Date().toISOString(),
         })
         .eq("id", productId)
@@ -407,6 +419,72 @@ export default function EditProductPage() {
           <label htmlFor="available" className="text-sm text-gray-700">
             Available for purchase
           </label>
+        </div>
+
+        {/* Inventory */}
+        <div className="border rounded-lg p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-700">Track Inventory</p>
+              <p className="text-xs text-gray-400">Enable stock quantity tracking for this product</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={trackInventory}
+                onChange={(e) => setTrackInventory(e.target.checked)}
+                className="sr-only"
+              />
+              <div className={`w-10 h-6 rounded-full transition-colors ${trackInventory ? "bg-green-600" : "bg-gray-300"}`} />
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${trackInventory ? "translate-x-5" : "translate-x-1"}`} />
+            </label>
+          </div>
+
+          {trackInventory && (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">
+                    Stock Quantity *
+                  </label>
+                  <input
+                    id="stock"
+                    type="number"
+                    min="0"
+                    value={stockQuantity}
+                    onChange={(e) => setStockQuantity(parseInt(e.target.value) || 0)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="threshold" className="block text-sm font-medium text-gray-700 mb-1">
+                    Low Stock Alert
+                  </label>
+                  <input
+                    id="threshold"
+                    type="number"
+                    min="0"
+                    value={lowStockThreshold}
+                    onChange={(e) => setLowStockThreshold(parseInt(e.target.value) || 0)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Alert when stock drops to this level</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  id="backorder"
+                  type="checkbox"
+                  checked={allowBackorder}
+                  onChange={(e) => setAllowBackorder(e.target.checked)}
+                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                />
+                <label htmlFor="backorder" className="text-sm text-gray-700">
+                  Allow backorders (sell even when out of stock)
+                </label>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Images */}

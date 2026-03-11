@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Package, ShoppingCart, Eye, ArrowRight } from "lucide-react";
+import { Package, ShoppingCart, Eye, ArrowRight, AlertTriangle } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { SITE_URL } from "@/lib/constants";
 import { CopyStoreLink } from "./copy-store-link";
@@ -25,7 +25,7 @@ export default async function DashboardPage() {
   }
 
   // Fetch stats
-  const [productsResult, ordersResult, pendingResult] = await Promise.all([
+  const [productsResult, ordersResult, pendingResult, lowStockResult] = await Promise.all([
     supabase
       .from("products")
       .select("id", { count: "exact", head: true })
@@ -40,7 +40,18 @@ export default async function DashboardPage() {
       .select("id", { count: "exact", head: true })
       .eq("merchant_id", merchant.id)
       .eq("status", "pending"),
+    supabase
+      .from("products")
+      .select("id, name, stock_quantity, low_stock_threshold")
+      .eq("merchant_id", merchant.id)
+      .eq("track_inventory", true)
+      .order("stock_quantity", { ascending: true })
+      .limit(5),
   ]);
+
+  const lowStockProducts = (lowStockResult.data || []).filter(
+    (p) => p.stock_quantity <= (p.low_stock_threshold ?? 5)
+  );
 
   const productCount = productsResult.count || 0;
   const completedOrders = ordersResult.count || 0;
@@ -88,6 +99,34 @@ export default async function DashboardPage() {
           value={formatPrice(totalRevenue)}
         />
       </div>
+
+      {/* Low stock warning */}
+      {lowStockProducts.length > 0 && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-8">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle size={18} className="text-orange-600" />
+            <h3 className="font-medium text-orange-900">
+              {lowStockProducts.length} product{lowStockProducts.length > 1 ? "s" : ""} low on stock
+            </h3>
+          </div>
+          <ul className="space-y-1">
+            {lowStockProducts.map((p) => (
+              <li key={p.id} className="text-sm text-orange-800 flex justify-between">
+                <span>{p.name}</span>
+                <span className={`font-medium ${p.stock_quantity === 0 ? "text-red-600" : "text-orange-600"}`}>
+                  {p.stock_quantity === 0 ? "Out of stock" : `${p.stock_quantity} left`}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/dashboard/products"
+            className="inline-block mt-2 text-sm text-orange-700 hover:text-orange-900 font-medium"
+          >
+            Update stock levels →
+          </Link>
+        </div>
+      )}
 
       {/* Quick actions */}
       <div className="grid md:grid-cols-2 gap-4">

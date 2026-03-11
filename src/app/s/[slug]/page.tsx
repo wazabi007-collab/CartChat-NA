@@ -169,6 +169,10 @@ export default async function StorefrontPage({ params }: Props) {
                       price={product.price_nad}
                       imageUrl={product.images?.[0] ?? null}
                       slug={slug}
+                      trackInventory={product.track_inventory}
+                      stockQuantity={product.stock_quantity}
+                      lowStockThreshold={product.low_stock_threshold}
+                      allowBackorder={product.allow_backorder}
                     />
                   ))}
                 </div>

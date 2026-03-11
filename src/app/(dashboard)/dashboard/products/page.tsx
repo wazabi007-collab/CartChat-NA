@@ -123,6 +123,22 @@ export default async function ProductsPage() {
                   <p className="text-green-600 font-semibold mt-1">
                     {formatPrice(product.price_nad)}
                   </p>
+                  {product.track_inventory && (
+                    <p className={cn(
+                      "text-xs mt-1 font-medium",
+                      product.stock_quantity === 0 && !product.allow_backorder
+                        ? "text-red-600"
+                        : product.stock_quantity <= (product.low_stock_threshold ?? 5)
+                        ? "text-orange-600"
+                        : "text-gray-500"
+                    )}>
+                      {product.stock_quantity === 0 && !product.allow_backorder
+                        ? "Out of stock"
+                        : product.stock_quantity <= (product.low_stock_threshold ?? 5)
+                        ? `Low stock: ${product.stock_quantity} left`
+                        : `Stock: ${product.stock_quantity}`}
+                    </p>
+                  )}
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t">
                     <Link
                       href={`/dashboard/products/${product.id}/edit`}

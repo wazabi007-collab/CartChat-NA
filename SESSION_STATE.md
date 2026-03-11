@@ -35,5 +35,31 @@ TEST_MERCHANT_EMAIL=playwright-e2e@oshicart.test
 TEST_STORE_SLUG=playwright-test-store
 ```
 
-### No Pending Tasks
-All bugs fixed, deployed, and verified. Session complete.
+### Current Work: Feature Gap Analysis & P0 Planning (2026-03-11)
+
+**Completed**: Full competitive gap analysis (OshiCart vs TakeApp)
+
+**Deliverables Created**:
+- `GAP_ANALYSIS.md` — 70-feature comparison table with priority, impact, complexity
+- `INDUSTRY_DROPDOWN_NA.md` — 28 Namibia industries + personalization defaults
+- `INVENTORY_SPEC.md` — Full stock tracking system spec (deduction, restock, concurrency)
+- `IMPLEMENTATION_TASKS.md` — Checklist: 11 P0 tasks (7-day), 6 P1 tasks (30-day)
+- `MIGRATION_PLAN.md` — 3 SQL migrations (005, 006, 007) + deployment steps
+
+**P0 Features (Ship in 7 Days)**:
+1. Stock quantity tracking + auto-deduct on order
+2. Industry selection at signup (28 Namibia categories)
+3. Flat-rate delivery fee
+4. Storefront stock badges + checkout validation
+5. Cancel order → auto restock
+
+**P1 Features (Ship in 30 Days)**:
+1. Discount/coupon codes
+2. Cash on delivery
+3. Customer list + order history
+4. Product variants
+5. Payment gateway (PayToday/PayFast)
+
+**Key Decision**: Stock deducted on order creation (not confirmation) to prevent overselling. Uses PostgreSQL FOR UPDATE row locks for concurrency.
+
+### Pending: Approval to Begin Implementation

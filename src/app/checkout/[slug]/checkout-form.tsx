@@ -33,6 +33,7 @@ interface Props {
   bankAccountHolder: string | null;
   bankBranchCode: string | null;
   deliverySlots: DeliverySlots | null;
+  deliveryFeeNad: number;
 }
 
 function getAvailableDates(days: number[]): { label: string; value: string }[] {
@@ -64,6 +65,7 @@ export function CheckoutForm({
   bankAccountHolder,
   bankBranchCode,
   deliverySlots,
+  deliveryFeeNad,
 }: Props) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState("");
@@ -97,6 +99,9 @@ export function CheckoutForm({
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+  const deliveryFee = deliveryMethod === "delivery" ? deliveryFeeNad : 0;
+  const total = subtotal + deliveryFee;
 
   const hasBankDetails = bankName && bankAccountNumber;
 
@@ -189,10 +194,19 @@ export function CheckoutForm({
             price: item.price,
             quantity: item.quantity,
           })),
+          p_delivery_fee: deliveryFee,
         }
       );
 
-      if (orderError || !orderData?.[0]) {
+      if (orderError) {
+        // Surface stock errors clearly to customer
+        const msg = orderError.message || "";
+        if (msg.includes("Insufficient stock")) {
+          throw new Error(msg.replace(/^.*Insufficient stock/, "Insufficient stock"));
+        }
+        throw new Error("Failed to create order. Please try again.");
+      }
+      if (!orderData?.[0]) {
         throw new Error("Failed to create order");
       }
 
@@ -230,6 +244,8 @@ export function CheckoutForm({
       itemLines,
       ``,
       `*Subtotal:* ${formatPrice(subtotal)}`,
+      ...(deliveryFee > 0 ? [`*Delivery Fee:* ${formatPrice(deliveryFee)}`] : []),
+      `*Total:* ${formatPrice(total)}`,
       `*Delivery:* ${
         deliveryMethod === "delivery"
           ? `Delivery to: ${deliveryAddress}`
@@ -309,9 +325,21 @@ export function CheckoutForm({
                 </li>
               ))}
             </ul>
-            <div className="border-t pt-2 mt-2 flex justify-between font-bold">
-              <span>Subtotal</span>
-              <span className="text-green-600">{formatPrice(subtotal)}</span>
+            <div className="border-t pt-2 mt-2 space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Subtotal</span>
+                <span className="text-gray-900">{formatPrice(subtotal)}</span>
+              </div>
+              {deliveryFee > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Delivery Fee</span>
+                  <span className="text-gray-900">{formatPrice(deliveryFee)}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold pt-1 border-t">
+                <span>Total</span>
+                <span className="text-green-600">{formatPrice(total)}</span>
+              </div>
             </div>
           </>
         )}
@@ -519,7 +547,7 @@ export function CheckoutForm({
               </p>
             )}
             <p className="mt-2 text-gray-500">
-              Amount: <span className="font-bold text-green-600">{formatPrice(subtotal)}</span>
+              Amount: <span className="font-bold text-green-600">{formatPrice(total)}</span>
             </p>
           </div>
 

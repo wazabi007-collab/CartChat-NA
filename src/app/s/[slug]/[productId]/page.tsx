@@ -154,13 +154,41 @@ export default async function ProductDetailPage({ params }: Props) {
               </div>
             )}
 
+            {/* Stock status */}
+            {product.track_inventory && (
+              <div className="mt-3">
+                {product.stock_quantity === 0 && !product.allow_backorder ? (
+                  <span className="inline-block bg-red-100 text-red-700 text-sm font-medium px-3 py-1 rounded-full">
+                    Out of Stock
+                  </span>
+                ) : product.stock_quantity <= (product.low_stock_threshold ?? 5) ? (
+                  <span className="inline-block bg-orange-100 text-orange-700 text-sm font-medium px-3 py-1 rounded-full">
+                    Only {product.stock_quantity} left!
+                  </span>
+                ) : (
+                  <span className="inline-block bg-green-100 text-green-700 text-sm font-medium px-3 py-1 rounded-full">
+                    In Stock
+                  </span>
+                )}
+              </div>
+            )}
+
             <div className="mt-6">
-              <AddToCartButton
-                productId={product.id}
-                name={product.name}
-                price={product.price_nad}
-                imageUrl={images[0] ?? null}
-              />
+              {product.track_inventory && product.stock_quantity === 0 && !product.allow_backorder ? (
+                <button
+                  disabled
+                  className="w-full sm:w-auto bg-gray-300 text-gray-500 font-semibold py-3 px-8 rounded-md cursor-not-allowed"
+                >
+                  Out of Stock
+                </button>
+              ) : (
+                <AddToCartButton
+                  productId={product.id}
+                  name={product.name}
+                  price={product.price_nad}
+                  imageUrl={images[0] ?? null}
+                />
+              )}
             </div>
           </div>
         </div>

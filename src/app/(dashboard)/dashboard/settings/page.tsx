@@ -33,6 +33,7 @@ export default function SettingsPage() {
     bank_account_number: "",
     bank_account_holder: "",
     bank_branch_code: "",
+    delivery_fee_display: "0",
   });
 
   const [deliverySlots, setDeliverySlots] = useState<DeliverySlots>({
@@ -64,6 +65,7 @@ export default function SettingsPage() {
           bank_account_number: merchant.bank_account_number || "",
           bank_account_holder: merchant.bank_account_holder || "",
           bank_branch_code: merchant.bank_branch_code || "",
+          delivery_fee_display: merchant.delivery_fee_nad ? (merchant.delivery_fee_nad / 100).toFixed(2) : "0",
         });
         if (merchant.delivery_slots) {
           setDeliverySlots(merchant.delivery_slots as DeliverySlots);
@@ -87,6 +89,8 @@ export default function SettingsPage() {
       return;
     }
 
+    const deliveryFeeCents = Math.round((parseFloat(form.delivery_fee_display) || 0) * 100);
+
     const { error: updateError } = await supabase
       .from("merchants")
       .update({
@@ -98,6 +102,7 @@ export default function SettingsPage() {
         bank_account_holder: form.bank_account_holder || null,
         bank_branch_code: form.bank_branch_code || null,
         delivery_slots: deliverySlots.enabled ? deliverySlots : null,
+        delivery_fee_nad: deliveryFeeCents,
       })
       .eq("id", merchantId);
 
@@ -258,6 +263,30 @@ export default function SettingsPage() {
                 setForm((p) => ({ ...p, bank_branch_code: e.target.value }))
               }
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+        </div>
+
+        {/* Delivery Fee */}
+        <div className="bg-white rounded-lg border p-6 space-y-4">
+          <h2 className="font-medium text-gray-900">Delivery Fee</h2>
+          <p className="text-xs text-gray-400">
+            Flat rate charged when customers choose delivery. Set to 0 for free delivery.
+          </p>
+          <div className="relative max-w-xs">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+              N$
+            </span>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={form.delivery_fee_display}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, delivery_fee_display: e.target.value }))
+              }
+              className="w-full pl-9 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="30.00"
             />
           </div>
         </div>

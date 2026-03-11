@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils";
-import { BANKS_NAMIBIA } from "@/lib/constants";
+import { BANKS_NAMIBIA, INDUSTRIES_NAMIBIA } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { Store, ArrowRight, Check } from "lucide-react";
 
@@ -20,6 +20,7 @@ export default function StoreSetupPage() {
     store_name: "",
     description: "",
     whatsapp_number: "",
+    industry: "",
     bank_name: "",
     bank_account_number: "",
     bank_account_holder: "",
@@ -71,6 +72,7 @@ export default function StoreSetupPage() {
       store_slug: finalSlug,
       description: form.description || null,
       whatsapp_number: form.whatsapp_number,
+      industry: form.industry || "other",
       bank_name: form.bank_name || null,
       bank_account_number: form.bank_account_number || null,
       bank_account_holder: form.bank_account_holder || null,
@@ -148,11 +150,36 @@ export default function StoreSetupPage() {
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Industry *
+                </label>
+                <select
+                  value={form.industry}
+                  onChange={(e) => update("industry", e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">What do you sell?</option>
+                  {INDUSTRIES_NAMIBIA.map((ind) => (
+                    <option key={ind.value} value={ind.value}>
+                      {ind.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-400 mt-1">
+                  Helps us personalise your store experience
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => {
                   if (!form.store_name || !form.whatsapp_number) {
                     setError("Store name and WhatsApp number are required");
+                    return;
+                  }
+                  if (!form.industry) {
+                    setError("Please select your industry");
                     return;
                   }
                   setError("");

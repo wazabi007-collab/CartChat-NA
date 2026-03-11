@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -54,7 +55,7 @@ export function DashboardNav({ merchant, userPhone }: NavProps) {
       <aside className="hidden md:flex md:w-56 md:flex-col md:fixed md:inset-y-0 bg-white border-r">
         <div className="flex flex-col flex-1 overflow-y-auto">
           <div className="p-4 border-b">
-            <h2 className="font-bold text-lg text-gray-900">OshiCart</h2>
+            <Image src="/logo.svg" alt="OshiCart" width={120} height={32} />
             {merchant && (
               <p className="text-xs text-gray-500 truncate">
                 {merchant.store_name}
@@ -97,7 +98,7 @@ export function DashboardNav({ merchant, userPhone }: NavProps) {
 
       {/* Mobile header */}
       <div className="md:hidden bg-white border-b px-4 py-3 flex items-center justify-between sticky top-0 z-40">
-        <h2 className="font-bold text-gray-900">OshiCart</h2>
+        <Image src="/logo.svg" alt="OshiCart" width={100} height={26} />
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className="text-gray-600"

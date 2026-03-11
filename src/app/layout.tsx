@@ -16,6 +16,10 @@ export const metadata: Metadata = {
   title: "OshiCart — WhatsApp Store for Namibian Businesses",
   description:
     "Create your WhatsApp store in 5 minutes. Free product catalog, order management, and payment proof — built for Namibia.",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "OshiCart",
     description: "Create your WhatsApp store in 5 minutes. Free for Namibian businesses.",

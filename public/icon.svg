@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <!-- Speech bubble with shopping cart icon -->
+  <path d="M40 4C21.2 4 6 18.5 6 36c0 9.7 4.5 18.4 11.6 24.2L11 74l13.5-7.8C28.2 68 34 69 40 69c18.8 0 34-14.5 34-34S58.8 4 40 4z" fill="#2B5EA7"/>
+  <!-- Shopping cart -->
+  <g stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M24 24h4.5l3 4.5h21l-3 15H33.5L28 24"/>
+    <line x1="34" y1="34" x2="49" y2="34"/>
+    <line x1="33.5" y1="38.5" x2="48" y2="38.5"/>
+  </g>
+  <!-- Cart wheels -->
+  <circle cx="36" cy="48" r="2.8" fill="#fff"/>
+  <circle cx="47.5" cy="48" r="2.8" fill="#fff"/>
+</svg>

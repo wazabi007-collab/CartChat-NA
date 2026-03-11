@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ShoppingCart,
   MessageCircle,
@@ -14,7 +15,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="border-b">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">OshiCart</h1>
+          <Image src="/logo.svg" alt="OshiCart" width={140} height={37} priority />
           <div className="flex items-center gap-3">
             <Link
               href="/stores"

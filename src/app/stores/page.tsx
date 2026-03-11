@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Store, Search, ArrowRight, MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SITE_NAME } from "@/lib/constants";
@@ -54,8 +55,8 @@ export default async function StoresPage({
       {/* Header */}
       <header className="bg-white border-b">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-gray-900">
-            {SITE_NAME}
+          <Link href="/">
+            <Image src="/logo.svg" alt={SITE_NAME} width={140} height={37} />
           </Link>
           <div className="flex items-center gap-3">
             <Link

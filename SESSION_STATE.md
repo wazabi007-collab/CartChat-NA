@@ -36,7 +36,13 @@ TEST_MERCHANT_EMAIL=playwright-e2e@oshicart.test
 TEST_STORE_SLUG=playwright-test-store
 ```
 
+### Final Test Run: 24/24 PASS
+All tests green against production `https://oshicart.octovianexus.com`.
+
+### Deploy Fix Applied
+- Fixed deploy script to use `docker compose -f docker-compose.prod.yml` (was using dev compose)
+- Rebuilt app with prod Dockerfile on server
+- Stores visible, checkout working, auth working
+
 ### Next Step
-1. Commit and push to GitHub
-2. SSH to server, git pull, docker compose rebuild app
-3. Re-run tests — expect 24/24 pass
+- Investigate: user reports images not showing on storefronts

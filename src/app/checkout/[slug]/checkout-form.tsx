@@ -168,51 +168,42 @@ export function CheckoutForm({
         proofUrl = urlData.publicUrl;
       }
 
-      // Create order
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          merchant_id: merchantId,
-          customer_name: customerName.trim(),
-          customer_whatsapp: customerWhatsapp.trim(),
-          delivery_method: deliveryMethod,
-          delivery_address:
+      // Create order via RPC (bypasses anon RETURNING RLS restriction)
+      const { data: orderData, error: orderError } = await supabase.rpc(
+        "place_order",
+        {
+          p_merchant_id: merchantId,
+          p_customer_name: customerName.trim(),
+          p_customer_whatsapp: customerWhatsapp.trim(),
+          p_delivery_method: deliveryMethod,
+          p_subtotal_nad: subtotal,
+          p_delivery_address:
             deliveryMethod === "delivery" ? deliveryAddress.trim() : null,
-          delivery_date: deliveryDate || null,
-          delivery_time: deliveryTime || null,
-          subtotal_nad: subtotal,
-          proof_of_payment_url: proofUrl,
-          notes: notes.trim() || null,
-        })
-        .select("id, order_number")
-        .single();
+          p_delivery_date: deliveryDate || null,
+          p_delivery_time: deliveryTime || null,
+          p_notes: notes.trim() || null,
+          p_proof_url: proofUrl,
+          p_items: JSON.stringify(
+            cartItems.map((item) => ({
+              productId: item.productId,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+            }))
+          ),
+        }
+      );
 
-      if (orderError || !order) {
+      if (orderError || !orderData?.[0]) {
         throw new Error("Failed to create order");
       }
 
-      // Create order items
-      const orderItems = cartItems.map((item) => ({
-        order_id: order.id,
-        product_id: item.productId,
-        product_name: item.name,
-        product_price: item.price,
-        quantity: item.quantity,
-        line_total: item.price * item.quantity,
-      }));
-
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
-
-      if (itemsError) {
-        throw new Error("Failed to save order items");
-      }
+      const order = orderData[0] as { order_id: string; order_number: number };
 
       // Clear cart
       localStorage.removeItem(`oshicart-cart-${storeSlug}`);
 
-      setOrderId(order.id);
+      setOrderId(order.order_id);
       setOrderNumber(order.order_number);
       setStep("success");
     } catch (err) {

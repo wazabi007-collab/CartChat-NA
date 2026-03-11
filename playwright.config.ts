@@ -8,6 +8,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1,
+  timeout: 90_000, // 90 s per test — auth cookie injection + dashboard ops
   reporter: [["html", { outputFolder: "playwright-report" }], ["list"]],
 
   use: {
@@ -15,6 +16,8 @@ export default defineConfig({
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "on-first-retry",
+    actionTimeout: 20_000,
+    navigationTimeout: 30_000,
   },
 
   projects: [

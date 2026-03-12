@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 40" width="100" height="40">
+  <!-- Bank/building icon -->
+  <g fill="#1E3A5F">
+    <!-- Roof/triangle -->
+    <polygon points="8,16 20,8 32,16" />
+    <!-- Pillars -->
+    <rect x="10" y="16" width="3" height="10" />
+    <rect x="15.5" y="16" width="3" height="10" />
+    <rect x="21" y="16" width="3" height="10" />
+    <rect x="26.5" y="16" width="3" height="10" />
+    <!-- Base -->
+    <rect x="7" y="26" width="26" height="3" />
+    <!-- Top line -->
+    <rect x="7" y="15" width="26" height="2" />
+  </g>
+  <!-- EFT text -->
+  <text x="42" y="27" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="800" fill="#1E3A5F" letter-spacing="1">EFT</text>
+</svg>

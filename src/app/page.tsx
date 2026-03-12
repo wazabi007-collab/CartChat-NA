@@ -1,241 +1,273 @@
 import Link from "next/link";
 import Image from "next/image";
 import {
+  ArrowRight,
   ShoppingCart,
   MessageCircle,
   CreditCard,
   BarChart3,
-  ArrowRight,
   Check,
 } from "lucide-react";
+import { VideoModalButton } from "@/components/video-modal";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Image src="/logo.svg" alt="OshiCart" width={140} height={37} priority />
-          <div className="flex items-center gap-3">
-            <Link
-              href="/stores"
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              Browse Stores
-            </Link>
-            <Link
-              href="/login"
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/signup"
-              className="text-sm px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              Create Free Store
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section className="py-16 md:py-24 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight">
-            Your WhatsApp store.
-            <br />
-            <span className="text-green-600">Live in 5 minutes.</span>
-          </h2>
-          <p className="text-lg text-gray-500 mt-4 max-w-xl mx-auto">
-            Stop juggling WhatsApp messages, screenshots, and EFT proofs.
-            OshiCart gives your business a professional catalog, order
-            management, and payment tracking — all through WhatsApp.
-          </p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-lg"
-            >
-              Create Free Store <ArrowRight size={20} />
-            </Link>
-          </div>
-          <p className="text-sm text-gray-400 mt-3">
-30-day free trial. No credit card needed.
-          </p>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="py-16 bg-gray-50 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
-            How it works
-          </h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            <Step
-              number="1"
-              title="Set up your store"
-              description="Add your products, prices, and bank details. Takes under 5 minutes."
-            />
-            <Step
-              number="2"
-              title="Share on WhatsApp"
-              description="Get a store link. Share it in your WhatsApp status, groups, and chats."
-            />
-            <Step
-              number="3"
-              title="Receive orders"
-              description="Customers browse, order, and upload proof of payment. You confirm and fulfill."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="py-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
-            Built for Namibian businesses
-          </h3>
-          <div className="grid md:grid-cols-2 gap-6">
-            <Feature
-              icon={<ShoppingCart size={24} />}
-              title="Product Catalog"
-              description="Add products with photos and prices in NAD. Customers browse on their phone — no app download needed."
-            />
-            <Feature
-              icon={<CreditCard size={24} />}
-              title="EFT Payment Proof"
-              description="Customers upload proof-of-payment after EFT. You see it right in your dashboard. No more chasing screenshots."
-            />
-            <Feature
-              icon={<MessageCircle size={24} />}
-              title="WhatsApp Notifications"
-              description="One-tap WhatsApp messages to customers when you confirm or complete their order."
-            />
-            <Feature
-              icon={<BarChart3 size={24} />}
-              title="Sales Analytics"
-              description="Track views, orders, and revenue. Know your top products and busiest days."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section className="py-16 bg-gray-50 px-4" id="pricing">
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
-            Simple pricing
-          </h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            <PricingCard
-              name="Free Trial"
-              price="N$0"
-              period="30 days"
-              features={[
-                "20 products",
-                "20 orders/month",
-                "Product catalog",
-                "Order management",
-                "EFT proof upload",
-              ]}
-              cta="Start Free Trial"
-              href="/signup"
-              highlighted={false}
-            />
-            <PricingCard
-              name="Pro"
-              price="N$99"
-              period="/month"
-              features={[
-                "150 products",
-                "300 orders/month",
-                "Full analytics",
-                "Priority support",
-                "Everything in Free",
-              ]}
-              cta="Get Started"
-              href="/signup"
-              highlighted={true}
-            />
-            <PricingCard
-              name="Business"
-              price="N$249"
-              period="/month"
-              features={[
-                "Unlimited products",
-                "Unlimited orders",
-                "3 staff accounts",
-                "Custom branding",
-                "Phone support",
-                "Everything in Pro",
-              ]}
-              cta="Contact Us"
-              href="/signup"
-              highlighted={false}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-16 px-4">
-        <div className="max-w-2xl mx-auto text-center">
-          <h3 className="text-2xl font-bold text-gray-900">
-            Ready to grow your WhatsApp business?
-          </h3>
-          <p className="text-gray-500 mt-2">
-            Join Namibian sellers who are saving hours every day with OshiCart.
-          </p>
-          <Link
-            href="/signup"
-            className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
-          >
-            Create Your Free Store <ArrowRight size={18} />
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t py-8 px-4">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
-          <p>OshiCart — Made in Namibia</p>
-          <div className="flex gap-4">
-            <Link href="/stores" className="hover:text-gray-600">
-              Browse Stores
-            </Link>
-            <Link href="/terms" className="hover:text-gray-600">
-              Terms
-            </Link>
-            <Link href="/privacy" className="hover:text-gray-600">
-              Privacy
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <Navbar />
+      <HeroSection />
+      <HowItWorksSection />
+      <FeaturesSection />
+      <PricingSection />
+      <KeySolutionsSection />
+      <WhatsAppCTASection />
+      <Footer />
     </div>
   );
 }
 
-function Step({
-  number,
-  title,
-  description,
-}: {
-  number: string;
-  title: string;
-  description: string;
-}) {
+/* ─── Navbar ──────────────────────────────────────────────── */
+function Navbar() {
   return (
-    <div className="text-center">
-      <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-700 font-bold mb-3">
-        {number}
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+        <Link href="/" className="flex-shrink-0">
+          <Image
+            src="/logo.svg"
+            alt="OshiCart"
+            width={150}
+            height={40}
+            priority
+          />
+        </Link>
+        <nav className="hidden md:flex items-center gap-8">
+          <Link
+            href="/stores"
+            className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Browse Stores
+          </Link>
+          <Link
+            href="/login"
+            className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Sign in
+          </Link>
+        </nav>
+        <Link
+          href="/signup"
+          className="text-sm px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+        >
+          Create Free Store
+        </Link>
       </div>
-      <h4 className="font-medium text-gray-900">{title}</h4>
-      <p className="text-sm text-gray-500 mt-1">{description}</p>
-    </div>
+    </header>
+  );
+}
+
+/* ─── Hero ────────────────────────────────────────────────── */
+function HeroSection() {
+  return (
+    <section className="relative overflow-hidden">
+      {/* Full-width hero banner image */}
+      <div className="relative w-full">
+        <Image
+          src="/hero-main.webp"
+          alt="Namibian merchant showing OshiCart store on phone with craft products"
+          width={1920}
+          height={700}
+          className="w-full h-auto object-cover"
+          priority
+        />
+        {/* Overlay with text + CTAs */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/60 to-transparent">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 h-full flex items-center">
+            <div className="max-w-lg py-8 md:py-0">
+              <h1 className="text-3xl md:text-5xl lg:text-[3.25rem] font-extrabold text-gray-900 leading-tight">
+                Your Namibian Business,{" "}
+                <span className="text-green-600">Online in 5 Minutes.</span>
+              </h1>
+              <p className="mt-4 text-base md:text-lg text-gray-700 leading-relaxed">
+                Create your digital catalog, accept local payments, and manage
+                orders effortlessly via WhatsApp.
+              </p>
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm md:text-base shadow-lg shadow-green-600/25 transition-all hover:shadow-xl hover:shadow-green-600/30"
+                >
+                  Start Your Free Trial
+                  <ArrowRight size={18} />
+                </Link>
+                <VideoModalButton />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── How It Works ────────────────────────────────────────── */
+function HowItWorksSection() {
+  return (
+    <section id="how-it-works" className="bg-white">
+      <div className="text-center pt-16 pb-8 px-4">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
+          How It Works
+        </h2>
+        <p className="text-gray-500 mt-3 max-w-xl mx-auto">
+          Three simple steps to start selling online in Namibia
+        </p>
+      </div>
+      {/* Full-width banner image */}
+      <div className="w-full">
+        <Image
+          src="/how-it-works-banner.webp"
+          alt="How It Works: 1. Create Your Catalog, 2. Share Your Link, 3. Get Orders and Payments"
+          width={1920}
+          height={500}
+          className="w-full h-auto object-cover"
+        />
+      </div>
+    </section>
+  );
+}
+
+/* ─── Key Solutions ───────────────────────────────────────── */
+function KeySolutionsSection() {
+  return (
+    <section className="py-20 md:py-28 px-4 sm:px-6 bg-gradient-to-b from-gray-50 to-white">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 text-center">
+          Key Solutions for Namibian Merchants
+        </h2>
+
+        <div className="mt-16 grid md:grid-cols-3 gap-8">
+          {/* WhatsApp Integration */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-center flex flex-col items-center">
+            <div className="w-20 h-20 relative">
+              <Image
+                src="/whatsapp-icon.webp"
+                alt="WhatsApp"
+                fill
+                className="object-contain"
+              />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mt-5">
+              WhatsApp Integration
+            </h3>
+            <p className="text-sm text-gray-500 mt-3">
+              Order details straight to WhatsApp. Your customers never need to
+              download a new app.
+            </p>
+          </div>
+
+          {/* Local Payment Focus */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-center">
+            <h3 className="text-xl font-bold text-gray-900">
+              Local Payment Focus
+            </h3>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <div className="flex items-center justify-center h-12 relative">
+                <Image
+                  src="/payment-eft.svg"
+                  alt="EFT"
+                  width={80}
+                  height={32}
+                  className="object-contain"
+                />
+              </div>
+              <div className="flex items-center justify-center h-12 relative">
+                <Image
+                  src="/payment-paytoday.svg"
+                  alt="PayToday"
+                  width={100}
+                  height={32}
+                  className="object-contain"
+                />
+              </div>
+              <div className="flex items-center justify-center h-12 relative">
+                <Image
+                  src="/payment-ewallet.svg"
+                  alt="eWallet"
+                  width={80}
+                  height={32}
+                  className="object-contain"
+                />
+              </div>
+              <div className="flex items-center justify-center h-12 relative">
+                <Image
+                  src="/payment-cod.svg"
+                  alt="Cash on Delivery"
+                  width={100}
+                  height={32}
+                  className="object-contain"
+                />
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 mt-5">
+              Accept all popular Namibian payment methods. No international
+              gateway fees.
+            </p>
+          </div>
+
+          {/* Mobile-First Design */}
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-center flex flex-col items-center">
+            <div className="w-full h-32 relative">
+              <Image
+                src="/mobile-devices.svg"
+                alt="Phone, tablet, and laptop showing OshiCart"
+                fill
+                className="object-contain"
+              />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mt-5">
+              Mobile-First Design
+            </h3>
+            <p className="text-sm text-gray-500 mt-3">
+              Optimized for smartphones on any network. Fast loading even on 3G
+              — built for Namibia&apos;s mobile-first market.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Features (Built for Namibian businesses) ────────────── */
+function FeaturesSection() {
+  return (
+    <section className="py-16 px-4 sm:px-6">
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-12">
+          Built for Namibian businesses
+        </h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Feature
+            icon={<ShoppingCart size={24} />}
+            title="Product Catalog"
+            description="Add products with photos and prices in NAD. Customers browse on their phone — no app download needed."
+          />
+          <Feature
+            icon={<CreditCard size={24} />}
+            title="EFT Payment Proof"
+            description="Customers upload proof-of-payment after EFT. You see it right in your dashboard. No more chasing screenshots."
+          />
+          <Feature
+            icon={<MessageCircle size={24} />}
+            title="WhatsApp Notifications"
+            description="One-tap WhatsApp messages to customers when you confirm or complete their order."
+          />
+          <Feature
+            icon={<BarChart3 size={24} />}
+            title="Sales Analytics"
+            description="Track views, orders, and revenue. Know your top products and busiest days."
+          />
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -256,6 +288,67 @@ function Feature({
         <p className="text-sm text-gray-500 mt-1">{description}</p>
       </div>
     </div>
+  );
+}
+
+/* ─── Pricing ─────────────────────────────────────────────── */
+function PricingSection() {
+  return (
+    <section className="py-16 bg-gray-50 px-4 sm:px-6" id="pricing">
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-12">
+          Simple pricing
+        </h2>
+        <div className="grid md:grid-cols-3 gap-6">
+          <PricingCard
+            name="Free Trial"
+            price="N$0"
+            period="30 days"
+            features={[
+              "20 products",
+              "20 orders/month",
+              "Product catalog",
+              "Order management",
+              "EFT proof upload",
+            ]}
+            cta="Start Free Trial"
+            href="/signup"
+            highlighted={false}
+          />
+          <PricingCard
+            name="Pro"
+            price="N$99"
+            period="/month"
+            features={[
+              "150 products",
+              "300 orders/month",
+              "Full analytics",
+              "Priority support",
+              "Everything in Free",
+            ]}
+            cta="Get Started"
+            href="/signup"
+            highlighted={true}
+          />
+          <PricingCard
+            name="Business"
+            price="N$249"
+            period="/month"
+            features={[
+              "Unlimited products",
+              "Unlimited orders",
+              "3 staff accounts",
+              "Custom branding",
+              "Phone support",
+              "Everything in Pro",
+            ]}
+            cta="Contact Us"
+            href="/signup"
+            highlighted={false}
+          />
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -308,5 +401,103 @@ function PricingCard({
         {cta}
       </Link>
     </div>
+  );
+}
+
+/* ─── WhatsApp CTA ────────────────────────────────────────── */
+function WhatsAppCTASection() {
+  return (
+    <section className="py-16 px-4 sm:px-6">
+      <div className="max-w-2xl mx-auto text-center">
+        <h3 className="text-2xl font-bold text-gray-900">
+          Ready to grow your WhatsApp business?
+        </h3>
+        <p className="text-gray-500 mt-2">
+          Join Namibian sellers who are saving hours every day with OshiCart.
+        </p>
+        <Link
+          href="/signup"
+          className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+        >
+          Create Your Free Store <ArrowRight size={18} />
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Footer ──────────────────────────────────────────────── */
+function Footer() {
+  return (
+    <footer
+      id="contact"
+      className="bg-gray-900 text-gray-400 py-12 px-4 sm:px-6"
+    >
+      <div className="max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 items-start">
+          {/* Brand */}
+          <div>
+            <Image
+              src="/logo.svg"
+              alt="OshiCart"
+              width={130}
+              height={35}
+              className="brightness-0 invert"
+            />
+            <p className="mt-3 text-sm text-gray-500">
+              Empowering Local Commerce in Namibia
+            </p>
+          </div>
+
+          {/* About Us */}
+          <div id="about">
+            <h4 className="text-white font-semibold mb-3">About Us</h4>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              OshiCart is a Namibian-built platform helping small businesses sell
+              online through WhatsApp. We make it easy to create a digital
+              catalog, accept local payments, and manage orders.
+            </p>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 className="text-white font-semibold mb-3">Contact</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link
+                  href="/stores"
+                  className="hover:text-white transition-colors"
+                >
+                  Browse Stores
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="hover:text-white transition-colors"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/privacy"
+                  className="hover:text-white transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-10 pt-6 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
+          <p>&copy; {new Date().getFullYear()} OshiCart. Made in Namibia.</p>
+          <p className="text-gray-500 italic">
+            Empowering Local Commerce in Namibia
+          </p>
+        </div>
+      </div>
+    </footer>
   );
 }

@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 320" fill="none">
+  <defs>
+    <filter id="shadow2" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0369A1" flood-opacity="0.25"/>
+    </filter>
+    <filter id="iconShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="140" cy="175" r="115" fill="#E0F7FF"/>
+
+  <!-- Phone body -->
+  <rect x="80" y="90" width="120" height="195" rx="14" fill="#1F2937"/>
+  <!-- Phone screen -->
+  <rect x="86" y="100" width="108" height="175" rx="8" fill="#F8FAFC"/>
+  <!-- Notch -->
+  <rect x="117" y="96" width="46" height="9" rx="4.5" fill="#111827"/>
+
+  <!-- Share/forward arrow icon on screen -->
+  <g transform="translate(140, 185)" text-anchor="middle">
+    <!-- Arrow body -->
+    <rect x="-28" y="-6" width="36" height="12" rx="6" fill="#64748B"/>
+    <!-- Arrow head -->
+    <path d="M12 -16 L32 0 L12 16 Z" fill="#64748B"/>
+    <!-- Curved path dots -->
+    <circle cx="-28" cy="0" r="5" fill="#94A3B8"/>
+    <circle cx="-14" cy="0" r="5" fill="#94A3B8"/>
+    <!-- Lines going left and right from dots -->
+    <path d="M-28 0 Q-36 -20 -24 -32" stroke="#94A3B8" stroke-width="2.5" stroke-dasharray="4 3" fill="none" stroke-linecap="round"/>
+    <path d="M-28 0 Q-36 20 -24 32" stroke="#94A3B8" stroke-width="2.5" stroke-dasharray="4 3" fill="none" stroke-linecap="round"/>
+  </g>
+  <!-- Screen label -->
+  <text x="140" y="228" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="#94A3B8" font-weight="600" letter-spacing="0.5">SHARE YOUR STORE</text>
+
+  <!-- Hand holding phone -->
+  <ellipse cx="140" cy="295" rx="48" ry="30" fill="#D4A574"/>
+  <path d="M88 255 Q78 245 80 232 Q82 222 90 220 Q98 218 100 228 L100 265 Q94 262 88 255Z" fill="#D4A574"/>
+  <path d="M96 225 Q94 210 100 198 Q104 190 110 192 Q116 194 115 204 L112 248 Q104 240 96 225Z" fill="#D4A574"/>
+  <path d="M114 220 Q113 204 119 193 Q123 185 130 187 Q136 189 135 200 L132 248 Q123 242 114 220Z" fill="#D4A574"/>
+  <path d="M133 222 Q132 207 138 197 Q142 190 148 192 Q154 194 153 204 L150 248 Q142 243 133 222Z" fill="#D4A574"/>
+  <path d="M151 228 Q150 215 155 207 Q158 202 163 204 Q168 206 167 214 L164 250 Q158 247 151 228Z" fill="#D4A574"/>
+  <path d="M88 260 Q88 290 94 308 Q100 320 140 318 Q180 316 184 300 L180 258 Q175 270 168 268 Q160 266 160 256 L152 256 Q152 266 144 268 Q136 270 132 260 L128 260 Q128 270 120 272 Q112 274 108 264 L100 264 Z" fill="#D4A574"/>
+  <ellipse cx="105" cy="228" rx="4" ry="2.5" fill="#C4946A" opacity="0.5"/>
+  <ellipse cx="123" cy="222" rx="4" ry="2.5" fill="#C4946A" opacity="0.5"/>
+  <ellipse cx="141" cy="224" rx="4" ry="2.5" fill="#C4946A" opacity="0.5"/>
+  <ellipse cx="158" cy="230" rx="4" ry="2.5" fill="#C4946A" opacity="0.5"/>
+
+  <!-- Facebook circle - top left -->
+  <circle cx="52" cy="108" r="20" fill="#1877F2" filter="url(#iconShadow)"/>
+  <text x="52" y="115" text-anchor="middle" font-family="Georgia, serif" font-size="20" font-weight="bold" fill="white">f</text>
+
+  <!-- YouTube circle - bottom left -->
+  <circle cx="46" cy="200" r="20" fill="#FF0000" filter="url(#iconShadow)"/>
+  <!-- Play triangle -->
+  <polygon points="39,192 39,208 58,200" fill="white"/>
+
+  <!-- WhatsApp circle - top right -->
+  <circle cx="228" cy="108" r="20" fill="#25D366" filter="url(#iconShadow)"/>
+  <!-- WhatsApp chat bubble icon -->
+  <path d="M228 98 C220 98 214 103 214 110 C214 113 215 116 218 118 L216 122 L221 120 C223 121 225.5 121.5 228 121.5 C236 121.5 242 116.5 242 110 C242 103 236 98 228 98Z" fill="white"/>
+  <circle cx="222" cy="110" r="1.5" fill="#25D366"/>
+  <circle cx="228" cy="110" r="1.5" fill="#25D366"/>
+  <circle cx="234" cy="110" r="1.5" fill="#25D366"/>
+
+  <!-- TikTok circle - right side -->
+  <circle cx="236" cy="172" r="20" fill="#010101" filter="url(#iconShadow)"/>
+  <!-- TikTok music note -->
+  <path d="M233 163 L240 161 L240 166 L237 167 L237 176 C237 178.2 235.2 180 233 180 C230.8 180 229 178.2 229 176 C229 173.8 230.8 172 233 172 L233 163Z" fill="white"/>
+  <rect x="237" y="161" width="6" height="2" rx="1" fill="#EE1D52"/>
+</svg>

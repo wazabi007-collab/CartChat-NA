@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" width="200" height="160">
+  <!--
+    Simplified Namibia outline:
+    - Main rectangular body
+    - Walvis Bay enclave on west coast (slight indent)
+    - Caprivi Strip extending northeast
+    - Orange River along south border (slight curve)
+  -->
+  <path d="
+    M 30,15
+    L 130,15
+    L 130,30
+    L 160,30
+    L 160,45
+    L 130,45
+    L 130,140
+    Q 80,148 30,140
+    Q 20,100 20,70
+    Q 18,50 30,15 Z
+  " fill="#E0F7FA" stroke="#0d9488" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Walvis Bay slight coast indent -->
+  <path d="M 20,85 Q 26,90 20,95" fill="none" stroke="#0d9488" stroke-width="1.5"/>
+
+  <!-- Interior light texture lines -->
+  <line x1="50" y1="20" x2="50" y2="138" stroke="#B2EBF2" stroke-width="0.5" stroke-dasharray="3,4"/>
+  <line x1="80" y1="18" x2="80" y2="140" stroke="#B2EBF2" stroke-width="0.5" stroke-dasharray="3,4"/>
+  <line x1="110" y1="18" x2="110" y2="140" stroke="#B2EBF2" stroke-width="0.5" stroke-dasharray="3,4"/>
+  <line x1="22" y1="50" x2="128" y2="50" stroke="#B2EBF2" stroke-width="0.5" stroke-dasharray="3,4"/>
+  <line x1="22" y1="80" x2="128" y2="80" stroke="#B2EBF2" stroke-width="0.5" stroke-dasharray="3,4"/>
+  <line x1="22" y1="110" x2="128" y2="110" stroke="#B2EBF2" stroke-width="0.5" stroke-dasharray="3,4"/>
+
+  <!-- Namibia Flag element - small flag in top-right area -->
+  <g transform="translate(138, 10)">
+    <!-- Flag background white -->
+    <rect x="0" y="0" width="36" height="24" rx="2" fill="white" stroke="#ccc" stroke-width="0.5"/>
+    <!-- Blue top-left triangle -->
+    <polygon points="0,0 36,0 0,24" fill="#003580"/>
+    <!-- Red diagonal stripe (with white borders) -->
+    <polygon points="0,24 36,0 36,6 4,24" fill="white"/>
+    <polygon points="0,20 32,0 36,0 4,24 0,24" fill="#CC0000"/>
+    <!-- Green bottom-right triangle -->
+    <polygon points="36,6 36,24 4,24" fill="#009A44"/>
+    <!-- Sun in blue section -->
+    <circle cx="10" cy="8" r="4" fill="#FFCD00"/>
+    <!-- Sun rays -->
+    <line x1="10" y1="3" x2="10" y2="1.5" stroke="#FFCD00" stroke-width="0.8"/>
+    <line x1="14" y1="5" x2="15.2" y2="3.8" stroke="#FFCD00" stroke-width="0.8"/>
+    <line x1="15" y1="8" x2="16.5" y2="8" stroke="#FFCD00" stroke-width="0.8"/>
+    <line x1="14" y1="11" x2="15.2" y2="12.2" stroke="#FFCD00" stroke-width="0.8"/>
+    <line x1="10" y1="13" x2="10" y2="14.5" stroke="#FFCD00" stroke-width="0.8"/>
+    <line x1="6" y1="11" x2="4.8" y2="12.2" stroke="#FFCD00" stroke-width="0.8"/>
+    <line x1="5" y1="8" x2="3.5" y2="8" stroke="#FFCD00" stroke-width="0.8"/>
+    <line x1="6" y1="5" x2="4.8" y2="3.8" stroke="#FFCD00" stroke-width="0.8"/>
+    <!-- Sun inner circle -->
+    <circle cx="10" cy="8" r="2.5" fill="#FFCD00"/>
+    <!-- Flag label -->
+    <text x="18" y="33" font-family="Arial, sans-serif" font-size="6" fill="#6B7280" text-anchor="middle">Namibia</text>
+  </g>
+
+  <!-- City dots -->
+  <circle cx="40" cy="95" r="3" fill="#0d9488" opacity="0.8"/>
+  <text x="44" y="99" font-family="Arial, sans-serif" font-size="7" fill="#0d9488">Walvis Bay</text>
+
+  <circle cx="75" cy="72" r="3" fill="#0d9488" opacity="0.8"/>
+  <text x="79" y="76" font-family="Arial, sans-serif" font-size="7" fill="#0d9488">Windhoek</text>
+
+  <circle cx="90" cy="30" r="2.5" fill="#0d9488" opacity="0.6"/>
+  <text x="94" y="34" font-family="Arial, sans-serif" font-size="6.5" fill="#0d9488">Oshakati</text>
+</svg>

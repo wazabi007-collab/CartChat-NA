@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 320" fill="none">
+  <!-- Background circle -->
+  <circle cx="140" cy="175" r="115" fill="#E0F2FE"/>
+
+  <!-- Phone body -->
+  <rect x="80" y="90" width="120" height="195" rx="14" fill="#1F2937"/>
+  <!-- Phone screen bezel -->
+  <rect x="86" y="100" width="108" height="175" rx="8" fill="#F8FAFC"/>
+  <!-- Notch -->
+  <rect x="117" y="96" width="46" height="9" rx="4.5" fill="#111827"/>
+
+  <!-- Storefront awning icon at top of screen -->
+  <g transform="translate(110, 108)">
+    <!-- Awning shape -->
+    <path d="M0 10 L30 0 L60 10 L60 18 L0 18 Z" fill="#0d9488"/>
+    <!-- Awning stripes -->
+    <line x1="10" y1="10" x2="8" y2="18" stroke="white" stroke-width="1.5"/>
+    <line x1="20" y1="6" x2="18" y2="18" stroke="white" stroke-width="1.5"/>
+    <line x1="30" y1="4" x2="29" y2="18" stroke="white" stroke-width="1.5"/>
+    <line x1="40" y1="6" x2="40" y2="18" stroke="white" stroke-width="1.5"/>
+    <line x1="50" y1="10" x2="51" y2="18" stroke="white" stroke-width="1.5"/>
+    <!-- Store front door area -->
+    <rect x="12" y="18" width="36" height="20" rx="2" fill="#E2E8F0"/>
+    <rect x="20" y="22" width="10" height="16" rx="1" fill="#94A3B8"/>
+    <rect x="30" y="22" width="10" height="16" rx="1" fill="#94A3B8"/>
+  </g>
+
+  <!-- Product grid 2x2 -->
+  <!-- Row 1 -->
+  <rect x="92" y="148" width="44" height="44" rx="6" fill="#FCA5A5"/>
+  <rect x="144" y="148" width="44" height="44" rx="6" fill="#86EFAC"/>
+  <!-- Row 2 -->
+  <rect x="92" y="200" width="44" height="44" rx="6" fill="#93C5FD"/>
+  <rect x="144" y="200" width="44" height="44" rx="6" fill="#FCD34D"/>
+
+  <!-- Small product icons on thumbnails -->
+  <!-- T-shirt silhouette on pink -->
+  <path d="M104 162 L108 158 L112 160 L116 158 L120 162 L118 164 L118 172 L106 172 L106 164 Z" fill="#EF4444" opacity="0.6"/>
+  <!-- Shoe silhouette on green -->
+  <path d="M150 168 Q155 162 162 163 L164 167 L158 170 L150 170 Z" fill="#16A34A" opacity="0.6"/>
+  <!-- Bag on blue -->
+  <rect x="100" y="213" width="14" height="12" rx="2" fill="#2563EB" opacity="0.6"/>
+  <path d="M102 213 Q107 208 112 213" stroke="#2563EB" stroke-width="1.5" fill="none" opacity="0.8"/>
+  <!-- Star/sparkle on yellow -->
+  <path d="M163 222 L165 218 L167 222 L171 222 L168 225 L169 229 L165 226 L161 229 L162 225 L159 222 Z" fill="#D97706" opacity="0.7"/>
+
+  <!-- Hand holding phone -->
+  <!-- Palm base -->
+  <ellipse cx="140" cy="295" rx="48" ry="30" fill="#D4A574"/>
+  <!-- Thumb -->
+  <path d="M88 255 Q78 245 80 232 Q82 222 90 220 Q98 218 100 228 L100 265 Q94 262 88 255Z" fill="#D4A574"/>
+  <!-- Index finger -->
+  <path d="M96 225 Q94 210 100 198 Q104 190 110 192 Q116 194 115 204 L112 248 Q104 240 96 225Z" fill="#D4A574"/>
+  <!-- Middle finger -->
+  <path d="M114 220 Q113 204 119 193 Q123 185 130 187 Q136 189 135 200 L132 248 Q123 242 114 220Z" fill="#D4A574"/>
+  <!-- Ring finger -->
+  <path d="M133 222 Q132 207 138 197 Q142 190 148 192 Q154 194 153 204 L150 248 Q142 243 133 222Z" fill="#D4A574"/>
+  <!-- Little finger -->
+  <path d="M151 228 Q150 215 155 207 Q158 202 163 204 Q168 206 167 214 L164 250 Q158 247 151 228Z" fill="#D4A574"/>
+  <!-- Palm cover -->
+  <path d="M88 260 Q88 290 94 308 Q100 320 140 318 Q180 316 184 300 L180 258 Q175 270 168 268 Q160 266 160 256 L152 256 Q152 266 144 268 Q136 270 132 260 L128 260 Q128 270 120 272 Q112 274 108 264 L100 264 Z" fill="#D4A574"/>
+  <!-- Knuckle highlights -->
+  <ellipse cx="105" cy="228" rx="4" ry="2.5" fill="#C4946A" opacity="0.5"/>
+  <ellipse cx="123" cy="222" rx="4" ry="2.5" fill="#C4946A" opacity="0.5"/>
+  <ellipse cx="141" cy="224" rx="4" ry="2.5" fill="#C4946A" opacity="0.5"/>
+  <ellipse cx="158" cy="230" rx="4" ry="2.5" fill="#C4946A" opacity="0.5"/>
+
+  <!-- Teal "+" circle floating top-right -->
+  <circle cx="210" cy="88" r="22" fill="#0d9488" filter="url(#shadow1)"/>
+  <line x1="210" y1="78" x2="210" y2="98" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <line x1="200" y1="88" x2="220" y2="88" stroke="white" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Drop shadow filter -->
+  <defs>
+    <filter id="shadow1" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0d9488" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+</svg>

@@ -68,8 +68,43 @@ function Navbar() {
 function HeroSection() {
   return (
     <section className="relative overflow-hidden">
-      {/* Full-width hero banner image */}
-      <div className="relative w-full">
+      {/* ── Mobile layout: stacked (image + text below) ── */}
+      <div className="md:hidden">
+        <div className="relative w-full aspect-[4/3] overflow-hidden">
+          <Image
+            src="/hero-main-mobile.webp"
+            alt="Namibian merchant showing OshiCart store on phone with craft products"
+            fill
+            className="object-cover object-center"
+            priority
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-white/30 to-transparent" />
+        </div>
+        <div className="px-5 pb-8 -mt-12 relative z-10">
+          <h1 className="text-3xl font-extrabold text-gray-900 leading-tight">
+            Your Namibian Business,{" "}
+            <span className="text-green-600">Online in 5 Minutes.</span>
+          </h1>
+          <p className="mt-3 text-base text-gray-700 leading-relaxed">
+            Create your digital catalog, accept local payments, and manage
+            orders effortlessly via WhatsApp.
+          </p>
+          <div className="mt-5 flex flex-col gap-3">
+            <Link
+              href="/signup"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm shadow-lg shadow-green-600/25 transition-all"
+            >
+              Start Your Free Trial
+              <ArrowRight size={18} />
+            </Link>
+            <VideoModalButton />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Desktop layout: overlay on wide banner ── */}
+      <div className="hidden md:block relative w-full">
         <Image
           src="/hero-main.webp"
           alt="Namibian merchant showing OshiCart store on phone with craft products"
@@ -77,23 +112,23 @@ function HeroSection() {
           height={700}
           className="w-full h-auto object-cover"
           priority
+          sizes="100vw"
         />
-        {/* Overlay with text + CTAs */}
         <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/60 to-transparent">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 h-full flex items-center">
-            <div className="max-w-lg py-8 md:py-0">
-              <h1 className="text-3xl md:text-5xl lg:text-[3.25rem] font-extrabold text-gray-900 leading-tight">
+          <div className="max-w-6xl mx-auto px-6 h-full flex items-center">
+            <div className="max-w-lg">
+              <h1 className="text-5xl lg:text-[3.25rem] font-extrabold text-gray-900 leading-tight">
                 Your Namibian Business,{" "}
                 <span className="text-green-600">Online in 5 Minutes.</span>
               </h1>
-              <p className="mt-4 text-base md:text-lg text-gray-700 leading-relaxed">
+              <p className="mt-4 text-lg text-gray-700 leading-relaxed">
                 Create your digital catalog, accept local payments, and manage
                 orders effortlessly via WhatsApp.
               </p>
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              <div className="mt-6 flex flex-row gap-3">
                 <Link
                   href="/signup"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm md:text-base shadow-lg shadow-green-600/25 transition-all hover:shadow-xl hover:shadow-green-600/30"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-base shadow-lg shadow-green-600/25 transition-all hover:shadow-xl hover:shadow-green-600/30"
                 >
                   Start Your Free Trial
                   <ArrowRight size={18} />

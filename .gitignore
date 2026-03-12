@@ -46,3 +46,19 @@ supabase-storage-data
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# dev screenshots & previews
+preview-*.png
+landing-*.png
+Hero page.png
+OshiCart Website look.png
+
+# playwright
+/playwright-report/
+/test-results/
+
+# unoptimized source images (keep WebP only)
+public/*.png
+public/hero-bg.webp
+public/hero-illustration.svg
+public/whatsapp-large.svg

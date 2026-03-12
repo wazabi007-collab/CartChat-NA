@@ -8,80 +8,58 @@ Thousands of Namibian SMEs sell products via WhatsApp using a painful manual loo
 
 No existing tool solves this for Namibia. TakeApp, Shopify, and WooCommerce are built for markets with mature payment APIs. Namibia's payment rails (FNB eWallet, PayToday, NamPay, MTC Maris, manual EFT) are unsupported. The result: SMEs stay manual, lose orders, and can't grow.
 
+---
+
+## Landing Page UI Refresh (Reference-Matched)
+
+### Scope
+Complete visual overhaul of the OshiCart landing page to match reference design with:
+- Green color scheme (matching OshiCart brand green)
+- Namibia-localized content, real photography, and messaging
+- Payment method badges (EFT, PayToday, eWallet, Cash on Delivery)
+- Mobile-first responsive design
+- Full-width hero and How It Works banner images
+- Embedded "How It Works" video modal
+
+### Acceptance Criteria
+- [x] Navbar: logo, Browse Stores / Sign in links, Create Free Store button
+- [x] Hero: full-width banner with real merchant photo, headline, subtitle, 2 CTAs
+- [x] Hero video: "Watch How It Works" opens video modal with embedded MP4
+- [x] How It Works: full-width banner image (CREATE / SHARE / SELL)
+- [x] Built for Namibian businesses: 4-feature grid (Catalog, EFT Proof, WhatsApp, Analytics)
+- [x] Simple pricing: 3-tier cards (Free Trial, Pro N$99, Business N$249)
+- [x] Key Solutions: 3 cards (WhatsApp Integration, Local Payment Focus, Mobile-First Design)
+- [x] Local Payment Focus badges: EFT, PayToday, eWallet, Cash on Delivery
+- [x] WhatsApp CTA: "Ready to grow your WhatsApp business?"
+- [x] Footer: OshiCart logo, About Us, Contact, "Empowering Local Commerce in Namibia"
+- [x] Responsive: mobile/tablet/desktop
+- [x] Semantic HTML + accessible structure
+- [x] Smooth hover interactions
+- [x] Images optimized to WebP (7MB → 150KB hero, 104KB banner)
+- [x] Build passes without errors
+
+---
+
 ## Ideal Customer Profile (ICP)
 - **Primary**: Solo or micro-business (1-5 people) selling physical goods via WhatsApp in Namibia
 - **Examples**: Fashion resellers, home bakers, cosmetics sellers, phone accessory shops, farm produce sellers
-- **Revenue range**: NAD 5,000 – 100,000/month
-- **Tech profile**: Owns smartphone, uses WhatsApp daily, may not be comfortable with web dashboards
-- **Pain**: Spends 2-4 hours/day on manual order management
-- **Channel**: Already has WhatsApp Business App or personal WhatsApp with product photos
 
-## Namibia-First Wedge
-1. **Payment rail integration**: FNB eWallet, PayToday, manual EFT proof-of-payment verification — no other platform does this
-2. **Data-light design**: Compressed catalogs, text-first UX, minimal image transfer — built for NAD 1.20/GB reality
-3. **WhatsApp-native**: Customers never leave WhatsApp. No app download, no website visit required
-4. **NAD pricing**: Affordable plans in local currency, not USD/ZAR
+## Infrastructure (Current → Planned)
 
-## SA Expansion Wedge (V2, Month 4+)
-1. Integrate PayFast, Ozow, Yoco payment gateways
-2. ZAR pricing tier
-3. Same WhatsApp-native UX, proven in Namibia
-4. Target SA conversational commerce market (projected $2.9B by 2028)
+### Current (VPS self-hosted)
+- Server: `root@187.124.15.31` shared VPS (2 CPU, 8GB RAM)
+- Domain: `oshicart.com` (Cloudflare proxied, SSL Full)
+- Self-hosted Supabase (Postgres + GoTrue + PostgREST + Kong + Storage)
+- Next.js in Docker container behind nginx
 
-## Success Metrics
-
-### 30 Days
-- [ ] MVP live: merchant can create catalog + share WhatsApp store link
-- [ ] 5 pilot merchants onboarded and transacting
-- [ ] < 5 min median onboarding time
-- [ ] Manual EFT proof-of-payment flow working end-to-end
-
-### 60 Days
-- [ ] 25 active merchants
-- [ ] 3 paying merchants (converted from free tier)
-- [ ] Automated EFT proof matching (OCR) in beta
-- [ ] FNB eWallet integration live
-
-### 90 Days
-- [ ] 50 active merchants, 10 paying
-- [ ] NAD 5,000+ MRR
-- [ ] PayToday integration live
-- [ ] Merchant retention > 70% month-over-month
+### Planned (Managed — migration 2026-03-13)
+- **Vercel** ($20/mo) — hosts Next.js app, auto-deploys from GitHub
+- **Supabase Pro** ($25/mo) — managed DB, auth, storage with CDN
+- **Cloudflare** (free) — DNS only
+- **VPS** — retained for dev/staging only
+- Total: ~$46/mo for 1,000+ merchant capacity
 
 ## Constraints
-- **Budget**: Bootstrap. No paid infrastructure until revenue covers it
+- **Budget**: Bootstrap. Infrastructure ~$46/mo with managed services
 - **Team**: Solo founder + AI tools (Claude, Ralph)
 - **Timeline**: MVP in 6 weeks, revenue in 8 weeks
-- **Infra**: Vercel free tier, Supabase free tier initially
-- **WhatsApp API**: Start with WhatsApp Business App link-based flow (no API cost). Add Cloud API when unit economics justify it
-
-## Non-Goals (V1)
-- Native mobile app
-- Inventory management beyond simple stock counts
-- Delivery/logistics integration
-- Multi-language UI (English only for V1; Oshiwambo/Afrikaans in V2)
-- AI chatbot (banned by Meta for general-purpose; structured commerce bot only)
-- B2B/wholesale features
-- SA market
-
-## Risk Register
-
-| # | Risk | Severity | Likelihood | Mitigation |
-|---|------|----------|------------|------------|
-| R1 | Meta further restricts WhatsApp Business API | High | Low | Build as structured commerce tool (explicitly allowed). Maintain WhatsApp Business App fallback |
-| R2 | SMEs unwilling to pay | High | Medium | Freemium model. Price at NAD 49-149/mo. Demonstrate time savings (2-4 hrs/day reclaimed) |
-| R3 | Namibian banks lack APIs for payment verification | Medium | High | Start with manual EFT proof-of-payment OCR. Add bank integrations incrementally. Use DPO Group as initial gateway |
-| R4 | Data costs deter customer engagement | Medium | Medium | Text-first catalogs, image compression, minimal data transfer. WhatsApp itself is the app |
-| R5 | TakeApp or global player enters Namibia | Medium | Low | Local payment integration is defensive moat. Global players won't prioritize NAD 199B card market |
-| R6 | Slow Meta business verification for Namibian merchants | Low | Medium | Guided verification support. Pre-validate documents. Start with Business App (no verification needed) |
-| R7 | Supabase/Vercel free tier limits hit before revenue | Low | Medium | Architecture designed for easy migration. Keep infra lean |
-
-## Decision Log
-
-| Date | Decision | Rationale | Status |
-|------|----------|-----------|--------|
-| 2026-03-10 | Next.js + Supabase + Vercel stack | Free tiers, fast iteration, good DX. Supabase handles auth + DB + realtime | Approved |
-| 2026-03-10 | WhatsApp Business App link flow for V1 (no API) | Zero cost. No Meta verification needed. Merchants share catalog link via WhatsApp | Approved |
-| 2026-03-10 | Manual EFT proof-of-payment as primary payment method | Matches how 90%+ of Namibian WhatsApp sellers already transact | Approved |
-| 2026-03-10 | Freemium pricing in NAD | Reduces adoption friction. Aligns with local purchasing power | Approved |
-| 2026-03-10 | English-only V1 | Fastest to ship. 80%+ of target ICP literate in English | Approved |

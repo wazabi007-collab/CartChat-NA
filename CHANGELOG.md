@@ -1,5 +1,86 @@
 # Changelog
 
+## 2026-03-12 (Session 8) — Domain Migration + Hero Update
+
+### Domain Migration: oshicart.octovianexus.com → oshicart.com (DEPLOYED)
+- Purchased `oshicart.com` domain on Cloudflare
+- Cloudflare DNS: A records for `@` and `www` → 187.124.15.31 (proxied)
+- SSL/TLS mode: Full (Cloudflare → self-signed cert on server)
+- Nginx: new config at `/etc/nginx/sites-enabled/oshicart.com.conf`
+- Self-signed cert: `/etc/ssl/{certs,private}/oshicart.com.{crt,key}` (10-year)
+- `www.oshicart.com` redirects to `oshicart.com`
+- Old `oshicart.octovianexus.conf` nginx config removed
+- Updated `docker-compose.prod.yml`: all 6 URL references changed
+- Updated `src/app/privacy/page.tsx`, `dashboard/setup/page.tsx`, `tests/e2e/helpers/auth.ts`
+- GoTrue `GOTRUE_SITE_URL` + `API_EXTERNAL_URL` updated to `oshicart.com`
+- SMTP sender (`noreply@send.octovianexus.com`) kept as-is (Resend domain unchanged — TODO later)
+
+### Hero Image Update (DEPLOYED)
+- Replaced hero with new Namibian merchant image (craft shop + OshiCart on phone + Namibia flag map)
+- Desktop: 1920x700 WebP, 75KB (was 154KB)
+- Mobile: new `hero-main-mobile.webp` — 800x900 portrait crop, 55KB
+- Mobile layout: stacked (image top, text below) instead of overlay
+- Desktop layout: unchanged wide banner with gradient overlay
+
+### Landing Page Deployed (Session 7 work committed)
+- Committed and deployed full landing page rewrite from previous session
+- All SVG assets, video modal, optimized images pushed to production
+
+### Infrastructure Planning
+- Evaluated scaling to 1,000 merchants
+- Decision: migrate to **Supabase Pro ($25/mo) + Vercel ($20/mo)** — planned for 2026-03-13
+- VPS will become dev/staging server only
+
+---
+
+## 2026-03-12 (Session 7) — Landing Page UI Refresh
+
+### Landing Page Complete Rebuild (DONE)
+- Full visual overhaul matching reference design with real photography and illustrations
+- **Navbar**: Sticky header with backdrop blur, logo, Browse Stores / Sign in links, green Create Free Store button
+- **Hero**: Full-width banner with real Namibian merchant photo (`hero-main.webp`), gradient text overlay, headline "Your Namibian Business, Online in 5 Minutes", 2 CTAs
+- **Hero Video**: "Watch How It Works" button opens video modal with embedded MP4, autoplay, close on Escape/click-outside
+- **How It Works**: Full-width banner image (`how-it-works-banner.webp`) showing 3 steps — CREATE YOUR CATALOG, SHARE YOUR LINK, GET ORDERS & PAYMENTS
+- **Built for Namibian businesses**: 4-feature grid (Product Catalog, EFT Payment Proof, WhatsApp Notifications, Sales Analytics)
+- **Simple pricing**: 3-tier pricing cards (Free Trial N$0, Pro N$99/mo, Business N$249/mo) — Pro highlighted with green ring
+- **Key Solutions**: 3-card grid — WhatsApp Integration (real WhatsApp icon), Local Payment Focus (EFT/PayToday/eWallet/Cash on Delivery SVG badges), Mobile-First Design (device illustration)
+- **WhatsApp CTA**: "Ready to grow your WhatsApp business?" + Create Your Free Store green button
+- **Footer**: Dark bg, OshiCart logo (inverted), About Us, Contact links, "Empowering Local Commerce in Namibia"
+
+### Image Assets Created
+- `public/hero-main.webp` — hero banner (compressed 7.1MB PNG → 150KB WebP)
+- `public/how-it-works-banner.webp` — 3-step banner (compressed 7.2MB PNG → 104KB WebP)
+- `public/how-it-works.mp4` — explainer video (2.2MB)
+- `public/whatsapp-icon.webp` — official WhatsApp logo (7KB WebP)
+- `public/step-create.svg`, `step-share.svg`, `step-sell.svg` — hand illustration SVGs
+- `public/payment-eft.svg`, `payment-paytoday.svg`, `payment-ewallet.svg`, `payment-cod.svg` — payment method logos
+- `public/mobile-devices.svg` — device mockup illustration
+- `public/namibia-map.svg` — Namibia outline
+
+### Color Scheme
+- Changed from teal to green (matching OshiCart brand "Cart" green)
+- All buttons, accents, highlights use green-600/green-700
+
+### Section Order
+1. Hero (full-width banner)
+2. How It Works (full-width banner)
+3. Built for Namibian businesses
+4. Simple pricing
+5. Key Solutions for Namibian Merchants
+6. Ready to grow your WhatsApp business?
+7. Footer
+
+### Performance
+- All PNG images compressed to WebP via Sharp (total savings: ~20MB → ~300KB)
+- Video: 2.2MB MP4, loaded on-demand via modal (not preloaded)
+- Next.js Image component with automatic optimization
+
+### Files Modified
+- `src/app/page.tsx` — complete rewrite (10 components)
+- `src/components/video-modal.tsx` — new client component for video playback modal
+
+---
+
 ## 2026-03-11 (Session 6) — Logo + Branding
 
 ### OshiCart SVG Logo (CREATED & DEPLOYED)

@@ -74,7 +74,7 @@ export default function PrivacyPage() {
           </h2>
           <p>
             For privacy inquiries, contact us at the WhatsApp number listed on
-            oshicart.octovianexus.com.
+            oshicart.com.
           </p>
         </div>
       </main>

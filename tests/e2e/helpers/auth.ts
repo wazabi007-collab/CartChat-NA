@@ -6,7 +6,7 @@
  * the extra network round-trips that push tests over the 30 s timeout.
  *
  * Required env vars:
- *   SUPABASE_URL               (e.g. https://oshicart.octovianexus.com/supabase)
+ *   SUPABASE_URL               (e.g. https://oshicart.com/supabase)
  *   SUPABASE_SERVICE_ROLE_KEY
  *   TEST_MERCHANT_EMAIL
  *   PLAYWRIGHT_BASE_URL        (default: http://localhost:3000)
@@ -15,7 +15,7 @@
 import type { Page } from "@playwright/test";
 
 const SUPABASE_URL =
-  process.env.SUPABASE_URL || "https://oshicart.octovianexus.com/supabase";
+  process.env.SUPABASE_URL || "https://oshicart.com/supabase";
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 

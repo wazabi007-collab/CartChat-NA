@@ -7,17 +7,17 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_SUPABASE_URL=https://oshicart.octovianexus.com/supabase
+        - NEXT_PUBLIC_SUPABASE_URL=https://oshicart.com/supabase
         - NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
-        - NEXT_PUBLIC_SITE_URL=https://oshicart.octovianexus.com
+        - NEXT_PUBLIC_SITE_URL=https://oshicart.com
     ports:
       - "3080:3000"
     environment:
-      - NEXT_PUBLIC_SUPABASE_URL=https://oshicart.octovianexus.com/supabase
+      - NEXT_PUBLIC_SUPABASE_URL=https://oshicart.com/supabase
       - SUPABASE_URL=http://supabase-kong:8000
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}
       - SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}
-      - NEXT_PUBLIC_SITE_URL=https://oshicart.octovianexus.com
+      - NEXT_PUBLIC_SITE_URL=https://oshicart.com
     depends_on:
       supabase-kong:
         condition: service_healthy
@@ -72,10 +72,10 @@ services:
     environment:
       GOTRUE_API_HOST: "0.0.0.0"
       GOTRUE_API_PORT: "9999"
-      API_EXTERNAL_URL: https://oshicart.octovianexus.com/supabase
+      API_EXTERNAL_URL: https://oshicart.com/supabase
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@supabase-db:5432/postgres
-      GOTRUE_SITE_URL: https://oshicart.octovianexus.com
+      GOTRUE_SITE_URL: https://oshicart.com
       GOTRUE_URI_ALLOW_LIST: ""
       GOTRUE_DISABLE_SIGNUP: "false"
       GOTRUE_JWT_ADMIN_ROLES: service_role

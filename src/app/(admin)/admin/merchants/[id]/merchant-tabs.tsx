@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { MessageCircle } from "lucide-react";
 import { TIER_LABELS, STATUS_LABELS, formatTierPrice, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
 
 const TABS = ["Overview", "Subscription", "Performance", "Products", "Orders", "Activity"] as const;
@@ -227,6 +228,33 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
                     {saving ? "Saving..." : "Activate Subscription (set 30-day period)"}
                   </button>
                 )}
+
+                {/* WhatsApp notify buttons */}
+                <div className="border-t border-gray-100 pt-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Notify Merchant via WhatsApp</label>
+                  <div className="flex flex-col gap-2">
+                    <WhatsAppButton
+                      phone={merchant.whatsapp_number as string}
+                      label="Payment Received"
+                      message={`Hi ${merchant.store_name}! We have received your payment. Your ${TIER_LABELS[subscription.tier as SubscriptionTier]} subscription is now active. Thank you for choosing OshiCart!`}
+                    />
+                    <WhatsAppButton
+                      phone={merchant.whatsapp_number as string}
+                      label="Upgrade Confirmed"
+                      message={`Hi ${merchant.store_name}! Great news - your store has been upgraded to ${TIER_LABELS[subscription.tier as SubscriptionTier]}. You now have access to all the features in your new plan. Enjoy!`}
+                    />
+                    <WhatsAppButton
+                      phone={merchant.whatsapp_number as string}
+                      label="Payment Reminder"
+                      message={`Hi ${merchant.store_name}, this is a friendly reminder that your OshiCart subscription payment is due. Please make your payment to keep your store active. Need help? Just reply to this message.`}
+                    />
+                    <WhatsAppButton
+                      phone={merchant.whatsapp_number as string}
+                      label="Subscription Expiring"
+                      message={`Hi ${merchant.store_name}, your OshiCart subscription is expiring soon. Please renew to continue accepting orders. Visit oshicart.com to view plans and make payment.`}
+                    />
+                  </div>
+                </div>
               </div>
             </InfoCard>
           )}
@@ -381,5 +409,21 @@ function InfoRow({ label, value }: { label: string; value: string }) {
       <span className="text-gray-500">{label}</span>
       <span className="font-medium text-gray-900">{value}</span>
     </div>
+  );
+}
+
+function WhatsAppButton({ phone, label, message }: { phone: string; label: string; message: string }) {
+  const cleanPhone = phone.replace(/\D/g, "");
+  const href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center gap-2 px-3 py-2 text-sm bg-green-50 border border-green-200 text-green-800 rounded-lg hover:bg-green-100 transition-colors"
+    >
+      <MessageCircle size={14} />
+      {label}
+    </a>
   );
 }

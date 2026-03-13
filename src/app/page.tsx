@@ -366,7 +366,7 @@ function PricingSection() {
               "Everything in Start",
             ]}
             cta="Get Started"
-            href="/signup"
+            href="/pricing/checkout?tier=oshi_basic"
             highlighted={true}
             badge="Most Popular"
           />
@@ -382,7 +382,7 @@ function PricingSection() {
               "Everything in Basic",
             ]}
             cta="Get Started"
-            href="/signup"
+            href="/pricing/checkout?tier=oshi_grow"
             highlighted={false}
           />
           <PricingCard
@@ -397,7 +397,7 @@ function PricingSection() {
               "Everything in Grow",
             ]}
             cta="Get Started"
-            href="/signup"
+            href="/pricing/checkout?tier=oshi_pro"
             highlighted={false}
           />
         </div>

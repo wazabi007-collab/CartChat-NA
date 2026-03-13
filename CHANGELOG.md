@@ -8,6 +8,12 @@
 - Fix: `DROP POLICY` via Supabase migration `fix_legacy_rls_merchants`
 - Verified: 3 correct policies remain, all enforce `store_status='active'`
 
+### Investigation: Industry-Aware Features (design complete, build pending)
+- Mapped 29 industries to 6 archetypes: Food Prepared, Food Fresh, Retail, Beauty, Services, Gifting
+- Designed WhatsApp order templates per archetype (confirm, ready, cancel, payment reminder)
+- Designed storefront theming per archetype (colors, layout, CTAs, product card styles)
+- No code changes yet — build starts next session
+
 ### Production QA Validation
 - Executed 30 tests across 6 phases (pre-flight, security, functional, performance, build, trust)
 - All 30 tests PASS after BUG-009 fix

@@ -21,6 +21,33 @@
 - Vercel deployment: READY (verified on dashboard)
 - BUG-009 hotfix applied to DB directly
 
+### Next Up: Industry-Aware Storefronts + WhatsApp Order Templates
+**Status: INVESTIGATION COMPLETE — Ready to build**
+
+Investigation found that the current order flow has a gap: when merchants change order status (confirm/complete/cancel), no notification is sent to the customer. The "WhatsApp customer" button only sends a generic message.
+
+**Two features to build (in order):**
+
+**Part 1: WhatsApp Order Templates (quick win)**
+- Add pre-filled WhatsApp messages per status change (confirm, ready, complete, cancel, payment reminder)
+- Templates vary by industry group (6 archetypes)
+- Modify `OrderActions` component to open WhatsApp with contextual template
+- Files: `src/lib/industry.ts` (new), `src/lib/constants.ts`, `src/app/(dashboard)/dashboard/orders/order-actions.tsx`
+
+**Part 2: Industry-Themed Storefronts (bigger change)**
+- 6 industry archetypes: Food Prepared, Food Fresh, Retail, Beauty, Services, Gifting
+- Each gets: color theme, layout variant, CTA labels, product card style
+- Industry column already exists in DB — no migration needed
+- Files: `src/app/s/[slug]/page.tsx`, `src/components/storefront/product-card.tsx`, `src/lib/industry.ts`
+
+**Industry → Archetype mapping:**
+- Food Prepared: restaurant, takeaway, cafe, bakery, catering
+- Food Fresh: grocery, butchery, liquor, agriculture
+- Retail: fashion, electronics, hardware, auto_parts, furniture, stationery, sports, toys, crafts, general_dealer
+- Beauty: salon, cosmetics, pharmacy
+- Services: cleaning, printing, services, gas_water
+- Gifting: flowers, pet
+
 ---
 
 ## 2026-03-13 — Infrastructure Migration Complete + Email Templates Fixed

@@ -19,7 +19,7 @@ export default async function OrdersPage({
 
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("id, tier")
+    .select("id, tier, industry, store_name")
     .eq("user_id", user.id)
     .single();
 
@@ -168,7 +168,16 @@ export default async function OrdersPage({
               )}
 
               <div className="mt-3 pt-3 border-t flex flex-wrap gap-2">
-                <OrderActions orderId={order.id} currentStatus={order.status} />
+                <OrderActions
+                  orderId={order.id}
+                  currentStatus={order.status}
+                  merchantIndustry={merchant.industry ?? ""}
+                  merchantStoreName={merchant.store_name}
+                  customerName={order.customer_name}
+                  customerWhatsapp={order.customer_whatsapp}
+                  orderNumber={order.order_number}
+                  orderTotal={formatPrice(order.subtotal_nad - (order.discount_nad || 0) + (order.delivery_fee_nad || 0))}
+                />
                 {merchant.tier !== "free" && (
                   <a
                     href={`/invoice/${order.id}`}

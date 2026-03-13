@@ -43,8 +43,15 @@ export async function updateSession(request: NextRequest) {
 
   // Redirect logged-in users away from auth pages
   if (user && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/signup")) {
+    const tier = request.nextUrl.searchParams.get("tier");
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    if (tier) {
+      url.pathname = "/pricing/checkout";
+      url.searchParams.set("tier", tier);
+    } else {
+      url.pathname = "/dashboard";
+      url.searchParams.delete("tier");
+    }
     return NextResponse.redirect(url);
   }
 

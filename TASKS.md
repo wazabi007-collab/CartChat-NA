@@ -3,21 +3,54 @@
 ## INFRA — Infrastructure Migration (2026-03-13)
 - [x] **INFRA-09** Set up `send.oshicart.com` on Resend — domain fully verified (DKIM, MX, SPF)
 - [ ] **INFRA-10** Update SMTP sender to `noreply@send.oshicart.com`
+- [ ] **INFRA-11** Add `CRON_SECRET` env var in Vercel Dashboard
 
 ---
 
-## TRUST-1 — Anti-Fraud Phase 1: Basic Protection (Post-Migration)
+## ADMIN — Admin Dashboard + Subscription System (2026-03-13) — DEPLOYED
+- [x] **ADMIN-01** Migration 012: tier_limits, subscriptions, payments, admin_users, admin_actions tables
+- [x] **ADMIN-02** 4-tier subscription system (Oshi-Start/Basic/Grow/Pro)
+- [x] **ADMIN-03** Admin overview page (stats, charts, expiring trials, activity)
+- [x] **ADMIN-04** Merchant management (list, detail, 6-tab view, tier/status actions)
+- [x] **ADMIN-05** Billing page (MRR stats, record payment modal, payment history)
+- [x] **ADMIN-06** Platform analytics (GMV, tier distribution, industry breakdown, top 10)
+- [x] **ADMIN-07** Admin team management (invite, remove, role change)
+- [x] **ADMIN-08** Audit log (all admin actions with details)
+- [x] **ADMIN-09** Subscription lifecycle cron (trial→grace→suspended→hard_suspended)
+- [x] **ADMIN-10** Merchant-side enforcement (product limits, tier-gated inventory, suspend banners)
+- [x] **ADMIN-11** Storefront enforcement (soft-suspend, conditional branding, checkout guard)
+- [x] **ADMIN-12** Landing page 4-tier pricing section
+- [x] **ADMIN-13** Subscription creation on merchant signup (30-day trial)
+
+---
+
+## THEME — Industry-Themed Storefronts (2026-03-13) — IN PROGRESS
+- [x] **THEME-01** ThemeConfig + THEME_CONFIGS map + getThemeConfig() in industry.ts
+- [x] **THEME-02** Theme props on ProductCard (accentColor, accentHover, ctaText)
+- [ ] **THEME-03** Shared layout types (LayoutProduct, LayoutProps)
+- [ ] **THEME-04** Menu-list layout (Food Prepared — orange, row-based)
+- [ ] **THEME-05** Compact-grid layout (Food Fresh — green, dense grid)
+- [ ] **THEME-06** Horizontal-card layout (Beauty — pink, horizontal cards)
+- [ ] **THEME-07** Service-list layout (Services — blue, text list)
+- [ ] **THEME-08** Visual-gallery layout (Gifting — gold, large images)
+- [x] **THEME-09** ProductSection variant switcher component
+- [x] **THEME-10** Storefront page wired with theme integration
+- [ ] **THEME-11** Manual QA testing across all archetypes
+
+---
+
+## TRUST-1 — Anti-Fraud Phase 1: Basic Protection — COMPLETE
 _Cost: $5-10/mo | Dev: 1-2 weeks_
 
 - [ ] **TRUST-01** Phone/WhatsApp OTP verification for merchant signup (Supabase Auth + Twilio)
 - [ ] **TRUST-02** Email verification — enable `confirm` in Supabase Auth, block disposable email domains
-- [x] **TRUST-03** Store review queue — add `status` enum to merchants (`pending`, `active`, `suspended`, `banned`); new stores start as `pending`
-- [x] **TRUST-04** Admin review dashboard — new `(admin)` route group to approve/reject/suspend stores
+- [x] **TRUST-03** Store review queue — `store_status` enum on merchants (pending/active/suspended/banned)
+- [x] **TRUST-04** Admin dashboard — rebuilt in Session 12 with full billing, analytics, team, audit
 - [x] **TRUST-05** Report Store button on every storefront — inserts into `reports` table
-- [x] **TRUST-06** Unique payment references — generate `OSHI-{order_id}` displayed at checkout so merchants can verify EFT
-- [x] **TRUST-07** Transaction limits for new stores — check in `place_order` RPC: Tier 0 = 10 orders/mo, N$5,000 max
-- [x] **TRUST-08** Fake POP education banner — dashboard warning: "Only confirm payment after checking your bank balance"
-- [x] **TRUST-09** Merchant Terms of Service — define OshiCart as platform (not seller), prohibited items, consequences for fraud
+- [x] **TRUST-06** Unique payment references — `OSHI-{order_id}` displayed at checkout
+- [x] **TRUST-07** Transaction limits — replaced by subscription tier system (place_order v5 checks tier_limits table)
+- [x] **TRUST-08** Fake POP education banner on merchant dashboard
+- [x] **TRUST-09** Merchant Terms of Service
 
 ---
 

@@ -1,5 +1,95 @@
 # Changelog
 
+## 2026-03-13 (Session 13) — Admin Post-Deploy Fixes + Cleanup + Themed Storefronts Start
+
+### Admin Dashboard Post-Deploy Fixes
+- **Middleware auth fix**: Middleware was checking `ADMIN_EMAILS` env var only, blocking DB-based admin users. Now middleware only checks login; role check happens in admin layout via `admin_users` table.
+- **Merchants page empty**: Query used non-existent `slug` column instead of `store_slug`. Fixed.
+- **Subscription action buttons**: Added tier upgrade (Start/Basic/Grow/Pro), status change (Trial/Active/Grace/Suspended/Offline), and "Activate Subscription" shortcut to merchant detail Subscription tab.
+- **React hydration error #418**: Date formatting used locale-dependent methods causing server/client mismatch. Fixed with UTC formatting.
+
+### Cleanup
+- Removed dead `TIER_LIMITS` (free/pro/business) from `src/lib/utils.ts`
+- Deleted old `/admin/stores` pages (replaced by `/admin/merchants`)
+- Deleted old `/api/admin/stores` route
+- Added `.playwright-mcp/` and `.superpowers/` to `.gitignore`
+
+### Industry-Themed Storefronts (In Progress)
+- ThemeConfig + getThemeConfig() in `industry.ts` — DONE
+- Theme props on ProductCard (accentColor, accentHover, ctaText) — DONE
+- ProductSection variant switcher component — DONE
+- Storefront page wired with theme integration — DONE
+- Layout components (6 files) — NOT YET CREATED (blocking themed rendering)
+
+---
+
+## 2026-03-13 (Session 12) — Admin Dashboard + Subscription Tier System
+
+### Migration 012: Admin Dashboard Schema
+- New enum types: `subscription_tier`, `subscription_status`, `admin_role`
+- New tables: `tier_limits`, `subscriptions`, `payments`, `admin_users`, `admin_actions`
+- `place_order` v5: subscription status check + tier-based order limits + coupon tier-gating
+- `check_expired_subscriptions()` function for daily cron
+- Backfill: existing merchants get 30-day trial subscriptions
+- Dropped old `tier` column from merchants
+
+### 4-Tier Subscription System
+| Tier | Price | Products | Orders/mo |
+|------|-------|----------|-----------|
+| Oshi-Start | N$0 (30-day trial) | 10 | 20 |
+| Oshi-Basic | N$199/mo | 30 | 200 |
+| Oshi-Grow | N$499/mo | 200 | 500 |
+| Oshi-Pro | N$1,200/mo | Unlimited | Unlimited |
+
+### Subscription Lifecycle
+Trial (30 days) → Grace (7 days) → Soft Suspend → Hard Suspend (after 30 days)
+
+### Admin Dashboard Pages
+- **Overview**: 6 stat cards (MRR, active merchants, new this week, pending, overdue, reports), revenue/signup charts, expiring trials, recent activity
+- **Merchants**: List with filters (All/Trial/Active/Grace/Suspended/Pending), search, tier/status badges
+- **Merchant Detail**: 6-tab view (Overview, Subscription, Performance, Products, Orders, Activity) with tier upgrade + status change actions
+- **Billing**: MRR stats, overdue/expiring lists, payment recording modal, payment history table
+- **Analytics**: Platform GMV, tier distribution, payment methods, industry breakdown, revenue by month, top 10 merchants
+- **Admin Team**: Invite/remove admins, role management (Super Admin/Support/Finance)
+- **Audit Log**: All admin actions with expandable details
+
+### Admin API Routes
+- `PATCH /api/admin/merchants/[id]` — update merchant status
+- `GET/POST /api/admin/billing` — payments list + record payment
+- `GET/POST/DELETE /api/admin/team` — admin team CRUD
+- `PATCH /api/admin/subscriptions` — change tier/status with period management
+
+### Merchant-Side Enforcement
+- Subscription banners on dashboard (grace/suspended/expiring warnings)
+- Hard-suspend block in dashboard layout
+- Product limit enforcement on new/edit pages with upgrade prompt
+- Inventory fields tier-gated (Oshi-Grow+ only)
+- Coupons nav hidden for Start/Basic tiers
+- Storefront soft-suspend banner + disabled "Add to Cart"
+- OshiCart branding conditional (Start tier only)
+- Checkout soft-suspend guard + new tier-based order limits
+- Subscription auto-creation on merchant signup (30-day trial)
+- Landing page pricing section updated (4-tier)
+
+### Cron Job
+- `vercel.json` configured for daily midnight UTC cron
+- `/api/cron/check-subscriptions` endpoint with `CRON_SECRET` auth
+- Transitions: trial→grace→soft_suspended→hard_suspended
+
+### Libraries
+- `src/lib/tier-limits.ts` — Tier constants, helpers (canAddProduct, hasTierFeature, isReadOnly, showBranding)
+- `src/lib/admin-permissions.ts` — Role permission matrix, getVisibleNavItems()
+- `src/lib/admin-auth.ts` — Shared admin authentication helper
+- `recharts` added as dependency for admin charts
+
+### Deployment
+- Migration 012 applied to Supabase Pro
+- Super admin seeded: `wazabi007@gmail.com`
+- All admin pages verified working in production
+- Build: `tsc --noEmit` + `next build` — 0 errors, 38 routes
+
+---
+
 ## 2026-03-13 (Session 11) — QA Validation + Security Hotfix
 
 ### BUG-009 HOTFIX: Legacy RLS Policy Bypass (P0)

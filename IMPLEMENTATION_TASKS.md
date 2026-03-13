@@ -3,6 +3,9 @@
 > Generated: 2026-03-11
 > Scope: Inventory system + Industry signup + Delivery fee
 > Status: **P0 and P1 all COMPLETE and DEPLOYED** (as of 2026-03-13)
+>
+> **Note:** Admin Dashboard + Subscription Tier System tracked in TASKS.md (ADMIN section).
+> Industry-Themed Storefronts tracked in TASKS.md (THEME section).
 
 ---
 

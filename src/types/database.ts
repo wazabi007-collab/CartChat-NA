@@ -7,11 +7,13 @@ export type Json =
   | Json[];
 
 export type MerchantTier = "free" | "pro" | "business";
+export type StoreStatus = "pending" | "active" | "suspended" | "banned";
 export type OrderStatus = "pending" | "confirmed" | "completed" | "cancelled";
 export type DeliveryMethod = "pickup" | "delivery";
 export type PaymentMethod = "eft" | "cod" | "momo" | "ewallet";
 export type DiscountType = "percentage" | "fixed";
 export type EwalletProvider = "fnb_ewallet" | "paypulse" | "easywallet" | "paytoday";
+export type ReportStatus = "open" | "reviewed" | "dismissed";
 
 export interface Database {
   public: {
@@ -31,6 +33,8 @@ export interface Database {
           logo_url: string | null;
           tier: MerchantTier;
           is_active: boolean;
+          store_status: StoreStatus;
+          tos_accepted_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -48,6 +52,8 @@ export interface Database {
           logo_url?: string | null;
           tier?: MerchantTier;
           is_active?: boolean;
+          store_status?: StoreStatus;
+          tos_accepted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -65,6 +71,8 @@ export interface Database {
           logo_url?: string | null;
           tier?: MerchantTier;
           is_active?: boolean;
+          store_status?: StoreStatus;
+          tos_accepted_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -145,6 +153,7 @@ export interface Database {
           status: OrderStatus;
           subtotal_nad: number;
           proof_of_payment_url: string | null;
+          payment_reference: string | null;
           notes: string | null;
           created_at: string;
           updated_at: string;
@@ -160,6 +169,7 @@ export interface Database {
           status?: OrderStatus;
           subtotal_nad: number;
           proof_of_payment_url?: string | null;
+          payment_reference?: string | null;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -175,6 +185,7 @@ export interface Database {
           status?: OrderStatus;
           subtotal_nad?: number;
           proof_of_payment_url?: string | null;
+          payment_reference?: string | null;
           notes?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -244,11 +255,50 @@ export interface Database {
           created_at?: string;
         };
       };
+      reports: {
+        Row: {
+          id: string;
+          merchant_id: string;
+          reason: string;
+          details: string | null;
+          reporter_name: string | null;
+          reporter_contact: string | null;
+          status: ReportStatus;
+          admin_notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          merchant_id: string;
+          reason: string;
+          details?: string | null;
+          reporter_name?: string | null;
+          reporter_contact?: string | null;
+          status?: ReportStatus;
+          admin_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          merchant_id?: string;
+          reason?: string;
+          details?: string | null;
+          reporter_name?: string | null;
+          reporter_contact?: string | null;
+          status?: ReportStatus;
+          admin_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
     Enums: {
       merchant_tier: MerchantTier;
+      store_status: StoreStatus;
       order_status: OrderStatus;
       delivery_method: DeliveryMethod;
     };

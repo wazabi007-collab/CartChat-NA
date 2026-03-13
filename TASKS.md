@@ -1,15 +1,7 @@
 # OshiCart — Full Implementation Roadmap
 
 ## INFRA — Infrastructure Migration (2026-03-13)
-- [ ] **INFRA-01** Create Supabase Pro project (pick EU West region)
-- [ ] **INFRA-02** Run migrations 001-010 on Supabase Pro DB
-- [ ] **INFRA-03** Migrate data (merchants, products, orders, coupons) via pg_dump/restore
-- [ ] **INFRA-04** Move product images to Supabase Storage
-- [ ] **INFRA-05** Connect GitHub repo to Vercel, configure env vars
-- [ ] **INFRA-06** Deploy to Vercel preview URL and test all flows
-- [ ] **INFRA-07** Swap Cloudflare DNS to Vercel
-- [ ] **INFRA-08** Verify: auth, checkout, dashboard, images, WhatsApp links
-- [ ] **INFRA-09** Set up `send.oshicart.com` on Resend (DKIM/SPF in Cloudflare)
+- [x] **INFRA-09** Set up `send.oshicart.com` on Resend — domain fully verified (DKIM, MX, SPF)
 - [ ] **INFRA-10** Update SMTP sender to `noreply@send.oshicart.com`
 
 ---
@@ -19,13 +11,13 @@ _Cost: $5-10/mo | Dev: 1-2 weeks_
 
 - [ ] **TRUST-01** Phone/WhatsApp OTP verification for merchant signup (Supabase Auth + Twilio)
 - [ ] **TRUST-02** Email verification — enable `confirm` in Supabase Auth, block disposable email domains
-- [ ] **TRUST-03** Store review queue — add `status` enum to merchants (`pending`, `active`, `suspended`, `banned`); new stores start as `pending`
-- [ ] **TRUST-04** Admin review dashboard — new `(admin)` route group to approve/reject/suspend stores
-- [ ] **TRUST-05** Report Store button on every storefront — inserts into `reports` table
-- [ ] **TRUST-06** Unique payment references — generate `OSHI-{order_id}` displayed at checkout so merchants can verify EFT
-- [ ] **TRUST-07** Transaction limits for new stores — check in `place_order` RPC: Tier 0 = 10 orders/mo, N$5,000 max
-- [ ] **TRUST-08** Fake POP education banner — dashboard warning: "Only confirm payment after checking your bank balance"
-- [ ] **TRUST-09** Merchant Terms of Service — define OshiCart as platform (not seller), prohibited items, consequences for fraud
+- [x] **TRUST-03** Store review queue — add `status` enum to merchants (`pending`, `active`, `suspended`, `banned`); new stores start as `pending`
+- [x] **TRUST-04** Admin review dashboard — new `(admin)` route group to approve/reject/suspend stores
+- [x] **TRUST-05** Report Store button on every storefront — inserts into `reports` table
+- [x] **TRUST-06** Unique payment references — generate `OSHI-{order_id}` displayed at checkout so merchants can verify EFT
+- [x] **TRUST-07** Transaction limits for new stores — check in `place_order` RPC: Tier 0 = 10 orders/mo, N$5,000 max
+- [x] **TRUST-08** Fake POP education banner — dashboard warning: "Only confirm payment after checking your bank balance"
+- [x] **TRUST-09** Merchant Terms of Service — define OshiCart as platform (not seller), prohibited items, consequences for fraud
 
 ---
 
@@ -99,6 +91,14 @@ _Cost: Apple $99/yr + Google $25 one-time | Dev: 1-2 weeks_
 ---
 
 ## Completed
+- [x] **INFRA-01** Create Supabase Pro project (EU West region)
+- [x] **INFRA-02** Run migrations 001-010 on Supabase Pro DB
+- [x] **INFRA-03** Migrate data (merchants, products, orders, coupons) via pg_dump/restore
+- [x] **INFRA-04** Move product images to Supabase Storage
+- [x] **INFRA-05** Connect GitHub repo to Vercel, configure env vars
+- [x] **INFRA-06** Deploy to Vercel preview URL and test all flows
+- [x] **INFRA-07** Swap Cloudflare DNS to Vercel
+- [x] **INFRA-08** Verify: auth, checkout, dashboard, images, WhatsApp links
 - [x] **DOM-01** Migrate domain to oshicart.com (Cloudflare DNS + nginx + docker-compose)
 - [x] **DOM-02** Update all source code references from octovianexus to oshicart.com
 - [x] **HERO-01** Update hero image with new Namibian merchant photo

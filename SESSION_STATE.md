@@ -1,54 +1,105 @@
 # Session State — Active Working Memory
 
-## 2026-03-12 — Domain Migration + Infrastructure Planning
+## 2026-03-13 — Infrastructure Migration Complete + Email Templates Fixed
 
 ### Current State
-- **Domain**: `oshicart.com` — LIVE (Cloudflare proxied, SSL Full)
-- **Old domain**: `oshicart.octovianexus.com` — DISABLED (nginx config removed)
-- **Hero**: Updated with new merchant image, mobile-optimized
-- **All sessions 1-8 work**: committed and deployed
+- **Domain**: `oshicart.com` — LIVE on Vercel
+- **Hosting**: Vercel (auto-deploys from GitHub `master`)
+- **Database**: Supabase Pro — EU West (Ireland)
+- **DNS**: Cloudflare → Vercel (DNS only, no proxy)
+- **Email**: Resend account `wazabi007` — domain `send.oshicart.com` VERIFIED
+- **SMTP**: Configured in Supabase Auth (smtp.resend.com:465, sender: noreply@send.oshicart.com)
+- **Email Templates**: Updated with OTP token (`{{ .Token }}`) — Confirm sign up + Magic link
+- **OTP Length**: 6 digits (changed from default 8)
+- **Old VPS**: `187.124.15.31` — no longer serving production traffic
 
-### Sync Status
-| Location | Commit | Status |
-|----------|--------|--------|
-| Local | `9ce5676` | Domain migration committed |
-| GitHub | `9ce5676` | All pushed |
-| Server | `9ce5676` | Deployed, running on oshicart.com |
+### INFRA-10 Progress: Supabase Auth Email Configuration
+**Status: COMPLETE — SMTP configured + email templates fixed**
 
-### Next Session (2026-03-13): Supabase Pro + Vercel Migration
+1. [x] SMTP configured in Supabase Auth (smtp.resend.com:465, username: resend)
+2. [x] Sender set to `noreply@send.oshicart.com`, sender name: OshiCart
+3. [x] Fixed "Confirm sign up" template — added `{{ .Token }}` OTP code
+4. [x] Fixed "Magic link" template — added `{{ .Token }}` OTP code
+5. [x] Min interval: 60 seconds per user
 
-**Goal**: Move from self-hosted Supabase + VPS to managed Supabase Pro + Vercel
+**Issue found**: Email templates were using default Supabase templates with only `{{ .ConfirmationURL }}` (magic link). No `{{ .Token }}` (OTP code) was included, so users received emails with a login link but no visible OTP code.
 
-**Steps**:
-1. Create Supabase Pro project (pick region closest to Namibia — EU West or similar)
-2. Run all migrations (001-010) against new DB
-3. Migrate existing data (5 merchants + products/orders) via pg_dump/restore
-4. Move product images to Supabase Storage
-5. Connect GitHub repo to Vercel, set env vars
-6. Deploy to Vercel preview URL and test everything
-7. Swap Cloudflare DNS from VPS (187.124.15.31) to Vercel
-8. Verify: auth, signup, checkout, dashboard, images, WhatsApp links
-9. VPS becomes dev/staging only
+### INFRA-09 Progress: Resend Email Setup
+**Status: COMPLETE — domain verified in Resend**
 
-**Cost**: ~$46/mo (Supabase Pro $25 + Vercel Pro $20 + domain ~$1)
+1. [x] Logged into Resend (account: wazabi007)
+2. [x] Deleted old domains: `octovianexus.com` and `send.octovianexus.com`
+3. [x] Added new domain: `send.oshicart.com` (region: eu-west-1 Ireland)
+4. [x] Added all 4 DNS records in Cloudflare (DKIM, MX, SPF, DMARC)
+5. [x] Fixed MX and SPF record names: `send` → `send.send` (Resend expects `send.send.oshicart.com`)
+6. [x] Domain fully verified in Resend (all records: DKIM, MX, SPF)
 
-### Known TODO
-- Update SMTP sender from `noreply@send.octovianexus.com` to `noreply@send.oshicart.com` (requires Resend domain setup)
-- Set up `send.oshicart.com` on Resend with DKIM/SPF records in Cloudflare
+**DNS records to add in Cloudflare for oshicart.com:**
 
-### Test Env Vars (updated for new domain)
+| # | Type | Name | Content | Priority |
+|---|------|------|---------|----------|
+| 1 | TXT | `resend._domainkey.send` | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDQJ6TyHn8Stk+B0oXtZI9cQdcT62WIdAV76zp+FBDm+yCc7n5R6OYa4ssd8iHejGV6S7NYLfAuTrAdzTaRvjrjuFSESHEhGetcosrliwWfjbG5QbCxpeCQRdclOnvzr3F7juBPyhF4LmvdamZY/Y5bUTb3KGxrATA32P/P0VU1FQIDAQAB` | — |
+| 2 | MX | `send.send` | `feedback-smtp.eu-west-1.amazonses.com` | 10 |
+| 3 | TXT | `send.send` | `v=spf1 include:amazonses.com ~all` | — |
+| 4 | TXT | `_dmarc` | `v=DMARC1; p=none;` | — |
+
+**After DNS verification, Resend SMTP credentials to configure in Supabase Auth:**
+- Host: `smtp.resend.com`
+- Port: `465`
+- Username: `resend`
+- Password: (Resend API key — get from Resend dashboard > API Keys)
+- Sender: `noreply@send.oshicart.com`
+
+### INFRA-10: Update SMTP Sender
+- After INFRA-09 is done, update Supabase Auth SMTP settings in Supabase Dashboard:
+  - Go to Authentication > Email Templates > SMTP Settings
+  - Enter Resend SMTP credentials
+  - Set sender to `noreply@send.oshicart.com`
+
+### TRUST-1 Anti-Fraud Phase 1 — BUILT (Pending Deploy)
+- [x] TRUST-03: Store status enum (`pending`/`active`/`suspended`/`banned`)
+- [x] TRUST-04: Admin dashboard at `/admin` (stores, reports)
+- [x] TRUST-05: Report Store button on storefronts
+- [x] TRUST-06: Payment references (`OSHI-XXXXXXXX`)
+- [x] TRUST-07: New store limits (10 orders/mo, N$5,000)
+- [x] TRUST-08: POP education banner on merchant dashboard
+- [x] TRUST-09: Updated Terms of Service
+- [ ] TRUST-01: Phone OTP (needs Twilio — deferred)
+- [ ] TRUST-02: Email verification (deferred)
+
+**To deploy TRUST-1:**
+1. Run `supabase/migrations/011_trust_phase1.sql` in Supabase SQL Editor
+2. Add `ADMIN_EMAILS=info@octovianexus.com` in Vercel env vars
+3. Push to `master` → Vercel auto-deploys
+
+### Remaining Tasks
+- **TRUST-01/02** — OTP + email verification (needs Twilio setup)
+- **TRUST-2** — Trust Tier System (Month 2-3)
+- **PWA** — Progressive Web App
+- **APP** — App Store submission
+
+### Completed (2026-03-13)
+1. [x] INFRA-01 through INFRA-10 — full migration + email setup
+2. [x] TRUST-03 through TRUST-09 — anti-fraud phase 1 (code complete)
+
+### Environment Variables (Vercel)
 ```
-PLAYWRIGHT_BASE_URL=https://oshicart.com
-SUPABASE_URL=https://oshicart.com/supabase
-NEXT_PUBLIC_SUPABASE_URL=https://oshicart.com/supabase
-SUPABASE_SERVICE_ROLE_KEY=eyJ...service_role...F3q5
-TEST_MERCHANT_EMAIL=playwright-e2e@oshicart.test
-TEST_STORE_SLUG=playwright-test-store
+NEXT_PUBLIC_SUPABASE_URL=https://pcseqiaqeiiaiqxqtfmw.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...(anon key)
+SUPABASE_SERVICE_ROLE_KEY=eyJ...(service role key)
+NEXT_PUBLIC_SITE_URL=https://oshicart.com
+ADMIN_EMAILS=info@octovianexus.com
 ```
 
-### Deploy Checklist (current — pre-Vercel)
-1. `ssh root@187.124.15.31 && cd /opt/oshicart`
-2. `git pull origin master`
-3. Apply any new migrations: `cat supabase/migrations/XXX.sql | docker compose -f docker-compose.prod.yml exec -T supabase-db psql -U postgres -d postgres`
-4. `docker compose -f docker-compose.prod.yml build app && docker compose -f docker-compose.prod.yml up -d app`
-5. **VERIFY**: Kong keys match `.env`, env vars correct
+### Deploy Process (Current — Vercel)
+1. Push to `master` branch on GitHub
+2. Vercel auto-deploys
+3. For DB changes: run migrations in Supabase SQL Editor
+
+### Cloudflare DNS Dashboard
+- URL: `https://dash.cloudflare.com/dce0c92ffafcd2c42959b7382beabce2/oshicart.com/dns/records`
+- Current records: 2x A (@ and www → 216.198.79.1), 1x MX (send.send → amazonses), 3x TXT (DKIM @ resend._domainkey.send, SPF @ send.send, DMARC @ _dmarc)
+
+### Resend Dashboard
+- URL: `https://resend.com/domains`
+- Domain: `send.oshicart.com` (VERIFIED)

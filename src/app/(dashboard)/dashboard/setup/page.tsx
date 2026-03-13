@@ -77,6 +77,7 @@ export default function StoreSetupPage() {
       bank_account_number: form.bank_account_number || null,
       bank_account_holder: form.bank_account_holder || null,
       bank_branch_code: form.bank_branch_code || null,
+      store_status: "pending",
     });
 
     if (insertError) {

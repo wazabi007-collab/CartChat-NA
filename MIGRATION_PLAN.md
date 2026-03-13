@@ -1,7 +1,8 @@
 # Migration Plan — Inventory + Industry + Delivery Fee
 
 > Generated: 2026-03-11
-> Applies to: Production DB at oshicart.octovianexus.com + local docker-compose
+> Originally for VPS Docker setup. Now applied to Supabase Pro (2026-03-13).
+> All migrations 005-007 are included in `FULL_MIGRATION_FOR_SUPABASE_PRO.sql`.
 
 ---
 
@@ -258,40 +259,24 @@ CREATE TRIGGER trg_restock_on_cancel
 
 ## Deployment Steps
 
-### Local (Docker)
+### Current: Supabase Pro + Vercel (as of 2026-03-13)
+
+All migrations (001-010) have been applied to Supabase Pro. For future migrations:
 
 ```bash
-# 1. Apply migrations to local DB
-docker compose exec supabase-db psql -U postgres -d postgres \
-  -f /migrations/005_inventory_and_industry.sql
-docker compose exec supabase-db psql -U postgres -d postgres \
-  -f /migrations/006_place_order_v2.sql
-docker compose exec supabase-db psql -U postgres -d postgres \
-  -f /migrations/007_cancel_restock_trigger.sql
-
-# 2. Restart app to pick up schema changes
-docker compose restart app
+# 1. Write migration SQL file in supabase/migrations/
+# 2. Run in Supabase Dashboard > SQL Editor
+# 3. Push code changes to master → Vercel auto-deploys
 ```
 
-### Production (Server)
+### Previous: Docker on VPS (deprecated)
 
 ```bash
-# 1. SSH to server
-ssh root@187.124.15.31
-
-# 2. Pull latest code
-cd /opt/oshicart && git pull origin master
-
-# 3. Apply migrations directly to prod DB
-docker compose -f docker-compose.prod.yml exec supabase-db psql -U postgres -d postgres \
-  -f /migrations/005_inventory_and_industry.sql
-docker compose -f docker-compose.prod.yml exec supabase-db psql -U postgres -d postgres \
-  -f /migrations/006_place_order_v2.sql
-docker compose -f docker-compose.prod.yml exec supabase-db psql -U postgres -d postgres \
-  -f /migrations/007_cancel_restock_trigger.sql
-
-# 4. Rebuild and restart app
-bash deploy.sh
+# These steps are no longer needed — kept for reference only
+# ssh root@187.124.15.31
+# cd /opt/oshicart && git pull origin master
+# cat supabase/migrations/XXX.sql | docker compose -f docker-compose.prod.yml exec -T supabase-db psql -U postgres -d postgres
+# bash deploy.sh
 ```
 
 ### Rollback Plan

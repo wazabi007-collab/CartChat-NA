@@ -1,3 +1,5 @@
+export const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+
 export const SITE_NAME = "OshiCart";
 export const SITE_DESCRIPTION =
   "Create your WhatsApp store in 5 minutes. Free for Namibian businesses.";
@@ -63,3 +65,19 @@ export const INDUSTRIES_NAMIBIA = [
   { value: "services", label: "Services & Repairs" },
   { value: "other", label: "Other" },
 ] as const;
+
+export const REPORT_REASONS = [
+  { value: "scam", label: "Suspected scam or fraud" },
+  { value: "fake_products", label: "Fake or counterfeit products" },
+  { value: "no_delivery", label: "Paid but never received order" },
+  { value: "misleading", label: "Misleading product descriptions" },
+  { value: "inappropriate", label: "Inappropriate or prohibited items" },
+  { value: "other", label: "Other" },
+] as const;
+
+export const STORE_STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  pending: { label: "Pending Review", color: "bg-yellow-100 text-yellow-800" },
+  active: { label: "Active", color: "bg-green-100 text-green-800" },
+  suspended: { label: "Suspended", color: "bg-red-100 text-red-800" },
+  banned: { label: "Banned", color: "bg-gray-100 text-gray-800" },
+};

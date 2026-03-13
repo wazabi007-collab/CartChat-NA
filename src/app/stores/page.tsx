@@ -24,6 +24,7 @@ export default async function StoresPage({
     .from("merchants")
     .select("id, store_name, store_slug, description, logo_url, whatsapp_number, created_at")
     .eq("is_active", true)
+    .eq("store_status", "active")
     .order("created_at", { ascending: false });
 
   if (q && q.trim()) {

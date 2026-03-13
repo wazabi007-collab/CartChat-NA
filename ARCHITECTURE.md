@@ -1,19 +1,20 @@
-# ChatCart NA — Architecture Document
+# OshiCart — Architecture Document
 
-## Stack Decision
+## Stack
 
 | Layer | Technology | Rationale |
 |-------|-----------|-----------|
-| **Frontend** | Next.js 14 (App Router) | SSR for fast storefronts, API routes for backend, free Vercel hosting |
+| **Frontend** | Next.js 15 (App Router) | SSR for fast storefronts, API routes for backend |
 | **Backend** | Next.js API Routes + Supabase | No separate server needed. Supabase handles auth, DB, storage, realtime |
-| **Database** | Supabase PostgreSQL | Free tier: 500MB, 2 projects. RLS for multi-tenant security |
-| **Auth** | Supabase Auth (phone OTP) | WhatsApp number as identity. OTP via Twilio or Supabase built-in |
-| **File Storage** | Supabase Storage | Product images, proof-of-payment uploads. Free tier: 1GB |
-| **Hosting** | Vercel (free tier) | Auto-deploy, edge functions, 100GB bandwidth/month |
+| **Database** | Supabase Pro (PostgreSQL) | Managed, EU West region, RLS for multi-tenant security |
+| **Auth** | Supabase Auth (magic link) | Email-based sign-in codes |
+| **File Storage** | Supabase Storage | Product images (merchant-assets, public), proof-of-payment (order-proofs, private) |
+| **Hosting** | Vercel | Auto-deploy from GitHub, edge network |
+| **DNS** | Cloudflare (DNS only) | oshicart.com → Vercel |
 | **Styling** | Tailwind CSS | Fast, utility-first, small bundle size |
 | **Image Processing** | Sharp (server-side) | Compress product images on upload to < 100KB |
 | **Analytics** | Supabase + custom tables | No third-party analytics cost |
-| **Payments** | Manual EFT (V1) | No integration cost. Match how merchants already work |
+| **Payments** | EFT, COD, MoMo, eWallet | Manual payment proof + multiple methods |
 
 ## Data Model
 
@@ -34,6 +35,8 @@
 │ logo_url             │
 │ tier (free/pro/biz)  │
 │ is_active            │
+│ store_status         │  ← pending/active/suspended/banned
+│ tos_accepted_at      │
 │ created_at           │
 │ updated_at           │
 └──────────┬───────────┘
@@ -79,6 +82,7 @@
 │ status               │  ← pending/confirmed/completed/cancelled
 │ subtotal_nad (int)   │
 │ proof_of_payment_url │
+│ payment_reference    │  ← OSHI-XXXXXXXX
 │ notes                │
 │ created_at           │
 │ updated_at           │
@@ -110,6 +114,21 @@
 │ revenue_nad (int)    │
 │ created_at           │
 └──────────────────────┘
+
+┌──────────────────────┐
+│       reports        │
+├──────────────────────┤
+│ id (uuid, PK)        │
+│ merchant_id (FK)     │
+│ reason               │
+│ details              │
+│ reporter_name        │
+│ reporter_contact     │
+│ status               │  ← open/reviewed/dismissed
+│ admin_notes          │
+│ created_at           │
+│ updated_at           │
+└──────────────────────┘
 ```
 
 ## Multi-Tenant Approach
@@ -119,9 +138,11 @@
 Every table has a `merchant_id` column. RLS policies ensure:
 
 1. **Merchants** can only read/write their own data
-2. **Public storefront** can read products/categories for any merchant (via store slug lookup)
-3. **Customers** can create orders for any merchant (insert-only, no read of other orders)
+2. **Public storefront** can read products/categories for active merchants only (`is_active = true AND store_status = 'active'`)
+3. **Customers** can create orders for any active merchant (insert-only, no read of other orders)
 4. **Proof-of-payment uploads** scoped to order-specific storage paths
+5. **Admin** uses service role client (bypasses RLS) — protected by `ADMIN_EMAILS` env var
+6. **Reports** — anyone can submit (INSERT), only admin can read/update
 
 ```sql
 -- Example RLS policy for products
@@ -146,14 +167,14 @@ USING (is_available = true);
 
 | Concern | Approach |
 |---------|----------|
-| **Authentication** | Phone OTP via Supabase Auth. No passwords |
+| **Authentication** | Magic link email via Supabase Auth. No passwords |
 | **Authorization** | RLS on every table. No server-side auth bypass |
 | **Data isolation** | merchant_id on all rows. RLS enforced at DB level |
-| **File uploads** | Validate file type (image/*), max 5MB, virus scan in V2 |
+| **File uploads** | Validate file type (image/*), max 5MB |
 | **Input sanitization** | Zod validation on all API inputs. HTML entity encoding on output |
 | **HTTPS** | Enforced by Vercel |
-| **Secrets** | Environment variables only. No client-side secrets |
-| **CORS** | Restricted to chatcartna.com domain |
+| **Secrets** | Environment variables only (Vercel dashboard). No client-side secrets |
+| **CORS** | Restricted to oshicart.com domain |
 | **Rate limiting** | Vercel edge middleware: 100 req/min per IP for API routes |
 | **PII** | Customer WhatsApp numbers stored only in orders table. No analytics tracking of customers |
 
@@ -185,81 +206,53 @@ No WhatsApp API. Instead:
 - SEO / social sharing (OG tags with store info)
 - No client-side data fetching for initial product list
 
-## Scalability Notes
+## Infrastructure (Current)
 
-### Free Tier Capacity
+| Service | Plan | Cost |
+|---------|------|------|
+| Supabase Pro | EU West (Ireland) | $25/mo |
+| Vercel | Pro | $20/mo |
+| Cloudflare | Free (DNS only) | $0 |
+| Domain (oshicart.com) | Cloudflare Registrar | ~$10/yr |
+
+**Total**: ~$46/mo
+
+### Capacity (Supabase Pro + Vercel)
 | Resource | Limit | Supports |
 |----------|-------|----------|
-| Supabase DB | 500MB | ~50,000 products, ~100,000 orders |
-| Supabase Storage | 1GB | ~10,000 product images at 100KB |
-| Supabase Auth | 50,000 MAU | 50,000 merchants |
-| Vercel bandwidth | 100GB/month | ~500,000 storefront visits |
-| Vercel serverless | 100 hrs/month | ~360,000 API calls |
+| Supabase DB | 8GB | ~500,000 products, ~1M orders |
+| Supabase Storage | 100GB | ~1M product images |
+| Supabase Auth | 100,000 MAU | 100,000 merchants |
+| Vercel bandwidth | 1TB/month | ~5M storefront visits |
 
-### Cost Estimates
-
-| Merchants | Monthly Cost | Revenue (if 20% paying Pro) |
-|-----------|-------------|---------------------------|
-| 10 | $0 (free tiers) | NAD 198 (~$11) |
-| 100 | ~$25 (Supabase Pro) | NAD 1,980 (~$110) |
-| 1,000 | ~$100 (Supabase Pro + Vercel Pro) | NAD 19,800 (~$1,100) |
-
-Break-even at ~25 paying merchants.
-
-## Directory Structure (Planned)
+## Directory Structure
 
 ```
 chatcart-na/
 ├── src/
 │   ├── app/
-│   │   ├── (auth)/
-│   │   │   ├── login/page.tsx
-│   │   │   └── signup/page.tsx
-│   │   ├── (dashboard)/
-│   │   │   ├── layout.tsx
-│   │   │   ├── dashboard/page.tsx
-│   │   │   ├── products/page.tsx
-│   │   │   ├── orders/page.tsx
-│   │   │   ├── analytics/page.tsx
-│   │   │   └── settings/page.tsx
-│   │   ├── s/[slug]/
-│   │   │   ├── page.tsx          ← Public storefront
-│   │   │   └── [productId]/page.tsx
-│   │   ├── checkout/[slug]/page.tsx
-│   │   ├── api/
-│   │   │   ├── products/route.ts
-│   │   │   ├── orders/route.ts
-│   │   │   ├── upload/route.ts
-│   │   │   └── analytics/route.ts
-│   │   ├── layout.tsx
-│   │   └── page.tsx              ← Landing page
+│   │   ├── (auth)/            ← login, signup
+│   │   ├── (admin)/admin/     ← admin panel (stores, reports)
+│   │   ├── (dashboard)/       ← merchant dashboard (orders, products, coupons, settings)
+│   │   ├── s/[slug]/          ← public store pages + product detail
+│   │   ├── checkout/[slug]/   ← customer checkout
+│   │   ├── invoice/[orderId]/ ← order invoice
+│   │   ├── stores/            ← store directory
+│   │   ├── api/               ← API routes (products, orders, upload, analytics, admin, reports)
+│   │   └── page.tsx           ← landing page
 │   ├── components/
-│   │   ├── ui/                   ← Shared UI components
-│   │   ├── storefront/           ← Customer-facing components
-│   │   └── dashboard/            ← Merchant dashboard components
+│   │   ├── admin/             ← admin panel components
+│   │   ├── storefront/        ← customer-facing components (cart, product card, report button)
+│   │   └── dashboard/         ← merchant dashboard components
 │   ├── lib/
-│   │   ├── supabase/
-│   │   │   ├── client.ts
-│   │   │   ├── server.ts
-│   │   │   └── middleware.ts
+│   │   ├── supabase/          ← client.ts, server.ts, service.ts, middleware.ts
 │   │   ├── utils.ts
-│   │   ├── constants.ts
-│   │   └── validations.ts       ← Zod schemas
+│   │   └── constants.ts       ← Namibian industry list, etc.
 │   └── types/
-│       └── index.ts
 ├── supabase/
-│   └── migrations/
-│       └── 001_initial_schema.sql
-├── public/
-│   └── images/
-├── .env.local
-├── next.config.js
-├── tailwind.config.ts
-├── tsconfig.json
-├── package.json
-├── PROJECT.md
-├── PRD.md
-├── ARCHITECTURE.md
-├── TASKS.md
-└── GO_TO_MARKET.md
+│   └── migrations/            ← 001-011 + combined migration for fresh setup
+├── public/                    ← logo.svg, icon.svg, hero images, payment icons
+├── .env.local                 ← local dev (gitignored)
+├── .env.production.example    ← template for Vercel env vars
+└── next.config.ts
 ```

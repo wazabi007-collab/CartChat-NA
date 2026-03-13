@@ -1,5 +1,145 @@
 # Changelog
 
+## 2026-03-13 (Session 10) — TRUST Phase 1: Anti-Fraud Basic Protection
+
+### TRUST-03: Store Status System
+- Added `store_status` enum: `pending`, `active`, `suspended`, `banned`
+- New merchants start as `pending` — must be approved by admin
+- Existing merchants default to `active`
+- Public storefront and store directory only show `active` stores
+- Dashboard shows status banners for pending/suspended stores
+
+### TRUST-04: Admin Dashboard
+- New admin panel at `/admin` (dark sidebar, separate from merchant dashboard)
+- `/admin/stores` — view all merchants with status, orders, revenue, report counts
+- Filter by status (pending/active/suspended/banned) + search by name
+- Approve, suspend, or ban stores with one click
+- `/admin/reports` — view and resolve customer reports
+- Protected by `ADMIN_EMAILS` environment variable
+
+### TRUST-05: Report Store Button
+- "Report Store" button on every storefront footer
+- Modal with reason dropdown (scam, fake products, no delivery, etc.)
+- Optional details, name, and contact fields
+- Reports saved to `reports` table, visible in admin panel
+
+### TRUST-06: Unique Payment References
+- `place_order` RPC generates `OSHI-XXXXXXXX` payment reference per order
+- Displayed on checkout success screen in blue reference card
+- Included in WhatsApp order notification message
+- Helps merchants match EFT payments to specific orders
+
+### TRUST-07: Transaction Limits for New Stores
+- Stores less than 30 days old: max 10 orders/month, N$5,000 monthly value
+- Enforced server-side in `place_order` RPC (cannot be bypassed)
+- Clear error messages explaining limits
+
+### TRUST-08: Fake POP Education Banner
+- Blue safety banner on merchant dashboard homepage
+- "Always verify payments by checking your actual bank balance"
+- Warns that proof-of-payment screenshots can be faked
+
+### TRUST-09: Merchant Terms of Service
+- Updated `/terms` with platform role definition (OshiCart is platform, not seller)
+- Added prohibited items list (counterfeit, weapons, drugs, etc.)
+- Added prohibited conduct (payment fraud, fake POPs, multiple accounts)
+- Added consequences section (suspension, ban, reporting to authorities)
+- Added new store limits section
+
+### Database Migration (011)
+- `store_status` enum + column on merchants
+- `tos_accepted_at` column on merchants
+- `payment_reference` column on orders
+- `reports` table with RLS
+- `place_order` v4 with status check, order limits, payment reference generation
+- Updated RLS policies for public merchant visibility
+
+### New Files
+- `src/app/(admin)/layout.tsx` — admin layout with auth guard
+- `src/app/(admin)/admin/page.tsx` — admin overview
+- `src/app/(admin)/admin/stores/page.tsx` — store management
+- `src/app/(admin)/admin/stores/store-actions.tsx` — approve/suspend/ban
+- `src/app/(admin)/admin/reports/page.tsx` — report queue
+- `src/app/(admin)/admin/reports/report-actions.tsx` — review/dismiss
+- `src/components/admin/nav.tsx` — admin sidebar navigation
+- `src/components/storefront/report-button.tsx` — report store modal
+- `src/app/api/admin/stores/route.ts` — admin store status API
+- `src/app/api/admin/reports/route.ts` — admin report resolution API
+- `src/app/api/reports/route.ts` — public report submission API
+
+---
+
+## 2026-03-13 (Session 9) — Supabase Pro + Vercel Migration + Resend Setup + Email Fix
+
+### Supabase Auth Email Templates Fixed (INFRA-10 COMPLETE)
+- Configured custom SMTP in Supabase Auth: `smtp.resend.com:465`, sender `noreply@send.oshicart.com`
+- **BUG-008**: Email templates missing OTP code — emails only contained magic link, no `{{ .Token }}`
+  - Fixed "Confirm sign up" template: added `<p>Or enter this OTP code: <strong>{{ .Token }}</strong></p>`
+  - Fixed "Magic link" template: added `<p>Or enter this OTP code: <strong>{{ .Token }}</strong></p>`
+  - Changed Email OTP length from 8 digits to 6 digits (Auth > Providers > Email)
+  - Users now receive both a clickable link AND a 6-digit OTP code in auth emails
+
+### Resend Email Domain Setup (COMPLETE)
+- Deleted old Resend domains: `octovianexus.com` and `send.octovianexus.com`
+- Added new domain: `send.oshicart.com` (eu-west-1 Ireland) in Resend
+- Added 4 DNS records in Cloudflare: DKIM (TXT), MX, SPF (TXT), DMARC (TXT)
+- Fixed MX and SPF record names from `send` to `send.send` (Resend expects `send.send.oshicart.com`)
+- All records verified in Resend (DKIM, MX, SPF)
+
+### Vercel Billing
+- Added payment method to Vercel account (card on file, trial secured)
+
+### Project Documentation Overhaul
+- README.md: replaced Next.js boilerplate with OshiCart project docs
+- TASKS.md: moved completed INFRA-01–08 to Completed section
+- ARCHITECTURE.md: updated stack, auth, security, infrastructure, directory structure
+- PROJECT.md: updated infrastructure from VPS to Vercel/Supabase Pro
+- SESSION_STATE.md: rewritten for current state + Resend DNS records reference
+- CHANGELOG.md: added Session 9 entry
+- KNOWN_ISSUES.md: updated status, marked VPS-era bugs as deprecated
+- MIGRATION_PLAN.md: updated deployment steps for Supabase Pro
+- PRD.md: renamed to OshiCart, updated domain refs and auth method
+- GO_TO_MARKET.md: renamed all ChatCart → OshiCart
+- IMPLEMENTATION_TASKS.md: marked P0/P1 as complete
+
+### Infrastructure Migration: VPS → Managed Services (COMPLETE)
+- Migrated from self-hosted Docker Supabase on VPS to **Supabase Pro** (EU West/Ireland)
+- Migrated from Docker Next.js container to **Vercel** (auto-deploy from GitHub)
+- Cloudflare DNS updated: A records (`@` and `www`) → Vercel IP `216.198.79.1` (DNS only, no proxy)
+
+### Database Migration
+- Ran combined migration (001-010) on Supabase Pro SQL Editor
+- Migrated all data: 6 merchants, 17 products, 23 orders, 24 order_items, 1 coupon, 2 stock_adjustments, 4 store_analytics
+- All RLS policies, SECURITY DEFINER functions, triggers active
+
+### Storage Migration
+- Extracted product images from Docker storage volume (`/var/lib/storage/stub/stub/merchant-assets/`)
+- Uploaded to Supabase Pro Storage via REST API with service role key
+- Updated image URLs in products table to new Supabase Pro domain
+- Created storage buckets: `merchant-assets` (public), `order-proofs` (private) with RLS policies
+
+### Vercel Deployment
+- Connected GitHub repo `wazabi007-collab/CartChat-NA` to Vercel project "oshicart"
+- Configured 4 environment variables (SUPABASE_URL, ANON_KEY, SERVICE_ROLE_KEY, SITE_URL)
+- Build succeeded, deployed at `oshicart.vercel.app` + custom domain `oshicart.com`
+
+### Code Changes for Migration
+- `next.config.ts`: removed `output: "standalone"`, removed Docker image patterns, added Supabase Pro hostname
+- `src/lib/supabase/server.ts`: removed Docker URL rewriting
+- `src/lib/supabase/service.ts`: removed Docker URL rewriting
+- `src/lib/supabase/middleware.ts`: removed Docker URL rewriting
+- `.env.local`: updated to Supabase Pro credentials
+
+### Verification (INFRA-08)
+- Landing page, login, signup, store directory, individual stores, product images, cart, checkout, WhatsApp links — all verified working at https://oshicart.com
+
+### Files Created
+- `supabase/migrations/FULL_MIGRATION_FOR_SUPABASE_PRO.sql` — combined migrations 001-010
+- `supabase/migrations/STORAGE_BUCKETS_FOR_SUPABASE_PRO.sql` — storage bucket setup
+- `.env.production.example` — template for Vercel env vars
+
+---
+
 ## 2026-03-12 (Session 8) — Domain Migration + Hero Update
 
 ### Domain Migration: oshicart.octovianexus.com → oshicart.com (DEPLOYED)

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Package, ShoppingCart, Eye, ArrowRight, AlertTriangle } from "lucide-react";
+import { Package, ShoppingCart, Eye, ArrowRight, AlertTriangle, ShieldAlert, Clock } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { SITE_URL } from "@/lib/constants";
 import { CopyStoreLink } from "./copy-store-link";
@@ -74,6 +74,45 @@ export default async function DashboardPage() {
           Your store:{" "}
           <CopyStoreLink url={storeAbsoluteUrl} />
         </p>
+      </div>
+
+      {/* Store status banner */}
+      {merchant.store_status === "pending" && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+          <Clock size={20} className="text-yellow-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-yellow-900">Store Under Review</h3>
+            <p className="text-sm text-yellow-800 mt-1">
+              Your store is being reviewed by the OshiCart team. You can still set up your products
+              and settings while you wait. Your store will be visible to customers once approved.
+            </p>
+          </div>
+        </div>
+      )}
+      {merchant.store_status === "suspended" && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+          <ShieldAlert size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-red-900">Store Suspended</h3>
+            <p className="text-sm text-red-800 mt-1">
+              Your store has been suspended. Customers cannot view your store or place orders.
+              Please contact support at support@oshicart.com to resolve this.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* POP Education Banner (TRUST-08) */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+        <ShieldAlert size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+        <div>
+          <h3 className="font-medium text-blue-900">Payment Safety Reminder</h3>
+          <p className="text-sm text-blue-800 mt-1">
+            Always verify payments by checking your <strong>actual bank balance</strong> or transaction
+            history before confirming an order. Screenshots of proof of payment can be faked.
+            Only confirm orders after the money has reflected in your account.
+          </p>
+        </div>
       </div>
 
       {/* Stats grid */}

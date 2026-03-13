@@ -1,4 +1,4 @@
-# ChatCart NA — Project Brief
+# OshiCart — Project Brief
 
 ## Vision
 The default WhatsApp commerce platform for Namibian SMEs — turning every WhatsApp seller into a professional online store in under 5 minutes.
@@ -44,22 +44,23 @@ Complete visual overhaul of the OshiCart landing page to match reference design 
 - **Primary**: Solo or micro-business (1-5 people) selling physical goods via WhatsApp in Namibia
 - **Examples**: Fashion resellers, home bakers, cosmetics sellers, phone accessory shops, farm produce sellers
 
-## Infrastructure (Current → Planned)
+## Infrastructure (Current — as of 2026-03-13)
 
-### Current (VPS self-hosted)
-- Server: `root@187.124.15.31` shared VPS (2 CPU, 8GB RAM)
-- Domain: `oshicart.com` (Cloudflare proxied, SSL Full)
-- Self-hosted Supabase (Postgres + GoTrue + PostgREST + Kong + Storage)
-- Next.js in Docker container behind nginx
+| Service | Details |
+|---------|---------|
+| **Hosting** | Vercel (auto-deploys from GitHub `master`) |
+| **Database** | Supabase Pro — EU West (Ireland), `pcseqiaqeiiaiqxqtfmw.supabase.co` |
+| **DNS** | Cloudflare (DNS only, no proxy) → Vercel |
+| **Domain** | oshicart.com |
+| **Storage** | Supabase Storage — `merchant-assets` (public), `order-proofs` (private) |
+| **Auth** | Supabase Auth — magic link (email sign-in codes) |
+| **Cost** | ~$46/mo (Supabase Pro $25 + Vercel $20 + domain ~$1) |
 
-### Planned (Managed — migration 2026-03-13)
-- **Vercel** ($20/mo) — hosts Next.js app, auto-deploys from GitHub
-- **Supabase Pro** ($25/mo) — managed DB, auth, storage with CDN
-- **Cloudflare** (free) — DNS only
-- **VPS** — retained for dev/staging only
-- Total: ~$46/mo for 1,000+ merchant capacity
+### Previous Infrastructure (deprecated)
+- VPS at `187.124.15.31` — self-hosted Supabase (Docker) + nginx + Next.js container
+- Migrated to managed services on 2026-03-13
 
 ## Constraints
 - **Budget**: Bootstrap. Infrastructure ~$46/mo with managed services
-- **Team**: Solo founder + AI tools (Claude, Ralph)
+- **Team**: Solo founder + AI tools (Claude)
 - **Timeline**: MVP in 6 weeks, revenue in 8 weeks

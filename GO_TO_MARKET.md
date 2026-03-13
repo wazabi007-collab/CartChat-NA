@@ -1,4 +1,4 @@
-# ChatCart NA — Go-To-Market Plan
+# OshiCart — Go-To-Market Plan
 
 ## First 10 Pilot Merchants
 
@@ -31,7 +31,7 @@
 ```
 Hi [Name]! I saw you sell [products] on WhatsApp — nice stuff!
 
-I'm building a free tool called ChatCart that lets you:
+I'm building a free tool called OshiCart that lets you:
 - Create a product catalog link you can share on WhatsApp
 - Customers browse and order directly (no more back-and-forth messages)
 - See all orders + proof of payment in one dashboard
@@ -67,9 +67,9 @@ Would you like to try it? I'll help you set up personally.
 
 ### Pricing Rationale
 - **NAD 99 = ~$5.50 USD** — affordable for a merchant doing NAD 20,000+/month revenue
-- **ROI pitch**: "If ChatCart saves you 2 hours/day on order management, that's 60 hours/month. Is that worth NAD 99?"
+- **ROI pitch**: "If OshiCart saves you 2 hours/day on order management, that's 60 hours/month. Is that worth NAD 99?"
 - **Comparison**: A single WhatsApp Business API conversation costs ~NAD 2-4. At 50 orders/month, API alone would cost more than Pro tier
-- **Collection method (V1)**: Manual EFT to ChatCart bank account. Monthly. Admin tracks in spreadsheet until automated billing in V2
+- **Collection method (V1)**: Manual EFT to OshiCart bank account. Monthly. Admin tracks in spreadsheet until automated billing in V2
 
 ### Upgrade Triggers
 - Hit 20 product limit → prompt to upgrade
@@ -89,7 +89,7 @@ Would you like to try it? I'll help you set up personally.
 ### Channel 2: WhatsApp Status Marketing (Week 2+)
 - Post store creation tutorials on own WhatsApp Status
 - Show merchant success stories (with permission)
-- "How [Merchant] got 20 orders in one week using ChatCart"
+- "How [Merchant] got 20 orders in one week using OshiCart"
 
 ### Channel 3: Facebook Groups (Week 3+)
 - Join Namibian entrepreneur/SME groups
@@ -102,7 +102,7 @@ Would you like to try it? I'll help you set up personally.
 
 ### Channel 5: Instagram Reels (Week 4+)
 - 30-second demos: "Set up your WhatsApp store in 60 seconds"
-- Before/after: manual WhatsApp selling vs ChatCart
+- Before/after: manual WhatsApp selling vs OshiCart
 
 ---
 
@@ -122,7 +122,7 @@ Would you like to try it? I'll help you set up personally.
 - Deploy weekly update
 - Send "What's New" WhatsApp message to merchants
 - Update metrics dashboard
-- Write 1 social media post about ChatCart
+- Write 1 social media post about OshiCart
 
 ### Saturday: Learn
 - Review merchant feedback

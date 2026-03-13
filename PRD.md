@@ -1,4 +1,4 @@
-# ChatCart NA — Product Requirements Document
+# OshiCart — Product Requirements Document
 
 ## MVP Scope (6 Weeks)
 
@@ -35,11 +35,11 @@ A merchant creates a WhatsApp-optimized product catalog in < 5 minutes, shares t
 
 ### Journey 1: Merchant Onboarding (< 5 minutes)
 ```
-1. Merchant clicks "Create Store" on chatcartna.com
+1. Merchant clicks "Create Store" on oshicart.com
 2. Signs up with WhatsApp number + OTP verification
 3. Enters store name, description, WhatsApp number
 4. Adds first product (name, price NAD, photo, description)
-5. Gets shareable store link: chatcartna.com/s/storename
+5. Gets shareable store link: oshicart.com/s/storename
 6. Shares link in WhatsApp status / groups / direct messages
 ```
 
@@ -70,7 +70,7 @@ A merchant creates a WhatsApp-optimized product catalog in < 5 minutes, shares t
 ## Functional Requirements
 
 ### F1: Authentication & Onboarding
-- **F1.1**: Sign up with WhatsApp number + OTP (via Supabase Auth + Twilio/WhatsApp OTP)
+- **F1.1**: Sign up with email + magic link (via Supabase Auth)
 - **F1.2**: Store creation wizard (name, description, logo, WhatsApp number, bank details)
 - **F1.3**: Store URL auto-generated from store name (slugified)
 - **F1.4**: Merchant can update store details anytime
@@ -84,7 +84,7 @@ A merchant creates a WhatsApp-optimized product catalog in < 5 minutes, shares t
 - **F2.6**: Free tier: max 20 products. Paid tier: unlimited
 
 ### F3: Storefront
-- **F3.1**: Public URL: `chatcartna.com/s/{slug}`
+- **F3.1**: Public URL: `oshicart.com/s/{slug}`
 - **F3.2**: Mobile-first responsive design (90%+ users on mobile)
 - **F3.3**: Page load < 3 seconds on 3G connection
 - **F3.4**: Product grid with image, name, price

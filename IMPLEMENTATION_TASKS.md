@@ -2,7 +2,7 @@
 
 > Generated: 2026-03-11
 > Scope: Inventory system + Industry signup + Delivery fee
-> Target: 7-day sprint for P0, 30-day for P1
+> Status: **P0 and P1 all COMPLETE and DEPLOYED** (as of 2026-03-13)
 
 ---
 

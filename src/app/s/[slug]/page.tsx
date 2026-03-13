@@ -6,6 +6,7 @@ import { whatsappLink } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { ProductCard } from "@/components/storefront/product-card";
 import { TrackView } from "@/components/storefront/track-view";
+import { ReportButton } from "@/components/storefront/report-button";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -20,6 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .select("store_name, description, logo_url")
     .eq("store_slug", slug)
     .eq("is_active", true)
+    .eq("store_status", "active")
     .single();
 
   if (!merchant) return { title: "Store Not Found" };
@@ -47,6 +49,7 @@ export default async function StorefrontPage({ params }: Props) {
     .select("*")
     .eq("store_slug", slug)
     .eq("is_active", true)
+    .eq("store_status", "active")
     .single();
 
   if (!merchant) notFound();
@@ -184,8 +187,9 @@ export default async function StorefrontPage({ params }: Props) {
 
       {/* Footer */}
       <footer className="border-t bg-white mt-8">
-        <div className="max-w-4xl mx-auto px-4 py-4 text-center text-xs text-gray-400">
-          Powered by {SITE_NAME}
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between text-xs text-gray-400">
+          <span>Powered by {SITE_NAME}</span>
+          <ReportButton merchantId={merchant.id} storeName={merchant.store_name} />
         </div>
       </footer>
     </div>

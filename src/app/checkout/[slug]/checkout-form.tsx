@@ -112,6 +112,7 @@ export function CheckoutForm({
   const [step, setStep] = useState<CheckoutStep>("form");
   const [orderId, setOrderId] = useState<string | null>(null);
   const [orderNumber, setOrderNumber] = useState<number | null>(null);
+  const [paymentRef, setPaymentRef] = useState<string | null>(null);
 
   // Payment method
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
@@ -317,13 +318,14 @@ export function CheckoutForm({
         throw new Error("Failed to create order");
       }
 
-      const order = orderData[0] as { order_id: string; order_number: number };
+      const order = orderData[0] as { order_id: string; order_number: number; payment_reference: string };
 
       // Clear cart
       localStorage.removeItem(`oshicart-cart-${storeSlug}`);
 
       setOrderId(order.order_id);
       setOrderNumber(order.order_number);
+      setPaymentRef(order.payment_reference);
       setStep("success");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -354,6 +356,7 @@ export function CheckoutForm({
       ...(discount > 0 ? [`*Discount:* -${formatPrice(discount)}${couponApplied ? ` (${couponApplied.code})` : ""}`] : []),
       ...(deliveryFee > 0 ? [`*Delivery Fee:* ${formatPrice(deliveryFee)}`] : []),
       `*Total:* ${formatPrice(total)}`,
+      ...(paymentRef ? [`*Payment Ref:* ${paymentRef}`] : []),
       `*Payment:* ${getPaymentLabel(paymentMethod)}`,
       `*Delivery:* ${
         deliveryMethod === "delivery"
@@ -376,7 +379,16 @@ export function CheckoutForm({
           Your order number is{" "}
           <span className="font-bold text-gray-900">#{orderNumber}</span>
         </p>
-        <p className="text-sm text-gray-500 mt-1">
+        {paymentRef && paymentMethod !== "cod" && (
+          <div className="mt-3 bg-blue-50 rounded-md p-3">
+            <p className="text-xs text-blue-600 font-medium">Payment Reference</p>
+            <p className="text-lg font-bold text-blue-900">{paymentRef}</p>
+            <p className="text-xs text-blue-500 mt-1">
+              Use this reference when making your payment so the merchant can match it to your order.
+            </p>
+          </div>
+        )}
+        <p className="text-sm text-gray-500 mt-2">
           {paymentMethod === "cod"
             ? "Please have cash ready for payment on delivery/pickup."
             : "Please contact the merchant on WhatsApp to confirm your order."}

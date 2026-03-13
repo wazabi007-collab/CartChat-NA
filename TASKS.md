@@ -39,12 +39,27 @@
 
 ---
 
-## UX — Dashboard Clickability Improvements (2026-03-13) — DEPLOYED
+## UX — Dashboard Clickability + Polish (2026-03-13) — DEPLOYED
 - [x] **UX-01** Dashboard stat cards clickable → link to Products, Orders, Analytics
 - [x] **UX-02** Dashboard product cards clickable → link to edit page
 - [x] **UX-03** Admin overview stat cards clickable → link to merchants, billing, reports
 - [x] **UX-04** Admin merchant Products tab: product names link to storefront page
 - [x] **UX-05** OshiCart logo in merchant nav links back to /dashboard
+- [x] **UX-06** Pricing cards redesign (modern, Most Popular badge, dark CTA buttons)
+- [x] **UX-07** "See current stores on OshiCart" button on hero section
+
+---
+
+## BILLING — Subscription Checkout + VAT + Invoices (2026-03-13) — DEPLOYED
+- [x] **BILL-01** Subscription checkout page (/pricing/checkout?tier=)
+- [x] **BILL-02** Nedbank payment details hardcoded (Octovia Nexus Investment CC)
+- [x] **BILL-03** Auto-generated payment reference saved to subscription
+- [x] **BILL-04** Seamless signup-to-checkout flow (pricing -> signup -> setup -> checkout)
+- [x] **BILL-05** Modern invoice redesign (gradient header, status badges, print-optimized)
+- [x] **BILL-06** VAT support (vat_number, vat_inclusive, 15% calculation on invoice)
+- [x] **BILL-07** Store logo upload in Settings (all tiers)
+- [x] **BILL-08** Admin: pending tier + payment reference visibility
+- [x] **BILL-09** Admin: WhatsApp notify buttons (Payment Received, Upgrade, Reminder, Expiring)
 
 ---
 

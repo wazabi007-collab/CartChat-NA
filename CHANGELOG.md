@@ -1,6 +1,69 @@
 # Changelog
 
-## 2026-03-13 (Session 13) — Admin Post-Deploy Fixes + Cleanup + Themed Storefronts Start
+## 2026-03-13 (Session 14) — Invoices, VAT, Checkout, Logo Upload, UX Polish
+
+### Modern Invoice Redesign
+- Dark gradient header with store logo/initial + invoice number
+- Status pill badges (Awaiting/Confirmed/Paid/Cancelled)
+- Payment reference in mono font
+- Alternating row colors, right-aligned summary
+- Payment details in gradient card
+- Print-optimized flat layout (no gradients, borders only)
+- Client-side PrintButton component (SSR compatibility)
+
+### VAT Support
+- `vat_number` and `vat_inclusive` columns on merchants table
+- Settings > VAT Registration section with number input + inclusive toggle
+- Invoice shows VAT breakdown: inclusive extracts from price, exclusive adds on top
+- Namibia VAT rate: 15%
+
+### Store Logo Upload
+- Settings > Store Details: upload/change/remove logo
+- Compressed via Sharp, saved to merchants.logo_url
+- Shows on storefront header, invoices, store directory
+- Available to all tiers
+
+### Subscription Checkout Page (/pricing/checkout)
+- Plan summary with features + tier switcher
+- Nedbank payment details (Octovia Nexus Investment CC, 11991049349, 461-089)
+- Auto-generated payment reference (OSHI-BASIC-{merchant_id})
+- Copy button for reference
+- 3-step "how it works" guide
+- WhatsApp CTA to send proof of payment
+- Saves pending_tier + payment_reference to subscription for admin visibility
+
+### Signup-to-Checkout Flow
+- Paid plan pricing cards route to /signup?tier=oshi_basic
+- Signup page detects logged-in users + redirects to checkout or setup
+- Setup page passes tier param, redirects to checkout after store creation
+- Middleware preserves tier param for logged-in users
+
+### Admin WhatsApp Notifications
+- 4 pre-filled WhatsApp templates on merchant Subscription tab:
+  Payment Received, Upgrade Confirmed, Payment Reminder, Subscription Expiring
+
+### Pricing Cards Redesign
+- Modern rounded cards with uppercase tier labels
+- Oshi-Basic highlighted with green ring + "Most Popular" badge
+- Dark CTA buttons, proper spacing, hover shadows
+- "See current stores on OshiCart" button added to hero section
+
+### Admin Pending Upgrade Visibility
+- pending_tier + payment_reference columns on subscriptions
+- Merchants list: amber badge showing requested upgrade
+- Merchant detail header: amber banner with upgrade request + reference
+- Subscription tab: Pending Upgrade + Payment Ref rows
+
+### Bug Fixes
+- Orders page: removed dropped merchants.tier column (caused redirect to setup)
+- Invoice page: same fix + extracted print button to client component
+- Signup/setup: Suspense boundary for useSearchParams (Next.js 16 prerender)
+- Pricing card routing: proper flow for logged-in vs new users
+- Most Popular badge clipping (removed overflow-hidden, added pt-4)
+
+---
+
+## 2026-03-13 (Session 13) — Admin Post-Deploy Fixes + Cleanup + Themed Storefronts
 
 ### Admin Dashboard Post-Deploy Fixes
 - **Middleware auth fix**: Middleware was checking `ADMIN_EMAILS` env var only, blocking DB-based admin users. Now middleware only checks login; role check happens in admin layout via `admin_users` table.

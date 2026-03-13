@@ -1,69 +1,75 @@
 # Session State — Active Working Memory
 
-## 2026-03-13 — Industry-Themed Storefronts COMPLETE
+## 2026-03-13 — All Features DEPLOYED
 
-### CURRENT STATUS: Admin Dashboard + Themed Storefronts DEPLOYED
+### CURRENT STATUS: Admin Dashboard + Themed Storefronts + Subscription Checkout + VAT + Invoices — ALL LIVE
+
+---
+
+### What Was Built & Deployed Today
+
+**Admin Dashboard** — Full admin panel at /admin
+- Merchant management, billing, analytics, team, audit log
+- Tier upgrade + status change actions with WhatsApp notify buttons
+- Pending upgrade visibility (amber badges + payment references)
+
+**Subscription Tier System** — 4-tier (Oshi-Start/Basic/Grow/Pro)
+- Product limits, inventory tier-gating, soft-suspend, branding control
+- Subscription lifecycle cron (trial -> grace -> suspend -> hard suspend)
+- Subscription creation on merchant signup (30-day trial)
+
+**Subscription Checkout** — /pricing/checkout?tier=...
+- Nedbank payment details (Octovia Nexus Investment CC, 11991049349, 461-089)
+- Auto-generated payment reference saved to subscription
+- WhatsApp CTA to send proof of payment
+- Seamless signup flow: pricing card -> signup -> setup -> checkout
+
+**Industry-Themed Storefronts** — 6 layout variants
+- menu-list (Food Prepared, orange), compact-grid (Food Fresh, green)
+- product-grid (Retail, green), horizontal-card (Beauty, slate)
+- service-list (Services, blue), visual-gallery (Gifting, gold)
+
+**WhatsApp Industry Templates** — Per-archetype order messages (confirmed/completed/cancelled)
+
+**Modern Invoice** — /invoice/[orderId]
+- Dark gradient header with store logo, status badges, payment reference
+- VAT support (15% inclusive or exclusive)
+- Print-optimized flat layout for mobile PDF save
+- Client-side PrintButton component
+
+**VAT Support** — Settings > VAT Registration
+- Optional VAT number + inclusive/exclusive toggle
+- Invoice shows VAT breakdown when merchant has VAT number
+
+**Store Logo Upload** — Settings > Store Details
+- Upload/change/remove logo, compressed via Sharp
+- Shows on storefront, invoices, store directory
+
+**UX Improvements**
+- Dashboard stat cards clickable -> Products, Orders, Analytics
+- Product cards clickable -> edit page
+- Admin stat cards clickable -> relevant pages
+- OshiCart logo in nav links back to dashboard
+- "See current stores on OshiCart" button on homepage hero
+- Pricing cards: modern design, Oshi-Basic highlighted with "Most Popular" badge
+- Admin WhatsApp buttons: Payment Received, Upgrade Confirmed, Reminder, Expiring
 
 ---
 
-### Admin Dashboard — DEPLOYED & LIVE
-- Migration 012 applied to production Supabase
-- Super admin seeded: `wazabi007@gmail.com`
-- All admin pages verified working in browser
-- Post-deploy fixes applied: middleware auth, merchants column name, subscription action buttons, cleanup
+### Post-Deploy Fixes Applied
+- Middleware admin auth (DB check, not just env var)
+- Merchants page column name (slug -> store_slug)
+- Orders page + invoice page: removed dropped merchants.tier column
+- Invoice: extracted print button to client component (SSR fix)
+- Signup/setup: Suspense boundary for useSearchParams
+- Pricing cards: signup flow routing for logged-in users
+- Most Popular badge clipping fix
 
-### Industry-Themed Storefronts — COMPLETE & DEPLOYED
-
-| Task | Status | Description |
-|------|--------|-------------|
-| 1 | DONE | ThemeConfig + THEME_CONFIGS + getThemeConfig() in `industry.ts` |
-| 2 | DONE | Theme props (accentColor, accentHover, ctaText) on ProductCard |
-| 3 | DONE | `layouts/types.ts` — shared LayoutProduct + LayoutProps types |
-| 4 | DONE | `layouts/menu-list.tsx` — Food Prepared layout (row-based, orange) |
-| 5 | DONE | `layouts/compact-grid.tsx` — Food Fresh layout (dense grid, green) |
-| 6 | DONE | `layouts/horizontal-card.tsx` — Beauty layout (horizontal cards, slate) |
-| 7 | DONE | `layouts/service-list.tsx` — Services layout (text list, blue) |
-| 8 | DONE | `layouts/visual-gallery.tsx` — Gifting layout (large-image grid, gold) |
-| 9 | DONE | `product-section.tsx` — variant-aware wrapper |
-| 10 | DONE | Storefront page wired with theme integration |
-| 11 | TODO | Manual QA testing across all archetypes |
-
-### UX Improvements — DEPLOYED
-- Dashboard stat cards (Products, Orders, Revenue) now clickable → link to their pages
-- Dashboard product cards (image + name) clickable → link to edit page
-- Admin overview stat cards clickable → link to merchants, billing, reports
-- Admin merchant Products tab: product names link to storefront product page
-- OshiCart logo in merchant dashboard nav links back to /dashboard (desktop + mobile)
-- Beauty archetype color changed from pink to slate
-
----
+### Pending Manual Steps
+- Add `CRON_SECRET` env var in Vercel Dashboard (value: c9f94e874701a3e9beda02390fda2725)
 
 ### Current Infrastructure
-- **Domain**: `oshicart.com` — LIVE on Vercel
+- **Domain**: oshicart.com — LIVE on Vercel
 - **Hosting**: Vercel (auto-deploys from GitHub `master`)
 - **Database**: Supabase Pro — EU West (Ireland)
-- **DNS**: Cloudflare → Vercel (DNS only, no proxy)
-- **Email**: Resend SMTP via `send.oshicart.com` (VERIFIED)
-- **Admin**: `wazabi007@gmail.com` as super_admin in admin_users table
-
-### Environment Variables (Vercel)
-```
-NEXT_PUBLIC_SUPABASE_URL=https://pcseqiaqeiiaiqxqtfmw.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...(anon key)
-SUPABASE_SERVICE_ROLE_KEY=eyJ...(service role key)
-NEXT_PUBLIC_SITE_URL=https://oshicart.com
-ADMIN_EMAILS=info@octovianexus.com
-```
-**Still needs to be added:**
-```
-CRON_SECRET=c9f94e874701a3e9beda02390fda2725
-```
-
-### Pricing Tiers
-
-| Tier | Price | Products | Orders/mo |
-|------|-------|----------|-----------|
-| Oshi-Start | N$0 (30-day trial) | 10 | 20 |
-| Oshi-Basic | N$199/mo | 30 | 200 |
-| Oshi-Grow | N$499/mo | 200 | 500 |
-| Oshi-Pro | N$1,200/mo | Unlimited | Unlimited |
+- **Admin**: wazabi007@gmail.com as super_admin

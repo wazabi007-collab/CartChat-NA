@@ -6,10 +6,9 @@ import { whatsappLink } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { getThemeConfig } from "@/lib/industry";
-import { ProductCard } from "@/components/storefront/product-card";
-import { ProductSection } from "@/components/storefront/product-section";
 import { TrackView } from "@/components/storefront/track-view";
 import { ReportButton } from "@/components/storefront/report-button";
+import { StorefrontProducts } from "@/components/storefront/storefront-products";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -188,46 +187,14 @@ export default async function StorefrontPage({ params }: Props) {
           <p className="text-center text-gray-500 py-12">
             No products available yet. Check back soon!
           </p>
-        ) : theme ? (
-          <div className="space-y-8">
-            {sections.map((section) => (
-              <ProductSection
-                key={section.name}
-                sectionName={section.name}
-                products={section.products}
-                theme={theme}
-                slug={slug}
-                disabled={isSoftSuspended}
-              />
-            ))}
-          </div>
         ) : (
-          <div className="space-y-8">
-            {sections.map((section) => (
-              <section key={section.name}>
-                <h2 className="text-lg font-bold text-gray-900 mb-3">
-                  {section.name}
-                </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {section.products.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      id={product.id}
-                      name={product.name}
-                      price={product.price_nad}
-                      imageUrl={product.images?.[0] ?? null}
-                      slug={slug}
-                      trackInventory={product.track_inventory}
-                      stockQuantity={product.stock_quantity ?? undefined}
-                      lowStockThreshold={product.low_stock_threshold ?? undefined}
-                      allowBackorder={product.allow_backorder}
-                      disabled={isSoftSuspended}
-                    />
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
+          <StorefrontProducts
+            sections={sections}
+            allProducts={allProducts}
+            theme={theme}
+            slug={slug}
+            disabled={isSoftSuspended}
+          />
         )}
       </main>
 

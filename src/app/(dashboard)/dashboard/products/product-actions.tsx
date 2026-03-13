@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Trash2, Pencil, Package, CheckSquare, Square } from "lucide-react";
+import { Trash2, Pencil, Package, CheckSquare, Square, Search } from "lucide-react";
 import { formatPrice, cn } from "@/lib/utils";
 
 interface Product {
@@ -18,6 +18,7 @@ interface Product {
   low_stock_threshold: number | null;
   allow_backorder: boolean;
   category_name: string | null;
+  sku: string | null;
 }
 
 export function ProductGrid({ products }: { products: Product[] }) {
@@ -25,6 +26,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
+  const [search, setSearch] = useState("");
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -78,6 +80,18 @@ export function ProductGrid({ products }: { products: Product[] }) {
 
   return (
     <>
+      {/* Search */}
+      <div className="relative mb-4">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Search products by name or SKU..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+        />
+      </div>
+
       {/* Bulk action bar */}
       <div className="flex items-center gap-2 mb-4">
         {!selectMode ? (
@@ -111,7 +125,11 @@ export function ProductGrid({ products }: { products: Product[] }) {
 
       {/* Product grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {products.map((product) => (
+        {products.filter((p) => {
+          if (!search) return true;
+          const q = search.toLowerCase();
+          return p.name.toLowerCase().includes(q) || (p.category_name || "").toLowerCase().includes(q) || (p.sku || "").toLowerCase().includes(q);
+        }).map((product) => (
           <div
             key={product.id}
             className={cn(

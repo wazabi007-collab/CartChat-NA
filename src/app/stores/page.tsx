@@ -11,18 +11,64 @@ export const metadata: Metadata = {
     "Discover Namibian businesses on OshiCart. Browse stores, shop products, and order via WhatsApp.",
 };
 
+const INDUSTRY_LABELS: Record<string, string> = {
+  restaurant: "Restaurants & Takeaways",
+  takeaway: "Restaurants & Takeaways",
+  cafe: "Restaurants & Takeaways",
+  bakery: "Restaurants & Takeaways",
+  catering: "Restaurants & Takeaways",
+  grocery: "Grocery & Fresh",
+  butchery: "Grocery & Fresh",
+  liquor: "Grocery & Fresh",
+  agriculture: "Grocery & Fresh",
+  fashion: "Fashion & Retail",
+  electronics: "Electronics & Tech",
+  hardware: "Hardware & Auto",
+  auto_parts: "Hardware & Auto",
+  salon: "Beauty & Wellness",
+  cosmetics: "Beauty & Wellness",
+  pharmacy: "Beauty & Wellness",
+  cleaning: "Services",
+  printing: "Services",
+  services: "Services",
+  gas_water: "Services",
+  flowers: "Gifting & Lifestyle",
+  pet: "Gifting & Lifestyle",
+  furniture: "Home & Furniture",
+  stationery: "General & Other",
+  sports: "General & Other",
+  toys: "General & Other",
+  crafts: "General & Other",
+  general_dealer: "General & Other",
+  other: "General & Other",
+};
+
+const CATEGORY_ORDER = [
+  "All",
+  "Electronics & Tech",
+  "Restaurants & Takeaways",
+  "Fashion & Retail",
+  "Beauty & Wellness",
+  "Grocery & Fresh",
+  "Home & Furniture",
+  "Hardware & Auto",
+  "Services",
+  "Gifting & Lifestyle",
+  "General & Other",
+];
+
 export default async function StoresPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; category?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, category } = await searchParams;
   const supabase = await createClient();
 
   // Fetch all active merchants with their product count
   let query = supabase
     .from("merchants")
-    .select("id, store_name, store_slug, description, logo_url, whatsapp_number, created_at")
+    .select("id, store_name, store_slug, description, logo_url, whatsapp_number, industry, created_at")
     .eq("is_active", true)
     .eq("store_status", "active")
     .order("created_at", { ascending: false });
@@ -34,7 +80,15 @@ export default async function StoresPage({
   }
 
   const { data: merchants } = await query;
-  const storeList = merchants || [];
+  let storeList = merchants || [];
+
+  // Filter by category if specified
+  if (category && category !== "All") {
+    storeList = storeList.filter((m) => {
+      const label = INDUSTRY_LABELS[m.industry || "other"] || "General & Other";
+      return label === category;
+    });
+  }
 
   // Fetch product counts for each merchant
   const merchantIds = storeList.map((m) => m.id);
@@ -44,6 +98,7 @@ export default async function StoresPage({
         .select("merchant_id")
         .in("merchant_id", merchantIds)
         .eq("is_available", true)
+        .is("deleted_at", null)
     : { data: [] };
 
   const countMap = new Map<string, number>();
@@ -104,6 +159,29 @@ export default async function StoresPage({
           </div>
         </form>
 
+        {/* Category filters */}
+        <div className="flex flex-wrap gap-2 justify-center mb-8">
+          {CATEGORY_ORDER.map((cat) => {
+            const isActive = cat === "All" ? !category : category === cat;
+            const href = cat === "All"
+              ? q ? `/stores?q=${q}` : "/stores"
+              : q ? `/stores?q=${q}&category=${encodeURIComponent(cat)}` : `/stores?category=${encodeURIComponent(cat)}`;
+            return (
+              <Link
+                key={cat}
+                href={href}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                  isActive
+                    ? "bg-green-600 text-white border-green-600"
+                    : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                {cat}
+              </Link>
+            );
+          })}
+        </div>
+
         {/* Results */}
         {q && (
           <p className="text-sm text-gray-500 mb-4">
@@ -162,7 +240,7 @@ export default async function StoresPage({
                           {merchant.store_name}
                         </h3>
                         <p className="text-xs text-gray-400">
-                          {productCount} product{productCount !== 1 ? "s" : ""}
+                          {INDUSTRY_LABELS[merchant.industry || "other"] || "General"} &middot; {productCount} product{productCount !== 1 ? "s" : ""}
                         </p>
                       </div>
                     </div>

@@ -88,6 +88,7 @@ export default async function ProductsPage() {
             stock_quantity: p.stock_quantity ?? 0,
             low_stock_threshold: p.low_stock_threshold ?? 5,
             allow_backorder: p.allow_backorder ?? false,
+            sku: p.sku ?? null,
             category_name: (p.categories as { name: string } | null)?.name ?? null,
           }))}
         />

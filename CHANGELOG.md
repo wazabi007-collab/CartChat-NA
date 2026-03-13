@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-03-13 (Session 11) — QA Validation + Security Hotfix
+
+### BUG-009 HOTFIX: Legacy RLS Policy Bypass (P0)
+- Dropped legacy policy "Merchants: public read active stores" that only checked `is_active=true`
+- This policy allowed suspended/banned stores to remain publicly visible
+- Fix: `DROP POLICY` via Supabase migration `fix_legacy_rls_merchants`
+- Verified: 3 correct policies remain, all enforce `store_status='active'`
+
+### Production QA Validation
+- Executed 30 tests across 6 phases (pre-flight, security, functional, performance, build, trust)
+- All 30 tests PASS after BUG-009 fix
+- Sub-1s load times on all key pages
+- Admin API endpoints properly return 403 for non-admin users
+- Report system fully functional (submit, validate, block reads)
+- RLS policies verified for merchants, reports, orders
+
+---
+
 ## 2026-03-13 (Session 10) — TRUST Phase 1: Anti-Fraud Basic Protection
 
 ### TRUST-03: Store Status System

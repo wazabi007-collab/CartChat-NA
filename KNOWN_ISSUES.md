@@ -12,10 +12,14 @@ All P0 + P1 features deployed. Infrastructure migrated to Supabase Pro + Vercel.
 - No E2E tests for new payment methods or coupons yet (existing 24 tests all pass on VPS — E2E test env not yet configured for Vercel)
 
 ## Open Items
-- ~~**INFRA-09**~~: Resend domain `send.oshicart.com` — DONE (fully verified)
-- ~~**INFRA-10**~~: SMTP configured in Supabase Auth + email templates fixed with OTP — DONE (2026-03-13)
-- ~~Vercel trial needs payment method~~ — DONE (card added 2026-03-13)
 - E2E test environment needs reconfiguration for Vercel/Supabase Pro (tests were written for self-hosted Docker setup)
+- "Playwright Test Store" exists in production DB — consider cleaning up test data
+- ESLint: 2 non-blocking errors (Date.now() in render, setState in effect) — P2
+
+## QA Validation (2026-03-13)
+- **30 tests executed**, **30 passed**, **0 failed**
+- **1 P0 bug found and fixed** (BUG-009: Legacy RLS policy)
+- Full report: TEST_REPORT.md | Matrix: TEST_MATRIX.md
 
 ## Open Feature Gaps (P2 — future sprints)
 - GAP-006: Customer list + order history
@@ -53,6 +57,17 @@ All P0 + P1 features deployed. Infrastructure migrated to Supabase Pro + Vercel.
 - **Root cause**: Supabase Auth email templates ("Confirm sign up" and "Magic link") only contained `{{ .ConfirmationURL }}` (magic link) but no `{{ .Token }}` (OTP code)
 - **Symptom**: Users received emails with a clickable login link but no visible 6-digit OTP code
 - **Fix**: Added `<p>Or enter this OTP code: <strong>{{ .Token }}</strong></p>` to both templates via Supabase Dashboard
+
+### BUG-009: Legacy RLS policy bypasses store_status — FIXED (2026-03-13)
+- **BUG-ID**: BUG-009
+- **Severity**: P0 (security — suspended/banned stores visible to public)
+- **Status**: Fixed & Verified
+- **Repro steps**: 1) Suspend a store via admin (store_status='suspended') 2) Store still has is_active=true 3) Legacy policy "Merchants: public read active stores" only checked is_active, not store_status 4) Suspended store remained visible on /stores and /s/{slug}
+- **Root cause**: Migration 011 added new policies with store_status check but did NOT drop the old policy that only checked is_active=true. Supabase RLS is permissive (OR between policies), so the old policy created a bypass.
+- **Fix**: `DROP POLICY "Merchants: public read active stores" ON merchants;` — applied via Supabase migration
+- **Regression**: Verified 6 active stores still visible on /stores after fix. Only 3 policies remain, all enforce dual check.
+- **Owner**: Claude QA
+- **Last updated**: 2026-03-13
 
 ### P0 Features — All Deployed
 - GAP-001: Inventory/stock tracking

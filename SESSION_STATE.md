@@ -1,5 +1,28 @@
 # Session State — Active Working Memory
 
+## 2026-03-13 — QA Production Validation Complete
+
+### QA Cycle 1 — Full Production Validation
+- **Timestamp**: 2026-03-13T14:30Z
+- **Cycle**: QA-1 (post TRUST Phase 1 deploy)
+- **Features tested**: All core + TRUST Phase 1 (30 tests)
+- **Bug found**: BUG-009 (P0) — Legacy RLS policy "Merchants: public read active stores" bypassed store_status filter
+- **Root cause (confirmed)**: Migration 011 added new policies but didn't drop old one. Supabase permissive RLS = OR between policies, so old policy created bypass.
+- **Fix applied**: `DROP POLICY "Merchants: public read active stores" ON merchants;` via Supabase migration
+- **Files changed**: DB only (Supabase migration `fix_legacy_rls_merchants`)
+- **Tests run**: 30 total — 30 PASS, 0 FAIL
+- **Remaining risk**: LOW — lint warnings (P2), no E2E test env for Vercel yet
+- **Next action**: Commit updated docs, consider E2E test setup for Vercel
+
+### TRUST Phase 1 — DEPLOYED & VALIDATED
+- DB migration applied via Supabase MCP
+- ADMIN_EMAILS env var added to Vercel
+- Code pushed to master (commit 9884a27)
+- Vercel deployment: READY (verified on dashboard)
+- BUG-009 hotfix applied to DB directly
+
+---
+
 ## 2026-03-13 — Infrastructure Migration Complete + Email Templates Fixed
 
 ### Current State

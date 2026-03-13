@@ -108,8 +108,8 @@ export default async function InvoicePage({ params }: Props) {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden print:shadow-none print:border-0 print:rounded-none">
-          {/* Gradient header */}
-          <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-8 sm:px-8 print:bg-gray-900">
+          {/* Gradient header — screen only */}
+          <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-8 sm:px-8 print:hidden">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 {merchant.logo_url ? (
@@ -139,8 +139,23 @@ export default async function InvoicePage({ params }: Props) {
             </div>
           </div>
 
-          {/* Status + date bar */}
-          <div className="flex items-center justify-between px-6 py-3 sm:px-8 bg-gray-50 border-b border-gray-100 print:bg-white">
+          {/* Print-only header — flat, no gradients */}
+          <div className="hidden print:block px-6 pt-6 pb-4 border-b-2 border-gray-900">
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">{merchant.store_name}</h1>
+                <p className="text-sm text-gray-600">{merchant.whatsapp_number}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-500 uppercase tracking-widest">Invoice</p>
+                <p className="text-2xl font-bold text-gray-900">#{order.order_number}</p>
+                <p className="text-sm text-gray-600 mt-0.5">{orderDate}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Status + date bar — screen only */}
+          <div className="flex items-center justify-between px-6 py-3 sm:px-8 bg-gray-50 border-b border-gray-100 print:hidden">
             <div className="flex items-center gap-2">
               <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.bg} ${status.text}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
@@ -155,9 +170,17 @@ export default async function InvoicePage({ params }: Props) {
             <p className="text-xs text-gray-500">{orderDate}</p>
           </div>
 
-          <div className="px-6 py-6 sm:px-8 space-y-6">
+          {/* Print-only status line */}
+          <div className="hidden print:flex items-center justify-between px-6 py-2">
+            <p className="text-sm font-semibold">Status: {status.label}</p>
+            {order.payment_reference && (
+              <p className="text-sm font-mono">Ref: {order.payment_reference}</p>
+            )}
+          </div>
+
+          <div className="px-6 py-6 sm:px-8 print:px-6 print:py-4 space-y-6 print:space-y-4">
             {/* Bill To + Delivery info */}
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-1.5">Bill To</p>
                 <p className="font-semibold text-gray-900">{order.customer_name}</p>
@@ -183,10 +206,10 @@ export default async function InvoicePage({ params }: Props) {
             </div>
 
             {/* Items table */}
-            <div className="border border-gray-100 rounded-xl overflow-hidden">
+            <div className="border border-gray-100 rounded-xl overflow-hidden print:rounded-none print:border-gray-300">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50">
+                  <tr className="bg-gray-50 print:bg-white print:border-b print:border-gray-300">
                     <th className="text-left py-2.5 px-4 text-[10px] uppercase tracking-widest text-gray-500 font-semibold">Item</th>
                     <th className="text-center py-2.5 px-2 text-[10px] uppercase tracking-widest text-gray-500 font-semibold">Qty</th>
                     <th className="text-right py-2.5 px-4 text-[10px] uppercase tracking-widest text-gray-500 font-semibold">Price</th>
@@ -195,7 +218,7 @@ export default async function InvoicePage({ params }: Props) {
                 </thead>
                 <tbody>
                   {(items ?? []).map((item, i) => (
-                    <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
+                    <tr key={i} className={`${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"} print:bg-white print:border-b print:border-gray-100`}>
                       <td className="py-3 px-4 text-gray-900 font-medium">{item.product_name}</td>
                       <td className="py-3 px-2 text-center text-gray-500">{item.quantity}</td>
                       <td className="py-3 px-4 text-right text-gray-500">{formatPrice(item.product_price)}</td>
@@ -208,7 +231,7 @@ export default async function InvoicePage({ params }: Props) {
 
             {/* Summary */}
             <div className="flex justify-end">
-              <div className="w-full sm:w-64 space-y-1.5">
+              <div className="w-full sm:w-64 print:w-64 space-y-1.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Subtotal</span>
                   <span className="text-gray-900">{formatPrice(order.subtotal_nad)}</span>
@@ -234,14 +257,14 @@ export default async function InvoicePage({ params }: Props) {
 
             {/* Notes */}
             {order.notes && (
-              <div className="bg-amber-50 border border-amber-100 rounded-lg px-4 py-3 print:bg-white print:border-gray-200">
+              <div className="bg-amber-50 border border-amber-100 rounded-lg px-4 py-3 print:bg-white print:border print:border-gray-300 print:rounded-none">
                 <p className="text-[10px] uppercase tracking-widest text-amber-600 font-semibold mb-1">Notes</p>
                 <p className="text-sm text-amber-900">{order.notes}</p>
               </div>
             )}
 
             {/* Payment details card */}
-            <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-5 print:bg-white">
+            <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-5 print:bg-white print:border-gray-300 print:rounded-none print:p-4">
               <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-3">
                 Payment — {paymentMethodLabel[order.payment_method] ?? "Bank Transfer"}
               </p>
@@ -288,7 +311,7 @@ export default async function InvoicePage({ params }: Props) {
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 sm:px-8 border-t border-gray-100 bg-gray-50 print:bg-white">
+          <div className="px-6 py-4 sm:px-8 print:px-6 border-t border-gray-100 bg-gray-50 print:bg-white print:border-gray-300">
             <div className="flex items-center justify-between text-xs text-gray-400">
               <span>Thank you for your order</span>
               <a href={SITE_URL} className="hover:text-gray-600 transition-colors print:text-gray-400">

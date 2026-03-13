@@ -1,10 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { Plus, Pencil, Package } from "lucide-react";
-import { formatPrice, cn } from "@/lib/utils";
-import { DeleteButton } from "./delete-button";
+import { Plus, Package } from "lucide-react";
+import { ProductGrid } from "./product-actions";
 
 export default async function ProductsPage() {
   const supabase = await createClient();
@@ -26,6 +24,7 @@ export default async function ProductsPage() {
     .from("products")
     .select("*, categories(name)")
     .eq("merchant_id", merchant.id)
+    .is("deleted_at", null)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
 
@@ -78,86 +77,20 @@ export default async function ProductsPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {productList.map((product) => {
-            const category = product.categories as { name: string } | null;
-            return (
-              <div
-                key={product.id}
-                className="bg-white rounded-lg border overflow-hidden hover:shadow-sm transition-shadow"
-              >
-                <Link href={`/dashboard/products/${product.id}/edit`} className="block">
-                  <div className="aspect-square relative bg-gray-100">
-                    {product.images && product.images.length > 0 ? (
-                      <Image
-                        src={product.images[0]}
-                        alt={product.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Package size={48} className="text-gray-300" />
-                      </div>
-                    )}
-                    <span
-                      className={cn(
-                        "absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium",
-                        product.is_available
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-500"
-                      )}
-                    >
-                      {product.is_available ? "Available" : "Unavailable"}
-                    </span>
-                  </div>
-                </Link>
-                <div className="p-3">
-                  <Link href={`/dashboard/products/${product.id}/edit`}>
-                    <h3 className="font-medium text-gray-900 truncate hover:text-green-600 transition-colors">
-                      {product.name}
-                    </h3>
-                  </Link>
-                  {category && (
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {category.name}
-                    </p>
-                  )}
-                  <p className="text-green-600 font-semibold mt-1">
-                    {formatPrice(product.price_nad)}
-                  </p>
-                  {product.track_inventory && (
-                    <p className={cn(
-                      "text-xs mt-1 font-medium",
-                      product.stock_quantity === 0 && !product.allow_backorder
-                        ? "text-red-600"
-                        : product.stock_quantity <= (product.low_stock_threshold ?? 5)
-                        ? "text-orange-600"
-                        : "text-gray-500"
-                    )}>
-                      {product.stock_quantity === 0 && !product.allow_backorder
-                        ? "Out of stock"
-                        : product.stock_quantity <= (product.low_stock_threshold ?? 5)
-                        ? `Low stock: ${product.stock_quantity} left`
-                        : `Stock: ${product.stock_quantity}`}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t">
-                    <Link
-                      href={`/dashboard/products/${product.id}/edit`}
-                      className="flex items-center gap-1 text-xs text-gray-500 hover:text-green-600 transition-colors"
-                    >
-                      <Pencil size={14} />
-                      Edit
-                    </Link>
-                    <DeleteButton productId={product.id} />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <ProductGrid
+          products={productList.map((p) => ({
+            id: p.id,
+            name: p.name,
+            price_nad: p.price_nad,
+            images: p.images,
+            is_available: p.is_available,
+            track_inventory: p.track_inventory ?? false,
+            stock_quantity: p.stock_quantity ?? 0,
+            low_stock_threshold: p.low_stock_threshold ?? 5,
+            allow_backorder: p.allow_backorder ?? false,
+            category_name: (p.categories as { name: string } | null)?.name ?? null,
+          }))}
+        />
       )}
     </div>
   );

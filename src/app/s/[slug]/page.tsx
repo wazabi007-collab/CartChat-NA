@@ -82,6 +82,7 @@ export default async function StorefrontPage({ params }: Props) {
     .select("*")
     .eq("merchant_id", merchant.id)
     .eq("is_available", true)
+    .is("deleted_at", null)
     .order("sort_order", { ascending: true });
 
   // Group products by category

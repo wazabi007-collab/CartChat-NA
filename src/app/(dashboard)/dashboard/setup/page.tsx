@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils";
@@ -9,6 +9,14 @@ import { storeSetupSchema } from "@/lib/validations";
 import { Store, ArrowRight, Check } from "lucide-react";
 
 export default function StoreSetupPage() {
+  return (
+    <Suspense>
+      <StoreSetupForm />
+    </Suspense>
+  );
+}
+
+function StoreSetupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tierParam = searchParams.get("tier");

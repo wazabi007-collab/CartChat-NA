@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { MessageCircle, AlertTriangle } from "lucide-react";
+import Link from "next/link";
+import { MessageCircle, AlertTriangle, ArrowLeft, Grid3X3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { whatsappLink } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
@@ -14,7 +15,7 @@ const PRODUCTS_PER_PAGE = 100;
 
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; cat?: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -46,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function StorefrontPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, cat: categoryFilter } = await searchParams;
   const currentPage = Math.max(1, parseInt(pageParam || "1") || 1);
   const supabase = await createClient();
 
@@ -73,27 +74,51 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   const hasBranding = showBranding(tier);
   const theme = getThemeConfig(merchant.industry);
 
-  // Fetch categories
+  // Fetch categories with product counts
   const { data: categories } = await supabase
     .from("categories")
     .select("*")
     .eq("merchant_id", merchant.id)
     .order("sort_order", { ascending: true });
 
-  // Get total product count
-  const { count: totalProducts } = await supabase
+  // Get product count per category for folder view
+  const { data: catCounts } = await supabase
+    .from("products")
+    .select("category_id")
+    .eq("merchant_id", merchant.id)
+    .eq("is_available", true)
+    .is("deleted_at", null);
+
+  const catCountMap = new Map<string, number>();
+  for (const p of catCounts || []) {
+    if (p.category_id) catCountMap.set(p.category_id, (catCountMap.get(p.category_id) || 0) + 1);
+  }
+
+  // Filter categories that have products
+  const activeCategories = (categories || []).filter((c) => (catCountMap.get(c.id) || 0) > 0);
+
+  // Get selected category name
+  const selectedCategory = categoryFilter
+    ? (categories || []).find((c) => c.id === categoryFilter)
+    : null;
+
+  // Get total product count (filtered by category if set)
+  let countQuery = supabase
     .from("products")
     .select("id", { count: "exact", head: true })
     .eq("merchant_id", merchant.id)
     .eq("is_available", true)
     .is("deleted_at", null);
+  if (categoryFilter) countQuery = countQuery.eq("category_id", categoryFilter);
+  const { count: totalProducts } = await countQuery;
 
   const totalCount = totalProducts || 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PRODUCTS_PER_PAGE));
+  const showFolders = !categoryFilter && activeCategories.length >= 3 && totalCount > 20;
   const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
 
-  // Fetch available products (paginated)
-  const { data: products } = await supabase
+  // Fetch available products (paginated, filtered by category if set)
+  let productQuery = supabase
     .from("products")
     .select("*")
     .eq("merchant_id", merchant.id)
@@ -101,6 +126,8 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     .is("deleted_at", null)
     .order("sort_order", { ascending: true })
     .range(offset, offset + PRODUCTS_PER_PAGE - 1);
+  if (categoryFilter) productQuery = productQuery.eq("category_id", categoryFilter);
+  const { data: products } = await productQuery;
 
   // Group products by category
   const categoryMap = new Map<string | null, typeof products>();
@@ -201,10 +228,72 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
         className="max-w-4xl mx-auto px-4 py-6"
         style={theme ? { backgroundColor: theme.bgTint } : undefined}
       >
-        {allProducts.length === 0 ? (
+        {/* Category breadcrumb when filtering */}
+        {selectedCategory && (
+          <div className="flex items-center gap-2 mb-4">
+            <Link
+              href={`/s/${slug}`}
+              className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft size={14} />
+              All Categories
+            </Link>
+            <span className="text-gray-300">/</span>
+            <span className="text-sm font-medium text-gray-900">{selectedCategory.name}</span>
+            <span className="text-xs text-gray-400">({totalCount})</span>
+          </div>
+        )}
+
+        {/* Category folder grid */}
+        {showFolders ? (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Grid3X3 size={18} className="text-gray-400" />
+              <h2 className="text-lg font-bold text-gray-900">Browse by Category</h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {activeCategories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/s/${slug}?cat=${cat.id}`}
+                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-gray-300 transition-all group"
+                >
+                  <div className="aspect-[4/3] relative bg-gray-100">
+                    {cat.image_url ? (
+                      <img
+                        src={cat.image_url}
+                        alt={cat.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center" style={theme ? { backgroundColor: theme.bgTint } : undefined}>
+                        <Grid3X3 size={32} className="text-gray-300" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-semibold text-sm text-gray-900 truncate group-hover:text-green-600 transition-colors" style={theme ? { color: undefined } : undefined}>
+                      {cat.name}
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {catCountMap.get(cat.id) || 0} product{(catCountMap.get(cat.id) || 0) !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : allProducts.length === 0 && !categoryFilter ? (
           <p className="text-center text-gray-500 py-12">
             No products available yet. Check back soon!
           </p>
+        ) : allProducts.length === 0 && categoryFilter ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No products in this category.</p>
+            <Link href={`/s/${slug}`} className="text-sm text-green-600 hover:underline mt-2 inline-block">
+              Browse all categories
+            </Link>
+          </div>
         ) : (
           <>
           <StorefrontProducts
@@ -220,7 +309,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
             <div className="flex items-center justify-center gap-2 mt-8 pt-6 border-t">
               {currentPage > 1 && (
                 <a
-                  href={`/s/${slug}?page=${currentPage - 1}`}
+                  href={`/s/${slug}?page=${currentPage - 1}${categoryFilter ? `&cat=${categoryFilter}` : ""}`}
                   className="px-4 py-2 text-sm border rounded-lg hover:bg-white transition-colors"
                 >
                   Previous
@@ -240,7 +329,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
                 return (
                   <a
                     key={pageNum}
-                    href={`/s/${slug}?page=${pageNum}`}
+                    href={`/s/${slug}?page=${pageNum}${categoryFilter ? `&cat=${categoryFilter}` : ""}`}
                     className={`w-10 h-10 flex items-center justify-center text-sm rounded-lg transition-colors ${
                       pageNum === currentPage
                         ? "bg-gray-900 text-white"
@@ -254,7 +343,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
               })}
               {currentPage < totalPages && (
                 <a
-                  href={`/s/${slug}?page=${currentPage + 1}`}
+                  href={`/s/${slug}?page=${currentPage + 1}${categoryFilter ? `&cat=${categoryFilter}` : ""}`}
                   className="px-4 py-2 text-sm border rounded-lg hover:bg-white transition-colors"
                 >
                   Next

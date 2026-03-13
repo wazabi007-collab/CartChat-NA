@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createServiceClient } from "@/lib/supabase/service";
 import { formatPrice } from "@/lib/utils";
 import { SITE_NAME } from "@/lib/constants";
+import { PrintButton } from "./print-button";
 import type { Metadata } from "next";
 
 interface Props {
@@ -84,12 +85,7 @@ export default async function InvoicePage({ params }: Props) {
       <div className="max-w-2xl mx-auto px-4 py-8 print:py-0">
         {/* Print button — hidden when printing */}
         <div className="flex justify-end mb-6 print:hidden">
-          <button
-            onClick={() => window.print()}
-            className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
-          >
-            Print / Save PDF
-          </button>
+          <PrintButton />
         </div>
 
         <div className="bg-white rounded-lg border p-8 print:border-0 print:p-0">

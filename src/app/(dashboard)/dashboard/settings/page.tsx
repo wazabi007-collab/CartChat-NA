@@ -5,7 +5,9 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { BANKS_NAMIBIA, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
-import { Save, Plus, X } from "lucide-react";
+import Image from "next/image";
+import { Save, Plus, X, Upload, Loader2 } from "lucide-react";
+import { MAX_IMAGE_SIZE } from "@/lib/constants";
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -23,7 +25,11 @@ export default function SettingsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [merchantId, setMerchantId] = useState("");
+  const [userId, setUserId] = useState("");
   const [newTimeSlot, setNewTimeSlot] = useState("");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [logoError, setLogoError] = useState("");
 
   const [form, setForm] = useState({
     store_name: "",
@@ -61,6 +67,8 @@ export default function SettingsPage() {
 
       if (merchant) {
         setMerchantId(merchant.id);
+        setUserId(user.id);
+        setLogoUrl(merchant.logo_url || null);
         setForm({
           store_name: merchant.store_name,
           description: merchant.description || "",
@@ -166,6 +174,90 @@ export default function SettingsPage() {
         {/* Store Details */}
         <div className="bg-white rounded-lg border p-6 space-y-4">
           <h2 className="font-medium text-gray-900">Store Details</h2>
+
+          {/* Logo upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Store Logo
+            </label>
+            <div className="flex items-center gap-4">
+              {logoUrl ? (
+                <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-gray-200">
+                  <Image src={logoUrl} alt="Store logo" fill className="object-cover" />
+                </div>
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
+                  <Upload size={20} className="text-gray-400" />
+                </div>
+              )}
+              <div className="flex-1">
+                <label className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors">
+                  {uploadingLogo ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={14} />
+                      {logoUrl ? "Change Logo" : "Upload Logo"}
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={uploadingLogo}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > MAX_IMAGE_SIZE) {
+                        setLogoError("Image must be under 5MB");
+                        return;
+                      }
+                      setUploadingLogo(true);
+                      setLogoError("");
+                      try {
+                        const formData = new FormData();
+                        formData.append("file", file);
+                        formData.append("path", `${userId}/logo`);
+                        const res = await fetch("/api/upload", { method: "POST", body: formData });
+                        if (!res.ok) {
+                          const err = await res.json();
+                          throw new Error(err.error || "Upload failed");
+                        }
+                        const { url } = await res.json();
+                        await supabase.from("merchants").update({ logo_url: url }).eq("id", merchantId);
+                        setLogoUrl(url);
+                      } catch (err) {
+                        setLogoError(err instanceof Error ? err.message : "Upload failed");
+                      } finally {
+                        setUploadingLogo(false);
+                        e.target.value = "";
+                      }
+                    }}
+                  />
+                </label>
+                {logoUrl && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await supabase.from("merchants").update({ logo_url: null }).eq("id", merchantId);
+                      setLogoUrl(null);
+                    }}
+                    className="ml-2 text-xs text-red-500 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                )}
+                <p className="text-xs text-gray-400 mt-1">
+                  Square image recommended. Max 5MB. Shows on your storefront and invoices.
+                </p>
+                {logoError && <p className="text-xs text-red-500 mt-1">{logoError}</p>}
+              </div>
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Store Name

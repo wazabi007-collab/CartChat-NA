@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Trash2, Pencil, Package, CheckSquare, Square, Search } from "lucide-react";
+import { Trash2, Pencil, Package, CheckSquare, Square, Search, ArrowUpDown } from "lucide-react";
 import { formatPrice, cn } from "@/lib/utils";
 
 interface Product {
@@ -27,6 +27,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<string>("newest");
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -80,16 +81,34 @@ export function ProductGrid({ products }: { products: Product[] }) {
 
   return (
     <>
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search products by name or SKU..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-        />
+      {/* Search + Sort */}
+      <div className="flex gap-2 mb-4">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search products by name or SKU..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          />
+        </div>
+        <div className="relative">
+          <ArrowUpDown size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="pl-8 pr-3 py-2 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none cursor-pointer"
+          >
+            <option value="newest">Newest</option>
+            <option value="name_asc">Name A-Z</option>
+            <option value="name_desc">Name Z-A</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="stock_asc">Stock: Low to High</option>
+            <option value="stock_desc">Stock: High to Low</option>
+          </select>
+        </div>
       </div>
 
       {/* Bulk action bar */}
@@ -129,6 +148,16 @@ export function ProductGrid({ products }: { products: Product[] }) {
           if (!search) return true;
           const q = search.toLowerCase();
           return p.name.toLowerCase().includes(q) || (p.category_name || "").toLowerCase().includes(q) || (p.sku || "").toLowerCase().includes(q);
+        }).sort((a, b) => {
+          switch (sortBy) {
+            case "name_asc": return a.name.localeCompare(b.name);
+            case "name_desc": return b.name.localeCompare(a.name);
+            case "price_asc": return a.price_nad - b.price_nad;
+            case "price_desc": return b.price_nad - a.price_nad;
+            case "stock_asc": return a.stock_quantity - b.stock_quantity;
+            case "stock_desc": return b.stock_quantity - a.stock_quantity;
+            default: return 0; // newest = original order
+          }
         }).map((product) => (
           <div
             key={product.id}

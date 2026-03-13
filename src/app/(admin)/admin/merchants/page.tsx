@@ -14,7 +14,7 @@ export default async function MerchantsPage({
   // Fetch merchants with subscriptions
   let query = service
     .from("merchants")
-    .select("id, store_name, slug, user_id, store_status, created_at, industry, whatsapp_number")
+    .select("id, store_name, store_slug, user_id, store_status, created_at, industry, whatsapp_number")
     .order("created_at", { ascending: false });
 
   if (status && ["pending", "active", "suspended", "banned"].includes(status)) {
@@ -63,7 +63,7 @@ export default async function MerchantsPage({
     filtered = filtered.filter(
       (m) =>
         m.store_name?.toLowerCase().includes(query) ||
-        m.slug?.toLowerCase().includes(query) ||
+        m.store_slug?.toLowerCase().includes(query) ||
         m.whatsapp_number?.includes(query)
     );
   }
@@ -125,7 +125,7 @@ export default async function MerchantsPage({
                     <Link href={`/admin/merchants/${m.id}`} className="text-blue-600 hover:underline font-medium">
                       {m.store_name}
                     </Link>
-                    <p className="text-xs text-gray-400">{m.slug}</p>
+                    <p className="text-xs text-gray-400">{m.store_slug}</p>
                   </td>
                   <td className="px-4 py-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${tierColor}`}>{tierLabel}</span>

@@ -19,7 +19,7 @@ export default async function OrdersPage({
 
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("id, tier, industry, store_name")
+    .select("id, industry, store_name")
     .eq("user_id", user.id)
     .single();
 
@@ -178,16 +178,14 @@ export default async function OrdersPage({
                   orderNumber={order.order_number}
                   orderTotal={formatPrice(order.subtotal_nad - (order.discount_nad || 0) + (order.delivery_fee_nad || 0))}
                 />
-                {merchant.tier !== "free" && (
-                  <a
-                    href={`/invoice/${order.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 text-sm bg-gray-50 text-gray-700 rounded-md hover:bg-gray-100"
-                  >
-                    View Invoice
-                  </a>
-                )}
+                <a
+                  href={`/invoice/${order.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 text-sm bg-gray-50 text-gray-700 rounded-md hover:bg-gray-100"
+                >
+                  View Invoice
+                </a>
                 <a
                   href={whatsappLink(
                     order.customer_whatsapp,

@@ -62,55 +62,37 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
 
   if (!merchant) notFound();
 
-  // Fetch subscription
-  const { data: subscription } = await supabase
-    .from("subscriptions")
-    .select("tier, status")
-    .eq("merchant_id", merchant.id)
-    .single();
-
-  const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
-  const isSoftSuspended = subscription?.status === "soft_suspended";
-  const hasBranding = showBranding(tier);
-  const theme = getThemeConfig(merchant.industry);
-
-  // Fetch categories with product counts
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("merchant_id", merchant.id)
-    .order("sort_order", { ascending: true });
-
-  // Get product count per category for folder view
-  const { data: catCounts } = await supabase
-    .from("products")
-    .select("category_id")
-    .eq("merchant_id", merchant.id)
-    .eq("is_available", true)
-    .is("deleted_at", null);
-
-  const catCountMap = new Map<string, number>();
-  for (const p of catCounts || []) {
-    if (p.category_id) catCountMap.set(p.category_id, (catCountMap.get(p.category_id) || 0) + 1);
-  }
-
-  // Filter categories that have products
-  const activeCategories = (categories || []).filter((c) => (catCountMap.get(c.id) || 0) > 0);
-
-  // Get selected category name
-  const selectedCategory = categoryFilter
-    ? (categories || []).find((c) => c.id === categoryFilter)
-    : null;
-
-  // Get total product count (filtered by category if set)
-  let countQuery = supabase
+  // Parallel fetch: subscription, categories, category counts, product count
+  const countQuery = supabase
     .from("products")
     .select("id", { count: "exact", head: true })
     .eq("merchant_id", merchant.id)
     .eq("is_available", true)
     .is("deleted_at", null);
-  if (categoryFilter) countQuery = countQuery.eq("category_id", categoryFilter);
-  const { count: totalProducts } = await countQuery;
+  if (categoryFilter) countQuery.eq("category_id", categoryFilter);
+
+  const [subRes, catRes, catCountRes, countRes] = await Promise.all([
+    supabase.from("subscriptions").select("tier, status").eq("merchant_id", merchant.id).single(),
+    supabase.from("categories").select("*").eq("merchant_id", merchant.id).order("sort_order", { ascending: true }),
+    supabase.from("products").select("category_id").eq("merchant_id", merchant.id).eq("is_available", true).is("deleted_at", null),
+    countQuery,
+  ]);
+
+  const subscription = subRes.data;
+  const categories = catRes.data;
+  const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
+  const isSoftSuspended = subscription?.status === "soft_suspended";
+  const hasBranding = showBranding(tier);
+  const theme = getThemeConfig(merchant.industry);
+
+  const catCountMap = new Map<string, number>();
+  for (const p of catCountRes.data || []) {
+    if (p.category_id) catCountMap.set(p.category_id, (catCountMap.get(p.category_id) || 0) + 1);
+  }
+
+  const activeCategories = (categories || []).filter((c) => (catCountMap.get(c.id) || 0) > 0);
+  const selectedCategory = categoryFilter ? (categories || []).find((c) => c.id === categoryFilter) : null;
+  const totalProducts = countRes.count;
 
   const totalCount = totalProducts || 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PRODUCTS_PER_PAGE));

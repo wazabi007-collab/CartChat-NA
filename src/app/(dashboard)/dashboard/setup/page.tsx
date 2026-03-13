@@ -66,25 +66,40 @@ export default function StoreSetupPage() {
       ? `${slug}-${Date.now().toString(36)}`
       : slug;
 
-    const { error: insertError } = await supabase.from("merchants").insert({
-      user_id: user.id,
-      store_name: form.store_name,
-      store_slug: finalSlug,
-      description: form.description || null,
-      whatsapp_number: form.whatsapp_number,
-      industry: form.industry || "other",
-      bank_name: form.bank_name || null,
-      bank_account_number: form.bank_account_number || null,
-      bank_account_holder: form.bank_account_holder || null,
-      bank_branch_code: form.bank_branch_code || null,
-      store_status: "pending",
-    });
+    const { data: newMerchant, error: insertError } = await supabase
+      .from("merchants")
+      .insert({
+        user_id: user.id,
+        store_name: form.store_name,
+        store_slug: finalSlug,
+        description: form.description || null,
+        whatsapp_number: form.whatsapp_number,
+        industry: form.industry || "other",
+        bank_name: form.bank_name || null,
+        bank_account_number: form.bank_account_number || null,
+        bank_account_holder: form.bank_account_holder || null,
+        bank_branch_code: form.bank_branch_code || null,
+        store_status: "pending",
+      })
+      .select("id")
+      .single();
 
-    if (insertError) {
-      setError(insertError.message);
+    if (insertError || !newMerchant) {
+      setError(insertError?.message || "Failed to create store");
       setLoading(false);
       return;
     }
+
+    // Create trial subscription (30-day Oshi-Start)
+    const trialEnds = new Date();
+    trialEnds.setDate(trialEnds.getDate() + 30);
+
+    await supabase.from("subscriptions").insert({
+      merchant_id: newMerchant.id,
+      tier: "oshi_start",
+      status: "trial",
+      trial_ends_at: trialEnds.toISOString(),
+    });
 
     router.push("/dashboard");
     router.refresh();

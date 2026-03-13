@@ -6,8 +6,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { productSchema } from "@/lib/validations";
-import { toCents, cn, TIER_LIMITS } from "@/lib/utils";
-import { ArrowLeft, Upload, X, Loader2 } from "lucide-react";
+import { toCents, cn } from "@/lib/utils";
+import { canAddProduct, hasTierFeature, TIER_LIMITS, TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
+import { ArrowLeft, Upload, X, Loader2, Lock } from "lucide-react";
 import { MAX_IMAGE_SIZE } from "@/lib/constants";
 
 interface Category {
@@ -33,35 +34,66 @@ export default function NewProductPage() {
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [globalError, setGlobalError] = useState("");
+  const [tier, setTier] = useState<SubscriptionTier>("oshi_start");
+  const [productCount, setProductCount] = useState(0);
+  const [merchantId, setMerchantId] = useState<string | null>(null);
 
-  const loadCategories = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return;
+  const loadData = useCallback(async () => {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
 
-    const { data: merchant } = await supabase
-      .from("merchants")
-      .select("id")
-      .eq("user_id", user.id)
-      .single();
+      const { data: merchant } = await supabase
+        .from("merchants")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
 
-    if (!merchant) return;
+      if (!merchant) return;
+      setMerchantId(merchant.id);
 
-    const { data } = await supabase
-      .from("categories")
-      .select("*")
-      .eq("merchant_id", merchant.id)
-      .order("sort_order", { ascending: true });
+      // Load subscription tier
+      const { data: sub } = await supabase
+        .from("subscriptions")
+        .select("tier")
+        .eq("merchant_id", merchant.id)
+        .single();
 
-    if (data) setCategories(data);
+      if (sub?.tier) setTier(sub.tier as SubscriptionTier);
+
+      // Load current product count
+      const { count } = await supabase
+        .from("products")
+        .select("id", { count: "exact", head: true })
+        .eq("merchant_id", merchant.id);
+
+      setProductCount(count || 0);
+
+      // Load categories
+      const { data } = await supabase
+        .from("categories")
+        .select("*")
+        .eq("merchant_id", merchant.id)
+        .order("sort_order", { ascending: true });
+
+      if (data) setCategories(data);
+    } finally {
+      setPageLoading(false);
+    }
   }, [supabase]);
 
   useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
+    loadData();
+  }, [loadData]);
+
+  const atLimit = !canAddProduct(tier, productCount);
+  const hasInventory = hasTierFeature(tier, "inventory");
+  const productLimit = TIER_LIMITS[tier].products;
 
   function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
@@ -141,30 +173,16 @@ export default function NewProductPage() {
         return;
       }
 
-      const { data: merchant } = await supabase
-        .from("merchants")
-        .select("id, tier")
-        .eq("user_id", user.id)
-        .single();
-
-      if (!merchant) {
+      if (!merchantId) {
         setGlobalError("Store not found. Please complete setup first.");
         setLoading(false);
         return;
       }
 
-      // Check product limit for free tier
-      const tier = merchant.tier as keyof typeof TIER_LIMITS;
-      const limit = TIER_LIMITS[tier]?.maxProducts ?? 20;
-
-      const { count } = await supabase
-        .from("products")
-        .select("id", { count: "exact", head: true })
-        .eq("merchant_id", merchant.id);
-
-      if ((count || 0) >= limit) {
+      // Re-check product limit at submit time
+      if (atLimit) {
         setGlobalError(
-          `You've reached the ${limit}-product limit on the ${tier} plan. Upgrade to add more products.`
+          `You've reached the ${productLimit === -1 ? "unlimited" : productLimit}-product limit on the ${TIER_LABELS[tier]} plan. Upgrade to add more products.`
         );
         setLoading(false);
         return;
@@ -193,17 +211,17 @@ export default function NewProductPage() {
 
       // Insert product
       const { error: insertError } = await supabase.from("products").insert({
-        merchant_id: merchant.id,
+        merchant_id: merchantId,
         name: validation.data.name,
         description: validation.data.description || null,
         price_nad: validation.data.price_nad,
         category_id: validation.data.category_id || null,
         is_available: validation.data.is_available ?? true,
         images: imageUrls,
-        track_inventory: trackInventory,
-        stock_quantity: trackInventory ? stockQuantity : 0,
-        low_stock_threshold: lowStockThreshold,
-        allow_backorder: allowBackorder,
+        track_inventory: hasInventory ? trackInventory : false,
+        stock_quantity: hasInventory && trackInventory ? stockQuantity : 0,
+        low_stock_threshold: hasInventory ? lowStockThreshold : 5,
+        allow_backorder: hasInventory ? allowBackorder : false,
       });
 
       if (insertError) {
@@ -221,6 +239,46 @@ export default function NewProductPage() {
     }
   }
 
+  if (pageLoading) {
+    return (
+      <div className="md:ml-56 flex items-center justify-center py-20">
+        <Loader2 size={32} className="animate-spin text-gray-400" />
+      </div>
+    );
+  }
+
+  if (atLimit) {
+    return (
+      <div className="md:ml-56">
+        <div className="mb-6">
+          <Link
+            href="/dashboard/products"
+            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 mb-3"
+          >
+            <ArrowLeft size={16} />
+            Back to products
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900">Add Product</h1>
+        </div>
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 max-w-2xl text-center">
+          <Lock size={32} className="mx-auto text-amber-500 mb-3" />
+          <h2 className="text-lg font-semibold text-gray-900 mb-1">Product limit reached</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            You&apos;ve used {productCount}/{productLimit} products on the{" "}
+            <span className="font-medium">{TIER_LABELS[tier]}</span> plan.
+            Upgrade to add more.
+          </p>
+          <Link
+            href="/#pricing"
+            className="inline-block bg-green-600 text-white px-6 py-2.5 rounded-lg font-medium text-sm hover:bg-green-700 transition-colors"
+          >
+            View Plans
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="md:ml-56">
       <div className="mb-6">
@@ -232,6 +290,11 @@ export default function NewProductPage() {
           Back to products
         </Link>
         <h1 className="text-2xl font-bold text-gray-900">Add Product</h1>
+        {productLimit !== -1 && (
+          <p className="text-xs text-gray-400 mt-1">
+            {productCount}/{productLimit} products used ({TIER_LABELS[tier]})
+          </p>
+        )}
       </div>
 
       <form
@@ -360,70 +423,83 @@ export default function NewProductPage() {
         </div>
 
         {/* Inventory */}
-        <div className="border rounded-lg p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-700">Track Inventory</p>
-              <p className="text-xs text-gray-400">Enable stock quantity tracking for this product</p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={trackInventory}
-                onChange={(e) => setTrackInventory(e.target.checked)}
-                className="sr-only"
-              />
-              <div className={`w-10 h-6 rounded-full transition-colors ${trackInventory ? "bg-green-600" : "bg-gray-300"}`} />
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${trackInventory ? "translate-x-5" : "translate-x-1"}`} />
-            </label>
-          </div>
-
-          {trackInventory && (
-            <>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">
-                    Stock Quantity *
-                  </label>
-                  <input
-                    id="stock"
-                    type="number"
-                    min="0"
-                    value={stockQuantity}
-                    onChange={(e) => setStockQuantity(parseInt(e.target.value) || 0)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="threshold" className="block text-sm font-medium text-gray-700 mb-1">
-                    Low Stock Alert
-                  </label>
-                  <input
-                    id="threshold"
-                    type="number"
-                    min="0"
-                    value={lowStockThreshold}
-                    onChange={(e) => setLowStockThreshold(parseInt(e.target.value) || 0)}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  />
-                  <p className="text-xs text-gray-400 mt-1">Alert when stock drops to this level</p>
-                </div>
+        {hasInventory ? (
+          <div className="border rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-700">Track Inventory</p>
+                <p className="text-xs text-gray-400">Enable stock quantity tracking for this product</p>
               </div>
-              <div className="flex items-center gap-3">
+              <label className="relative inline-flex items-center cursor-pointer">
                 <input
-                  id="backorder"
                   type="checkbox"
-                  checked={allowBackorder}
-                  onChange={(e) => setAllowBackorder(e.target.checked)}
-                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                  checked={trackInventory}
+                  onChange={(e) => setTrackInventory(e.target.checked)}
+                  className="sr-only"
                 />
-                <label htmlFor="backorder" className="text-sm text-gray-700">
-                  Allow backorders (sell even when out of stock)
-                </label>
-              </div>
-            </>
-          )}
-        </div>
+                <div className={`w-10 h-6 rounded-full transition-colors ${trackInventory ? "bg-green-600" : "bg-gray-300"}`} />
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${trackInventory ? "translate-x-5" : "translate-x-1"}`} />
+              </label>
+            </div>
+
+            {trackInventory && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-1">
+                      Stock Quantity *
+                    </label>
+                    <input
+                      id="stock"
+                      type="number"
+                      min="0"
+                      value={stockQuantity}
+                      onChange={(e) => setStockQuantity(parseInt(e.target.value) || 0)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="threshold" className="block text-sm font-medium text-gray-700 mb-1">
+                      Low Stock Alert
+                    </label>
+                    <input
+                      id="threshold"
+                      type="number"
+                      min="0"
+                      value={lowStockThreshold}
+                      onChange={(e) => setLowStockThreshold(parseInt(e.target.value) || 0)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">Alert when stock drops to this level</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    id="backorder"
+                    type="checkbox"
+                    checked={allowBackorder}
+                    onChange={(e) => setAllowBackorder(e.target.checked)}
+                    className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                  />
+                  <label htmlFor="backorder" className="text-sm text-gray-700">
+                    Allow backorders (sell even when out of stock)
+                  </label>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="border border-dashed border-gray-200 rounded-lg p-4 bg-gray-50">
+            <div className="flex items-center gap-2 text-gray-400">
+              <Lock size={16} />
+              <p className="text-sm font-medium">Inventory Tracking</p>
+            </div>
+            <p className="text-xs text-gray-400 mt-1">
+              Available on Oshi-Grow and above.{" "}
+              <Link href="/#pricing" className="text-green-600 hover:underline">Upgrade</Link>
+            </p>
+          </div>
+        )}
 
         {/* Images */}
         <div>

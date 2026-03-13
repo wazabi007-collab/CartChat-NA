@@ -16,11 +16,13 @@ interface ProductCardProps {
   stockQuantity?: number;
   lowStockThreshold?: number;
   allowBackorder?: boolean;
+  disabled?: boolean;
 }
 
 export function ProductCard({
   id, name, price, imageUrl, slug,
   trackInventory, stockQuantity, lowStockThreshold, allowBackorder,
+  disabled,
 }: ProductCardProps) {
   const { addItem } = useCart();
 
@@ -67,12 +69,12 @@ export function ProductCard({
           {formatPrice(price)}
         </p>
         <div className="mt-auto pt-2">
-          {isOutOfStock ? (
+          {isOutOfStock || disabled ? (
             <button
               disabled
               className="w-full bg-gray-300 text-gray-500 text-sm font-medium py-2 px-3 rounded-md cursor-not-allowed"
             >
-              Out of Stock
+              {isOutOfStock ? "Out of Stock" : "Unavailable"}
             </button>
           ) : (
             <button

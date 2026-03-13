@@ -81,3 +81,6 @@ export const STORE_STATUS_LABELS: Record<string, { label: string; color: string 
   suspended: { label: "Suspended", color: "bg-red-100 text-red-800" },
   banned: { label: "Banned", color: "bg-gray-100 text-gray-800" },
 };
+
+// Re-export from tier-limits for convenience (single source of truth is tier-limits.ts)
+export { STATUS_LABELS as SUBSCRIPTION_STATUS_LABELS } from "@/lib/tier-limits";

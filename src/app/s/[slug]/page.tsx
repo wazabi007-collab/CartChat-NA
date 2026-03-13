@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, AlertTriangle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { whatsappLink } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
+import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { ProductCard } from "@/components/storefront/product-card";
 import { TrackView } from "@/components/storefront/track-view";
 import { ReportButton } from "@/components/storefront/report-button";
@@ -53,6 +54,17 @@ export default async function StorefrontPage({ params }: Props) {
     .single();
 
   if (!merchant) notFound();
+
+  // Fetch subscription
+  const { data: subscription } = await supabase
+    .from("subscriptions")
+    .select("tier, status")
+    .eq("merchant_id", merchant.id)
+    .single();
+
+  const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
+  const isSoftSuspended = subscription?.status === "soft_suspended";
+  const hasBranding = showBranding(tier);
 
   // Fetch categories
   const { data: categories } = await supabase
@@ -150,6 +162,16 @@ export default async function StorefrontPage({ params }: Props) {
         </div>
       </header>
 
+      {/* Soft-suspend banner */}
+      {isSoftSuspended && (
+        <div className="bg-amber-50 border-b border-amber-200">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2 text-amber-800 text-sm">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <p>This store is temporarily unavailable for orders.</p>
+          </div>
+        </div>
+      )}
+
       {/* Products */}
       <main className="max-w-4xl mx-auto px-4 py-6">
         {allProducts.length === 0 ? (
@@ -176,6 +198,7 @@ export default async function StorefrontPage({ params }: Props) {
                       stockQuantity={product.stock_quantity}
                       lowStockThreshold={product.low_stock_threshold}
                       allowBackorder={product.allow_backorder}
+                      disabled={isSoftSuspended}
                     />
                   ))}
                 </div>
@@ -188,7 +211,13 @@ export default async function StorefrontPage({ params }: Props) {
       {/* Footer */}
       <footer className="border-t bg-white mt-8">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between text-xs text-gray-400">
-          <span>Powered by {SITE_NAME}</span>
+          {hasBranding ? (
+            <a href={SITE_URL} className="hover:text-gray-600 transition-colors">
+              Powered by {SITE_NAME}
+            </a>
+          ) : (
+            <span />
+          )}
           <ReportButton merchantId={merchant.id} storeName={merchant.store_name} />
         </div>
       </footer>

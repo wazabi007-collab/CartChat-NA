@@ -339,10 +339,9 @@ export function CheckoutForm({
     const itemLines = cartItems
       .map((item) => `• ${item.name} x${item.quantity} — ${formatPrice(item.price * item.quantity)}`)
       .join("\n");
-    const invoiceUrl =
-      merchantTier !== "free" && orderId
-        ? `${window.location.origin}/invoice/${orderId}`
-        : null;
+    const invoiceUrl = orderId
+      ? `${window.location.origin}/invoice/${orderId}`
+      : null;
     const waMessage = [
       `Hi ${storeName}! 🛒 New order #${orderNumber}`,
       ``,

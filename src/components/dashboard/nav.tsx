@@ -17,27 +17,32 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
 
 interface NavProps {
   merchant: {
     id: string;
     store_name: string;
     store_slug: string;
-    tier: string;
   } | null;
   userPhone: string;
+  subscriptionTier?: string | null;
 }
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/products", label: "Products", icon: Package },
-  { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
-  { href: "/dashboard/coupons", label: "Coupons", icon: Ticket },
-  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+const baseNavItems = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, requireFeature: null },
+  { href: "/dashboard/products", label: "Products", icon: Package, requireFeature: null },
+  { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart, requireFeature: null },
+  { href: "/dashboard/coupons", label: "Coupons", icon: Ticket, requireFeature: "coupons" as const },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, requireFeature: null },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings, requireFeature: null },
 ];
 
-export function DashboardNav({ merchant, userPhone }: NavProps) {
+export function DashboardNav({ merchant, userPhone, subscriptionTier }: NavProps) {
+  const tier = (subscriptionTier || "oshi_start") as SubscriptionTier;
+  const navItems = baseNavItems.filter(
+    (item) => !item.requireFeature || hasTierFeature(tier, item.requireFeature)
+  );
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);

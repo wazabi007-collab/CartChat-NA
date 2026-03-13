@@ -1,6 +1,6 @@
 # Known Issues
 
-All P0 + P1 features deployed. Infrastructure migrated to Supabase Pro + Vercel.
+All P0 + P1 features deployed. Admin dashboard build complete — ready to deploy.
 
 ## Current Status
 - **Hosting**: Vercel (auto-deploy from GitHub `master`)
@@ -9,28 +9,34 @@ All P0 + P1 features deployed. Infrastructure migrated to Supabase Pro + Vercel.
 - P0 features: All deployed (inventory, industry, delivery fee)
 - P1 features: All deployed (payment methods, coupons, invoice updates)
 - Branding: SVG logo deployed across all pages + favicon
-- No E2E tests for new payment methods or coupons yet (existing 24 tests all pass on VPS — E2E test env not yet configured for Vercel)
+- Admin Dashboard: **All chunks complete, build verified (0 errors), ready to deploy**
+
+## Deploy Checklist (Admin Dashboard)
+1. Run migration 012 in Supabase SQL Editor
+2. Set `CRON_SECRET` env var in Vercel Dashboard
+3. Push to `master` → Vercel auto-deploys
+4. Verify at https://oshicart.com/admin
+
+## Cleanup TODO (post-deploy, non-blocking)
+- Old `TIER_LIMITS` in `src/lib/utils.ts` (free/pro/business) — no longer imported, can remove
+- Old stores pages: `src/app/(admin)/admin/stores/` — replaced by `/admin/merchants`
+- Old stores API: `src/app/api/admin/stores/route.ts` — can remove after verifying merchants API
 
 ## Open Items
-- E2E test environment needs reconfiguration for Vercel/Supabase Pro (tests were written for self-hosted Docker setup)
+- E2E test environment needs reconfiguration for Vercel/Supabase Pro
 - "Playwright Test Store" exists in production DB — consider cleaning up test data
 - ESLint: 2 non-blocking errors (Date.now() in render, setState in effect) — P2
-
-## QA Validation (2026-03-13)
-- **30 tests executed**, **30 passed**, **0 failed**
-- **1 P0 bug found and fixed** (BUG-009: Legacy RLS policy)
-- Full report: TEST_REPORT.md | Matrix: TEST_MATRIX.md
-
-## Next Up: Admin Dashboard & Billing (Design Complete, Ready to Build)
-- **Design spec**: `docs/superpowers/specs/2026-03-13-admin-dashboard-design.md`
-- **Implementation plan**: `docs/superpowers/plans/2026-03-13-admin-dashboard.md`
-- 33 tasks, 6 chunks — includes migration 012, subscription billing, tier enforcement, analytics
-- New pricing: Oshi-Start (N$0 trial), Oshi-Basic (N$199), Oshi-Grow (N$499), Oshi-Pro (N$1,200)
+- Tailwind CSS v4: `next build` fails on Windows (oxide native binary), builds fine on Vercel
 
 ## Open Feature Gaps (P2 — future sprints)
 - GAP-006: Customer list + order history
 - GAP-007: Product variants (size/color)
 - GAP-008: Payment gateway (PayToday/PayFast)
+
+## QA Validation (2026-03-13)
+- **30 tests executed**, **30 passed**, **0 failed**
+- **1 P0 bug found and fixed** (BUG-009: Legacy RLS policy)
+- Full report: TEST_REPORT.md | Matrix: TEST_MATRIX.md
 
 ## Deployment Notes
 
@@ -41,7 +47,6 @@ All P0 + P1 features deployed. Infrastructure migrated to Supabase Pro + Vercel.
 
 ### Previous: Docker on VPS (deprecated)
 - VPS `187.124.15.31` is no longer serving production traffic
-- Docker deployment warnings (Kong keys, compose file) no longer apply
 
 ## Resolved
 
@@ -60,20 +65,10 @@ All P0 + P1 features deployed. Infrastructure migrated to Supabase Pro + Vercel.
 ### BUG-006: deploy.sh wrong compose file — FIXED (VPS-era, no longer applicable)
 
 ### BUG-008: Email templates missing OTP code — FIXED (2026-03-13)
-- **Root cause**: Supabase Auth email templates ("Confirm sign up" and "Magic link") only contained `{{ .ConfirmationURL }}` (magic link) but no `{{ .Token }}` (OTP code)
-- **Symptom**: Users received emails with a clickable login link but no visible 6-digit OTP code
-- **Fix**: Added `<p>Or enter this OTP code: <strong>{{ .Token }}</strong></p>` to both templates via Supabase Dashboard
+- Added `{{ .Token }}` to Supabase Auth email templates
 
 ### BUG-009: Legacy RLS policy bypasses store_status — FIXED (2026-03-13)
-- **BUG-ID**: BUG-009
-- **Severity**: P0 (security — suspended/banned stores visible to public)
-- **Status**: Fixed & Verified
-- **Repro steps**: 1) Suspend a store via admin (store_status='suspended') 2) Store still has is_active=true 3) Legacy policy "Merchants: public read active stores" only checked is_active, not store_status 4) Suspended store remained visible on /stores and /s/{slug}
-- **Root cause**: Migration 011 added new policies with store_status check but did NOT drop the old policy that only checked is_active=true. Supabase RLS is permissive (OR between policies), so the old policy created a bypass.
-- **Fix**: `DROP POLICY "Merchants: public read active stores" ON merchants;` — applied via Supabase migration
-- **Regression**: Verified 6 active stores still visible on /stores after fix. Only 3 policies remain, all enforce dual check.
-- **Owner**: Claude QA
-- **Last updated**: 2026-03-13
+- Dropped old permissive policy that only checked is_active
 
 ### P0 Features — All Deployed
 - GAP-001: Inventory/stock tracking

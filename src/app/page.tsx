@@ -330,54 +330,72 @@ function Feature({
 function PricingSection() {
   return (
     <section className="py-16 bg-gray-50 px-4 sm:px-6" id="pricing">
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-12">
+      <div className="max-w-5xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 text-center mb-3">
           Simple pricing
         </h2>
-        <div className="grid md:grid-cols-3 gap-6">
+        <p className="text-gray-500 text-center mb-12 max-w-xl mx-auto">
+          Start free for 30 days. Upgrade when you&apos;re ready to grow.
+        </p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <PricingCard
-            name="Free Trial"
+            name="Oshi-Start"
             price="N$0"
-            period="30 days"
+            period="30-day trial"
             features={[
-              "20 products",
+              "10 products",
               "20 orders/month",
               "Product catalog",
               "Order management",
               "EFT proof upload",
+              "OshiCart branding",
             ]}
             cta="Start Free Trial"
             href="/signup"
             highlighted={false}
           />
           <PricingCard
-            name="Pro"
-            price="N$99"
+            name="Oshi-Basic"
+            price="N$199"
             period="/month"
             features={[
-              "150 products",
-              "300 orders/month",
-              "Full analytics",
-              "Priority support",
-              "Everything in Free",
+              "30 products",
+              "200 orders/month",
+              "No OshiCart branding",
+              "Sales analytics",
+              "Everything in Start",
+            ]}
+            cta="Get Started"
+            href="/signup"
+            highlighted={false}
+          />
+          <PricingCard
+            name="Oshi-Grow"
+            price="N$499"
+            period="/month"
+            features={[
+              "200 products",
+              "500 orders/month",
+              "Inventory tracking",
+              "Coupon codes",
+              "Everything in Basic",
             ]}
             cta="Get Started"
             href="/signup"
             highlighted={true}
           />
           <PricingCard
-            name="Business"
-            price="N$249"
+            name="Oshi-Pro"
+            price="N$1,200"
             period="/month"
             features={[
               "Unlimited products",
               "Unlimited orders",
-              "3 staff accounts",
-              "Custom branding",
-              "Phone support",
-              "Everything in Pro",
+              "Priority support",
+              "All features",
+              "Everything in Grow",
             ]}
-            cta="Contact Us"
+            cta="Get Started"
             href="/signup"
             highlighted={false}
           />

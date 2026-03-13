@@ -6,8 +6,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard,
-  Store,
+  Users,
+  CreditCard,
+  BarChart3,
   Flag,
+  Shield,
+  FileText,
   LogOut,
   Menu,
   X,
@@ -15,17 +19,27 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { type AdminRole, getVisibleNavItems } from "@/lib/admin-permissions";
 
-const navItems = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard },
-  { href: "/admin/stores", label: "Stores", icon: Store },
-  { href: "/admin/reports", label: "Reports", icon: Flag },
-];
+const ICON_MAP: Record<string, React.ElementType> = {
+  "/admin": LayoutDashboard,
+  "/admin/merchants": Users,
+  "/admin/billing": CreditCard,
+  "/admin/analytics": BarChart3,
+  "/admin/reports": Flag,
+  "/admin/team": Shield,
+  "/admin/audit": FileText,
+};
 
-export function AdminNav({ userEmail }: { userEmail: string }) {
+export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRole: AdminRole }) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navItems = getVisibleNavItems(adminRole).map((item) => ({
+    ...item,
+    icon: ICON_MAP[item.href] || LayoutDashboard,
+  }));
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -46,7 +60,7 @@ export function AdminNav({ userEmail }: { userEmail: string }) {
           <nav className="flex-1 p-2 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const active = pathname === item.href;
+              const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
               return (
                 <Link
                   key={item.href}
@@ -108,7 +122,7 @@ export function AdminNav({ userEmail }: { userEmail: string }) {
             <nav className="p-2 space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
-                const active = pathname === item.href;
+                const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
                 return (
                   <Link
                     key={item.href}

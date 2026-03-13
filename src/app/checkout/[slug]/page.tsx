@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { SITE_NAME } from "@/lib/constants";
-import { TIER_LIMITS } from "@/lib/utils";
+import { SITE_NAME, SITE_URL } from "@/lib/constants";
+import { TIER_LIMITS, showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { CheckoutForm } from "./checkout-form";
 
 interface Props {
@@ -35,7 +35,7 @@ export default async function CheckoutPage({ params }: Props) {
   const { data: merchant } = await supabase
     .from("merchants")
     .select(
-      "id, store_name, tier, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider"
+      "id, store_name, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider"
     )
     .eq("store_slug", slug)
     .eq("is_active", true)
@@ -43,12 +43,42 @@ export default async function CheckoutPage({ params }: Props) {
 
   if (!merchant) notFound();
 
-  // Check free tier order limit
-  const tierKey = (merchant.tier || "free") as keyof typeof TIER_LIMITS;
-  const limit = TIER_LIMITS[tierKey].maxOrdersPerMonth;
+  // Fetch subscription
+  const { data: subscription } = await supabase
+    .from("subscriptions")
+    .select("tier, status")
+    .eq("merchant_id", merchant.id)
+    .single();
+
+  const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
+  const isSoftSuspended = subscription?.status === "soft_suspended";
+  const hasBranding = showBranding(tier);
+
+  // Block checkout if soft-suspended
+  if (isSoftSuspended) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-lg border p-8 max-w-sm text-center">
+          <p className="text-lg font-bold text-gray-900">Store Temporarily Unavailable</p>
+          <p className="text-sm text-gray-500 mt-2">
+            This store is not currently accepting orders. Please check back later or contact the merchant directly.
+          </p>
+          <Link
+            href={`/s/${slug}`}
+            className="inline-block mt-4 text-sm text-green-600 hover:underline"
+          >
+            Back to store
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Check order limit for tier
+  const orderLimit = TIER_LIMITS[tier].orders_per_month;
   let orderLimitReached = false;
 
-  if (limit !== Infinity) {
+  if (orderLimit !== -1) {
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
@@ -59,7 +89,7 @@ export default async function CheckoutPage({ params }: Props) {
       .eq("merchant_id", merchant.id)
       .gte("created_at", startOfMonth.toISOString());
 
-    orderLimitReached = (count || 0) >= limit;
+    orderLimitReached = (count || 0) >= orderLimit;
   }
 
   if (orderLimitReached) {
@@ -96,7 +126,7 @@ export default async function CheckoutPage({ params }: Props) {
           merchantId={merchant.id}
           storeName={merchant.store_name}
           storeSlug={slug}
-          merchantTier={merchant.tier}
+          merchantTier={tier}
           whatsappNumber={merchant.whatsapp_number}
           bankName={merchant.bank_name}
           bankAccountNumber={merchant.bank_account_number}
@@ -113,7 +143,13 @@ export default async function CheckoutPage({ params }: Props) {
 
       <footer className="border-t bg-white mt-8">
         <div className="max-w-2xl mx-auto px-4 py-4 text-center text-xs text-gray-400">
-          Powered by {SITE_NAME}
+          {hasBranding ? (
+            <a href={SITE_URL} className="hover:text-gray-600 transition-colors">
+              Powered by {SITE_NAME}
+            </a>
+          ) : (
+            <span>&nbsp;</span>
+          )}
         </div>
       </footer>
     </div>

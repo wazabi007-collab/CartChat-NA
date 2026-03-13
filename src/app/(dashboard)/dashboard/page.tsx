@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Package, ShoppingCart, Eye, ArrowRight, AlertTriangle, ShieldAlert, Clock } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { SITE_URL } from "@/lib/constants";
 import { CopyStoreLink } from "./copy-store-link";
+import { STATUS_LABELS, TIER_LABELS, type SubscriptionStatus, type SubscriptionTier } from "@/lib/tier-limits";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -23,6 +25,14 @@ export default async function DashboardPage() {
   if (!merchant) {
     redirect("/dashboard/setup");
   }
+
+  // Fetch subscription status
+  const service = createServiceClient();
+  const { data: subscription } = await service
+    .from("subscriptions")
+    .select("tier, status, trial_ends_at, current_period_end, grace_ends_at")
+    .eq("merchant_id", merchant.id)
+    .single();
 
   // Fetch stats
   const [productsResult, ordersResult, pendingResult, lowStockResult] = await Promise.all([
@@ -101,6 +111,56 @@ export default async function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Subscription warning banners */}
+      {subscription?.status === "grace" && (
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+          <AlertTriangle size={20} className="text-orange-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-orange-900">Subscription Expired</h3>
+            <p className="text-sm text-orange-800 mt-1">
+              Your {subscription.trial_ends_at ? "trial" : "subscription"} has ended. You have{" "}
+              {subscription.grace_ends_at
+                ? Math.max(0, Math.ceil((new Date(subscription.grace_ends_at).getTime() - Date.now()) / 86400000))
+                : 7}{" "}
+              days to renew before your store is paused.
+            </p>
+          </div>
+        </div>
+      )}
+      {subscription?.status === "soft_suspended" && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+          <ShieldAlert size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-red-900">Store Paused — Subscription Expired</h3>
+            <p className="text-sm text-red-800 mt-1">
+              Your subscription has expired and your store is no longer accepting orders. Renew to continue.
+              Contact support@oshicart.com for payment details.
+            </p>
+          </div>
+        </div>
+      )}
+      {subscription && ["trial", "active"].includes(subscription.status) && (() => {
+        const endDate = subscription.current_period_end || subscription.trial_ends_at;
+        if (!endDate) return null;
+        const daysLeft = Math.ceil((new Date(endDate).getTime() - Date.now()) / 86400000);
+        if (daysLeft > 7) return null;
+        return (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+            <Clock size={20} className="text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-yellow-900">
+                {subscription.status === "trial" ? "Trial" : "Subscription"} expires in {daysLeft} day{daysLeft !== 1 ? "s" : ""}
+              </h3>
+              <p className="text-sm text-yellow-800 mt-1">
+                {subscription.status === "trial"
+                  ? "Upgrade to a paid plan to keep your store running."
+                  : "Renew your subscription to avoid interruptions."}
+              </p>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* POP Education Banner (TRUST-08) */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">

@@ -34,11 +34,16 @@ export function OrderActions({
 
   async function updateStatus(newStatus: string) {
     setLoading(true);
-    await supabase
+    const { error } = await supabase
       .from("orders")
       .update({ status: newStatus })
       .eq("id", orderId);
     setLoading(false);
+
+    if (error) {
+      router.refresh();
+      return;
+    }
 
     if (
       (newStatus === "confirmed" || newStatus === "completed" || newStatus === "cancelled") &&

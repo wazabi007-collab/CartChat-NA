@@ -193,9 +193,13 @@ export function getOrderMessage(
   const variant = data.total ? "withTotal" : "withoutTotal";
   const template = TEMPLATES[archetype][status][variant];
 
-  return template
-    .replace("{customerName}", data.customerName)
-    .replace("{orderNumber}", data.orderNumber.toString())
-    .replace("{storeName}", data.storeName)
-    .replace("{total}", data.total ?? "");
+  return template.replace(/\{(customerName|orderNumber|storeName|total)\}/g, (_, key) => {
+    const values: Record<string, string> = {
+      customerName: data.customerName,
+      orderNumber: data.orderNumber.toString(),
+      storeName: data.storeName,
+      total: data.total ?? "",
+    };
+    return values[key] ?? "";
+  });
 }

@@ -202,10 +202,10 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
               <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-center">
                 <p className="text-sm text-amber-800">
                   Don&apos;t have a store yet?{" "}
-                  <Link href="/signup" className="font-semibold underline hover:text-amber-900">
+                  <Link href={`/signup?tier=${tier}`} className="font-semibold underline hover:text-amber-900">
                     Sign up free
                   </Link>
-                  {" "}first, then come back to upgrade.
+                  {" "}&mdash; you&apos;ll be redirected here after setup.
                 </p>
               </div>
             )}

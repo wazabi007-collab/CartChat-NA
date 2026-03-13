@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils";
 import { BANKS_NAMIBIA, INDUSTRIES_NAMIBIA } from "@/lib/constants";
@@ -10,6 +10,8 @@ import { Store, ArrowRight, Check } from "lucide-react";
 
 export default function StoreSetupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tierParam = searchParams.get("tier");
   const supabase = createClient();
 
   const [step, setStep] = useState(1);
@@ -101,7 +103,11 @@ export default function StoreSetupPage() {
       trial_ends_at: trialEnds.toISOString(),
     });
 
-    router.push("/dashboard");
+    if (tierParam) {
+      router.push(`/pricing/checkout?tier=${tierParam}`);
+    } else {
+      router.push("/dashboard");
+    }
     router.refresh();
   }
 

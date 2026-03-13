@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
 
 export default function SignupPage() {
+  const searchParams = useSearchParams();
+  const tierParam = searchParams.get("tier");
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -92,7 +95,11 @@ export default function SignupPage() {
       .select("id")
       .single();
 
-    window.location.href = merchant ? "/dashboard" : "/dashboard/setup";
+    if (merchant) {
+      window.location.href = tierParam ? `/pricing/checkout?tier=${tierParam}` : "/dashboard";
+    } else {
+      window.location.href = tierParam ? `/dashboard/setup?tier=${tierParam}` : "/dashboard/setup";
+    }
   }
 
   return (

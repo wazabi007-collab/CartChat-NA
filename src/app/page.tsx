@@ -367,7 +367,8 @@ function PricingSection() {
             ]}
             cta="Get Started"
             href="/signup"
-            highlighted={false}
+            highlighted={true}
+            badge="Most Popular"
           />
           <PricingCard
             name="Oshi-Grow"
@@ -382,7 +383,7 @@ function PricingSection() {
             ]}
             cta="Get Started"
             href="/signup"
-            highlighted={true}
+            highlighted={false}
           />
           <PricingCard
             name="Oshi-Pro"
@@ -413,6 +414,7 @@ function PricingCard({
   cta,
   href,
   highlighted,
+  badge,
 }: {
   name: string;
   price: string;
@@ -421,15 +423,22 @@ function PricingCard({
   cta: string;
   href: string;
   highlighted: boolean;
+  badge?: string;
 }) {
   return (
-    <div
-      className={`rounded-lg border p-6 ${
+    <Link
+      href={href}
+      className={`rounded-lg border p-6 flex flex-col transition-all hover:shadow-md ${
         highlighted
-          ? "border-green-600 ring-2 ring-green-600 bg-white"
-          : "bg-white"
+          ? "border-green-600 ring-2 ring-green-600 bg-white relative"
+          : "bg-white hover:border-gray-300"
       }`}
     >
+      {badge && (
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xs font-semibold px-3 py-0.5 rounded-full">
+          {badge}
+        </span>
+      )}
       <h4 className="font-medium text-gray-900">{name}</h4>
       <div className="mt-2">
         <span className="text-3xl font-bold text-gray-900">{price}</span>
@@ -443,17 +452,16 @@ function PricingCard({
           </li>
         ))}
       </ul>
-      <Link
-        href={href}
-        className={`block text-center mt-6 py-2 rounded-md text-sm font-medium ${
+      <span
+        className={`block text-center mt-auto pt-6 py-2 rounded-md text-sm font-medium ${
           highlighted
-            ? "bg-green-600 text-white hover:bg-green-700"
-            : "border border-gray-300 text-gray-700 hover:bg-gray-50"
+            ? "bg-green-600 text-white"
+            : "border border-gray-300 text-gray-700"
         }`}
       >
         {cta}
-      </Link>
-    </div>
+      </span>
+    </Link>
   );
 }
 

@@ -1,6 +1,6 @@
 # Known Issues
 
-All P0 + P1 + Admin Dashboard deployed to production. Themed storefronts in progress.
+All P0 + P1 + Admin Dashboard + Themed Storefronts deployed to production.
 
 ## Current Status
 - **Hosting**: Vercel (auto-deploy from GitHub `master`)
@@ -9,17 +9,14 @@ All P0 + P1 + Admin Dashboard deployed to production. Themed storefronts in prog
 - P0 features: All deployed
 - P1 features: All deployed
 - Admin Dashboard: **DEPLOYED & LIVE** at /admin
-- Industry-Themed Storefronts: **Partially implemented** — layout components not yet created
-
-## In Progress — Themed Storefronts
-- ThemeConfig, getThemeConfig(), ProductCard theming, ProductSection — all done
-- Layout components (Tasks 3-8) — NOT created yet, ProductSection imports them
-- 6 layouts needed: types.ts, menu-list, compact-grid, horizontal-card, service-list, visual-gallery
+- Industry-Themed Storefronts: **DEPLOYED** (6 layout variants)
+- WhatsApp Industry Templates: **DEPLOYED** (per-archetype order messages)
 
 ## Pending Manual Steps
 - Add `CRON_SECRET` env var in Vercel Dashboard (value: `c9f94e874701a3e9beda02390fda2725`)
 
 ## Open Items
+- Themed storefronts QA: test each archetype visually in browser
 - E2E test environment needs reconfiguration for Vercel/Supabase Pro
 - "Playwright Test Store" exists in production DB — consider cleaning up test data
 - ESLint: 2 non-blocking errors (Date.now() in render, setState in effect) — P2
@@ -32,7 +29,6 @@ All P0 + P1 + Admin Dashboard deployed to production. Themed storefronts in prog
 ## QA Validation (2026-03-13)
 - **30 tests executed**, **30 passed**, **0 failed**
 - **1 P0 bug found and fixed** (BUG-009: Legacy RLS policy)
-- Full report: TEST_REPORT.md | Matrix: TEST_MATRIX.md
 
 ## Deployment Notes
 
@@ -42,29 +38,15 @@ All P0 + P1 + Admin Dashboard deployed to production. Themed storefronts in prog
 - Env vars: managed in Vercel Dashboard > Settings > Environment Variables
 
 ### Previous: Docker on VPS (deprecated)
-- VPS `187.124.15.31` is no longer serving production traffic
 
 ## Resolved
 
 ### Admin Dashboard Post-Deploy Fixes
-- Middleware was blocking admin access (only checked ADMIN_EMAILS, not admin_users table) — FIXED
-- Merchants page showed 0 merchants (wrong column name `slug` vs `store_slug`) — FIXED
-- Merchant detail had no action buttons for tier/status changes — FIXED (added to Subscription tab)
-- React hydration error #418 on date formatting — FIXED (UTC formatting)
+- Middleware auth fix (only checked ADMIN_EMAILS, not admin_users table) — FIXED
+- Merchants page empty (wrong column name) — FIXED
+- Subscription action buttons missing — FIXED
+- React hydration error #418 — FIXED (UTC date formatting)
 - Old stores pages + API + dead TIER_LIMITS code — CLEANED UP
 
-### BUG-001: Checkout order creation — FIXED & DEPLOYED
-### BUG-002: Auth cookie injection in tests — FIXED & DEPLOYED
-### BUG-003: kong.prod.yml key mismatch — FIXED (VPS-era)
-### BUG-004: Public storage images 401 — FIXED (VPS-era)
-### BUG-005: OTP code expiry too short — FIXED (VPS-era)
-### BUG-006: deploy.sh wrong compose file — FIXED (VPS-era)
-### BUG-008: Email templates missing OTP code — FIXED
-### BUG-009: Legacy RLS policy bypasses store_status — FIXED
-
-### Completed Feature Gaps
-- GAP-001: Inventory/stock tracking — DEPLOYED
-- GAP-002: Industry selection at signup — DEPLOYED
-- GAP-003: Delivery fee — DEPLOYED
-- GAP-004: Discount/coupon codes — DEPLOYED
-- GAP-005: Cash on delivery + MoMo + eWallet — DEPLOYED
+### BUG-001 through BUG-009 — All FIXED & DEPLOYED
+### P0 + P1 Feature Gaps — All DEPLOYED

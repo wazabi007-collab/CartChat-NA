@@ -24,18 +24,27 @@
 
 ---
 
-## THEME — Industry-Themed Storefronts (2026-03-13) — IN PROGRESS
+## THEME — Industry-Themed Storefronts (2026-03-13) — DEPLOYED
 - [x] **THEME-01** ThemeConfig + THEME_CONFIGS map + getThemeConfig() in industry.ts
 - [x] **THEME-02** Theme props on ProductCard (accentColor, accentHover, ctaText)
-- [ ] **THEME-03** Shared layout types (LayoutProduct, LayoutProps)
-- [ ] **THEME-04** Menu-list layout (Food Prepared — orange, row-based)
-- [ ] **THEME-05** Compact-grid layout (Food Fresh — green, dense grid)
-- [ ] **THEME-06** Horizontal-card layout (Beauty — pink, horizontal cards)
-- [ ] **THEME-07** Service-list layout (Services — blue, text list)
-- [ ] **THEME-08** Visual-gallery layout (Gifting — gold, large images)
+- [x] **THEME-03** Shared layout types (LayoutProduct, LayoutProps)
+- [x] **THEME-04** Menu-list layout (Food Prepared — orange, row-based)
+- [x] **THEME-05** Compact-grid layout (Food Fresh — green, dense grid)
+- [x] **THEME-06** Horizontal-card layout (Beauty — slate, horizontal cards)
+- [x] **THEME-07** Service-list layout (Services — blue, text list)
+- [x] **THEME-08** Visual-gallery layout (Gifting — gold, large images)
 - [x] **THEME-09** ProductSection variant switcher component
 - [x] **THEME-10** Storefront page wired with theme integration
 - [ ] **THEME-11** Manual QA testing across all archetypes
+
+---
+
+## UX — Dashboard Clickability Improvements (2026-03-13) — DEPLOYED
+- [x] **UX-01** Dashboard stat cards clickable → link to Products, Orders, Analytics
+- [x] **UX-02** Dashboard product cards clickable → link to edit page
+- [x] **UX-03** Admin overview stat cards clickable → link to merchants, billing, reports
+- [x] **UX-04** Admin merchant Products tab: product names link to storefront page
+- [x] **UX-05** OshiCart logo in merchant nav links back to /dashboard
 
 ---
 

@@ -1,8 +1,8 @@
 # Session State — Active Working Memory
 
-## 2026-03-13 — Industry-Themed Storefronts In Progress
+## 2026-03-13 — Industry-Themed Storefronts COMPLETE
 
-### CURRENT STATUS: Admin Dashboard DEPLOYED, Themed Storefronts Partially Done
+### CURRENT STATUS: Admin Dashboard + Themed Storefronts DEPLOYED
 
 ---
 
@@ -12,33 +12,29 @@
 - All admin pages verified working in browser
 - Post-deploy fixes applied: middleware auth, merchants column name, subscription action buttons, cleanup
 
-### Industry-Themed Storefronts — IN PROGRESS
-
-**Spec:** `docs/superpowers/specs/2026-03-13-industry-themed-storefronts-design.md`
-**Plan:** `docs/superpowers/plans/2026-03-13-industry-themed-storefronts.md`
+### Industry-Themed Storefronts — COMPLETE & DEPLOYED
 
 | Task | Status | Description |
 |------|--------|-------------|
 | 1 | DONE | ThemeConfig + THEME_CONFIGS + getThemeConfig() in `industry.ts` |
 | 2 | DONE | Theme props (accentColor, accentHover, ctaText) on ProductCard |
-| 3 | TODO | `layouts/types.ts` — shared LayoutProduct + LayoutProps types |
-| 4 | TODO | `layouts/menu-list.tsx` — Food Prepared layout (row-based) |
-| 5 | TODO | `layouts/compact-grid.tsx` — Food Fresh layout (dense grid) |
-| 6 | TODO | `layouts/horizontal-card.tsx` — Beauty layout (horizontal cards) |
-| 7 | TODO | `layouts/service-list.tsx` — Services layout (text list) |
-| 8 | TODO | `layouts/visual-gallery.tsx` — Gifting layout (large-image grid) |
-| 9 | DONE | `product-section.tsx` — variant-aware wrapper (imports layouts) |
-| 10 | DONE | Storefront page wired with theme + ProductSection |
-| 11 | TODO | Manual QA testing |
+| 3 | DONE | `layouts/types.ts` — shared LayoutProduct + LayoutProps types |
+| 4 | DONE | `layouts/menu-list.tsx` — Food Prepared layout (row-based, orange) |
+| 5 | DONE | `layouts/compact-grid.tsx` — Food Fresh layout (dense grid, green) |
+| 6 | DONE | `layouts/horizontal-card.tsx` — Beauty layout (horizontal cards, slate) |
+| 7 | DONE | `layouts/service-list.tsx` — Services layout (text list, blue) |
+| 8 | DONE | `layouts/visual-gallery.tsx` — Gifting layout (large-image grid, gold) |
+| 9 | DONE | `product-section.tsx` — variant-aware wrapper |
+| 10 | DONE | Storefront page wired with theme integration |
+| 11 | TODO | Manual QA testing across all archetypes |
 
-**Blocker:** Tasks 3-8 must be created — ProductSection imports them but files don't exist yet.
-
-### Resume Instructions
-1. Create `src/components/storefront/layouts/` directory
-2. Create files for Tasks 3-8 (types.ts + 5 layout components)
-3. Run `npx tsc --noEmit` to verify
-4. Commit and push
-5. Test storefronts by setting merchant industry values in Supabase
+### UX Improvements — DEPLOYED
+- Dashboard stat cards (Products, Orders, Revenue) now clickable → link to their pages
+- Dashboard product cards (image + name) clickable → link to edit page
+- Admin overview stat cards clickable → link to merchants, billing, reports
+- Admin merchant Products tab: product names link to storefront product page
+- OshiCart logo in merchant dashboard nav links back to /dashboard (desktop + mobile)
+- Beauty archetype color changed from pink to slate
 
 ---
 
@@ -65,15 +61,9 @@ CRON_SECRET=c9f94e874701a3e9beda02390fda2725
 
 ### Pricing Tiers
 
-| Tier | Price | Products | Orders/mo | Key Differentiator |
-|------|-------|----------|-----------|-------------------|
-| Oshi-Start | N$0 (30-day trial) | 10 | 20 | Full experience, OshiCart branding |
-| Oshi-Basic | N$199/mo | 30 | 200 | No branding |
-| Oshi-Grow | N$499/mo | 200 | 500 | + Inventory, coupons |
-| Oshi-Pro | N$1,200/mo | Unlimited | Unlimited | + Priority support |
-
-### Subscription Lifecycle
-```
-Trial (30 days) → Grace (7 days) → Soft Suspend → Hard Suspend (after 30 days)
-Payment at any point → Active
-```
+| Tier | Price | Products | Orders/mo |
+|------|-------|----------|-----------|
+| Oshi-Start | N$0 (30-day trial) | 10 | 20 |
+| Oshi-Basic | N$199/mo | 30 | 200 |
+| Oshi-Grow | N$499/mo | 200 | 500 |
+| Oshi-Pro | N$1,200/mo | Unlimited | Unlimited |

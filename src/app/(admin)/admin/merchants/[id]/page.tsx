@@ -50,7 +50,19 @@ export default async function MerchantDetailPage({
             </>
           )}
         </div>
-        <p className="text-sm text-gray-500 mt-1">/{merchant.slug}</p>
+        <p className="text-sm text-gray-500 mt-1">/{merchant.store_slug}</p>
+        {subscription?.pending_tier && subscription.pending_tier !== subscription.tier && (
+          <div className="mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 inline-flex items-center gap-2 text-sm">
+            <span className="text-amber-700">
+              Upgrade requested: <strong>{TIER_LABELS[subscription.pending_tier as SubscriptionTier] || subscription.pending_tier}</strong>
+            </span>
+            {subscription.payment_reference && (
+              <span className="font-mono text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
+                {subscription.payment_reference}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <MerchantTabs

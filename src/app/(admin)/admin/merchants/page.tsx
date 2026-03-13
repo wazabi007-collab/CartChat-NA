@@ -26,7 +26,7 @@ export default async function MerchantsPage({
   // Fetch all subscriptions
   const merchantIds = (merchants || []).map((m) => m.id);
   const { data: subscriptions } = merchantIds.length > 0
-    ? await service.from("subscriptions").select("merchant_id, tier, status, trial_ends_at, current_period_end").in("merchant_id", merchantIds)
+    ? await service.from("subscriptions").select("merchant_id, tier, status, trial_ends_at, current_period_end, pending_tier, payment_reference").in("merchant_id", merchantIds)
     : { data: [] };
 
   // Fetch order counts this month
@@ -129,6 +129,11 @@ export default async function MerchantsPage({
                   </td>
                   <td className="px-4 py-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${tierColor}`}>{tierLabel}</span>
+                    {sub?.pending_tier && sub.pending_tier !== sub.tier && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 ml-1">
+                        &rarr; {TIER_LABELS[sub.pending_tier as SubscriptionTier] || sub.pending_tier}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`text-xs px-2 py-0.5 rounded-full ${storeStatus.color}`}>{storeStatus.label}</span>

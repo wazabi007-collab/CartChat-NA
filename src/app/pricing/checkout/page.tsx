@@ -81,6 +81,14 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
     ? `OSHI-${refSuffix}-${merchantId.slice(0, 8).toUpperCase()}`
     : `OSHI-${refSuffix}`;
 
+  // Save pending tier + reference on the subscription so admin can see it
+  if (merchantId) {
+    await supabase
+      .from("subscriptions")
+      .update({ pending_tier: tier, payment_reference: reference })
+      .eq("merchant_id", merchantId);
+  }
+
   const waText = merchantName
     ? `Hi OshiCart! I would like to upgrade to the ${tierLabel} plan (${priceDisplay}/mo) for my store "${merchantName}". My reference: ${reference}`
     : `Hi OshiCart! I would like to subscribe to the ${tierLabel} plan (${priceDisplay}/mo). My reference: ${reference}`;

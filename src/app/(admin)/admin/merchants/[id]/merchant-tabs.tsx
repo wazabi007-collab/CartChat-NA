@@ -97,6 +97,12 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
               {subscription.grace_ends_at ? (
                 <InfoRow label="Grace Ends" value={fmtDate(subscription.grace_ends_at as string)} />
               ) : null}
+              {subscription.pending_tier && subscription.pending_tier !== subscription.tier ? (
+                <InfoRow label="Pending Upgrade" value={TIER_LABELS[subscription.pending_tier as SubscriptionTier] || String(subscription.pending_tier)} />
+              ) : null}
+              {subscription.payment_reference ? (
+                <InfoRow label="Payment Ref" value={String(subscription.payment_reference)} />
+              ) : null}
             </InfoCard>
           ) : (
             <p className="text-gray-500">No subscription found</p>

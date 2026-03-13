@@ -21,6 +21,12 @@ All P0 + P1 features deployed. Infrastructure migrated to Supabase Pro + Vercel.
 - **1 P0 bug found and fixed** (BUG-009: Legacy RLS policy)
 - Full report: TEST_REPORT.md | Matrix: TEST_MATRIX.md
 
+## Next Up: Admin Dashboard & Billing (Design Complete, Ready to Build)
+- **Design spec**: `docs/superpowers/specs/2026-03-13-admin-dashboard-design.md`
+- **Implementation plan**: `docs/superpowers/plans/2026-03-13-admin-dashboard.md`
+- 33 tasks, 6 chunks — includes migration 012, subscription billing, tier enforcement, analytics
+- New pricing: Oshi-Start (N$0 trial), Oshi-Basic (N$199), Oshi-Grow (N$499), Oshi-Pro (N$1,200)
+
 ## Open Feature Gaps (P2 — future sprints)
 - GAP-006: Customer list + order history
 - GAP-007: Product variants (size/color)

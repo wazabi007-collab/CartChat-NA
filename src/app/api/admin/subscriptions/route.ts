@@ -11,7 +11,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { merchant_id, tier, status } = await request.json();
+  const { merchant_id, tier, status, set_period } = await request.json();
   if (!merchant_id) return NextResponse.json({ error: "Missing merchant_id" }, { status: 400 });
 
   const service = createServiceClient();
@@ -31,6 +31,16 @@ export async function PATCH(request: NextRequest) {
   }
   if (status && ["trial", "active", "grace", "soft_suspended", "hard_suspended"].includes(status)) {
     updates.status = status;
+    // When activating with set_period, set a 30-day billing period
+    if (status === "active" && set_period) {
+      const now = new Date();
+      const periodEnd = new Date(now);
+      periodEnd.setDate(periodEnd.getDate() + 30);
+      updates.current_period_start = now.toISOString();
+      updates.current_period_end = periodEnd.toISOString();
+      updates.grace_ends_at = null;
+      updates.soft_suspended_at = null;
+    }
   }
 
   if (Object.keys(updates).length === 0) {

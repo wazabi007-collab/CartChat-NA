@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { TIER_LABELS, STATUS_LABELS, formatTierPrice, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
 
 const TABS = ["Overview", "Subscription", "Performance", "Products", "Orders", "Activity"] as const;
@@ -15,7 +16,10 @@ interface MerchantTabsProps {
 }
 
 export function MerchantTabs({ merchant, subscription, payments, products, orders, actions }: MerchantTabsProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Overview");
+  const [saving, setSaving] = useState(false);
+  const [actionError, setActionError] = useState("");
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -85,6 +89,129 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
             </InfoCard>
           ) : (
             <p className="text-gray-500">No subscription found</p>
+          )}
+
+          {/* Admin Actions */}
+          {subscription && (
+            <InfoCard title="Actions">
+              {actionError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm mb-4">{actionError}</div>
+              )}
+              <div className="space-y-4">
+                {/* Change Tier */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Change Tier</label>
+                  <div className="flex flex-wrap gap-2">
+                    {(["oshi_start", "oshi_basic", "oshi_grow", "oshi_pro"] as SubscriptionTier[]).map((t) => (
+                      <button
+                        key={t}
+                        disabled={saving || subscription.tier === t}
+                        onClick={async () => {
+                          setSaving(true);
+                          setActionError("");
+                          try {
+                            const res = await fetch("/api/admin/subscriptions", {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ merchant_id: merchant.id, tier: t }),
+                            });
+                            if (!res.ok) {
+                              const err = await res.json();
+                              throw new Error(err.error || "Failed to update tier");
+                            }
+                            router.refresh();
+                          } catch (err) {
+                            setActionError(err instanceof Error ? err.message : "Something went wrong");
+                          } finally {
+                            setSaving(false);
+                          }
+                        }}
+                        className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                          subscription.tier === t
+                            ? "bg-gray-900 text-white border-gray-900 cursor-default"
+                            : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 disabled:opacity-50"
+                        }`}
+                      >
+                        {TIER_LABELS[t]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Change Status */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Change Status</label>
+                  <div className="flex flex-wrap gap-2">
+                    {(["trial", "active", "grace", "soft_suspended", "hard_suspended"] as SubscriptionStatus[]).map((s) => {
+                      const info = STATUS_LABELS[s];
+                      return (
+                        <button
+                          key={s}
+                          disabled={saving || subscription.status === s}
+                          onClick={async () => {
+                            setSaving(true);
+                            setActionError("");
+                            try {
+                              const res = await fetch("/api/admin/subscriptions", {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ merchant_id: merchant.id, status: s }),
+                              });
+                              if (!res.ok) {
+                                const err = await res.json();
+                                throw new Error(err.error || "Failed to update status");
+                              }
+                              router.refresh();
+                            } catch (err) {
+                              setActionError(err instanceof Error ? err.message : "Something went wrong");
+                            } finally {
+                              setSaving(false);
+                            }
+                          }}
+                          className={`px-3 py-1.5 text-xs rounded-full border transition-colors ${
+                            subscription.status === s
+                              ? "bg-gray-900 text-white border-gray-900 cursor-default"
+                              : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 disabled:opacity-50"
+                          }`}
+                        >
+                          {info.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Activate (shortcut: set to active + set period) */}
+                {subscription.status !== "active" && (
+                  <button
+                    disabled={saving}
+                    onClick={async () => {
+                      setSaving(true);
+                      setActionError("");
+                      try {
+                        const res = await fetch("/api/admin/subscriptions", {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ merchant_id: merchant.id, status: "active", set_period: true }),
+                        });
+                        if (!res.ok) {
+                          const err = await res.json();
+                          throw new Error(err.error || "Failed to activate");
+                        }
+                        router.refresh();
+                      } catch (err) {
+                        setActionError(err instanceof Error ? err.message : "Something went wrong");
+                      } finally {
+                        setSaving(false);
+                      }
+                    }}
+                    className="w-full py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
+                  >
+                    {saving ? "Saving..." : "Activate Subscription (set 30-day period)"}
+                  </button>
+                )}
+              </div>
+            </InfoCard>
           )}
 
           {payments.length > 0 && (

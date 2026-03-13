@@ -41,18 +41,15 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect logged-in users away from auth pages
+  // Redirect logged-in users away from auth pages (but allow tier flow)
   if (user && (request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/signup")) {
     const tier = request.nextUrl.searchParams.get("tier");
-    const url = request.nextUrl.clone();
-    if (tier) {
-      url.pathname = "/pricing/checkout";
-      url.searchParams.set("tier", tier);
-    } else {
+    if (!tier) {
+      const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
-      url.searchParams.delete("tier");
+      return NextResponse.redirect(url);
     }
-    return NextResponse.redirect(url);
+    // If tier param present, let the page handle the redirect (it checks for store)
   }
 
   return supabaseResponse;

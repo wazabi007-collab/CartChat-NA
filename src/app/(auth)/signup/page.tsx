@@ -31,6 +31,26 @@ function SignupForm() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, []);
 
+  // If already logged in with tier param, redirect to checkout or setup
+  useEffect(() => {
+    if (!tierParam) return;
+    async function checkUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: merchant } = await supabase
+        .from("merchants")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+      if (merchant) {
+        window.location.href = `/pricing/checkout?tier=${tierParam}`;
+      } else {
+        window.location.href = `/dashboard/setup?tier=${tierParam}`;
+      }
+    }
+    checkUser();
+  }, [tierParam, supabase]);
+
   function startCountdown() {
     setCountdown(300);
     if (timerRef.current) clearInterval(timerRef.current);

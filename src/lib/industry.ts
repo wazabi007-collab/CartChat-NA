@@ -8,6 +8,24 @@ export type IndustryArchetype =
 
 export type NotifiableStatus = "confirmed" | "completed" | "cancelled";
 
+export type LayoutVariant =
+  | "menu-list"
+  | "compact-grid"
+  | "product-grid"
+  | "horizontal-card"
+  | "service-list"
+  | "visual-gallery";
+
+export interface ThemeConfig {
+  accent: string;
+  accentHover: string;
+  bgTint: string;
+  borderColor: string;
+  ctaText: string;
+  sectionLabel: string;
+  layout: LayoutVariant;
+}
+
 export interface OrderMessageData {
   customerName: string;
   orderNumber: number;
@@ -51,6 +69,63 @@ const ARCHETYPE_MAP: Record<string, IndustryArchetype> = {
   // gifting
   flowers: "gifting",
   pet: "gifting",
+};
+
+const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
+  food_prepared: {
+    accent: "#ea580c",
+    accentHover: "#c2410c",
+    bgTint: "#fff7ed",
+    borderColor: "#fed7aa",
+    ctaText: "Order Now",
+    sectionLabel: "Menu",
+    layout: "menu-list",
+  },
+  food_fresh: {
+    accent: "#15803d",
+    accentHover: "#166534",
+    bgTint: "#f0fdf4",
+    borderColor: "#bbf7d0",
+    ctaText: "Add to Basket",
+    sectionLabel: "Fresh Picks",
+    layout: "compact-grid",
+  },
+  retail: {
+    accent: "#16a34a",
+    accentHover: "#15803d",
+    bgTint: "#f0fdf4",
+    borderColor: "#bbf7d0",
+    ctaText: "Add to Cart",
+    sectionLabel: "Products",
+    layout: "product-grid",
+  },
+  beauty: {
+    accent: "#db2777",
+    accentHover: "#be185d",
+    bgTint: "#fdf2f8",
+    borderColor: "#fbcfe8",
+    ctaText: "Book Now",
+    sectionLabel: "Treatments",
+    layout: "horizontal-card",
+  },
+  services: {
+    accent: "#2563eb",
+    accentHover: "#1d4ed8",
+    bgTint: "#eff6ff",
+    borderColor: "#bfdbfe",
+    ctaText: "Request",
+    sectionLabel: "Our Services",
+    layout: "service-list",
+  },
+  gifting: {
+    accent: "#b45309",
+    accentHover: "#92400e",
+    bgTint: "#fffbeb",
+    borderColor: "#fde68a",
+    ctaText: "Send Gift",
+    sectionLabel: "Gift Collection",
+    layout: "visual-gallery",
+  },
 };
 
 const TEMPLATES: Record<
@@ -182,6 +257,13 @@ const TEMPLATES: Record<
 export function getArchetype(industry: string | null | undefined): IndustryArchetype {
   if (!industry) return "retail";
   return ARCHETYPE_MAP[industry] ?? "retail";
+}
+
+export function getThemeConfig(industry: string | null | undefined): ThemeConfig | null {
+  if (!industry) return null;
+  const archetype = ARCHETYPE_MAP[industry];
+  if (!archetype) return null;
+  return THEME_CONFIGS[archetype];
 }
 
 export function getOrderMessage(

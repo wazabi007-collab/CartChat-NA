@@ -17,12 +17,15 @@ interface ProductCardProps {
   lowStockThreshold?: number;
   allowBackorder?: boolean;
   disabled?: boolean;
+  accentColor?: string;
+  accentHover?: string;
+  ctaText?: string;
 }
 
 export function ProductCard({
   id, name, price, imageUrl, slug,
   trackInventory, stockQuantity, lowStockThreshold, allowBackorder,
-  disabled,
+  disabled, accentColor, accentHover, ctaText,
 }: ProductCardProps) {
   const { addItem } = useCart();
 
@@ -65,7 +68,7 @@ export function ProductCard({
             {name}
           </h3>
         </Link>
-        <p className="text-green-600 font-bold text-base mt-1">
+        <p className={`font-bold text-base mt-1 ${accentColor ? '' : 'text-green-600'}`} style={accentColor ? { color: accentColor } : undefined}>
           {formatPrice(price)}
         </p>
         <div className="mt-auto pt-2">
@@ -81,9 +84,12 @@ export function ProductCard({
               onClick={() =>
                 addItem({ productId: id, name, price, imageUrl })
               }
-              className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2 px-3 rounded-md transition-colors"
+              className={`w-full text-white text-sm font-medium py-2 px-3 rounded-md transition-colors ${accentColor ? '' : 'bg-green-600 hover:bg-green-700'}`}
+              style={accentColor ? { backgroundColor: accentColor } : undefined}
+              onMouseEnter={accentHover ? (e) => { e.currentTarget.style.backgroundColor = accentHover; } : undefined}
+              onMouseLeave={accentColor ? (e) => { e.currentTarget.style.backgroundColor = accentColor; } : undefined}
             >
-              Add to Cart
+              {ctaText ?? "Add to Cart"}
             </button>
           )}
         </div>

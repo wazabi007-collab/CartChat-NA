@@ -5,7 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 import { whatsappLink } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
+import { getThemeConfig } from "@/lib/industry";
 import { ProductCard } from "@/components/storefront/product-card";
+import { ProductSection } from "@/components/storefront/product-section";
 import { TrackView } from "@/components/storefront/track-view";
 import { ReportButton } from "@/components/storefront/report-button";
 
@@ -65,6 +67,7 @@ export default async function StorefrontPage({ params }: Props) {
   const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
   const isSoftSuspended = subscription?.status === "soft_suspended";
   const hasBranding = showBranding(tier);
+  const theme = getThemeConfig(merchant.industry);
 
   // Fetch categories
   const { data: categories } = await supabase
@@ -107,10 +110,13 @@ export default async function StorefrontPage({ params }: Props) {
 
   const uncategorized = categoryMap.get(null);
   if (uncategorized && uncategorized.length > 0) {
-    sections.push({
-      name: sections.length > 0 ? "Other" : "Products",
-      products: uncategorized,
-    });
+    let fallbackName: string;
+    if (sections.length > 0) {
+      fallbackName = "Other";
+    } else {
+      fallbackName = theme?.sectionLabel ?? "Products";
+    }
+    sections.push({ name: fallbackName, products: uncategorized });
   }
 
   const waLink = whatsappLink(
@@ -173,11 +179,27 @@ export default async function StorefrontPage({ params }: Props) {
       )}
 
       {/* Products */}
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      <main
+        className="max-w-4xl mx-auto px-4 py-6"
+        style={theme ? { backgroundColor: theme.bgTint } : undefined}
+      >
         {allProducts.length === 0 ? (
           <p className="text-center text-gray-500 py-12">
             No products available yet. Check back soon!
           </p>
+        ) : theme ? (
+          <div className="space-y-8">
+            {sections.map((section) => (
+              <ProductSection
+                key={section.name}
+                sectionName={section.name}
+                products={section.products}
+                theme={theme}
+                slug={slug}
+                disabled={isSoftSuspended}
+              />
+            ))}
+          </div>
         ) : (
           <div className="space-y-8">
             {sections.map((section) => (
@@ -195,8 +217,8 @@ export default async function StorefrontPage({ params }: Props) {
                       imageUrl={product.images?.[0] ?? null}
                       slug={slug}
                       trackInventory={product.track_inventory}
-                      stockQuantity={product.stock_quantity}
-                      lowStockThreshold={product.low_stock_threshold}
+                      stockQuantity={product.stock_quantity ?? undefined}
+                      lowStockThreshold={product.low_stock_threshold ?? undefined}
                       allowBackorder={product.allow_backorder}
                       disabled={isSoftSuspended}
                     />

@@ -6,6 +6,16 @@ import { TIER_LABELS, STATUS_LABELS, formatTierPrice, type SubscriptionTier, typ
 
 const TABS = ["Overview", "Subscription", "Performance", "Products", "Orders", "Activity"] as const;
 
+function fmtDate(d: string) {
+  const date = new Date(d);
+  return `${date.getUTCDate().toString().padStart(2, "0")}/${(date.getUTCMonth() + 1).toString().padStart(2, "0")}/${date.getUTCFullYear()}`;
+}
+
+function fmtDateTime(d: string) {
+  const date = new Date(d);
+  return `${fmtDate(d)} ${date.getUTCHours().toString().padStart(2, "0")}:${date.getUTCMinutes().toString().padStart(2, "0")}`;
+}
+
 interface MerchantTabsProps {
   merchant: Record<string, unknown>;
   subscription: Record<string, unknown> | null;
@@ -59,7 +69,7 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
             <InfoRow label="WhatsApp" value={merchant.whatsapp_number as string || "—"} />
             <InfoRow label="Bank" value={merchant.bank_name as string || "—"} />
             <InfoRow label="Account" value={merchant.bank_account as string || "—"} />
-            <InfoRow label="Joined" value={new Date(merchant.created_at as string).toLocaleDateString()} />
+            <InfoRow label="Joined" value={fmtDate(merchant.created_at as string)} />
           </InfoCard>
           <InfoCard title="Quick Stats">
             <InfoRow label="Products" value={products.length.toString()} />
@@ -78,13 +88,13 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
               <InfoRow label="Price" value={formatTierPrice(subscription.tier as SubscriptionTier)} />
               <InfoRow label="Status" value={STATUS_LABELS[subscription.status as SubscriptionStatus]?.label || (subscription.status as string)} />
               {subscription.trial_ends_at ? (
-                <InfoRow label="Trial Ends" value={new Date(subscription.trial_ends_at as string).toLocaleDateString()} />
+                <InfoRow label="Trial Ends" value={fmtDate(subscription.trial_ends_at as string)} />
               ) : null}
               {subscription.current_period_end ? (
-                <InfoRow label="Period Ends" value={new Date(subscription.current_period_end as string).toLocaleDateString()} />
+                <InfoRow label="Period Ends" value={fmtDate(subscription.current_period_end as string)} />
               ) : null}
               {subscription.grace_ends_at ? (
-                <InfoRow label="Grace Ends" value={new Date(subscription.grace_ends_at as string).toLocaleDateString()} />
+                <InfoRow label="Grace Ends" value={fmtDate(subscription.grace_ends_at as string)} />
               ) : null}
             </InfoCard>
           ) : (
@@ -224,7 +234,7 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
                       <span className="text-gray-500 ml-2">{p.payment_method as string}</span>
                       {p.reference ? <span className="text-gray-400 ml-2">ref: {String(p.reference)}</span> : null}
                     </div>
-                    <span className="text-xs text-gray-400">{new Date(p.created_at as string).toLocaleDateString()}</span>
+                    <span className="text-xs text-gray-400">{fmtDate(p.created_at as string)}</span>
                   </div>
                 ))}
               </div>
@@ -297,7 +307,7 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
                   <td className="px-4 py-3">
                     <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100">{o.status as string}</span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">{new Date(o.created_at as string).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-xs text-gray-500">{fmtDate(o.created_at as string)}</td>
                 </tr>
               ))}
               {orders.length === 0 && (
@@ -328,7 +338,7 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
                       </pre>
                     ) : null}
                     <p className="text-xs text-gray-400 mt-1">
-                      {new Date(a.created_at as string).toLocaleString()}
+                      {fmtDateTime(a.created_at as string)}
                     </p>
                   </li>
                 );

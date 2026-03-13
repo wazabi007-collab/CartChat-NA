@@ -56,6 +56,10 @@ OshiCart Website look.png
 # playwright
 /playwright-report/
 /test-results/
+.playwright-mcp/
+
+# claude tools
+.superpowers/
 
 # unoptimized source images (keep WebP only)
 public/*.png

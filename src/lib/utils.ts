@@ -53,20 +53,3 @@ export function cn(...classes: (string | undefined | null | false)[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
-/**
- * Free tier limits
- */
-export const TIER_LIMITS = {
-  free: {
-    maxProducts: 20,
-    maxOrdersPerMonth: 20,
-  },
-  pro: {
-    maxProducts: 150,
-    maxOrdersPerMonth: 300,
-  },
-  business: {
-    maxProducts: Infinity,
-    maxOrdersPerMonth: Infinity,
-  },
-} as const;

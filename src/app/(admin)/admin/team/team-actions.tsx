@@ -152,7 +152,7 @@ export function TeamActions({ admins }: { admins: Admin[] }) {
                   </select>
                 </td>
                 <td className="px-4 py-3 text-xs text-gray-500">
-                  {new Date(admin.created_at).toLocaleDateString()}
+                  {(() => { const d = new Date(admin.created_at); return `${d.getUTCDate().toString().padStart(2, "0")}/${(d.getUTCMonth() + 1).toString().padStart(2, "0")}/${d.getUTCFullYear()}`; })()}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <button

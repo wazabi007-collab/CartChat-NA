@@ -181,21 +181,25 @@ export default async function DashboardPage() {
           icon={<Package size={20} className="text-blue-600" />}
           label="Products"
           value={productCount.toString()}
+          href="/dashboard/products"
         />
         <StatCard
           icon={<ShoppingCart size={20} className="text-orange-600" />}
           label="Pending Orders"
           value={pendingOrders.toString()}
+          href="/dashboard/orders"
         />
         <StatCard
           icon={<Eye size={20} className="text-purple-600" />}
           label="Completed"
           value={completedOrders.toString()}
+          href="/dashboard/orders"
         />
         <StatCard
           icon={<span className="text-green-600 font-bold text-lg">N$</span>}
           label="Revenue"
           value={formatPrice(totalRevenue)}
+          href="/dashboard/analytics"
         />
       </div>
 
@@ -267,13 +271,15 @@ function StatCard({
   icon,
   label,
   value,
+  href,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
+  href?: string;
 }) {
-  return (
-    <div className="bg-white rounded-lg border p-4">
+  const content = (
+    <div className={`bg-white rounded-lg border p-4 ${href ? "hover:shadow-sm hover:border-gray-300 transition-all cursor-pointer" : ""}`}>
       <div className="flex items-center gap-2 mb-2">
         {icon}
         <span className="text-xs text-gray-500">{label}</span>
@@ -281,6 +287,8 @@ function StatCard({
       <p className="text-2xl font-bold text-gray-900">{value}</p>
     </div>
   );
+  if (href) return <Link href={href}>{content}</Link>;
+  return content;
 }
 
 function QuickAction({

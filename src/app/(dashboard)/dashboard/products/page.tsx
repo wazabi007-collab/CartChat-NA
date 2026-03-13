@@ -86,35 +86,39 @@ export default async function ProductsPage() {
                 key={product.id}
                 className="bg-white rounded-lg border overflow-hidden hover:shadow-sm transition-shadow"
               >
-                <div className="aspect-square relative bg-gray-100">
-                  {product.images && product.images.length > 0 ? (
-                    <Image
-                      src={product.images[0]}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Package size={48} className="text-gray-300" />
-                    </div>
-                  )}
-                  <span
-                    className={cn(
-                      "absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium",
-                      product.is_available
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-500"
+                <Link href={`/dashboard/products/${product.id}/edit`} className="block">
+                  <div className="aspect-square relative bg-gray-100">
+                    {product.images && product.images.length > 0 ? (
+                      <Image
+                        src={product.images[0]}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package size={48} className="text-gray-300" />
+                      </div>
                     )}
-                  >
-                    {product.is_available ? "Available" : "Unavailable"}
-                  </span>
-                </div>
+                    <span
+                      className={cn(
+                        "absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium",
+                        product.is_available
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-gray-500"
+                      )}
+                    >
+                      {product.is_available ? "Available" : "Unavailable"}
+                    </span>
+                  </div>
+                </Link>
                 <div className="p-3">
-                  <h3 className="font-medium text-gray-900 truncate">
-                    {product.name}
-                  </h3>
+                  <Link href={`/dashboard/products/${product.id}/edit`}>
+                    <h3 className="font-medium text-gray-900 truncate hover:text-green-600 transition-colors">
+                      {product.name}
+                    </h3>
+                  </Link>
                   {category && (
                     <p className="text-xs text-gray-400 mt-0.5">
                       {category.name}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { TIER_LABELS, STATUS_LABELS, formatTierPrice, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
 
 const TABS = ["Overview", "Subscription", "Performance", "Products", "Orders", "Activity"] as const;
@@ -272,8 +273,16 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
             </thead>
             <tbody className="divide-y">
               {products.map((p) => (
-                <tr key={p.id as string}>
-                  <td className="px-4 py-3">{p.name as string}</td>
+                <tr key={p.id as string} className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/s/${merchant.store_slug}/${p.id}`}
+                      target="_blank"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {p.name as string}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-right">N${((p.price_nad as number) / 100).toFixed(2)}</td>
                   <td className="px-4 py-3 text-right">{p.track_inventory ? (p.stock_quantity as number) : "—"}</td>
                 </tr>

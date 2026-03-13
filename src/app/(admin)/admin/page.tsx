@@ -78,34 +78,40 @@ export default async function AdminOverviewPage() {
           label="MRR"
           value={`N$${(mrr / 100).toLocaleString()}`}
           icon={DollarSign}
+          href="/admin/billing"
         />
         <StatCard
           label="Active Merchants"
           value={activeMerchants}
           icon={Users}
+          href="/admin/merchants"
         />
         <StatCard
           label="New This Week"
           value={newSignupsResult.count || 0}
           icon={UserPlus}
+          href="/admin/merchants"
         />
         <StatCard
           label="Pending Approval"
           value={pendingResult.count || 0}
           icon={Clock}
           highlight={(pendingResult.count || 0) > 0}
+          href="/admin/merchants?status=pending"
         />
         <StatCard
           label="Overdue"
           value={overdueResult.count || 0}
           icon={AlertTriangle}
           highlight={(overdueResult.count || 0) > 0}
+          href="/admin/billing"
         />
         <StatCard
           label="Open Reports"
           value={reportsResult.count || 0}
           icon={Flag}
           highlight={(reportsResult.count || 0) > 0}
+          href="/admin/reports"
         />
       </div>
 

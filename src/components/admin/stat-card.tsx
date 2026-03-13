@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { type LucideIcon } from "lucide-react";
 
 interface StatCardProps {
@@ -6,11 +7,12 @@ interface StatCardProps {
   icon: LucideIcon;
   trend?: { value: string; positive: boolean };
   highlight?: boolean;
+  href?: string;
 }
 
-export function StatCard({ label, value, icon: Icon, trend, highlight }: StatCardProps) {
-  return (
-    <div className={`bg-white rounded-lg border p-6 ${highlight ? "ring-2 ring-orange-400" : ""}`}>
+export function StatCard({ label, value, icon: Icon, trend, highlight, href }: StatCardProps) {
+  const content = (
+    <div className={`bg-white rounded-lg border p-6 ${highlight ? "ring-2 ring-orange-400" : ""} ${href ? "hover:shadow-sm hover:border-gray-300 transition-all cursor-pointer" : ""}`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-500">{label}</p>
@@ -27,4 +29,6 @@ export function StatCard({ label, value, icon: Icon, trend, highlight }: StatCar
       </div>
     </div>
   );
+  if (href) return <Link href={href}>{content}</Link>;
+  return content;
 }

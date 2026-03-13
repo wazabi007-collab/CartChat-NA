@@ -44,6 +44,8 @@ export default function SettingsPage() {
     momo_number: "",
     ewallet_number: "",
     ewallet_provider: "",
+    vat_number: "",
+    vat_inclusive: false,
   });
 
   const [deliverySlots, setDeliverySlots] = useState<DeliverySlots>({
@@ -82,6 +84,8 @@ export default function SettingsPage() {
           momo_number: merchant.momo_number || "",
           ewallet_number: merchant.ewallet_number || "",
           ewallet_provider: merchant.ewallet_provider || "",
+          vat_number: merchant.vat_number || "",
+          vat_inclusive: merchant.vat_inclusive ?? false,
         });
         if (merchant.delivery_slots) {
           setDeliverySlots(merchant.delivery_slots as DeliverySlots);
@@ -123,6 +127,8 @@ export default function SettingsPage() {
         momo_number: form.momo_number || null,
         ewallet_number: form.ewallet_number || null,
         ewallet_provider: form.ewallet_provider || null,
+        vat_number: form.vat_number || null,
+        vat_inclusive: form.vat_inclusive,
       })
       .eq("id", merchantId);
 
@@ -369,6 +375,51 @@ export default function SettingsPage() {
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
+        </div>
+
+        {/* VAT */}
+        <div className="bg-white rounded-lg border p-6 space-y-4">
+          <h2 className="font-medium text-gray-900">VAT Registration</h2>
+          <p className="text-xs text-gray-400">
+            Only fill this in if your business is VAT-registered with NamRA. Namibia VAT rate is 15%.
+          </p>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              VAT Number
+            </label>
+            <input
+              type="text"
+              value={form.vat_number}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, vat_number: e.target.value }))
+              }
+              placeholder="e.g. 1234567-01-5"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          {form.vat_number && (
+            <div className="flex items-center gap-3">
+              <input
+                id="vat_inclusive"
+                type="checkbox"
+                checked={form.vat_inclusive}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, vat_inclusive: e.target.checked }))
+                }
+                className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              />
+              <label htmlFor="vat_inclusive" className="text-sm text-gray-700">
+                My product prices already include VAT (VAT-inclusive)
+              </label>
+            </div>
+          )}
+          {form.vat_number && (
+            <div className="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 text-xs text-blue-700">
+              {form.vat_inclusive
+                ? "Invoices will show VAT extracted from your prices (price ÷ 1.15). Customers pay the listed price."
+                : "Invoices will show VAT added on top of your prices (price × 1.15). Customers pay price + 15% VAT."}
+            </div>
+          )}
         </div>
 
         {/* Payment Methods */}

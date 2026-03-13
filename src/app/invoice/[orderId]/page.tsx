@@ -33,7 +33,7 @@ export default async function InvoicePage({ params }: Props) {
       delivery_method, delivery_address, delivery_date, delivery_time,
       subtotal_nad, delivery_fee_nad, discount_nad, payment_method, status, notes, created_at,
       merchants (
-        store_name, whatsapp_number, tier,
+        store_name, whatsapp_number,
         bank_name, bank_account_number, bank_account_holder, bank_branch_code,
         momo_number, ewallet_number, ewallet_provider
       ),
@@ -47,7 +47,6 @@ export default async function InvoicePage({ params }: Props) {
   const merchant = order.merchants as unknown as {
     store_name: string;
     whatsapp_number: string;
-    tier: string;
     bank_name: string | null;
     bank_account_number: string | null;
     bank_account_holder: string | null;
@@ -59,18 +58,7 @@ export default async function InvoicePage({ params }: Props) {
 
   const coupon = order.coupons as unknown as { code: string } | null;
 
-  if (!merchant || (merchant.tier === "free")) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="bg-white rounded-lg border p-8 max-w-sm text-center">
-          <p className="text-lg font-bold text-gray-900">Invoices require Pro or Business</p>
-          <p className="text-sm text-gray-500 mt-2">
-            This store needs to upgrade their plan to share invoices.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  if (!merchant) notFound();
 
   const { data: items } = await supabase
     .from("order_items")

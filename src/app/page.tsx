@@ -337,7 +337,7 @@ function PricingSection() {
         <p className="text-gray-500 text-center mb-12 max-w-xl mx-auto">
           Start free for 30 days. Upgrade when you&apos;re ready to grow.
         </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-4 items-start">
           <PricingCard
             name="Oshi-Start"
             price="N$0"
@@ -426,42 +426,49 @@ function PricingCard({
   badge?: string;
 }) {
   return (
-    <Link
-      href={href}
-      className={`rounded-lg border p-6 flex flex-col transition-all hover:shadow-md ${
+    <div
+      className={`rounded-2xl border flex flex-col overflow-hidden transition-all hover:shadow-lg ${
         highlighted
-          ? "border-green-600 ring-2 ring-green-600 bg-white relative"
+          ? "border-green-600 ring-2 ring-green-600 bg-white relative scale-[1.02]"
           : "bg-white hover:border-gray-300"
       }`}
     >
       {badge && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xs font-semibold px-3 py-0.5 rounded-full">
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-sm whitespace-nowrap z-10">
           {badge}
         </span>
       )}
-      <h4 className="font-medium text-gray-900">{name}</h4>
-      <div className="mt-2">
-        <span className="text-3xl font-bold text-gray-900">{price}</span>
-        <span className="text-gray-500 text-sm">{period}</span>
+
+      <div className={`px-6 pt-7 pb-5 ${highlighted ? "bg-green-50/50" : ""}`}>
+        <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{name}</h4>
+        <div className="mt-3 flex items-baseline gap-1">
+          <span className="text-4xl font-extrabold text-gray-900 tracking-tight">{price}</span>
+          <span className="text-gray-400 text-sm font-medium">{period}</span>
+        </div>
       </div>
-      <ul className="mt-4 space-y-2">
-        {features.map((f) => (
-          <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-            <Check size={16} className="text-green-600 flex-shrink-0" />
-            {f}
-          </li>
-        ))}
-      </ul>
-      <span
-        className={`block text-center mt-auto pt-6 py-2 rounded-md text-sm font-medium ${
-          highlighted
-            ? "bg-green-600 text-white"
-            : "border border-gray-300 text-gray-700"
-        }`}
-      >
-        {cta}
-      </span>
-    </Link>
+
+      <div className="px-6 pb-6 flex-1 flex flex-col">
+        <ul className="space-y-3 flex-1">
+          {features.map((f) => (
+            <li key={f} className="flex items-start gap-2.5 text-sm text-gray-600 leading-snug">
+              <Check size={16} className="text-green-600 flex-shrink-0 mt-0.5" />
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+
+        <Link
+          href={href}
+          className={`block text-center mt-6 py-3 rounded-xl text-sm font-semibold transition-all ${
+            highlighted
+              ? "bg-green-600 text-white hover:bg-green-700 shadow-md shadow-green-600/20"
+              : "bg-gray-900 text-white hover:bg-gray-800"
+          }`}
+        >
+          {cta}
+        </Link>
+      </div>
+    </div>
   );
 }
 

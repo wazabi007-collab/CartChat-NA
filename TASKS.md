@@ -50,6 +50,36 @@
 
 ---
 
+## SYNC — SMD Technologies Product Sync (2026-03-14) — DEPLOYED
+- [x] **SYNC-01** SMD API integration (products, media, prices, stock endpoints)
+- [x] **SYNC-02** Paginated fetch of all SMD data (4+4+4+14 pages)
+- [x] **SYNC-03** Price markup engine (46% < N$500, 36% >= N$500)
+- [x] **SYNC-04** Image download + Sharp compression to WebP
+- [x] **SYNC-05** Category auto-creation from SMD Category field
+- [x] **SYNC-06** Category image auto-assignment
+- [x] **SYNC-07** SKU-based upsert (create/update)
+- [x] **SYNC-08** Full sync: 3,043 products, 22 categories, 0 errors
+- [x] **SYNC-09** Sync API endpoint (POST /api/sync/smd)
+- [x] **SYNC-10** Sync script (scripts/smd-sync.js)
+
+---
+
+## STORE — Storefront Improvements (2026-03-14) — DEPLOYED
+- [x] **STORE-01** Category folder view (grid of category cards with images)
+- [x] **STORE-02** Category browsing with breadcrumb navigation
+- [x] **STORE-03** Pagination (100 products per page)
+- [x] **STORE-04** Product search on storefront (name/description)
+- [x] **STORE-05** Product sort on storefront (name, price)
+- [x] **STORE-06** Product search on dashboard (name, SKU, category)
+- [x] **STORE-07** Product sort on dashboard (name, price, stock, newest)
+- [x] **STORE-08** Marketplace category filters (/stores)
+- [x] **STORE-09** Soft delete products (deleted_at, billing-aware)
+- [x] **STORE-10** Bulk delete with select mode
+- [x] **STORE-11** Vercel Speed Insights
+- [x] **STORE-12** Vercel Analytics
+
+---
+
 ## BILLING — Subscription Checkout + VAT + Invoices (2026-03-13) — DEPLOYED
 - [x] **BILL-01** Subscription checkout page (/pricing/checkout?tier=)
 - [x] **BILL-02** Nedbank payment details hardcoded (Octovia Nexus Investment CC)

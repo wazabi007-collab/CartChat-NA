@@ -1,5 +1,62 @@
 # Changelog
 
+## 2026-03-14 (Session 15) — SMD Sync, Category Folders, Search/Sort, Analytics
+
+### SMD Technologies Product Sync
+- Full sync: 3,033 products created, 10 updated, 3,033 images compressed
+- 22 categories auto-created from SMD data
+- Category images auto-assigned from top product per category
+- Pricing markup: 46% under N$500, 36% above N$500
+- Stock levels synced (SOH), track_inventory enabled
+- SKU column added to products table
+- Sync script: `scripts/smd-sync.js`
+- API endpoint: `POST /api/sync/smd` (admin-only, supports dry_run, skip_images, max)
+- `api-auth.ts` helper for future API key auth
+
+### Category Folder View on Storefront
+- Stores with 3+ categories / 20+ products show category card grid
+- Cards: image, name, product count with hover effects
+- Click -> filtered view with breadcrumb ("All Categories / Audio")
+- Empty category fallback with link back
+- Pagination preserves category filter
+
+### Storefront Pagination
+- 100 products per page, server-side with Supabase range()
+- Previous/Next + numbered page links (smart 7-page window)
+- Theme accent color on active page
+- Total product count
+
+### Product Search + Sort
+- Dashboard: search by name/SKU/category + sort by name/price/stock/newest
+- Storefront: search by name/description + sort by name/price
+- Instant client-side filtering
+
+### Marketplace Category Filters (/stores)
+- 10 industry categories as filter pills
+- 28 industries mapped to display categories
+- Store cards show industry label
+- Filters preserve search query
+
+### Soft Delete + Bulk Delete
+- Products soft-deleted (deleted_at) instead of hard-deleted
+- Deleted products still count toward tier product limit
+- Select mode with checkbox overlay + Select All + bulk delete
+- Confirmation warns about billing impact
+
+### Vercel Speed Insights + Analytics
+- @vercel/speed-insights: Core Web Vitals (LCP, FID, CLS, TTFB, INP)
+- @vercel/analytics: page views, visitors, referrers, countries, devices
+
+### Database Schema Changes
+- `products.sku` — TEXT, indexed
+- `products.deleted_at` — TIMESTAMPTZ, indexed where NULL
+- `merchants.api_key` — TEXT, unique indexed
+- `categories.image_url` — TEXT
+- `subscriptions.pending_tier` — TEXT
+- `subscriptions.payment_reference` — TEXT
+
+---
+
 ## 2026-03-13 (Session 14) — Invoices, VAT, Checkout, Logo Upload, UX Polish
 
 ### Modern Invoice Redesign

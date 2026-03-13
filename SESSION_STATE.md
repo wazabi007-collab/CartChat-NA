@@ -1,72 +1,72 @@
 # Session State — Active Working Memory
 
-## 2026-03-13 — All Features DEPLOYED
+## 2026-03-14 — SMD Sync + Category Folders + Search/Sort + Analytics
 
-### CURRENT STATUS: Admin Dashboard + Themed Storefronts + Subscription Checkout + VAT + Invoices — ALL LIVE
-
----
-
-### What Was Built & Deployed Today
-
-**Admin Dashboard** — Full admin panel at /admin
-- Merchant management, billing, analytics, team, audit log
-- Tier upgrade + status change actions with WhatsApp notify buttons
-- Pending upgrade visibility (amber badges + payment references)
-
-**Subscription Tier System** — 4-tier (Oshi-Start/Basic/Grow/Pro)
-- Product limits, inventory tier-gating, soft-suspend, branding control
-- Subscription lifecycle cron (trial -> grace -> suspend -> hard suspend)
-- Subscription creation on merchant signup (30-day trial)
-
-**Subscription Checkout** — /pricing/checkout?tier=...
-- Nedbank payment details (Octovia Nexus Investment CC, 11991049349, 461-089)
-- Auto-generated payment reference saved to subscription
-- WhatsApp CTA to send proof of payment
-- Seamless signup flow: pricing card -> signup -> setup -> checkout
-
-**Industry-Themed Storefronts** — 6 layout variants
-- menu-list (Food Prepared, orange), compact-grid (Food Fresh, green)
-- product-grid (Retail, green), horizontal-card (Beauty, slate)
-- service-list (Services, blue), visual-gallery (Gifting, gold)
-
-**WhatsApp Industry Templates** — Per-archetype order messages (confirmed/completed/cancelled)
-
-**Modern Invoice** — /invoice/[orderId]
-- Dark gradient header with store logo, status badges, payment reference
-- VAT support (15% inclusive or exclusive)
-- Print-optimized flat layout for mobile PDF save
-- Client-side PrintButton component
-
-**VAT Support** — Settings > VAT Registration
-- Optional VAT number + inclusive/exclusive toggle
-- Invoice shows VAT breakdown when merchant has VAT number
-
-**Store Logo Upload** — Settings > Store Details
-- Upload/change/remove logo, compressed via Sharp
-- Shows on storefront, invoices, store directory
-
-**UX Improvements**
-- Dashboard stat cards clickable -> Products, Orders, Analytics
-- Product cards clickable -> edit page
-- Admin stat cards clickable -> relevant pages
-- OshiCart logo in nav links back to dashboard
-- "See current stores on OshiCart" button on homepage hero
-- Pricing cards: modern design, Oshi-Basic highlighted with "Most Popular" badge
-- Admin WhatsApp buttons: Payment Received, Upgrade Confirmed, Reminder, Expiring
+### CURRENT STATUS: Full Platform Live — 3,043 products synced
 
 ---
 
-### Post-Deploy Fixes Applied
-- Middleware admin auth (DB check, not just env var)
-- Merchants page column name (slug -> store_slug)
-- Orders page + invoice page: removed dropped merchants.tier column
-- Invoice: extracted print button to client component (SSR fix)
-- Signup/setup: Suspense boundary for useSearchParams
-- Pricing cards: signup flow routing for logged-in users
-- Most Popular badge clipping fix
+### What Was Built & Deployed (2026-03-14)
+
+**SMD Technologies Product Sync**
+- Full sync: 3,033 created + 10 updated = 3,043 products
+- 3,033 images downloaded, compressed via Sharp, uploaded to Supabase Storage
+- 22 categories auto-created from SMD Category field
+- Category images auto-assigned from first product in each category
+- Pricing: 46% markup under N$500, 36% markup N$500+
+- Stock levels synced from SOH field
+- SKU column added to products table for matching
+- Sync script: `scripts/smd-sync.js`
+- API endpoint: `POST /api/sync/smd` (admin-only)
+
+**Category Folder View on Storefront**
+- Stores with 3+ categories and 20+ products show category grid
+- Cards with image, name, product count
+- Click category -> filtered products with breadcrumb navigation
+- Pagination preserves category filter
+
+**Storefront Pagination**
+- 100 products per page
+- Previous/Next + numbered page links
+- Theme accent color on active page
+- Total product count display
+
+**Product Search + Sort**
+- Dashboard: search by name/SKU/category + sort (name, price, stock, newest)
+- Storefront: search by name/description + sort (name, price)
+- Client-side instant filtering
+
+**Marketplace Category Filters**
+- 10 industry categories as filter pills on /stores
+- Stores show industry label on cards
+- Filter preserves search query
+
+**Soft Delete + Bulk Delete Products**
+- Products soft-deleted (deleted_at timestamp) instead of hard-deleted
+- Deleted products still count toward tier product limit for billing
+- Select mode with Select All + bulk delete
+
+**Vercel Speed Insights + Analytics**
+- Core Web Vitals tracking (LCP, FID, CLS, TTFB, INP)
+- Page views, visitors, referrers, countries, devices
+
+---
+
+### What Was Built (2026-03-13)
+- Admin Dashboard (full panel with merchants, billing, analytics, team, audit)
+- 4-tier subscription system (Oshi-Start/Basic/Grow/Pro)
+- Industry-themed storefronts (6 layouts)
+- Modern invoices with VAT support
+- Subscription checkout with Nedbank payment details
+- Store logo upload
+- Signup-to-checkout flow for paid plans
+- Admin WhatsApp notify buttons
+- Pricing cards redesign
+- Various post-deploy fixes
 
 ### Pending Manual Steps
-- Add `CRON_SECRET` env var in Vercel Dashboard (value: c9f94e874701a3e9beda02390fda2725)
+- Add `CRON_SECRET` in Vercel Dashboard (value: c9f94e874701a3e9beda02390fda2725)
+- Add `SMD_BEARER_TOKEN` + `SMD_CLIENT_ACCESS_KEY` in Vercel for automated re-sync
 
 ### Current Infrastructure
 - **Domain**: oshicart.com — LIVE on Vercel

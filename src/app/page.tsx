@@ -99,6 +99,13 @@ function HeroSection() {
               <ArrowRight size={18} />
             </Link>
             <VideoModalButton />
+            <Link
+              href="/stores"
+              className="inline-flex items-center justify-center gap-2 px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium text-sm transition-all"
+            >
+              <ShoppingCart size={16} />
+              See current stores on OshiCart
+            </Link>
           </div>
         </div>
       </div>
@@ -125,15 +132,24 @@ function HeroSection() {
                 Create your digital catalog, accept local payments, and manage
                 orders effortlessly via WhatsApp.
               </p>
-              <div className="mt-6 flex flex-row gap-3">
+              <div className="mt-6 flex flex-col gap-3">
+                <div className="flex flex-row gap-3">
+                  <Link
+                    href="/signup"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-base shadow-lg shadow-green-600/25 transition-all hover:shadow-xl hover:shadow-green-600/30"
+                  >
+                    Start Your Free Trial
+                    <ArrowRight size={18} />
+                  </Link>
+                  <VideoModalButton />
+                </div>
                 <Link
-                  href="/signup"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-base shadow-lg shadow-green-600/25 transition-all hover:shadow-xl hover:shadow-green-600/30"
+                  href="/stores"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
                 >
-                  Start Your Free Trial
-                  <ArrowRight size={18} />
+                  <ShoppingCart size={16} />
+                  See current stores on OshiCart
                 </Link>
-                <VideoModalButton />
               </div>
             </div>
           </div>

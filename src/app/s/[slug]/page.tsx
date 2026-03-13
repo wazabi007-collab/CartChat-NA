@@ -10,8 +10,11 @@ import { TrackView } from "@/components/storefront/track-view";
 import { ReportButton } from "@/components/storefront/report-button";
 import { StorefrontProducts } from "@/components/storefront/storefront-products";
 
+const PRODUCTS_PER_PAGE = 100;
+
 interface Props {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -41,8 +44,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function StorefrontPage({ params }: Props) {
+export default async function StorefrontPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const { page: pageParam } = await searchParams;
+  const currentPage = Math.max(1, parseInt(pageParam || "1") || 1);
   const supabase = await createClient();
 
   // Fetch merchant
@@ -75,14 +80,27 @@ export default async function StorefrontPage({ params }: Props) {
     .eq("merchant_id", merchant.id)
     .order("sort_order", { ascending: true });
 
-  // Fetch available products
+  // Get total product count
+  const { count: totalProducts } = await supabase
+    .from("products")
+    .select("id", { count: "exact", head: true })
+    .eq("merchant_id", merchant.id)
+    .eq("is_available", true)
+    .is("deleted_at", null);
+
+  const totalCount = totalProducts || 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PRODUCTS_PER_PAGE));
+  const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
+
+  // Fetch available products (paginated)
   const { data: products } = await supabase
     .from("products")
     .select("*")
     .eq("merchant_id", merchant.id)
     .eq("is_available", true)
     .is("deleted_at", null)
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    .range(offset, offset + PRODUCTS_PER_PAGE - 1);
 
   // Group products by category
   const categoryMap = new Map<string | null, typeof products>();
@@ -188,6 +206,7 @@ export default async function StorefrontPage({ params }: Props) {
             No products available yet. Check back soon!
           </p>
         ) : (
+          <>
           <StorefrontProducts
             sections={sections}
             allProducts={allProducts}
@@ -195,6 +214,58 @@ export default async function StorefrontPage({ params }: Props) {
             slug={slug}
             disabled={isSoftSuspended}
           />
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8 pt-6 border-t">
+              {currentPage > 1 && (
+                <a
+                  href={`/s/${slug}?page=${currentPage - 1}`}
+                  className="px-4 py-2 text-sm border rounded-lg hover:bg-white transition-colors"
+                >
+                  Previous
+                </a>
+              )}
+              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                let pageNum: number;
+                if (totalPages <= 7) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 4) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 3) {
+                  pageNum = totalPages - 6 + i;
+                } else {
+                  pageNum = currentPage - 3 + i;
+                }
+                return (
+                  <a
+                    key={pageNum}
+                    href={`/s/${slug}?page=${pageNum}`}
+                    className={`w-10 h-10 flex items-center justify-center text-sm rounded-lg transition-colors ${
+                      pageNum === currentPage
+                        ? "bg-gray-900 text-white"
+                        : "border hover:bg-white"
+                    }`}
+                    style={pageNum === currentPage && theme ? { backgroundColor: theme.accent } : undefined}
+                  >
+                    {pageNum}
+                  </a>
+                );
+              })}
+              {currentPage < totalPages && (
+                <a
+                  href={`/s/${slug}?page=${currentPage + 1}`}
+                  className="px-4 py-2 text-sm border rounded-lg hover:bg-white transition-colors"
+                >
+                  Next
+                </a>
+              )}
+              <span className="text-xs text-gray-400 ml-2">
+                {totalCount} products
+              </span>
+            </div>
+          )}
+          </>
         )}
       </main>
 

@@ -353,7 +353,7 @@ function PricingSection() {
         <p className="text-gray-500 text-center mb-12 max-w-xl mx-auto">
           Start free for 30 days. Upgrade when you&apos;re ready to grow.
         </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-4 items-start">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-4 items-start pt-4">
           <PricingCard
             name="Oshi-Start"
             price="N$0"
@@ -443,7 +443,7 @@ function PricingCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border flex flex-col overflow-hidden transition-all hover:shadow-lg ${
+      className={`rounded-2xl border flex flex-col transition-all hover:shadow-lg ${
         highlighted
           ? "border-green-600 ring-2 ring-green-600 bg-white relative scale-[1.02]"
           : "bg-white hover:border-gray-300"

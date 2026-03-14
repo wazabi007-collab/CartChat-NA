@@ -303,8 +303,8 @@ function FeaturesSection() {
           />
           <Feature
             icon={<CreditCard size={24} />}
-            title="EFT Payment Proof"
-            description="Customers upload proof-of-payment after EFT. You see it right in your dashboard. No more chasing screenshots."
+            title="Local Payment Methods"
+            description="Accept EFT with proof-of-payment upload, PayToday, eWallet, and Cash on Delivery. All popular Namibian payment options in one place."
           />
           <Feature
             icon={<MessageCircle size={24} />}

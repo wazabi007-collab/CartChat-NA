@@ -10,12 +10,14 @@ import { getThemeConfig } from "@/lib/industry";
 import { TrackView } from "@/components/storefront/track-view";
 import { ReportButton } from "@/components/storefront/report-button";
 import { StorefrontProducts } from "@/components/storefront/storefront-products";
+import { StorefrontTabs } from "@/components/storefront/storefront-tabs";
+import { OrderTracker } from "@/components/storefront/order-tracker";
 
 const PRODUCTS_PER_PAGE = 100;
 
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string; cat?: string }>;
+  searchParams: Promise<{ page?: string; cat?: string; tab?: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -47,7 +49,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function StorefrontPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { page: pageParam, cat: categoryFilter } = await searchParams;
+  const { page: pageParam, cat: categoryFilter, tab } = await searchParams;
+  const activeTab = tab === "orders" ? "orders" : "products";
   const currentPage = Math.max(1, parseInt(pageParam || "1") || 1);
   const supabase = await createClient();
 
@@ -218,11 +221,28 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
         </div>
       )}
 
-      {/* Products */}
+      {/* Tabs */}
+      <div className="bg-white border-b">
+        <div className="max-w-4xl mx-auto px-4">
+          <StorefrontTabs slug={slug} activeTab={activeTab} />
+        </div>
+      </div>
+
+      {/* Content */}
       <main
         className="max-w-4xl mx-auto px-4 py-6"
         style={theme ? { backgroundColor: theme.bgTint } : undefined}
       >
+        {activeTab === "orders" ? (
+          <div className="max-w-lg mx-auto py-4">
+            <h2 className="text-lg font-bold text-gray-900 mb-1">Track Your Order</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Enter the WhatsApp number you used when placing your order to see its status.
+            </p>
+            <OrderTracker merchantId={merchant.id} />
+          </div>
+        ) : (
+        <>
         {/* Category breadcrumb when filtering */}
         {selectedCategory && (
           <div className="flex items-center gap-2 mb-4">
@@ -350,6 +370,8 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
             </div>
           )}
           </>
+        )}
+        </>
         )}
       </main>
 

@@ -558,8 +558,8 @@ function Footer() {
 
         <div className="mt-10 pt-6 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
           <p>&copy; {new Date().getFullYear()} OshiCart. Made in Namibia.</p>
-          <p className="text-gray-500 italic">
-            Empowering Local Commerce in Namibia
+          <p className="text-gray-500">
+            OshiCart is a product of Octovia Nexus Investments CC
           </p>
         </div>
       </div>

@@ -1,16 +1,11 @@
 import Link from "next/link";
+import { PublicNavbar } from "@/components/public-navbar";
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-white">
-      <header className="border-b">
-        <div className="max-w-3xl mx-auto px-4 py-4">
-          <Link href="/" className="text-xl font-bold text-gray-900">
-            OshiCart
-          </Link>
-        </div>
-      </header>
-      <main className="max-w-3xl mx-auto px-4 py-12">
+      <PublicNavbar />
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">
           Privacy Policy
         </h1>
@@ -22,9 +17,11 @@ export default function PrivacyPage() {
             What We Collect
           </h2>
           <p>
-            <strong>Merchants:</strong> Phone number (for authentication),
-            store name, description, bank account details (displayed to
-            customers at checkout), product information.
+            <strong>Merchants:</strong> Email address (for authentication),
+            WhatsApp number (for customer communication), store name,
+            description, payment details (bank account, mobile money, or
+            eWallet information displayed to customers at checkout), and
+            product information.
           </p>
           <p>
             <strong>Customers:</strong> Name and WhatsApp number (provided at
@@ -34,9 +31,18 @@ export default function PrivacyPage() {
             How We Use It
           </h2>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Merchant data: to operate storefronts and process orders</li>
-            <li>Customer data: to fulfill orders and enable merchant-customer communication</li>
-            <li>Analytics: aggregated, non-personal store performance metrics</li>
+            <li>
+              Merchant data: to operate storefronts and process orders
+            </li>
+            <li>
+              Customer data: to fulfill orders and enable merchant-customer
+              communication
+            </li>
+            <li>
+              Analytics: aggregated store performance metrics including page
+              views, order counts, and revenue trends to help merchants
+              understand their business
+            </li>
           </ul>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
             Data Storage

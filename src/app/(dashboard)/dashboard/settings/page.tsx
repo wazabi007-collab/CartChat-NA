@@ -44,6 +44,7 @@ export default function SettingsPage() {
     momo_number: "",
     ewallet_number: "",
     ewallet_provider: "",
+    pay2cell_number: "",
     vat_number: "",
     vat_inclusive: false,
   });
@@ -84,6 +85,7 @@ export default function SettingsPage() {
           momo_number: merchant.momo_number || "",
           ewallet_number: merchant.ewallet_number || "",
           ewallet_provider: merchant.ewallet_provider || "",
+          pay2cell_number: merchant.pay2cell_number || "",
           vat_number: merchant.vat_number || "",
           vat_inclusive: merchant.vat_inclusive ?? false,
         });
@@ -127,6 +129,7 @@ export default function SettingsPage() {
         momo_number: form.momo_number || null,
         ewallet_number: form.ewallet_number || null,
         ewallet_provider: form.ewallet_provider || null,
+        pay2cell_number: form.pay2cell_number || null,
         vat_number: form.vat_number || null,
         vat_inclusive: form.vat_inclusive,
       })
@@ -504,6 +507,24 @@ export default function SettingsPage() {
                 </p>
               </div>
             </>
+          )}
+
+          {form.accepted_payment_methods.includes("pay2cell") && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                FNB Pay2Cell Number
+              </label>
+              <input
+                type="tel"
+                value={form.pay2cell_number}
+                onChange={(e) => setForm((p) => ({ ...p, pay2cell_number: e.target.value }))}
+                placeholder="+264 81 123 4567"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Your FNB cellphone banking number. Customers will send Pay2Cell payments to this number.
+              </p>
+            </div>
           )}
         </div>
 

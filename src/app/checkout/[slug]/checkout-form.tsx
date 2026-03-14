@@ -40,6 +40,7 @@ interface Props {
   momoNumber: string | null;
   ewalletNumber: string | null;
   ewalletProvider: string | null;
+  pay2cellNumber: string | null;
 }
 
 interface CouponApplied {
@@ -103,6 +104,7 @@ export function CheckoutForm({
   momoNumber,
   ewalletNumber,
   ewalletProvider,
+  pay2cellNumber,
 }: Props) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState("");
@@ -825,6 +827,26 @@ export function CheckoutForm({
               </>
             ) : (
               <p>Contact the merchant for their eWallet number.</p>
+            )}
+          </div>
+        )}
+
+        {paymentMethod === "pay2cell" && (
+          <div className="bg-teal-50 rounded-md p-3 text-sm text-teal-800 space-y-1">
+            <p className="font-medium">FNB Pay2Cell Payment</p>
+            {pay2cellNumber ? (
+              <>
+                <p>
+                  Send <span className="font-bold">{formatPrice(total)}</span> via Pay2Cell to:
+                </p>
+                <p className="font-bold text-lg">{pay2cellNumber}</p>
+                <p className="text-xs mt-1">
+                  Open your FNB App → Payments → Pay2Cell, or dial *140*321# and select Pay2Cell.
+                  Upload proof of payment below after sending.
+                </p>
+              </>
+            ) : (
+              <p>Contact the merchant for their FNB Pay2Cell number.</p>
             )}
           </div>
         )}

@@ -25,6 +25,7 @@ export const PAYMENT_METHODS = [
   { value: "cod", label: "Cash on Delivery", icon: "💵" },
   { value: "momo", label: "MTC MoMo / Maris", icon: "📱" },
   { value: "ewallet", label: "eWallet", icon: "📲" },
+  { value: "pay2cell", label: "FNB Pay2Cell", icon: "💳" },
 ] as const;
 
 export const EWALLET_PROVIDERS = [

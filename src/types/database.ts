@@ -108,6 +108,7 @@ export interface Database {
           id: string;
           merchant_id: string;
           category_id: string | null;
+          item_type: string;
           name: string;
           description: string | null;
           price_nad: number;
@@ -121,6 +122,7 @@ export interface Database {
           id?: string;
           merchant_id: string;
           category_id?: string | null;
+          item_type?: string;
           name: string;
           description?: string | null;
           price_nad: number;
@@ -134,6 +136,7 @@ export interface Database {
           id?: string;
           merchant_id?: string;
           category_id?: string | null;
+          item_type?: string;
           name?: string;
           description?: string | null;
           price_nad?: number;

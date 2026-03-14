@@ -349,7 +349,7 @@ function PricingSection() {
               "EFT proof upload",
               "OshiCart branding",
             ]}
-            cta="Vat-en-Sit Your Shop"
+            cta="Secure the Zula"
             href="/signup"
             highlighted={false}
           />
@@ -364,7 +364,7 @@ function PricingSection() {
               "Sales analytics",
               "Everything in Start",
             ]}
-            cta="Secure the Zula"
+            cta="Order with Me"
             href="/signup?tier=oshi_basic"
             highlighted={true}
             badge="Most Popular"

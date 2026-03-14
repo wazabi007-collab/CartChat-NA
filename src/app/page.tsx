@@ -46,7 +46,7 @@ function HeroSection() {
         <div className="px-5 pb-8 -mt-12 relative z-10">
           <h1 className="text-3xl font-extrabold text-gray-900 leading-tight">
             Your Namibian Business,{" "}
-            <span className="text-green-600">Online in 5 Minutes.</span>
+            <span className="text-[#4A9B3E]">Online in 5 Minutes.</span>
           </h1>
           <p className="mt-3 text-base text-gray-700 leading-relaxed">
             Create your digital catalog, accept local payments, and manage
@@ -55,7 +55,7 @@ function HeroSection() {
           <div className="mt-5 flex flex-col gap-3">
             <Link
               href="/signup"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-sm shadow-lg shadow-green-600/25 transition-all"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#2B5EA7] text-white rounded-lg hover:bg-[#234B86] font-semibold text-sm shadow-lg shadow-[#2B5EA7]/25 transition-all"
             >
               Start Your Free Trial
               <ArrowRight size={18} />
@@ -88,7 +88,7 @@ function HeroSection() {
             <div className="max-w-lg">
               <h1 className="text-5xl lg:text-[3.25rem] font-extrabold text-gray-900 leading-tight">
                 Your Namibian Business,{" "}
-                <span className="text-green-600">Online in 5 Minutes.</span>
+                <span className="text-[#4A9B3E]">Online in 5 Minutes.</span>
               </h1>
               <p className="mt-4 text-lg text-gray-700 leading-relaxed">
                 Create your digital catalog, accept local payments, and manage
@@ -98,7 +98,7 @@ function HeroSection() {
                 <div className="flex flex-row gap-3">
                   <Link
                     href="/signup"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-base shadow-lg shadow-green-600/25 transition-all hover:shadow-xl hover:shadow-green-600/30"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#2B5EA7] text-white rounded-lg hover:bg-[#234B86] font-semibold text-base shadow-lg shadow-[#2B5EA7]/25 transition-all hover:shadow-xl hover:shadow-[#2B5EA7]/30"
                   >
                     Start Your Free Trial
                     <ArrowRight size={18} />
@@ -295,7 +295,7 @@ function Feature({
 }) {
   return (
     <div className="flex gap-4 p-4">
-      <div className="flex-shrink-0 text-green-600">{icon}</div>
+      <div className="flex-shrink-0 text-[#2B5EA7]">{icon}</div>
       <div>
         <h4 className="font-medium text-gray-900">{title}</h4>
         <p className="text-sm text-gray-500 mt-1">{description}</p>
@@ -408,17 +408,17 @@ function PricingCard({
     <div
       className={`rounded-2xl border flex flex-col transition-all hover:shadow-lg ${
         highlighted
-          ? "border-green-600 ring-2 ring-green-600 bg-white relative scale-[1.02]"
+          ? "border-[#2B5EA7] ring-2 ring-[#2B5EA7] bg-white relative scale-[1.02]"
           : "bg-white hover:border-gray-300"
       }`}
     >
       {badge && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-600 text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-sm whitespace-nowrap z-10">
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#2B5EA7] text-white text-[11px] font-bold px-4 py-1 rounded-full shadow-sm whitespace-nowrap z-10">
           {badge}
         </span>
       )}
 
-      <div className={`px-6 pt-7 pb-5 ${highlighted ? "bg-green-50/50" : ""}`}>
+      <div className={`px-6 pt-7 pb-5 ${highlighted ? "bg-blue-50/50" : ""}`}>
         <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{name}</h4>
         <div className="mt-3 flex items-baseline gap-1">
           <span className="text-4xl font-extrabold text-gray-900 tracking-tight">{price}</span>
@@ -430,7 +430,7 @@ function PricingCard({
         <ul className="space-y-3 flex-1">
           {features.map((f) => (
             <li key={f} className="flex items-start gap-2.5 text-sm text-gray-600 leading-snug">
-              <Check size={16} className="text-green-600 flex-shrink-0 mt-0.5" />
+              <Check size={16} className="text-[#4A9B3E] flex-shrink-0 mt-0.5" />
               <span>{f}</span>
             </li>
           ))}
@@ -440,7 +440,7 @@ function PricingCard({
           href={href}
           className={`block text-center mt-6 py-3 rounded-xl text-sm font-semibold transition-all ${
             highlighted
-              ? "bg-green-600 text-white hover:bg-green-700 shadow-md shadow-green-600/20"
+              ? "bg-[#2B5EA7] text-white hover:bg-[#234B86] shadow-md shadow-[#2B5EA7]/20"
               : "bg-gray-900 text-white hover:bg-gray-800"
           }`}
         >
@@ -464,7 +464,7 @@ function WhatsAppCTASection() {
         </p>
         <Link
           href="/signup"
-          className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+          className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-[#2B5EA7] text-white rounded-lg hover:bg-[#234B86] font-medium"
         >
           Create Your Free Store <ArrowRight size={18} />
         </Link>

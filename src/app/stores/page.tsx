@@ -134,7 +134,7 @@ export default async function StoresPage({
               name="q"
               defaultValue={q || ""}
               placeholder="Search stores by name..."
-              className="w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2B5EA7] focus:border-transparent"
             />
           </div>
         </form>
@@ -152,7 +152,7 @@ export default async function StoresPage({
                 href={href}
                 className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
                   isActive
-                    ? "bg-green-600 text-white border-green-600"
+                    ? "bg-[#2B5EA7] text-white border-[#2B5EA7]"
                     : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
                 }`}
               >
@@ -185,7 +185,7 @@ export default async function StoresPage({
             </p>
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium"
+              className="inline-flex items-center gap-2 bg-[#2B5EA7] text-white px-6 py-2.5 rounded-lg hover:bg-[#234B86] transition-colors font-medium"
             >
               Create Your Store
             </Link>
@@ -209,14 +209,14 @@ export default async function StoresPage({
                           className="w-12 h-12 rounded-full object-cover border"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                          <span className="text-green-700 font-bold text-lg">
+                        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <span className="text-[#2B5EA7] font-bold text-lg">
                             {merchant.store_name.charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-gray-900 truncate group-hover:text-green-600 transition-colors">
+                        <h3 className="font-semibold text-gray-900 truncate group-hover:text-[#2B5EA7] transition-colors">
                           {merchant.store_name}
                         </h3>
                         <p className="text-xs text-gray-400">
@@ -232,11 +232,11 @@ export default async function StoresPage({
                     )}
 
                     <div className="flex items-center justify-between pt-3 border-t">
-                      <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                      <span className="inline-flex items-center gap-1 text-xs text-[#4A9B3E]">
                         <MessageCircle size={14} />
                         WhatsApp Store
                       </span>
-                      <span className="text-xs text-gray-400 group-hover:text-green-600 transition-colors flex items-center gap-1">
+                      <span className="text-xs text-gray-400 group-hover:text-[#2B5EA7] transition-colors flex items-center gap-1">
                         Visit Store <ArrowRight size={14} />
                       </span>
                     </div>
@@ -258,7 +258,7 @@ export default async function StoresPage({
           </p>
           <Link
             href="/signup"
-            className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+            className="inline-flex items-center gap-2 bg-[#2B5EA7] text-white px-6 py-2.5 rounded-lg hover:bg-[#234B86] transition-colors font-medium text-sm"
           >
             Create Free Store <ArrowRight size={16} />
           </Link>

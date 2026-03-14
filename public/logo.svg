@@ -1,23 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 90" fill="none">
-  <!-- Speech bubble with shopping cart icon -->
-  <g transform="translate(2, 2)">
-    <!-- Speech bubble body -->
-    <path d="M40 2C21.2 2 6 16.5 6 34c0 9.7 4.5 18.4 11.6 24.2L11 72l13.5-7.8C28.2 66 34 67 40 67c18.8 0 34-14.5 34-32S58.8 2 40 2z" fill="#2B5EA7"/>
-    <!-- Shopping cart inside bubble -->
-    <g stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
-      <!-- Cart body: trapezoid basket -->
-      <path d="M25 24h4l2.5 4h20l-2.5 14H33.5L29 24"/>
-      <!-- Basket horizontal lines -->
-      <line x1="34" y1="33" x2="48" y2="33"/>
-      <line x1="33.5" y1="37.5" x2="47.5" y2="37.5"/>
+  <!-- Tilted shopping cart icon -->
+  <g transform="translate(168, -2) rotate(15, 20, 30)">
+    <g stroke="#2B5EA7" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M4 8h6l4 28h24l6-18H18"/>
+      <line x1="18" y1="26" x2="38" y2="26"/>
+      <line x1="17" y1="31" x2="39" y2="31"/>
     </g>
-    <!-- Cart wheels -->
-    <circle cx="36" cy="46.5" r="2.3" fill="#fff"/>
-    <circle cx="47" cy="46.5" r="2.3" fill="#fff"/>
+    <circle cx="20" cy="42" r="3" fill="#2B5EA7"/>
+    <circle cx="36" cy="42" r="3" fill="#2B5EA7"/>
   </g>
 
-  <!-- Text "OshiCart" as one word, no gap -->
-  <text x="82" y="56" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="44" font-weight="700" letter-spacing="-0.5">
+  <!-- Text "OshiCart" -->
+  <text x="10" y="68" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="56" font-weight="800" letter-spacing="-1">
     <tspan fill="#2B5EA7">Oshi</tspan><tspan fill="#4A9B3E">Cart</tspan>
   </text>
 </svg>

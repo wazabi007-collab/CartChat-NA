@@ -40,7 +40,7 @@ export function PublicNavbar() {
         <div className="flex items-center gap-3">
           <Link
             href="/signup"
-            className="text-sm px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+            className="text-sm px-4 py-2 bg-[#2B5EA7] text-white rounded-md hover:bg-[#234B86] transition-colors"
           >
             Create Free Store
           </Link>

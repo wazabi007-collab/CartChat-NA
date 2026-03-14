@@ -157,7 +157,7 @@ function SignupForm() {
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B5EA7] focus:border-transparent"
                 />
                 <p className="text-xs text-gray-400 mt-1">
                   Customers will WhatsApp you on this number
@@ -174,14 +174,14 @@ function SignupForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B5EA7] focus:border-transparent"
                 />
               </div>
               {error && <p className="text-red-600 text-sm">{error}</p>}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 font-medium"
+                className="w-full py-2 bg-[#2B5EA7] text-white rounded-md hover:bg-[#234B86] disabled:opacity-50 font-medium"
               >
                 {loading ? "Sending code..." : "Get Started — It's Free"}
               </button>
@@ -201,14 +201,14 @@ function SignupForm() {
                   onChange={(e) => setOtp(e.target.value)}
                   required
                   maxLength={6}
-                  className="w-full px-3 py-2 border rounded-md text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border rounded-md text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-[#2B5EA7] focus:border-transparent"
                 />
               </div>
               {error && <p className="text-red-600 text-sm">{error}</p>}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 font-medium"
+                className="w-full py-2 bg-[#2B5EA7] text-white rounded-md hover:bg-[#234B86] disabled:opacity-50 font-medium"
               >
                 {loading ? "Verifying..." : "Create My Store"}
               </button>
@@ -234,7 +234,7 @@ function SignupForm() {
                       if (error) setError(error.message);
                       else startCountdown();
                     }}
-                    className="text-green-600 hover:underline"
+                    className="text-[#2B5EA7] hover:underline"
                   >
                     Resend code
                   </button>
@@ -254,7 +254,7 @@ function SignupForm() {
         <div className="text-center mt-6 space-y-2">
           <p className="text-sm text-gray-500">
             Already have a store?{" "}
-            <Link href="/login" className="text-green-600 hover:underline">
+            <Link href="/login" className="text-[#2B5EA7] hover:underline">
               Sign in
             </Link>
           </p>

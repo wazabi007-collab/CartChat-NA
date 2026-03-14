@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Trash2 } from "lucide-react";
 import { TIER_LABELS, STATUS_LABELS, formatTierPrice, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
 
-const TABS = ["Overview", "Subscription", "Performance", "Products", "Orders", "Activity"] as const;
+const TABS = ["Overview", "Subscription", "Performance", "Products", "Orders", "Activity", "Danger Zone"] as const;
 
 function fmtDate(d: string) {
   const date = new Date(d);
@@ -361,6 +361,18 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
         </div>
       )}
 
+      {activeTab === "Danger Zone" && (
+        <DangerZone
+          merchantId={merchant.id as string}
+          storeName={merchant.store_name as string}
+          saving={saving}
+          setSaving={setSaving}
+          actionError={actionError}
+          setActionError={setActionError}
+          router={router}
+        />
+      )}
+
       {activeTab === "Activity" && (
         <div className="bg-white border rounded-lg p-6">
           {actions.length === 0 ? (
@@ -408,6 +420,88 @@ function InfoRow({ label, value }: { label: string; value: string }) {
     <div className="flex justify-between text-sm">
       <span className="text-gray-500">{label}</span>
       <span className="font-medium text-gray-900">{value}</span>
+    </div>
+  );
+}
+
+function DangerZone({
+  merchantId,
+  storeName,
+  saving,
+  setSaving,
+  actionError,
+  setActionError,
+  router,
+}: {
+  merchantId: string;
+  storeName: string;
+  saving: boolean;
+  setSaving: (v: boolean) => void;
+  actionError: string;
+  setActionError: (v: string) => void;
+  router: ReturnType<typeof useRouter>;
+}) {
+  const [confirmText, setConfirmText] = useState("");
+  const canDelete = confirmText === storeName;
+
+  async function handleDelete() {
+    if (!canDelete) return;
+    setSaving(true);
+    setActionError("");
+    try {
+      const res = await fetch(`/api/admin/merchants/${merchantId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete_store" }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to delete store");
+      }
+      router.push("/admin/merchants");
+      router.refresh();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6">
+      <div className="flex items-center gap-2 mb-4">
+        <Trash2 size={20} className="text-red-600" />
+        <h3 className="text-lg font-semibold text-red-900">Delete Store</h3>
+      </div>
+      <p className="text-sm text-red-800 mb-4">
+        This will permanently delete <strong>{storeName}</strong> and all its data including products, orders,
+        subscriptions, and payments. This action cannot be undone.
+      </p>
+
+      {actionError && (
+        <div className="bg-red-100 border border-red-300 text-red-700 px-3 py-2 rounded text-sm mb-4">{actionError}</div>
+      )}
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-red-800 mb-1">
+          Type <strong>{storeName}</strong> to confirm:
+        </label>
+        <input
+          type="text"
+          value={confirmText}
+          onChange={(e) => setConfirmText(e.target.value)}
+          placeholder={storeName}
+          className="w-full max-w-md px-3 py-2 border border-red-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+        />
+      </div>
+
+      <button
+        onClick={handleDelete}
+        disabled={!canDelete || saving}
+        className="px-6 py-2.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        {saving ? "Deleting..." : "Permanently Delete Store"}
+      </button>
     </div>
   );
 }

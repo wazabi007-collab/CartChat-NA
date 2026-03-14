@@ -122,5 +122,38 @@ export async function PATCH(
     return NextResponse.json({ success: true });
   }
 
+  if (action === "delete_store") {
+    if (!hasPermission(admin.role, "manage_merchants")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Get merchant info for audit log before deleting
+    const { data: merchant } = await service.from("merchants").select("store_name, user_id").eq("id", id).single();
+    if (!merchant) {
+      return NextResponse.json({ error: "Merchant not found" }, { status: 404 });
+    }
+
+    // Delete in order: order_items → orders → stock_adjustments → products → categories → reports → subscriptions → payments → merchant
+    // Most have ON DELETE CASCADE, but let's be explicit for safety
+    await service.from("subscriptions").delete().eq("merchant_id", id);
+    await service.from("payments").delete().eq("merchant_id", id);
+    await service.from("reports").delete().eq("merchant_id", id);
+
+    // Delete the merchant (cascades to products, orders, categories, etc.)
+    const { error } = await service.from("merchants").delete().eq("id", id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    // Log the action
+    await service.from("admin_actions").insert({
+      admin_user_id: admin.adminId !== "env-fallback" ? admin.adminId : null,
+      action: "delete_store",
+      target_type: "merchant",
+      target_id: id,
+      details: { store_name: merchant.store_name, user_id: merchant.user_id },
+    });
+
+    return NextResponse.json({ success: true, deleted: true });
+  }
+
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });
 }

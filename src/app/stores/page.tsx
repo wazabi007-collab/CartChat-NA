@@ -9,7 +9,8 @@ import { PublicNavbar } from "@/components/public-navbar";
 export const metadata: Metadata = {
   title: `Browse Stores | ${SITE_NAME}`,
   description:
-    "Discover Namibian businesses on OshiCart. Browse stores, shop products, and order via WhatsApp.",
+    "Discover Namibian businesses on OshiCart. Browse stores, shop products, and order via WhatsApp. Find restaurants, boutiques, and services near you.",
+  alternates: { canonical: "/stores" },
 };
 
 const INDUSTRY_LABELS: Record<string, string> = {

@@ -12,6 +12,7 @@ import { ReportButton } from "@/components/storefront/report-button";
 import { StorefrontProducts } from "@/components/storefront/storefront-products";
 import { StorefrontTabs } from "@/components/storefront/storefront-tabs";
 import { OrderTracker } from "@/components/storefront/order-tracker";
+import { JsonLd } from "@/components/json-ld";
 
 const PRODUCTS_PER_PAGE = 100;
 
@@ -154,8 +155,31 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     `Hi ${merchant.store_name}, I'm browsing your store on OshiCart!`
   );
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "OshiCart", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Stores", item: `${SITE_URL}/stores` },
+      { "@type": "ListItem", position: 3, name: merchant.store_name },
+    ],
+  };
+
+  const localBusinessSchema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: merchant.store_name,
+    description: merchant.description || `Shop at ${merchant.store_name} on OshiCart`,
+    url: `${SITE_URL}/s/${slug}`,
+    ...(merchant.logo_url && { image: merchant.logo_url }),
+    address: { "@type": "PostalAddress", addressCountry: "NA" },
+    telephone: merchant.whatsapp_number,
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <JsonLd data={breadcrumbSchema} />
+      <JsonLd data={localBusinessSchema} />
       <TrackView merchantId={merchant.id} />
       {/* Site Navigation */}
       <nav className="bg-gray-900 text-white">

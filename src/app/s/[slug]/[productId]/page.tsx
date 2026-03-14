@@ -5,6 +5,7 @@ import { ArrowLeft, Home, Store } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
+import { JsonLd } from "@/components/json-ld";
 import { AddToCartButton } from "./add-to-cart-button";
 
 interface Props {
@@ -20,6 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .select("id, store_name")
     .eq("store_slug", slug)
     .eq("is_active", true)
+    .eq("store_status", "active")
     .single();
 
   if (!merchant) return { title: "Not Found" };
@@ -51,12 +53,13 @@ export default async function ProductDetailPage({ params }: Props) {
   const { slug, productId } = await params;
   const supabase = await createClient();
 
-  // Fetch merchant
+  // Fetch merchant — must be active and approved
   const { data: merchant } = await supabase
     .from("merchants")
     .select("id, store_name")
     .eq("store_slug", slug)
     .eq("is_active", true)
+    .eq("store_status", "active")
     .single();
 
   if (!merchant) notFound();
@@ -74,8 +77,44 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const images = product.images ?? [];
 
+  const isOutOfStock = product.track_inventory && product.stock_quantity === 0 && !product.allow_backorder;
+
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description || `${product.name} from ${merchant.store_name}`,
+    ...(images[0] && { image: images }),
+    url: `${SITE_URL}/s/${slug}/${productId}`,
+    offers: {
+      "@type": "Offer",
+      price: (product.price_nad / 100).toFixed(2),
+      priceCurrency: "NAD",
+      availability: isOutOfStock
+        ? "https://schema.org/OutOfStock"
+        : "https://schema.org/InStock",
+      seller: {
+        "@type": "Organization",
+        name: merchant.store_name,
+      },
+    },
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "OshiCart", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Stores", item: `${SITE_URL}/stores` },
+      { "@type": "ListItem", position: 3, name: merchant.store_name, item: `${SITE_URL}/s/${slug}` },
+      { "@type": "ListItem", position: 4, name: product.name },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <JsonLd data={productSchema} />
+      <JsonLd data={breadcrumbSchema} />
       {/* Site Navigation */}
       <nav className="bg-gray-900 text-white">
         <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between text-sm">

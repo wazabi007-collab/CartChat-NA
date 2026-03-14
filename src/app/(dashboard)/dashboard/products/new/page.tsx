@@ -203,7 +203,7 @@ export default function NewProductPage() {
 
         if (!res.ok) {
           const err = await res.json();
-          throw new Error(err.error || "Image upload failed");
+          throw new Error(`Image upload: ${err.error || "failed"}`);
         }
 
         const { url } = await res.json();
@@ -227,7 +227,7 @@ export default function NewProductPage() {
       });
 
       if (insertError) {
-        throw new Error(insertError.message);
+        throw new Error(`Save product: ${insertError.message}`);
       }
 
       router.push("/dashboard/products");

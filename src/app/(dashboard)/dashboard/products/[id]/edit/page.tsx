@@ -228,7 +228,7 @@ export default function EditProductPage() {
 
         if (!res.ok) {
           const err = await res.json();
-          throw new Error(err.error || "Image upload failed");
+          throw new Error(`Image upload: ${err.error || "failed"}`);
         }
 
         const { url } = await res.json();
@@ -257,7 +257,7 @@ export default function EditProductPage() {
         .eq("merchant_id", product!.merchant_id);
 
       if (updateError) {
-        throw new Error(updateError.message);
+        throw new Error(`Save product: ${updateError.message}`);
       }
 
       router.push("/dashboard/products");

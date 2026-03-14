@@ -8,8 +8,8 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:30
 export const NAD_CURRENCY = "NAD";
 
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB upload limit
-export const TARGET_IMAGE_SIZE = 100 * 1024; // 100KB after compression
-export const MAX_IMAGE_WIDTH = 800; // px
+export const TARGET_IMAGE_SIZE = 300 * 1024; // 300KB after compression
+export const MAX_IMAGE_WIDTH = 1200; // px
 
 export const BANKS_NAMIBIA = [
   "FNB Namibia",

@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import sharp from "sharp";
 import { MAX_IMAGE_SIZE, MAX_IMAGE_WIDTH, TARGET_IMAGE_SIZE } from "@/lib/constants";
 
+export const maxDuration = 30;
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
@@ -45,19 +47,13 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Process with Sharp: resize and convert to WebP
-    let quality = 80;
-    let processedBuffer = await sharp(buffer)
-      .resize(MAX_IMAGE_WIDTH, undefined, {
-        withoutEnlargement: true,
-        fit: "inside",
-      })
-      .webp({ quality })
-      .toBuffer();
+    let processedBuffer: Buffer;
+    let outputExt = "webp";
+    let outputContentType = "image/webp";
 
-    // If still over target size, reduce quality iteratively
-    while (processedBuffer.length > TARGET_IMAGE_SIZE && quality > 20) {
-      quality -= 10;
+    try {
+      // Process with Sharp: resize and convert to WebP
+      let quality = 80;
       processedBuffer = await sharp(buffer)
         .resize(MAX_IMAGE_WIDTH, undefined, {
           withoutEnlargement: true,
@@ -65,12 +61,31 @@ export async function POST(request: NextRequest) {
         })
         .webp({ quality })
         .toBuffer();
+
+      // If still over target size, reduce quality iteratively
+      while (processedBuffer.length > TARGET_IMAGE_SIZE && quality > 20) {
+        quality -= 10;
+        processedBuffer = await sharp(buffer)
+          .resize(MAX_IMAGE_WIDTH, undefined, {
+            withoutEnlargement: true,
+            fit: "inside",
+          })
+          .webp({ quality })
+          .toBuffer();
+      }
+    } catch (sharpError) {
+      // Fallback: upload original image if sharp fails
+      console.error("Sharp processing failed, uploading original:", sharpError);
+      processedBuffer = buffer;
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      outputExt = ext;
+      outputContentType = file.type || "image/jpeg";
     }
 
     // Generate unique filename
     const timestamp = Date.now();
     const randomSuffix = Math.random().toString(36).substring(2, 8);
-    const fileName = `${timestamp}-${randomSuffix}.webp`;
+    const fileName = `${timestamp}-${randomSuffix}.${outputExt}`;
     const fullPath = storagePath
       ? `${storagePath}/${fileName}`
       : `${user.id}/${fileName}`;
@@ -79,7 +94,7 @@ export async function POST(request: NextRequest) {
     const { error: uploadError } = await supabase.storage
       .from("merchant-assets")
       .upload(fullPath, processedBuffer, {
-        contentType: "image/webp",
+        contentType: outputContentType,
         cacheControl: "31536000",
         upsert: false,
       });

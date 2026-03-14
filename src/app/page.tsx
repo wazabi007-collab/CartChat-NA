@@ -502,7 +502,7 @@ function Footer() {
       className="bg-gray-900 text-gray-400 py-12 px-4 sm:px-6"
     >
       <div className="max-w-6xl mx-auto">
-        <div className="grid md:grid-cols-3 gap-8 items-start">
+        <div className="grid md:grid-cols-4 gap-8 items-start">
           {/* Brand */}
           <div>
             <Image
@@ -518,13 +518,25 @@ function Footer() {
           </div>
 
           {/* About Us */}
-          <div id="about">
+          <div id="about" className="md:col-span-2">
             <h4 className="text-white font-semibold mb-3">About Us</h4>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              OshiCart is a Namibian-built platform helping small businesses sell
-              online through WhatsApp. We make it easy to create a digital
-              catalog, accept local payments, and manage orders.
-            </p>
+            <div className="text-sm text-gray-400 leading-relaxed space-y-3">
+              <p>
+                OshiCart is a proudly Namibian platform born from a single mission: to empower the local entrepreneur.
+                We know that in Namibia, business happens in the DMs and on WhatsApp Status. We built OshiCart to bridge
+                that gap&mdash;turning your casual chats into a professional, automated storefront.
+              </p>
+              <p>
+                From the side-zula artisan and the local boutique to busy restaurants and professional service providers,
+                we provide the tools to simplify your life. With our &ldquo;Order with Me&rdquo; personalized links, your
+                customers can browse your menu or catalog and pay instantly via PayToday or EFT without the back-and-forth.
+              </p>
+              <p>
+                Whether you&apos;re serving the best Kapana in Windhoek, booking professional consultations, or shipping
+                handmade crafts from the Coast, OshiCart takes the &ldquo;Oshi&rdquo; out of the hustle. We handle the
+                tech; you secure the bag.
+              </p>
+            </div>
           </div>
 
           {/* Contact & Links */}

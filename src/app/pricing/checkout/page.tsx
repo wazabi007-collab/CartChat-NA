@@ -17,7 +17,7 @@ const OSHICART_BANK = {
   accountType: "Current Account",
 };
 
-const OSHICART_WHATSAPP = "+264812384424";
+const OSHICART_WHATSAPP = "+264816274823";
 
 const TIER_FEATURES: Record<string, string[]> = {
   oshi_basic: [

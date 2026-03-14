@@ -506,11 +506,29 @@ function Footer() {
             </p>
           </div>
 
-          {/* Contact */}
+          {/* Contact & Links */}
           <div>
-            <h4 className="text-white font-semibold mb-3">Contact</h4>
+            <h4 className="text-white font-semibold mb-3">Contact & Support</h4>
             <ul className="space-y-2 text-sm">
               <li>
+                <a
+                  href="https://wa.me/264816274823?text=Hi%20OshiCart%2C%20I%20need%20help%20with..."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  WhatsApp: +264 81 627 4823
+                </a>
+              </li>
+              <li>
+                <a
+                  href="mailto:info@octovianexus.com"
+                  className="hover:text-white transition-colors"
+                >
+                  info@octovianexus.com
+                </a>
+              </li>
+              <li className="pt-2">
                 <Link
                   href="/stores"
                   className="hover:text-white transition-colors"

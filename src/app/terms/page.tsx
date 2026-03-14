@@ -144,7 +144,8 @@ export default function TermsPage() {
             New stores undergo a review period. During the first 30 days,
             stores are limited to 10 orders per month and N$5,000 in total
             order value. These limits are automatically lifted after the review
-            period or can be increased by contacting support.
+            period or can be increased by contacting support via WhatsApp
+            at +264 81 627 4823 or email at info@octovianexus.com.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
             10. Termination

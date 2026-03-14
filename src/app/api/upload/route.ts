@@ -67,9 +67,12 @@ export async function POST(request: NextRequest) {
     const rand = Math.random().toString(36).substring(2, 8);
     const fullPath = `${user.id}/${timestamp}-${rand}.webp`;
 
+    // Convert to Uint8Array — Supabase JS v2 validates Buffer type strictly
+    const uploadBody = new Uint8Array(processedBuffer);
+
     const { error: uploadError } = await service.storage
       .from("merchant-assets")
-      .upload(fullPath, processedBuffer, {
+      .upload(fullPath, uploadBody, {
         contentType: "image/webp",
         cacheControl: "31536000",
         upsert: false,

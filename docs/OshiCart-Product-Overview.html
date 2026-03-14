@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OshiCart — Product Overview</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      --blue: #2B5EA7;
+      --blue-dark: #1E4A85;
+      --green: #4A9B3E;
+      --green-light: #E8F5E3;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-400: #9CA3AF;
+      --gray-500: #6B7280;
+      --gray-600: #4B5563;
+      --gray-700: #374151;
+      --gray-800: #1F2937;
+      --gray-900: #111827;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      color: var(--gray-800);
+      line-height: 1.6;
+      background: white;
+    }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page-break { page-break-before: always; }
+      .no-print { display: none; }
+    }
+
+    /* ─── Cover Page ─── */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+      color: white;
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -30%;
+      width: 80%;
+      height: 150%;
+      background: radial-gradient(circle, rgba(74,155,62,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 0.4rem 1.2rem;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+
+    .cover h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      max-width: 700px;
+    }
+
+    .cover h1 span { color: #7DD66F; }
+
+    .cover .subtitle {
+      font-size: 1.25rem;
+      font-weight: 300;
+      opacity: 0.9;
+      max-width: 500px;
+      margin-bottom: 3rem;
+    }
+
+    .cover-meta {
+      font-size: 0.85rem;
+      opacity: 0.6;
+      margin-top: auto;
+      padding-top: 4rem;
+    }
+
+    /* ─── Section Layouts ─── */
+    .page {
+      padding: 4rem 3rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue);
+      background: #EBF0F9;
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+
+    .section-subtitle {
+      font-size: 1rem;
+      color: var(--gray-500);
+      margin-bottom: 2.5rem;
+      max-width: 600px;
+    }
+
+    /* ─── What Is OshiCart ─── */
+    .what-box {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .what-box p {
+      font-size: 1.05rem;
+      color: var(--gray-700);
+      line-height: 1.8;
+    }
+
+    .what-box p + p { margin-top: 1rem; }
+
+    .highlight-bar {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .highlight-item {
+      flex: 1;
+      min-width: 200px;
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .highlight-item .number {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    .highlight-item .label {
+      font-size: 0.8rem;
+      color: var(--gray-500);
+      margin-top: 0.25rem;
+    }
+
+    /* ─── Feature Grid ─── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.75rem;
+      transition: box-shadow 0.2s;
+    }
+
+    .feature-card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+
+    .feature-card ul {
+      list-style: none;
+      margin-top: 0.5rem;
+    }
+
+    .feature-card ul li {
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      padding: 0.2rem 0;
+      padding-left: 1.2rem;
+      position: relative;
+    }
+
+    .feature-card ul li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    /* ─── Pricing Table ─── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    .pricing-card {
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px var(--blue);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--blue);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.2rem 0.8rem;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+
+    .pricing-card .tier-name {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-500);
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-card .price {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--gray-900);
+    }
+
+    .pricing-card .price span {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--gray-400);
+    }
+
+    .pricing-card .features {
+      list-style: none;
+      margin-top: 1rem;
+      text-align: left;
+    }
+
+    .pricing-card .features li {
+      font-size: 0.75rem;
+      color: var(--gray-600);
+      padding: 0.3rem 0;
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .pricing-card .features li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+
+    /* ─── Payment Methods ─── */
+    .payment-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .payment-item {
+      text-align: center;
+      padding: 1.25rem 0.75rem;
+      background: var(--gray-50);
+      border-radius: 12px;
+      border: 1px solid var(--gray-200);
+    }
+
+    .payment-item .icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .payment-item .name { font-size: 0.75rem; font-weight: 600; color: var(--gray-700); }
+    .payment-item .desc { font-size: 0.65rem; color: var(--gray-400); margin-top: 0.2rem; }
+
+    /* ─── Target Audience ─── */
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .audience-card {
+      background: var(--gray-50);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .audience-card .emoji { font-size: 2rem; margin-bottom: 0.5rem; }
+    .audience-card h4 { font-size: 0.85rem; font-weight: 700; color: var(--gray-900); }
+    .audience-card p { font-size: 0.75rem; color: var(--gray-500); margin-top: 0.25rem; }
+
+    /* ─── Key Selling Points ─── */
+    .usp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .usp-card {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      border-radius: 16px;
+    }
+
+    .usp-card.blue { background: #EBF0F9; }
+    .usp-card.green { background: var(--green-light); }
+    .usp-card.dark { background: var(--gray-900); color: white; }
+
+    .usp-card h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .usp-card.dark h3 { color: #7DD66F; }
+
+    .usp-card p {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      line-height: 1.5;
+    }
+
+    /* ─── Contact Footer ─── */
+    .contact-bar {
+      background: var(--gray-900);
+      color: white;
+      padding: 3rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .contact-bar h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-items {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .contact-items .item {
+      font-size: 0.85rem;
+    }
+
+    .contact-items .item .label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-400);
+      margin-bottom: 0.25rem;
+    }
+
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(74,155,62,0.15);
+      border: 1px solid rgba(74,155,62,0.3);
+      color: #7DD66F;
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--gray-200);
+      margin: 3rem 0;
+    }
+
+    /* ─── Flow Diagram ─── */
+    .flow-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+
+    .flow-step {
+      background: white;
+      border: 2px solid var(--blue);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      text-align: center;
+      min-width: 140px;
+    }
+
+    .flow-step .num {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--blue);
+    }
+
+    .flow-step .text {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      margin-top: 0.25rem;
+    }
+
+    .flow-arrow {
+      font-size: 1.5rem;
+      color: var(--green);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ COVER PAGE ═══ -->
+  <div class="cover">
+    <div class="cover-badge">Product Overview 2026</div>
+    <h1>Oshi<span>Cart</span></h1>
+    <p class="subtitle">The Simplest Way to Sell Online in Namibia.<br>Your side hustle, now professional.</p>
+
+    <div class="highlight-bar" style="max-width:600px;">
+      <div class="highlight-item" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:white;">
+        <div class="number" style="color:#7DD66F;">5 min</div>
+        <div class="label" style="color:rgba(255,255,255,0.7);">Setup Time</div>
+      </div>
+      <div class="highlight-item" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:white;">
+        <div class="number" style="color:#7DD66F;">0%</div>
+        <div class="label" style="color:rgba(255,255,255,0.7);">Transaction Fees</div>
+      </div>
+      <div class="highlight-item" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:white;">
+        <div class="number" style="color:#7DD66F;">100%</div>
+        <div class="label" style="color:rgba(255,255,255,0.7);">Your Profits</div>
+      </div>
+    </div>
+
+    <div class="cover-meta">
+      A product of Octovia Nexus Investments CC &bull; Proudly Namibian
+    </div>
+  </div>
+
+  <!-- ═══ WHAT IS OSHICART ═══ -->
+  <div class="page page-break">
+    <div class="section-label">About</div>
+    <h2 class="section-title">What is OshiCart?</h2>
+    <p class="section-subtitle">From DMs to a professional storefront — in minutes.</p>
+
+    <div class="what-box">
+      <p><strong>OshiCart is a proudly Namibian e-commerce platform</strong> that turns WhatsApp-based businesses into professional online stores. Merchants get a personalized store link (e.g., oshicart.com/s/your-store) where customers can browse products and services, place orders, and pay — all without downloading an app.</p>
+      <p>We know that in Namibia, business happens in the DMs and on WhatsApp Status. OshiCart bridges that gap — turning casual chats into a professional, automated storefront. We handle the tech; you secure the bag.</p>
+    </div>
+
+    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;color:var(--gray-900);">How It Works</h3>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="num">1</div>
+        <div class="text">Create Your<br>Catalog</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="num">2</div>
+        <div class="text">Share Your<br>Store Link</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="num">3</div>
+        <div class="text">Get Orders<br>&amp; Payments</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="num">4</div>
+        <div class="text">Confirm via<br>WhatsApp</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ KEY SELLING POINTS ═══ -->
+  <div class="page">
+    <div class="section-label">Why OshiCart</div>
+    <h2 class="section-title">Key Selling Points</h2>
+
+    <div class="usp-grid">
+      <div class="usp-card blue">
+        <h3>Zero Transaction Fees</h3>
+        <p>One fixed monthly price. No commission on sales. What you earn is what you keep.</p>
+      </div>
+      <div class="usp-card green">
+        <h3>100% Local Payments</h3>
+        <p>EFT, PayToday, MoMo, Pay2Cell, eWallet, Cash on Delivery — all Namibian methods.</p>
+      </div>
+      <div class="usp-card dark">
+        <h3>Mobile-First</h3>
+        <p>Works on any phone, even on 3G. No app download needed — just share your link.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CORE FEATURES ═══ -->
+  <div class="page page-break">
+    <div class="section-label">Platform</div>
+    <h2 class="section-title">Core Features</h2>
+    <p class="section-subtitle">Everything a Namibian business needs to sell online.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#EBF0F9;">🏪</div>
+        <h3>Online Storefront</h3>
+        <p>Personalized store link with industry-themed layouts.</p>
+        <ul>
+          <li>Custom logo &amp; description</li>
+          <li>Category folders with images</li>
+          <li>Search &amp; sort for customers</li>
+          <li>Mobile-first responsive design</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#E8F5E3;">🛒</div>
+        <h3>Products &amp; Services</h3>
+        <p>List physical products and services in one catalog.</p>
+        <ul>
+          <li>Up to 3 images per item</li>
+          <li>Services: "Request a Quote" or "Book Now"</li>
+          <li>Categories &amp; availability toggles</li>
+          <li>Price in NAD with "From" pricing</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#FEF3C7;">📋</div>
+        <h3>Order Management</h3>
+        <p>Full order lifecycle from placement to completion.</p>
+        <ul>
+          <li>Auto-generated order numbers</li>
+          <li>Unique payment references per order</li>
+          <li>WhatsApp notification to customers</li>
+          <li>Invoice generation &amp; sharing</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#F3E8FF;">📊</div>
+        <h3>Analytics Dashboard</h3>
+        <p>Track your store's performance at a glance.</p>
+        <ul>
+          <li>Page views &amp; conversion rates</li>
+          <li>Revenue charts with date ranges</li>
+          <li>Top-selling products</li>
+          <li>CSV export for bookkeeping</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#DBEAFE;">📦</div>
+        <h3>Inventory Management</h3>
+        <p>Smart stock tracking — no more guessing.</p>
+        <ul>
+          <li>Real-time stock quantities</li>
+          <li>Low stock alerts on dashboard</li>
+          <li>Auto out-of-stock badges</li>
+          <li>Backorder support</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#FCE7F3;">🎟️</div>
+        <h3>Coupons &amp; Discounts</h3>
+        <p>Drive sales with promotional codes.</p>
+        <ul>
+          <li>Percentage or fixed discounts</li>
+          <li>Usage limits &amp; expiry dates</li>
+          <li>Minimum order requirements</li>
+          <li>Real-time validation at checkout</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ECFDF5;">🔍</div>
+        <h3>Customer Order Tracking</h3>
+        <p>Customers track orders right on your store.</p>
+        <ul>
+          <li>Track via WhatsApp number</li>
+          <li>See order status &amp; items</li>
+          <li>Upload proof of payment later</li>
+          <li>View payment reference</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#FFF7ED;">🚚</div>
+        <h3>Delivery &amp; Checkout</h3>
+        <p>Flexible delivery options for your customers.</p>
+        <ul>
+          <li>Pickup or delivery selection</li>
+          <li>Configurable delivery days &amp; time slots</li>
+          <li>Flat-rate delivery fees</li>
+          <li>Order notes &amp; special instructions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PAYMENT METHODS ═══ -->
+  <div class="page page-break">
+    <div class="section-label">Payments</div>
+    <h2 class="section-title">Accepted Payment Methods</h2>
+    <p class="section-subtitle">All popular Namibian payment options. Zero transaction fees.</p>
+
+    <div class="payment-grid">
+      <div class="payment-item">
+        <div class="icon">🏦</div>
+        <div class="name">Bank Transfer (EFT)</div>
+        <div class="desc">With proof upload &amp; unique payment ref</div>
+      </div>
+      <div class="payment-item">
+        <div class="icon">💵</div>
+        <div class="name">Cash on Delivery</div>
+        <div class="desc">Pay on pickup or delivery</div>
+      </div>
+      <div class="payment-item">
+        <div class="icon">📱</div>
+        <div class="name">MTC MoMo / Maris</div>
+        <div class="desc">Mobile money via MTC</div>
+      </div>
+      <div class="payment-item">
+        <div class="icon">💳</div>
+        <div class="name">FNB Pay2Cell</div>
+        <div class="desc">Send via FNB App — N$1.10/tx</div>
+      </div>
+      <div class="payment-item">
+        <div class="icon">📲</div>
+        <div class="name">eWallet</div>
+        <div class="desc">FNB, PayPulse, EasyWallet, PayToday</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:2rem;">
+      <div class="trust-badge" style="color:var(--green);background:var(--green-light);border-color:var(--green);">
+        ✓ Proudly Namibian &amp; Secure
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ═══ PRICING ═══ -->
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Simple, Transparent Pricing</h2>
+    <p class="section-subtitle">Keep 100% of your profits. One fixed price. No hidden taxes.</p>
+
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="tier-name">Oshi-Start</div>
+        <div class="price">N$0 <span>/ 30 days</span></div>
+        <ul class="features">
+          <li>10 products</li>
+          <li>20 orders/month</li>
+          <li>Product catalog</li>
+          <li>Order management</li>
+          <li>EFT proof upload</li>
+          <li>OshiCart branding</li>
+        </ul>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Most Popular</div>
+        <div class="tier-name">Oshi-Basic</div>
+        <div class="price">N$199 <span>/mo</span></div>
+        <ul class="features">
+          <li>30 products</li>
+          <li>200 orders/month</li>
+          <li>No OshiCart branding</li>
+          <li>Sales analytics</li>
+          <li>Everything in Start</li>
+        </ul>
+      </div>
+
+      <div class="pricing-card">
+        <div class="tier-name">Oshi-Grow</div>
+        <div class="price">N$399 <span>/mo</span></div>
+        <ul class="features">
+          <li>200 products</li>
+          <li>500 orders/month</li>
+          <li>Inventory tracking</li>
+          <li>Coupon codes</li>
+          <li>Everything in Basic</li>
+        </ul>
+      </div>
+
+      <div class="pricing-card">
+        <div class="tier-name">Oshi-Pro</div>
+        <div class="price">N$999 <span>/mo</span></div>
+        <ul class="features">
+          <li>Unlimited products</li>
+          <li>Unlimited orders</li>
+          <li>API, Excel &amp; CSV import</li>
+          <li>Priority support</li>
+          <li>All features</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TARGET AUDIENCE ═══ -->
+  <div class="page page-break">
+    <div class="section-label">Market</div>
+    <h2 class="section-title">Who Is OshiCart For?</h2>
+    <p class="section-subtitle">Built for every Namibian entrepreneur — from side-zula to enterprise.</p>
+
+    <div class="audience-grid">
+      <div class="audience-card">
+        <div class="emoji">🍖</div>
+        <h4>Food &amp; Beverage</h4>
+        <p>Kapana stands, takeaways, bakeries, restaurants, caterers</p>
+      </div>
+      <div class="audience-card">
+        <div class="emoji">👗</div>
+        <h4>Fashion &amp; Retail</h4>
+        <p>Boutiques, thrift stores, clothing brands, accessories</p>
+      </div>
+      <div class="audience-card">
+        <div class="emoji">💇</div>
+        <h4>Service Providers</h4>
+        <p>Salons, mechanics, consultants, photographers</p>
+      </div>
+      <div class="audience-card">
+        <div class="emoji">🎨</div>
+        <h4>Artisans &amp; Crafts</h4>
+        <p>Handmade goods, art, jewelry, home decor</p>
+      </div>
+      <div class="audience-card">
+        <div class="emoji">🛒</div>
+        <h4>Grocery &amp; Supermarket</h4>
+        <p>Mini-markets, spaza shops, wholesale suppliers</p>
+      </div>
+      <div class="audience-card">
+        <div class="emoji">📱</div>
+        <h4>WhatsApp Sellers</h4>
+        <p>Side-hustle entrepreneurs selling via Status &amp; DMs</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ═══ TRUST & SAFETY ═══ -->
+    <div class="section-label">Trust</div>
+    <h2 class="section-title">Trust &amp; Safety</h2>
+
+    <div class="feature-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+      <div class="feature-card" style="text-align:center;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">🛡️</div>
+        <h3>Store Reporting</h3>
+        <p>Customers can report stores. All reports reviewed by OshiCart team.</p>
+      </div>
+      <div class="feature-card" style="text-align:center;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">🔒</div>
+        <h3>New Store Limits</h3>
+        <p>10 orders/month &amp; N$5,000 cap for first 30 days as a safety measure.</p>
+      </div>
+      <div class="feature-card" style="text-align:center;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">💡</div>
+        <h3>Payment Safety</h3>
+        <p>Unique payment references &amp; merchant reminders to verify bank balances.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CONTACT ═══ -->
+  <div class="contact-bar">
+    <h2>Get in Touch</h2>
+    <div class="contact-items">
+      <div class="item">
+        <div class="label">WhatsApp Support</div>
+        <div>+264 81 627 4823</div>
+      </div>
+      <div class="item">
+        <div class="label">WhatsApp Sales</div>
+        <div>+264 81 626 2961</div>
+      </div>
+      <div class="item">
+        <div class="label">Email</div>
+        <div>info@octovianexus.com</div>
+      </div>
+      <div class="item">
+        <div class="label">Website</div>
+        <div>oshicart.com</div>
+      </div>
+    </div>
+    <div class="trust-badge">
+      ✓ Proudly Namibian &amp; Secure
+    </div>
+    <p style="margin-top:2rem;font-size:0.75rem;color:var(--gray-400);">
+      &copy; 2026 OshiCart &bull; A product of Octovia Nexus Investments CC
+    </p>
+  </div>
+
+</body>
+</html>

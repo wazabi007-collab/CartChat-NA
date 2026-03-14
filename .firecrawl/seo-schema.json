@@ -1,0 +1,3889 @@
+Guides: JSON-LD - Next.js
+  URL: https://nextjs.org/docs/app/guides/json-ld
+  JSON-LD is a format for structured data that can be used by search engines and AI to help them understand the structure of the page beyond pure content.
+
+  --- Content ---
+  Menu
+  
+  Using App Router
+  
+  Features available in /app
+  
+  Latest Version
+  
+  16.1.6
+  
+  Using App Router
+  
+  Features available in /app
+  
+  Latest Version
+  
+  16.1.6
+  
+  [App Router](https://nextjs.org/docs/app) [Guides](https://nextjs.org/docs/app/guides) JSON-LD
+  
+  Copy page
+  
+  # How to implement JSON-LD in your Next.js application
+  
+  Last updated February 27, 2026
+  
+  [JSON-LD](https://json-ld.org/) is a format for structured data that can be used by search engines and AI to help them understand the structure of the page beyond pure content. For example, you can use it to describe a person, an event, an organization, a movie, a book, a recipe, and many other types of entities.
+  
+  Our current recommendation for JSON-LD is to render structured data as a `<script>` tag in your `layout.js` or `page.js` components.
+  
+  The following snippet uses `JSON.stringify`, which does not sanitize malicious strings used in XSS injection. To prevent this type of vulnerability, you can scrub `HTML` tags from the `JSON-LD` payload, for example, by replacing the character, `<`, with its unicode equivalent, `\u003c`.
+  
+  Review your organization's recommended approach to sanitize potentially dangerous strings, or use community maintained alternatives for `JSON.stringify` such as, [serialize-javascript](https://www.npmjs.com/package/serialize-javascript).
+  
+  app/products/\[id\]/page.tsx
+  
+  TypeScript
+  
+  JavaScriptTypeScript
+  
+  ```
+  export default async function Page({ params }) {
+    const { id } = await params
+    const product = await getProduct(id)
+  
+    const jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.name,
+      image: product.image,
+      description: product.description,
+    }
+  
+    return (
+      <section>
+        {/* Add JSON-LD to your page */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c'),
+          }}
+        />
+        {/* ... */}
+      </section>
+    )
+  }
+  ```
+  
+  You can validate and test your structured data with the [Rich Results Test](https://search.google.com/test/rich-results) for Google or the generic [Schema Markup Validator](https://validator.schema.org/).
+  
+  You can type your JSON-LD with TypeScript using community packages like [`schema-dts`](https://www.npmjs.com/package/schema-dts):
+  
+  ```
+  import { Product, WithContext } from 'schema-dts'
+  
+  const jsonLd: WithContext<Product> = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: 'Next.js Sticker',
+    image: 'https://nextjs.org/imgs/sticker.png',
+    description: 'Dynamic at the speed of static.',
+  }
+  ```
+  
+  Was this helpful?
+  
+  supported.
+  
+  Send
+  --- End Content ---
+
+Using Local Business Schema and JSON LD Markup for SEO
+  URL: https://chazedward.com/how-to-use-schema-for-local-seo/
+  Learn how to use schema markup for local SEO with this complete structured data guide from Chaz Edward Local Marketing.
+
+  --- Content ---
+  [Skip to content](https://chazedward.com/how-to-use-schema-for-local-seo/#content)
+  
+  [Local Seo](https://chazedward.com/category/local-seo/)
+  
+  - [Chaz Edward](https://chazedward.com/author/chazadmin/)
+  - [February 2, 2025](https://chazedward.com/2025/02/02/)
+  
+  # Using Local Business Schema and JSON LD Markup for SEO
+  
+  ![](https://chazedward.com/wp-content/uploads/2025/04/group-1142815772-1-1024x518.png)
+  
+  [Local Seo](https://chazedward.com/category/local-seo/)
+  
+  Using Local Business Schema and JSON LD Markup for SEO
+  
+  ![](https://chazedward.com/wp-content/uploads/2025/04/group-1142815772-1.png)
+  
+  ![](https://chazedward.com/wp-content/uploads/2025/02/using-local-business-schema-and-json-ld-markup-for-seo-1024x536.png)
+  
+  - [Local SEO](https://chazedward.com/category/local-seo/)
+  
+  ## Using Schema Markup in Local SEO
+  
+  ![](https://chazedward.com/wp-content/uploads/2025/02/using-local-business-schema-and-json-ld-markup-for-seo.png)
+  
+  ## Structuring Data for Search Engine Dominance
+  
+  Search engines have evolved beyond simple keyword-matching.
+  
+  Today, Google’s AI-driven algorithms rely on **entities, context, and relationships** to understand content. Structured data—specifically **JSON-LD**(JavaScript Object Notation for Linked Data)—plays a critical role in helping search engines interpret websites more accurately and display richer search results.
+  
+  Implementing structured data is no longer optional for local businesses. It is an SEO necessity that directly impacts visibility, search rankings, and user experience.
+  
+  🔹 “Schema markup helps search engines understand the meaning of your content, not just match keywords.” – [Google Search Central](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data)
+  
+  With the launch of our free [**Schema Generator**](https://chazedward.com/seo-tools/schema-generator/), implementing structured data is faster and more efficient than ever. This guide explores:
+  
+  - **How Google uses schema**
+  - **How JSON-LD schema influences SEO rankings**
+  - **How entity-based SEO strengthens brand presence**
+  - **How to create custom schema for a local business**
+  - **Best practices for implementing schema on local business websites**
+  - **What a good example of a schema looks like**
+  - **How to stack and nest schema types for maximum impact**
+  
+  ## What is the Main Purpose of Schema?
+  
+  The primary purpose of **schema markup** is to provide structured data that helps search engines better understand content, relationships, and context on a webpage.
+  
+  This structured approach enhances search engine result pages (SERPs) by generating rich snippets, knowledge panels, and other search-enhanced results that improve visibility and engagement.
+  
+  ## Does Google Use Schema?
+  
+  Yes, Google actively uses schema markup to understand webpage content, categorize information, and display enhanced search results.
+  
+  Google supports a wide range of structured data formats, including JSON-LD, and integrates this information into features like Google Knowledge Panels, Featured Snippets, and Local Business Listings.
+  
+  🔹 “Structured data allows Google to display content in visually enhanced formats, improving user experience and search visibility.” – Google Search Central
+  
+  Subscribe to the Free Email Mini Course
+  
+  
+  ![](https://content.app-us1.com/v8R8z/2025/02/05/8f2b4f93-6257-4427-a556-504613103ec6.png)
+  
+  **This 8 Part Mini Email Course will Take You from Schema Rookie to Schema Pro in 8 Days**
+  
+  Email\*
+  
+  
+  First Name
+  
+  
+  Enroll Now
+  
+  
+  ## Understanding Entities and Their Relationships in SEO
+  
+  At its core, Google’s search engine functions as an **entity database**.
+  
+  Entities are distinct, well-defined concepts such as businesses, people, products, and locations. Schema markup helps define and structure these entities by linking them to related attributes and other entities. This enables Google to understand and rank content with greater precision.
+  
+  For example, a well-structured LocalBusiness schema not only describes your business but also links it to:
+  
+  ✅ Your official website
+  
+  ✅ Social media profiles
+  
+  ✅ Customer reviews
+  
+  ✅ Products and services
+  
+  ✅ Service areas and geographical locations
+  
+  Each of these components strengthens your presence as an entity, helping search engines categorize and rank your website more effectively.
+  
+  ### How Entities Work in Google’s Knowledge Graph
+  
+  Google’s **Knowledge Graph** is built on interconnected entities. By using structured data, you give search engines more clarity about your business, services, and relationships, increasing the likelihood of appearing in rich results, featured snippets, and even the Knowledge Panel.
+  
+  **Why Entities Matter:**
+  
+  - Google uses entities to determine relevance and authority
+  - Structured data helps search engines categorize and rank content more precisely
+  - The more defined and connected your entity is, the higher the likelihood of appearing in the Knowledge Panel, rich results, and featured snippets
+  
+  🔹 “Google’s Knowledge Graph relies on structured data to connect entities and improve search relevance.” – [Search Engine Journal](https://www.searchenginejournal.com/google-knowledge-graph/465916/)
+  
+  ![](https://chazedward.com/wp-content/uploads/2025/02/entity-relationships-1024x862.jpg)
+  
+  ## Watch: Schema for Local SEO 101
+  
+  Master Schema for Local SEO: Boost Rankings & Visibility with Structured Data - YouTube
+  
+  [Photo image of Chaz Edward Local Marketing](https://www.youtube.com/channel/UCsxSBk7n2bUQ_Ao2ZLuBvPg?embeds_referring_euri=https%3A%2F%2Fchazedward.com%2F&embeds_referring_origin=https%3A%2F%2Fchazedward.com)
+  
+  Chaz Edward Local Marketing
+  
+  366 subscribers
+  
+  [Master Schema for Local SEO: Boost Rankings & Visibility with Structured Data](https://www.youtube.com/watch?v=Q_70sbPLzPM)
+  
+  Chaz Edward Local Marketing
+  
+  Search
+  
+  Watch later
+  
+  Share
+  
+  Copy link
+  
+  Info
+  
+  Shopping
+  
+  Tap to unmute
+  
+  If playback doesn't begin shortly, try restarting your device.
+  
+  You're signed out
+  
+  Videos you watch may be added to the TV's watch history and influence TV recommendations. To avoid this, cancel and sign in to YouTube on your computer.
+  
+  CancelConfirm
+  
+  More videos
+  
+  ## More videos
+  
+  Share
+  
+  Include playlist
+  
+  An error occurred while retrieving sharing information. Please try again later.
+  
+  [Watch on](https://www.youtube.com/watch?v=Q_70sbPLzPM&embeds_referring_euri=https%3A%2F%2Fchazedward.com%2F&embeds_referring_origin=https%3A%2F%2Fchazedward.com)
+  
+  0:00
+  
+  0:00 / 8:16
+  
+  •Live
+  
+  •
+  
+  ## JSON-LD vs. Other Structured Data Formats
+  
+  There are multiple ways to implement structured data:
+  
+  ✔ **Microdata** – Uses inline HTML attributes (older method)
+  
+  ✔ **RDFa** – Embeds metadata directly within HTML (rarely used)
+  
+  ✔ **JSON-LD** – Uses a JavaScript object notation that Google recommends
+  
+  ### Why JSON-LD is the Best for SEO
+  
+  - **Google’s preferred format** (faster and easier to read)
+  - **Asynchronous** (doesn’t interfere with page loading times)
+  - **Non-intrusive** (doesn’t modify the visible HTML code)
+  - **Allows deep entity linking and nested relationships** (better semantic connections)
+  - **Easier to update dynamically**
+  
+  🔹 “Google recommends JSON-LD as the preferred structured data format for SEO.” – [Google Developer Documentation](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data)
+  
+  With **[Schema Generator](https://chazedward.com/seo-tools/schema-generator/)**, you can create JSON-LD markup easily—without coding errors or formatting issues.
+  
+  [![free schema generator tool](https://chazedward.com/wp-content/uploads/2025/02/schema-generator-1024x593.png)](https://chazedward.com/seo-tools/schema-generator/)
+  
+  ## Ideal Schema Structure for a Local Business Website
+  
+  For a single-location local business, you typically want to use at least **four key schema types**:
+  
+  1. **Website Schema** (WebSite) → Defines the site as an entity. WebSite schema tells search engines how your site is structured and enables features like Google Sitelinks Search Box.
+  2. **Organization Schema** (Organization) → Represents the business itself. This connects your website to social media accounts, logos, and official URLs, reinforcing brand authority.
+  3. **LocalBusiness Schema** (LocalBusiness) → Adds local relevance & contact info. This helps Google associate your business with a physical location, improving Google Business Profile and local rankings.
+  4. **Service Schema** (Service) → Adds service details, can be nested in LocalBusiness for location pages or may be nested under Organization for stand alone service pages.
+  
+  For service-oriented businesses, Service schema clarifies **what you offer**, ensuring Google ranks you for the **right search queries**.
+  
+  🔹 “Schema markup is one of the most effective ways to help search engines understand your business and improve rankings.” – [Moz](https://moz.com/learn/seo/schema-structured-data)
+  
+  ### Where Should the Schema Be Placed?
+  
+  ✅ WebSite, Organization, and LocalBusiness should go on the homepage for a single location business.
+  
+  ✅ If the location page is separate, it too gets WebSite, Organization, and LocalBusiness.
+  
+  ✅ WebSite and Organization schema gets added to all pages **.**
+  
+  ✅WebSite,Organization, and Service schema get added to individual service pages.
+  
+  ✅ They can be **stacked together in one JSON-LD block** (best for entity linking).
+  
+  ✅ They should be **nested properly** to avoid redundancy.
+  
+  ✅ It’s best to **add schema individually to each page** to allow for nesting and avoid redundancy.
+  
+  ## Why Schema Markup is Essential for Future SEO
+  
+  1. **Voice Search Optimization** – Google Assistant, Siri, and Alexa rely on structured data to fetch accurate results.
+  2. **Featured Snippets & Rich Results** – Pages with JSON-LD markup are more likely to appear in rich results.
+  3. **E-A-T (Expertise, Authority, Trustworthiness)** – Schema markup strengthens content credibility.
+  4. **AI and Machine Learning** – As Google’s AI advances, structured data will play a crucial role in semantic search.
+  
+  Using [Schema Generator](https://chazedward.com/seo-tools/schema-generator/) ensures that **your markup is properly formatted and validated**, avoiding Google warnings or errors.
+  
+  ## How Do You Create a Custom Schema for Local Business?
+  
+  Creating a custom schema for a local business requires identifying key attributes that define the business, such as **name, address, phone number (NAP), services, operating hours, and online presence**. This structured data is implemented using JSON-LD.
+  
+  🔹 **Steps to Create Custom Schema:**
+  
+  1. **Identify Schema Type:** Use LocalBusiness schema as the base type.
+  2. **Include Key Business Information:** Name, address, contact details, and service area.
+  3. **Incorporate Social Media and Online Presence:** Link profiles using the sameAs attribute.
+  4. **Nest Related Entities:** Services, reviews, and product offerings can be included within the schema.
+  5. **Validate Using Schema.org’s Structured Data Testing Tool:** Ensure accuracy before deployment.
+  
+  **Easier Approach:** Use a [Free Schema Generator](https://chazedward.com/seo-tools/schema-generator/) to automate schema creation.
+  
+  ## Watch: Advanced Schema Concepts
+  
+  Nested Schema vs Stacked Schema for Local SEO - How to Use Schema for Local SEO - YouTube
+  
+  [Photo image of Chaz Edward Local Marketing](https://www.youtube.com/channel/UCsxSBk7n2bUQ_Ao2ZLuBvPg?embeds_referring_euri=https%3A%2F%2Fchazedward.com%2F&embeds_referring_origin=https%3A%2F%2Fchazedward.com)
+  
+  Chaz Edward Local Marketing
+  
+  366 subscribers
+  
+  [Nested Schema vs Stacked Schema for Local SEO - How to Use Schema for Local SEO](https://www.youtube.com/watch?v=4LKepN6-GgM)
+  
+  Chaz Edward Local Marketing
+  
+  Search
+  
+  Watch later
+  
+  Share
+  
+  Copy link
+  
+  Info
+  
+  Shopping
+  
+  Tap to unmute
+  
+  If playback doesn't begin shortly, try restarting your device.
+  
+  More videos
+  
+  ## More videos
+  
+  You're signed out
+  
+  Videos you watch may be added to the TV's watch history and influence TV recommendations. To avoid this, cancel and sign in to YouTube on your computer.
+  
+  CancelConfirm
+  
+  Share
+  
+  Include playlist
+  
+  An error occurred while retrieving sharing information. Please try again later.
+  
+  [Watch on](https://www.youtube.com/watch?v=4LKepN6-GgM&embeds_referring_euri=https%3A%2F%2Fchazedward.com%2F&embeds_referring_origin=https%3A%2F%2Fchazedward.com)
+  
+  0:00
+  
+  0:00 / 7:36
+  
+  •Live
+  
+  •
+  
+  ### Try the Free Nested Schema Markup Generator
+  
+  **[\[Free Access: Schema Generator\]](https://chazedward.com/seo-tools/schema-generator/)**
+  
+  [![free schema generator tool](https://chazedward.com/wp-content/uploads/2025/02/schema-generator-1024x593.png)](https://chazedward.com/seo-tools/schema-generator/)
+  
+  ### What is a Schema Generator?
+  
+  A **Schema Generator** is a tool that allows users to create structured data without coding. These tools automatically generate **JSON-LD markup** for different schema types like LocalBusiness, Organization, Product, Event, and Service, ensuring the structured data is properly formatted and validated.
+  
+  🔹 **Top Benefits:**
+  
+  - Simplifies structured data implementation
+  - Reduces errors in schema markup
+  - Improves compliance with Google’s guidelines
+  - Accelerates deployment of structured data
+  
+  ### How Do You Use a Schema Generator?
+  
+  Using a schema generator is straightforward:
+  
+  1. **Select Schema Type:** Choose from LocalBusiness, Organization, Service, etc.
+  2. **Enter Business Details:** Add name, address, phone number, social links, etc.
+  3. **Generate JSON-LD Markup:** The tool creates properly formatted structured data.
+  4. **Validate the Schema:** Use Schema.org’s [Schema Validator](https://validator.schema.org/).
+  5. **Implement the Code:** Paste the JSON-LD into your website page’s <head> section.
+  
+  ### What is a Schema Template?
+  
+  A **Schema Template** is a pre-defined structured data framework that businesses can use as a **starting point** to implement JSON-LD markup. Templates provide **reusable structures** for various industries, ensuring proper formatting and completeness of structured data.
+  
+  ✅ **Common Schema Templates:**
+  
+  - LocalBusiness
+  - Service
+  - Review
+  - Event
+  
+  🔹 **“Schema templates standardize structured data implementation, making it scalable for SEO professionals and webmasters.”** – Search Engine Journal
+  
+  **[Try Schema Generator to automate schema creation](https://chazedward.com/seo-tools/schema-generator/).**
+  
+  ## Understanding the Essential Schema Types for Local Business
+  
+  ### WebSite Schema: Enhancing Site Searchability
+  
+  WebSite schema helps search engines understand the structure of your site and **enables features like Google Sitelinks Search Box**.
+  
+  #### Example JSON-LD Schema
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “WebSite”,
+  
+  “url”: “https://yourwebsite.com”,
+  
+  “name”: “Your Business Name”,
+  
+  “potentialAction”: {
+  
+      “@type”: “SearchAction”,
+  
+      “target”: “https://yourwebsite.com/?s={search\_term\_string}”,
+  
+      “query-input”: “required name=search\_term\_string”
+  
+  }
+  
+  }
+  
+  ### Organization Schema: Strengthening Brand Identity
+  
+  The Organization schema connects your business to social media accounts, logos, founders, and official URLs.
+  
+  #### Example JSON-LD
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “Organization”,
+  
+  “name”: “Your Business Name”,
+  
+  “url”: “https://yourwebsite.com”,
+  
+  “logo”: “https://yourwebsite.com/logo.png”,
+  
+  “sameAs”: \[\
+  \
+      “https://www.facebook.com/yourbusiness”,\
+  \
+      “https://www.instagram.com/yourbusiness”,\
+  \
+      “https://www.linkedin.com/company/yourbusiness”\
+  \
+  \]
+  
+  }
+  
+  ### LocalBusiness Schema: Boosting Local SEO
+  
+  If you operate a physical business, LocalBusiness schema helps with ranking in local searches and Google Maps.
+  
+  #### Example JSON-LD
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “LocalBusiness”,
+  
+  “name”: “Your Business Name”,
+  
+  “address”: {
+  
+      “@type”: “PostalAddress”,
+  
+      “streetAddress”: “123 Main Street”,
+  
+      “addressLocality”: “Your City”,
+  
+      “addressRegion”: “Your State”,
+  
+      “postalCode”: “12345”,
+  
+      “addressCountry”: “US”
+  
+  },
+  
+  “telephone”: “+1-555-555-5555”,
+  
+  “geo”: {
+  
+      “@type”: “GeoCoordinates”,
+  
+      “latitude”: “40.712776”,
+  
+      “longitude”: “-74.005974”
+  
+  }
+  
+  }
+  
+  This type of structured data helps Google associate your business with a location, improving visibility in Google Business Profile and local search results.
+  
+  ## Ideal Schema Structure (Optimized for Local SEO)
+  
+  Below is the **correctly structured JSON-LD markup** that stacks **Website, Organization, and LocalBusiness** together.
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@graph”: \[\
+  \
+      {\
+  \
+        “@type”: “WebSite”,\
+  \
+        “@id”: “https://yourwebsite.com/#website”,\
+  \
+        “url”: “https://yourwebsite.com/”,\
+  \
+        “name”: “Your Business Name”,\
+  \
+        “description”: “Short but keyword-rich description of your business.”,\
+  \
+        “potentialAction”: {\
+  \
+          “@type”: “SearchAction”,\
+  \
+          “target”: “https://yourwebsite.com/?s={search\_term\_string}”,\
+  \
+          “query-input”: “required name=search\_term\_string”\
+  \
+        }\
+  \
+      },\
+  \
+      {\
+  \
+        “@type”: “Organization”,\
+  \
+        “@id”: “https://yourwebsite.com/#organization”,\
+  \
+        “url”: “https://yourwebsite.com/”,\
+  \
+        “name”: “Your Business Name”,\
+  \
+        “logo”: “https://yourwebsite.com/logo.png”,\
+  \
+        “sameAs”: \[\
+  \
+          “https://www.facebook.com/yourbusiness”,\
+  \
+          “https://www.instagram.com/yourbusiness”,\
+  \
+          “https://www.linkedin.com/company/yourbusiness”,\
+  \
+          “https://www.yelp.com/biz/yourbusiness”\
+  \
+        \],\
+  \
+        “contactPoint”: {\
+  \
+          “@type”: “ContactPoint”,\
+  \
+          “telephone”: “+1-555-555-5555”,\
+  \
+          “contactType”: “customer service”,\
+  \
+          “areaServed”: \[“US”\],\
+  \
+          “availableLanguage”: \[“English”\]\
+  \
+        }\
+  \
+      },\
+  \
+      {\
+  \
+        “@type”: “LocalBusiness”,\
+  \
+        “@id”: “https://yourwebsite.com/#localbusiness”,\
+  \
+        “url”: “https://yourwebsite.com/”,\
+  \
+        “name”: “Your Business Name”,\
+  \
+        “image”: “https://yourwebsite.com/image.jpg”,\
+  \
+        “description”: “Detailed description of your business including services offered.”,\
+  \
+        “address”: {\
+  \
+          “@type”: “PostalAddress”,\
+  \
+          “streetAddress”: “123 Main Street”,\
+  \
+          “addressLocality”: “Your City”,\
+  \
+          “addressRegion”: “Your State”,\
+  \
+          “postalCode”: “12345”,\
+  \
+          “addressCountry”: “US”\
+  \
+        },\
+  \
+        “telephone”: “+1-555-555-5555”,\
+  \
+        “priceRange”: “$$”,\
+  \
+        “geo”: {\
+  \
+          “@type”: “GeoCoordinates”,\
+  \
+          “latitude”: “40.712776”,\
+  \
+          “longitude”: “-74.005974”\
+  \
+        },\
+  \
+        “openingHoursSpecification”: \[\
+  \
+          {\
+  \
+            “@type”: “OpeningHoursSpecification”,\
+  \
+            “dayOfWeek”: \[“Monday”, “Tuesday”, “Wednesday”, “Thursday”, “Friday”\],\
+  \
+            “opens”: “09:00”,\
+  \
+            “closes”: “17:00”\
+  \
+          }\
+  \
+        \],\
+  \
+        “sameAs”: \[\
+  \
+          “https://www.facebook.com/yourbusiness”,\
+  \
+          “https://www.instagram.com/yourbusiness”,\
+  \
+          “https://www.linkedin.com/company/yourbusiness”\
+  \
+        \],\
+  \
+        “service”: \[\
+  \
+          {\
+  \
+            “@type”: “Service”,\
+  \
+            “name”: “Main Service 1”,\
+  \
+            “description”: “Description of main service”,\
+  \
+            “areaServed”: {\
+  \
+              “@type”: “Place”,\
+  \
+              “name”: “Your City”\
+  \
+            }\
+  \
+          },\
+  \
+          {\
+  \
+            “@type”: “Service”,\
+  \
+            “name”: “Main Service 2”,\
+  \
+            “description”: “Description of another service”,\
+  \
+            “areaServed”: {\
+  \
+              “@type”: “Place”,\
+  \
+              “name”: “Your City”\
+  \
+            }\
+  \
+          }\
+  \
+        \]\
+  \
+      }\
+  \
+  \]
+  
+  }
+  
+  ### Why This Structure Works
+  
+  ✅ **Stacked in One JSON-LD Block (** **@graph** **)**
+  
+  - This keeps the schema **clean and interlinked** instead of separate, unconnected entities.
+  
+  ✅ **Website** **Schema for Search Features**
+  
+  - Allows **site search indexing** with “potentialAction”: { “@type”: “SearchAction” }
+  
+  ✅ **Organization** **Schema for Branding**
+  
+  - Includes logo, social links (sameAs), and contact info.
+  
+  ✅ **LocalBusiness** **Schema for Local SEO**
+  
+  - Adds **address, geo-coordinates, opening hours, and services**.
+  - Uses “service”: {} to describe key offerings.
+  
+  ✅ **Service Schema Nested Inside** **LocalBusiness**
+  
+  - Instead of separate “Service” entities, they are linked **inside** LocalBusiness.
+  
+  ### What About Service Page Schema?
+  
+  For individual service pages, use standalone Service schema, but reference the business:
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “Service”,
+  
+  “name”: “Your Service Name”,
+  
+  “provider”: {
+  
+      “@type”: “LocalBusiness”,
+  
+      “name”: “Your Business Name”,
+  
+      “url”: “https://yourwebsite.com”
+  
+  },
+  
+  “description”: “Detailed description of the service.”,
+  
+  “areaServed”: {
+  
+      “@type”: “Place”,
+  
+      “name”: “Your City”
+  
+  },
+  
+  “serviceType”: “Your Service Type”
+  
+  }
+  
+  ✅ This should go only on service pages.
+  
+  ![](https://chazedward.com/wp-content/uploads/2025/02/review-schema-markup-1024x778.jpg)
+  
+  ## Additional Schema Types
+  
+  ### What is Review Schema?
+  
+  Review Schema ( [schema.org/Review](https://schema.org/Review)) allows businesses to display customer reviews and ratings in search results, increasing trust, credibility, and CTR (click-through rates).
+  
+  ### When to Use Review Schema
+  
+  - On product or service pages to show customer ratings.
+  - For local businesses to enhance visibility in Google Search.
+  - On testimonial pages where customer feedback is collected.
+  - E-commerce platforms for product reviews.
+  - Do not use Review schema on the homepage, rather use AggregateRating.
+  
+  ### Schema Combinations
+  
+  Review Schema works well with:
+  
+  - LocalBusiness Schema (for business reviews)
+  - Product Schema (for product ratings)
+  - Service Schema (for service-based businesses)
+  - AggregateRating Schema (to display average ratings)
+  
+  ### SEO Benefits of Review Schema
+  
+  ✔ Displays star ratings in search results
+  
+  ✔ Increases credibility and trust
+  
+  ✔ Improves CTR by making search listings more attractive
+  
+  ✔ Helps qualify for Google’s Review Rich Results
+  
+  ### Example JSON-LD for Review Schema
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “Review”,
+  
+  “author”: {
+  
+  “@type”: “Person”,
+  
+  “name”: “John Doe”
+  
+  },
+  
+  “reviewRating”: {
+  
+  “@type”: “Rating”,
+  
+  “ratingValue”: “5”,
+  
+  “bestRating”: “5”
+  
+  },
+  
+  “itemReviewed”: {
+  
+  “@type”: “LocalBusiness”,
+  
+  “name”: “Best Roofing Co.”
+  
+  }
+  
+  }
+  
+  ### Review Schema is NOT Recommended on the Homepage
+  
+  🚫 **Individual Review Schema**: Google discourages using single review snippets on the homepage.
+  
+  🚫 **Fake or Manipulated Ratings**: Review Schema should reflect genuine customer feedback from a trusted source.
+  
+  ### Best Schema Practices for Homepage
+  
+  If you want to highlight reviews on the homepage, use AggregateRating Schema inside LocalBusiness Schema to summarize the business rating.
+  
+  #### AggregateRating Schema
+  
+  If your homepage includes an overall rating (e.g., “Rated 4.8/5 based on 250 reviews”), you can use AggregateRating Schema within LocalBusiness Schema to reflect this.
+  
+  ### Example: JSON-LD Review Schema for Homepage (Allowed Use)
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “LocalBusiness”,
+  
+  “name”: “Chaz Edward Local Marketing”,
+  
+  “url”: “https://chazedward.com”,
+  
+  “aggregateRating”: {
+  
+  “@type”: “AggregateRating”,
+  
+  “ratingValue”: “4.8”,
+  
+  “reviewCount”: “250”
+  
+  }
+  
+  }
+  
+  ![](https://chazedward.com/wp-content/uploads/2025/02/aggregaterating-schema-example-1024x715.png)
+  
+  ## FAQ Schema: Structuring Answers for Search
+  
+  ### What is FAQ Schema?
+  
+  FAQ Schema ( [schema.org/FAQPage](https://schema.org/FAQPage)) structures content as **frequently asked questions and answers**, allowing Google to display **rich snippets** in search results.
+  
+  ### When to Use FAQ Schema
+  
+  - **On service pages** to answer common customer questions.
+  - **On product pages** to address product-related concerns.
+  - **On blog posts** to structure key takeaways as FAQs.
+  - **On support/help pages** to provide direct answers in search results.
+  
+  ### Schema Combinations
+  
+  **FAQ Schema pairs well with:**
+  
+  - **LocalBusiness Schema** (for answering business-related questions)
+  - **Service Schema** (for answering service-related inquiries)
+  - **HowTo Schema** (for step-by-step guides)
+  - **Article Schema** (for blog posts with FAQ sections)
+  
+  ### SEO Benefits of FAQ Schema
+  
+  ✔ Qualifies for **FAQ Rich Results** ✔ Improves user experience with **quick answers** ✔ Increases **CTR and engagement** ✔ Helps dominate **more search real estate**
+  
+  ### Example JSON-LD for FAQ Page Schema
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “FAQPage”,
+  
+  “mainEntity”: \[\
+  \
+      {\
+  \
+        “@type”: “Question”,\
+  \
+        “name”: “How long does it take to rank locally?”,\
+  \
+        “acceptedAnswer”: {\
+  \
+          “@type”: “Answer”,\
+  \
+          “text”: “Ranking in Google Maps can take 3-6 months depending on competition and strategy.”\
+  \
+        }\
+  \
+      },\
+  \
+      {\
+  \
+        “@type”: “Question”,\
+  \
+        “name”: “What factors influence local rankings?”,\
+  \
+        “acceptedAnswer”: {\
+  \
+          “@type”: “Answer”,\
+  \
+          “text”: “Relevance, proximity, and prominence are key factors affecting local search rankings.”\
+  \
+        }\
+  \
+      }\
+  \
+  \]
+  
+  }
+  
+  ## Nesting FAQ Schema
+  
+  ### FAQ Schema + Organization Schema
+  
+  ✅ **When to Use It:**
+  
+  - If your business has a general FAQ section answering common questions about the company, services, policies, or history.
+  - If you have an About Us or Company FAQ page addressing organizational details (e.g., “Who founded the company?” or “What services do you offer?”).
+  - If you want to provide quick answers about your organization in search results.
+  
+  **Best Practice:**
+  
+  - FAQ Schema should be **nested inside Organization Schema** if the FAQs specifically relate to the business itself.
+  - It should NOT be used for **service-specific** FAQs (which belong in **Service or LocalBusiness Schema** instead).
+  
+  ### Example JSON-LD: FAQ Schema Inside Organization Schema
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “Organization”,
+  
+  “name”: “Chaz Edward Local Marketing”,
+  
+  “url”: “https://chazedward.com”,
+  
+  “logo”: “https://chazedward.com/logo.png”,
+  
+  “sameAs”: \[\
+  \
+      “https://www.facebook.com/chazedwardlocalmarketing”,\
+  \
+      “https://www.linkedin.com/company/chazedwardlocalmarketing”\
+  \
+  \],
+  
+  “mainEntity”: {
+  
+      “@type”: “FAQPage”,
+  
+      “mainEntity”: \[\
+  \
+        {\
+  \
+          “@type”: “Question”,\
+  \
+          “name”: “Who founded Chaz Edward Local Marketing?”,\
+  \
+          “acceptedAnswer”: {\
+  \
+            “@type”: “Answer”,\
+  \
+            “text”: “Chaz Edward founded the agency in 2014 to provide expert local SEO services.”\
+  \
+          }\
+  \
+        },\
+  \
+        {\
+  \
+          “@type”: “Question”,\
+  \
+          “name”: “What industries does Chaz Edward Local Marketing serve?”,\
+  \
+          “acceptedAnswer”: {\
+  \
+            “@type”: “Answer”,\
+  \
+            “text”: “We specialize in local SEO for service-based businesses, multi-location brands, and SEO agencies.”\
+  \
+          }\
+  \
+        }\
+  \
+      \]
+  
+  }
+  
+  }
+  
+  ### SEO Benefits of Using FAQ Schema with Organization Schema
+  
+  ✔ **Increases brand authority** in search results
+  
+  ✔ Helps **display FAQs in Google’s rich results** ✔ Enhances **user engagement** by answering key business-related questions
+  
+  ## FAQ Schema + Website Schema
+  
+  ✅ **When to Use It:**
+  
+  - If your website has a global FAQ section covering site navigation, policies, or general topics.
+  - If you have a help center, support page, or site guidelines.
+  - If you want to provide answers about using your website, such as:
+    - “How do I contact support?”
+    - “Where can I find case studies?”
+  
+  **Best Practice:**
+  
+  - FAQ Schema inside Website Schema should **relate to website functionality or user support**, NOT product or service-specific questions.
+  
+  ### Example JSON-LD: FAQ Schema Inside Website Schema
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “WebSite”,
+  
+  “url”: “https://chazedward.com”,
+  
+  “name”: “Chaz Edward Local Marketing”,
+  
+  “potentialAction”: {
+  
+      “@type”: “SearchAction”,
+  
+      “target”: “https://chazedward.com/?s={search\_term\_string}”,
+  
+      “query-input”: “required name=search\_term\_string”
+  
+  },
+  
+  “mainEntity”: {
+  
+      “@type”: “FAQPage”,
+  
+      “mainEntity”: \[\
+  \
+        {\
+  \
+          “@type”: “Question”,\
+  \
+          “name”: “How do I schedule a consultation with Chaz Edward?”,\
+  \
+          “acceptedAnswer”: {\
+  \
+            “@type”: “Answer”,\
+  \
+            “text”: “You can schedule a free local SEO strategy session at https://chazedward.com/consulting.”\
+  \
+          }\
+  \
+        },\
+  \
+        {\
+  \
+          “@type”: “Question”,\
+  \
+          “name”: “Where can I find SEO case studies?”,\
+  \
+          “acceptedAnswer”: {\
+  \
+            “@type”: “Answer”,\
+  \
+            “text”: “Visit https://chazedward.com/seo-case-studies/ to explore our client success stories.”\
+  \
+          }\
+  \
+        }\
+  \
+      \]
+  
+  }
+  
+  }
+  
+  ### SEO Benefits of Using FAQ Schema with Website Schema
+  
+  ✔ Helps **users navigate the site more effectively** ✔ Provides **quick answers to common visitor queries** ✔ Increases chances of **appearing in FAQ rich results**
+  
+  ### Should You Use FAQ Schema in Organization or Website Schema?
+  
+  Use FAQ Schema inside Organization Schema if the questions are about the company, brand, or services.
+  
+  Use FAQ Schema inside Website Schema if the questions relate to site navigation, policies, or support.
+  
+  Use FAQ Schema inside LocalBusiness or Service Schema if the questions are about specific business services.
+  
+  ✅ **Best Practice:** Use **FAQ Schema only where it makes sense** for **user experience and SEO compliance**.
+  
+  ✅ **Validate Your Schema:** Use Google’s Rich Results Test to check for errors.
+  
+  ### **Nesting FAQ Schema Inside Service Schema or LocalBusiness Schema**
+  
+  ✅ **If the FAQs are about a specific service → Nest them inside Service Schema.** ✅ **If the FAQs are about the business in general → Nest them inside LocalBusiness Schema.**
+  
+  ### **When to Use FAQ Schema Inside Service Schema**
+  
+  ✅ **Best for service-specific FAQs** (e.g., “How does your SEO audit work?” or “What’s included in your web design package?”).
+  
+  ✅ Helps **Google understand the details of a specific service**, improving search relevance.
+  
+  ✅ Can increase the likelihood of **rich results** when someone searches for that service.
+  
+  **Example Use Cases for Nesting FAQ Schema Inside Service Schema** ✔ A **plumbing company** answering questions about emergency pipe repair.
+  
+  ✔ A **law firm** answering FAQs about personal injury consultations.
+  
+  ✔ A **local SEO agency** explaining how their GBP optimization service works.
+  
+  ### **Example JSON-LD: FAQ Schema Nested Inside Service Schema**
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “Service”,
+  
+  “name”: “Google Business Profile Optimization”,
+  
+  “provider”: {
+  
+      “@type”: “LocalBusiness”,
+  
+      “name”: “Chaz Edward Local Marketing”,
+  
+      “url”: “https://chazedward.com”
+  
+  },
+  
+  “serviceType”: “SEO Service”,
+  
+  “areaServed”: {
+  
+      “@type”: “Place”,
+  
+      “name”: “United States”
+  
+  },
+  
+  “mainEntity”: {
+  
+      “@type”: “FAQPage”,
+  
+      “mainEntity”: \[\
+  \
+        {\
+  \
+          “@type”: “Question”,\
+  \
+          “name”: “How long does it take to optimize a Google Business Profile?”,\
+  \
+          “acceptedAnswer”: {\
+  \
+            “@type”: “Answer”,\
+  \
+            “text”: “It typically takes 4-6 weeks to see ranking improvements after GBP optimization.”\
+  \
+          }\
+  \
+        },\
+  \
+        {\
+  \
+          “@type”: “Question”,\
+  \
+          “name”: “What’s included in your Google Business Profile optimization?”,\
+  \
+          “acceptedAnswer”: {\
+  \
+            “@type”: “Answer”,\
+  \
+            “text”: “We optimize your business categories, descriptions, services, photos, posts, and ensure NAP consistency.”\
+  \
+          }\
+  \
+        }\
+  \
+      \]
+  
+  }
+  
+  }
+  
+  ### Benefits of Nesting FAQ Schema Inside Service Schema
+  
+  ✔ **Enhances relevance for service-related searches** ✔ **Improves structured data for Google’s understanding of service offerings** ✔ **Increases the likelihood of FAQ rich snippets appearing under service searches**
+  
+  ### When to Use FAQ Schema Inside LocalBusiness Schema
+  
+  ✅ **Best for general business-related FAQs** (e.g., “What are your operating hours?” or “How do I schedule a consultation?”).
+  
+  ✅ Helps **Google understand overall business details**, which can enhance visibility in local search results.
+  
+  ✅ Works well for **business-wide questions that don’t fit under a specific service.**
+  
+  **Example Use Cases for Nesting FAQ Schema Inside LocalBusiness Schema** ✔ A **restaurant** answering FAQs about their reservation process.
+  
+  ✔ A **dentist office** answering questions about insurance coverage.
+  
+  ✔ A **home service business** explaining how to request a quote.
+  
+  ### Example JSON-LD: FAQ Schema Nested Inside LocalBusiness Schema
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “LocalBusiness”,
+  
+  “name”: “Chaz Edward Local Marketing”,
+  
+  “url”: “https://chazedward.com”,
+  
+  “address”: {
+  
+      “@type”: “PostalAddress”,
+  
+      “streetAddress”: “123 Main St”,
+  
+      “addressLocality”: “New York”,
+  
+      “addressRegion”: “NY”,
+  
+      “postalCode”: “10001”,
+  
+      “addressCountry”: “US”
+  
+  },
+  
+  “telephone”: “+1-555-555-5555”,
+  
+  “mainEntity”: {
+  
+      “@type”: “FAQPage”,
+  
+      “mainEntity”: \[\
+  \
+        {\
+  \
+          “@type”: “Question”,\
+  \
+          “name”: “What industries do you specialize in?”,\
+  \
+          “acceptedAnswer”: {\
+  \
+            “@type”: “Answer”,\
+  \
+            “text”: “We specialize in local SEO for service-based businesses, multi-location brands, and agencies.”\
+  \
+          }\
+  \
+        },\
+  \
+        {\
+  \
+          “@type”: “Question”,\
+  \
+          “name”: “How can I schedule a free SEO audit?”,\
+  \
+          “acceptedAnswer”: {\
+  \
+            “@type”: “Answer”,\
+  \
+            “text”: “You can schedule a free audit by visiting https://chazedward.com/seo-audit.”\
+  \
+          }\
+  \
+        }\
+  \
+      \]
+  
+  }
+  
+  }
+  
+  ### Benefits of Nesting FAQ Schema Inside LocalBusiness Schema
+  
+  ✔ **Boosts business-wide local search visibility** ✔ **Enhances user experience by providing essential business details in search results** ✔ **Improves click-through rates from rich results**
+  
+  ### Final Takeaways: Which Schema Should You Use?
+  
+  **Use FAQ Schema inside Service Schema** if the questions are about a **specific service**.
+  
+  **Use FAQ Schema inside LocalBusiness Schema** if the questions relate to **business-wide topics**.
+  
+  **Never duplicate the same FAQ content inside multiple schemas**—Google may ignore it or mark it as redundant.
+  
+  **Best Practice:** If your site has multiple service pages, add FAQ Schema to each individual service page rather than a single large FAQ page.
+  
+  ![](https://chazedward.com/wp-content/uploads/2025/02/event-schema-1024x576.jpg)
+  
+  ## Using Event Schema to Optimize for Local Events
+  
+  For businesses hosting events, promotions, or workshops, Event schema increases event visibility in Google Search and Google Maps.
+  
+  ✅ Why It Matters:
+  
+  - Displays event details like date, time, and location in search results
+  - Increases attendance by improving discoverability
+  - Helps Google connect businesses with local community engagement
+  
+  ### What is Event Schema?
+  
+  Event Schema ( [schema.org/Event](https://schema.org/Event)) structures event details like time, location, and organizer, making them eligible for **Google Events rich results**.
+  
+  ### When to Use Event Schema
+  
+  - For local business events (grand openings, sales, workshops).
+  
+  - For live webinars or online events hosted by the business.
+  
+  - For industry conferences where a business is a speaker or sponsor.
+  
+  - For community events sponsored by a local brand.
+  
+  ### Event Schema Combinations
+  
+  Event Schema works well with:
+  
+  - LocalBusiness Schema (for business-hosted events)
+  
+  - Organization Schema (to link the event to a business entity)
+  
+  - Offer Schema (for ticketed events)
+  
+  - Review Schema (for user-generated event feedback)
+  
+  ### SEO Benefits of Event Schema
+  
+  ✔ Helps events appear in Google Events search results
+  
+  ✔ Boosts local visibility for event-based businesses
+  
+  ✔ Improves engagement and attendance rates
+  
+  ✔ Enhances brand authority in local markets
+  
+  ### Example JSON-LD for Event Schema
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “Event”,
+  
+  “name”: “SEO Mastery Workshop”,
+  
+  “startDate”: “2025-06-15T09:00”,
+  
+  “endDate”: “2025-06-15T17:00”,
+  
+  “eventAttendanceMode”: “https://schema.org/OfflineEventAttendanceMode”,
+  
+  “eventStatus”: “https://schema.org/EventScheduled”,
+  
+  “location”: {
+  
+      “@type”: “Place”,
+  
+      “name”: “Downtown Conference Center”,
+  
+      “address”: {
+  
+        “@type”: “PostalAddress”,
+  
+        “streetAddress”: “123 Main Street”,
+  
+        “addressLocality”: “New York”,
+  
+        “addressRegion”: “NY”,
+  
+        “postalCode”: “10001”,
+  
+        “addressCountry”: “US”
+  
+      }
+  
+  },
+  
+  “organizer”: {
+  
+      “@type”: “Organization”,
+  
+      “name”: “Chaz Edward Local Marketing”,
+  
+      “url”: “https://chazedward.com”
+  
+  }
+  
+  }
+  
+  ### Stacking Event Schema + LocalBusiness Schema
+  
+  ✅ When to Use It: If your business hosts events (e.g., workshops, sales events, webinars, or networking meetups), you can include Event Schema inside LocalBusiness Schema to associate the event with the business entity.
+  
+  **Best Practice:** Nest Event Schema within LocalBusiness Schema when the event is specific to the business. However, for large events (e.g., conferences or public expos), it’s better to use a standalone Event Schema on a separate event page.
+  
+  #### Key Takeaways
+  
+  ✅ Use nested Event Schema inside LocalBusiness Schema for business-hosted events at the company’s physical location.
+  
+  ✅ Use standalone Event Schema for larger public events that should rank independently in Google search.
+  
+  ✅ **Best Practice:** If the event directly contributes to your business visibility, nest it inside LocalBusiness. If the event needs its own search visibility, use a separate schema.
+  
+  ### Example JSON-LD LocalBusiness + Event Schema
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “LocalBusiness”,
+  
+  “name”: “Chaz Edward Local Marketing”,
+  
+  “url”: “https://chazedward.com”,
+  
+  “address”: {
+  
+      “@type”: “PostalAddress”,
+  
+      “streetAddress”: “123 Main St”,
+  
+      “addressLocality”: “New York”,
+  
+      “addressRegion”: “NY”,
+  
+      “postalCode”: “10001”,
+  
+      “addressCountry”: “US”
+  
+  },
+  
+  “event”: {
+  
+      “@type”: “Event”,
+  
+      “name”: “Local SEO Mastery Workshop”,
+  
+      “startDate”: “2025-06-15T09:00”,
+  
+      “endDate”: “2025-06-15T17:00”,
+  
+      “location”: {
+  
+        “@type”: “Place”,
+  
+        “name”: “Downtown Conference Center”,
+  
+        “address”: {
+  
+          “@type”: “PostalAddress”,
+  
+          “streetAddress”: “456 Event Ave”,
+  
+          “addressLocality”: “New York”,
+  
+          “addressRegion”: “NY”,
+  
+          “postalCode”: “10002”,
+  
+          “addressCountry”: “US”
+  
+        }
+  
+      },
+  
+      “organizer”: {
+  
+        “@type”: “Organization”,
+  
+        “name”: “Chaz Edward Local Marketing”,
+  
+        “url”: “https://chazedward.com”
+  
+      }
+  
+  }
+  
+  }
+  
+  ### SEO Benefits of Using Event Schema with LocalBusiness
+  
+  ✔ Helps events appear in Google Events results
+  
+  ✔ Strengthens local relevance and business authority
+  
+  ✔ Increases attendance and engagement
+  
+  ### Best Practices for Event Schema on a Dedicated Event Page
+  
+  ✅ Use Event Schema ONLY on the event page – The event page should be solely focused on event details.
+  
+  ✅ Make the event page indexable – Ensure it’s not blocked by robots.txt and has a clean URL (e.g., yourwebsite.com/events/seo-workshop-2025/).
+  
+  ✅ Include full event details in text format – Google still relies on on-page content to verify structured data, so describe the event clearly in text.
+  
+  ✅ Add internal links – Link from your main website pages (like the homepage, blog, or navigation) to the event page for better discoverability.
+  
+  ### How to Structure an Event Page
+  
+  If your business is hosting a Local SEO Workshop 2025, your event page might look like this:
+  
+  🔹 URL: https://yourwebsite.com/events/local-seo-workshop-2025/
+  
+  🔹 Page Content:
+  
+  - Event Title: Local SEO Mastery Workshop 2025
+  
+  - Event Date & Time: June 15, 2025 \| 9:00 AM – 5:00 PM EST
+  
+  - Location: Chaz Edward Local Marketing HQ, New York, NY
+  
+  - Description: Join us for an exclusive hands-on workshop covering Google Business Profile optimization, local link-building strategies, and AI-driven local SEO techniques.
+  
+  - Registration Button: Reserve Your Spot
+  
+  - Speakers: Chaz Edward, SEO Experts
+  
+  - Contact Info: Email: support@yourwebsite.com \| Phone: (555) 123-4567
+  
+  And the Event Schema would be structured like this:
+  
+  {
+  
+  “@context”: “https://schema.org”,
+  
+  “@type”: “Event”,
+  
+  “name”: “Local SEO Mastery Workshop 2025”,
+  
+  “startDate”: “2025-06-15T09:00”,
+  
+  “endDate”: “2025-06-15T17:00”,
+  
+  “eventAttendanceMode”: “https://schema.org/OfflineEventAttendanceMode”,
+  
+  “eventStatus”: “https://schema.org/EventScheduled”,
+  
+  “location”: {
+  
+      “@type”: “Place”,
+  
+      “name”: “Chaz Edward Local Marketing HQ”,
+  
+      “address”: {
+  
+        “@type”: “PostalAddress”,
+  
+        “streetAddress”: “123 Main St”,
+  
+        “addressLocality”: “New York”,
+  
+        “addressRegion”: “NY”,
+  
+        “postalCode”: “10001”,
+  
+        “addressCountry”: “US”
+  
+      }
+  
+  },
+  
+  “organizer”: {
+  
+      “@type”: “Organization”,
+  
+      “name”: “Chaz Edward Local Marketing”,
+  
+      “url”: “https://chazedward.com”
+  
+  },
+  
+  “offers”: {
+  
+      “@type”: “Offer”,
+  
+      “url”: “https://yourwebsite.com/events/local-seo-workshop-2025/”,
+  
+      “price”: “199.00”,
+  
+      “priceCurrency”: “USD”,
+  
+      “availability”: “https://schema.org/InStock”,
+  
+      “validFrom”: “2025-04-01T00:00”
+  
+  },
+  
+  “performer”: {
+  
+      “@type”: “Person”,
+  
+      “name”: “Chaz Edward”
+  
+  },
+  
+  “description”: “An exclusive hands-on workshop covering Google Business Profile optimization, local link-building strategies, and AI-driven local SEO techniques.”,
+  
+  “image”: “https://yourwebsite.com/images/local-seo-workshop-2025.jpg”
+  
+  }
+  
+  ### Should You Also Mention the Event on Other Pages?
+  
+  ✅ Yes! Even though the Event Schema should be applied only on the event page, you can promote the event in other areas of your site:
+  
+  - Homepage (Brief mention + CTA linking to the event page)
+  
+  - Blog Post (Announce the event and discuss related topics)
+  
+  - Google Business Profile (Post the event details)
+  
+  - Social Media (Share updates, countdowns, and registration links)
+  
+  ### Final Takeaways
+  
+  ✅ If an event needs standalone Event Schema, it should have a dedicated page.
+  
+  ✅ Use Event Schema only on the event page (not sitewide).
+  
+  ✅ Ensure the event page is indexable and well-linked internally.
+  
+  ✅ Promote the event across your website and marketing channels.
+  
+  Subscribe to the Free Email Mini Course
+  
+  
+  ![](https://content.app-us1.com/v8R8z/2025/02/05/8f2b4f93-6257-4427-a556-504613103ec6.png)
+  
+  **This 8 Part Mini Email Course will Take You from Schema Rookie to Schema Pro in 8 Days**
+  
+  Email\*
+  
+  
+  First Name
+  
+  
+  Enroll Now
+  
+  
+  ## Take Action on JSON-LD for Local SEO
+  
+  Implementing JSON-LD schema markup is no longer optional—it’s an essential SEO strategy. By structuring your website’s data properly, you enhance its discoverability, improve user experience, and increase search visibility.
+  
+  **Next Steps**
+  
+  - Use **[Schema Generator](https://chazedward.com/seo-tools/schema-generator/)** to create, test, and deploy structured data easily.
+  - Audit your current schema implementation in **Google Search Console**.
+  - Monitor **Google Rich Results Testing Tool** for validation and enhancements.
+  
+  By mastering JSON-LD and entity-based SEO, you position your website for **long-term search success**.
+  
+  ### Let’s Talk About Your Local Marketing
+  
+  Ready to take your local business to the next level?
+  
+  Contact us today and see how Chaz Edward Local Marketing can help you achieve your goals with proven SEO strategies tailored to your needs!
+  
+  
+  [Schedule a Call With Chaz](https://chazedward.com/how-to-use-schema-for-local-seo/#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjE4MSIsInRvZ2dsZSI6ZmFsc2V9)
+  
+  Facebook
+  
+  Twitter
+  
+  LinkedIn
+  
+  ## Leave a Reply [Cancel reply](https://chazedward.com/how-to-use-schema-for-local-seo/\#respond)
+  
+  Your email address will not be published.Required fields are marked \*
+  
+  Comment \*
+  
+  Email \*![Gravatar profile](https://chazedward.com/how-to-use-schema-for-local-seo/)
+  
+  Name \*
+  
+  Website
+  
+  Save my name, email, and website in this browser for the next time I comment.
+  
+  Alternative:
+  
+  WPA
+  
+  Facebook
+  
+  ## Give your brand a boost today!
+  
+  Bringing Your Brand Home, One Click at a Time Using Data-Driven Digital Marketing Solutions Designed to Maximize New Customers and Revenue
+  
+  ## Request a Free Digital Marketing Audit and Custom Strategy
+  
+  Please allow up to 5 business days for the completion of your audit and custom strategy
+  
+  ![](https://chazedward.com/wp-content/uploads/2023/08/im-image-section-97-v2.png)
+  
+  Enter your information to receive a free Digital Marketing Audit and Customized Growth Strategy.
+  
+  Name
+  
+  Enter Your Email
+  
+  Phone
+  
+  Company Name
+  
+  Website URL
+  
+  Current Marketing Budget
+  
+  Current Marketing
+  
+  Top Products/Services
+  
+  Growth Goals
+  
+  By submitting, you'll get helpful updates via text. Reply STOP anytime to opt out. Msg & data rates may apply. View our [Terms of Service](https://chazedward.com/terms-of-service/) and [Privacy Policy](https://chazedward.com/privacy-policy/).
+  
+  Free Analysis
+  
+  Alternative:
+  
+  WPA
+  
+  ## Leave a Reply [Cancel reply](https://chazedward.com/how-to-use-schema-for-local-seo/\#respond)
+  
+  Your email address will not be published.Required fields are marked \*
+  
+  Comment \*
+  
+  Email \*![Gravatar profile](https://chazedward.com/how-to-use-schema-for-local-seo/)
+  
+  Name \*
+  
+  Website
+  
+  Save my name, email, and website in this browser for the next time I comment.
+  
+  Alternative:
+  
+  WPA
+  
+  ## Try the Free Nested Schema Markup Generator
+  
+  **[\[Free Access: Schema Generator\]](https://chazedward.com/seo-tools/schema-generator/)**
+  
+  [![free schema generator tool](https://chazedward.com/wp-content/uploads/2025/02/schema-generator-1024x593.png)](https://chazedward.com/seo-tools/schema-generator/)
+  
+  Subscribe to the Free Email Mini Course
+  
+  ![](https://chazedward.com/wp-content/uploads/2025/04/8f2b4f93-6257-4427-a556-504613103ec6-1024x576.png)
+  
+  **This 8 Part Mini Email Course will Take You from Schema Rookie to Schema Pro in 8 Days**
+  
+  Email
+  
+  First Name
+  
+  Enroll Now
+  
+  Alternative:
+  
+  WPA
+  
+  ##### Let’s Talk About Your Local Marketing
+  
+  Ready to take your local business to the next level?
+  
+  Contact us today and see how Chaz Edward Local Marketing can help you achieve your goals with proven SEO strategies tailored to your needs!
+  
+  [Scheducle a call with Chaz](https://chazedward.com/how-to-use-schema-for-local-seo/#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjE4MSIsInRvZ2dsZSI6ZmFsc2V9)
+  
+  Facebook
+  
+  ## Give your brand a boost today!
+  
+  Find out exactly what it takes to rank in Google Maps, Local Search, and Increase your Local Company’s Online Visibility
+  
+  ## Request a Free Digital Marketing Audit and Custom Strategy
+  
+  Please allow up to 5 business days for the completion of your audit and custom strategy
+  
+  Name
+  
+  Email
+  
+  Phone Number
+  
+  Company Name
+  
+  Website URL
+  
+  Current Marketing Budget
+  
+  Briefly Describe Your Current Marketing Efforts
+  
+  Top Products/Services
+  
+  What Are Your Growth Goals for the Next 12 Months?
+  
+  I agree to receive recurring automated text messages at the phone number provided. Msg & data rates may apply. Msg frequency varies. Reply HELP for help and STOP to cancel. View our [Terms of Service](https://chazedward.com/terms-of-service/) and [Privacy Policy](https://chazedward.com/privacy-policy/).
+  
+  Free Analysis
+  
+  Alternative:
+  
+  WPA
+  
+  [![Chaz Edward | Local SEO](https://2.gravatar.com/avatar/0fc354f94bfe198bcfe4d0c7e2831fa4b476c0ebe945530495226ade5bb3346c?s=144)](https://gravatar.com/chazedward?utm_source=gravatar-block)[**Chaz Edward \| Local SEO**\\
+  \\
+  Founder & Dir of SEO Strategy\\
+  \\
+  Chaz Edward Local Marketing\\
+  \\
+  Pennsylvania, USA](https://gravatar.com/chazedward?utm_source=gravatar-block)
+  
+  Chaz Edward is a seasoned local SEO expert and digital marketing strategist with over a decade of experience helping businesses grow their online presence. Starting his journey in 2010 by marketing his own locksmith business, Chaz quickly became a leader in local SEO, building a reputation for delivering measurable results.
+  
+  As the founder of industry-leading ventures like Web 20 Ranker, Local Viking, and the Local SEO Community (12,000+ members), Chaz has managed over 10,000 local SEO campaigns, trained thousands of marketers, and developed innovative tools and strategies that redefine local marketing success.
+  
+  Today, Chaz continues to empower businesses and agencies through Chaz Edward Local Marketing, delivering proven strategies to boost visibility, drive traffic, and generate leads.
+  
+  [![Gravatar](https://secure.gravatar.com/icons/gravatar.svg)](https://gravatar.com/chazedward?utm_source=gravatar-block)[![WordPress](https://gravatar.com/icons/wordpress.svg)](https://chazedward.com/)[![X](https://gravatar.com/icons/x.svg)](https://x.com/ChazEdwardsSEO)[![LinkedIn](https://gravatar.com/icons/linkedin.svg)](https://www.linkedin.com/in/chaz-edward)[![Calendly](https://gravatar.com/icons/calendly.svg)](https://calendly.com/chazedward)[View profile →](https://gravatar.com/chazedward?utm_source=gravatar-block)
+  
+  Start Ranking Better! Get our
+  
+  "Free SEO Resources"
+  
+  sent to Your Inbox Today
+  
+  Email
+  
+  Send
+  
+  Alternative:
+  
+  WPA
+  
+  ![organics](https://chazedward.com/wp-content/uploads/2024/04/better-vet-organics-1024x694.png)
+  
+  Free Local SEO Strategy call
+  
+  [Free SEO Audit](https://chazedward.com/how-to-use-schema-for-local-seo/#elementor-action%3Aaction%3Dpopup%3Aopen%26settings%3DeyJpZCI6IjE4MSIsInRvZ2dsZSI6ZmFsc2V9)
+  
+  Follow Us on Social Media
+  
+  [Youtube](https://www.youtube.com/@chazedwardlocalmarketing)[Linkedin](https://www.linkedin.com/company/chazedwardlocalmarketing)[Facebook-f](https://www.facebook.com/chaz.edwards.marketer)[Instagram](https://www.instagram.com/chaz_edwards_local_seo/)[X-twitter](https://x.com/ChazEdwardsSEO)
+  
+  Recent Posts
+  
+  [![](https://chazedward.com/wp-content/uploads/2026/02/gemini_generated_image_4xr4o24xr4o24xr4-300x167.webp)](https://chazedward.com/turn-missed-calls-into-revenue-ai-chatbot-development-live-chat-setup/)
+  
+  ### [Turn Missed Calls Into Revenue: AI Chatbot Development & Live Chat Setup](https://chazedward.com/turn-missed-calls-into-revenue-ai-chatbot-development-live-chat-setup/)
+  
+  [Read More »](https://chazedward.com/turn-missed-calls-into-revenue-ai-chatbot-development-live-chat-setup/)
+  
+  [![](https://chazedward.com/wp-content/uploads/2026/01/social-media-is-now-a-google-business-ranking-signal-300x157.jpg)](https://chazedward.com/social-media-local-seo-ranking/)
+  
+  ### [The Game-Changing Truth About Social Media and Google That Nobody Told You](https://chazedward.com/social-media-local-seo-ranking/)
+  
+  [Read More »](https://chazedward.com/social-media-local-seo-ranking/)
+  
+  [![](https://chazedward.com/wp-content/uploads/2025/12/how-we-stopped-a-google-review-extortion-attack-in-48-hours-300x168.jpg)](https://chazedward.com/google-review-extortion-removal-guide/)
+  
+  ### [How We Stopped a Google Review Extortion Attack in 48 Hours](https://chazedward.com/google-review-extortion-removal-guide/)
+  
+  [Read More »](https://chazedward.com/google-review-extortion-removal-guide/)
+  
+  ×
+  
+  Hi! I'm here to help you find the perfect local marketing service for your business.
+  Just click chat with us or ask me a question.
+  
+  Chat With Us
+  --- End Content ---
+
+Multiple json+ld structured data for SEO · vercel next.js - GitHub
+  URL: https://github.com/vercel/next.js/discussions/44836
+  Interestingly, it appears the only way to get product page to have the product schema is to actually remove the global schema json altogether.
+  Category: github
+
+  --- Content ---
+  [Skip to content](https://github.com/vercel/next.js/discussions/44836#start-of-content)
+  
+  You signed in with another tab or window. [Reload](https://github.com/vercel/next.js/discussions/44836) to refresh your session.You signed out in another tab or window. [Reload](https://github.com/vercel/next.js/discussions/44836) to refresh your session.You switched accounts on another tab or window. [Reload](https://github.com/vercel/next.js/discussions/44836) to refresh your session.Dismiss alert
+  
+  {{ message }}
+  
+  [vercel](https://github.com/vercel)/ **[next.js](https://github.com/vercel/next.js)** Public
+  
+  - [Notifications](https://github.com/login?return_to=%2Fvercel%2Fnext.js) You must be signed in to change notification settings
+  - [Fork\\
+  30.6k](https://github.com/login?return_to=%2Fvercel%2Fnext.js)
+  - [Star\\
+  138k](https://github.com/login?return_to=%2Fvercel%2Fnext.js)
+  
+  
+  # Multiple json+ld structured data for SEO  \#44836
+  
+  [Answered](https://github.com/vercel/next.js/discussions/44836#discussioncomment-4674680) by [icyJoseph](https://github.com/icyJoseph "icyJoseph")
+  
+  [telestrial](https://github.com/telestrial)
+  
+  asked this question in
+  [Help](https://github.com/vercel/next.js/discussions/categories/help)
+  
+  [Multiple json+ld structured data for SEO](https://github.com/vercel/next.js/discussions/44836#top)#44836
+  
+  [![@telestrial](https://avatars.githubusercontent.com/u/1040081?s=40&v=4)\\
+  telestrial](https://github.com/telestrial)
+  
+  on Jan 12, 2023Jan 12, 2023·
+  1 comments
+  ·
+  3 replies
+  
+  
+  [Answered](https://github.com/vercel/next.js/discussions/44836#discussioncomment-4674680)by [icyJoseph](https://github.com/icyJoseph "icyJoseph")[Return to top](https://github.com/vercel/next.js/discussions/44836#top)
+  
+  Discussion options
+  
+  # {{title}}
+  
+  Quote reply
+  
+  edited
+  
+  # {{editor}}'s edit
+  
+  {{actor}} deleted this content
+  .
+  
+  # {{editor}}'s edit
+  
+  ## [![](https://avatars.githubusercontent.com/u/1040081?s=64&v=4)\ telestrial](https://github.com/telestrial) [on Jan 12, 2023Jan 12, 2023](https://github.com/vercel/next.js/discussions/44836\#discussion-4752590)
+  
+  Original comment in English -
+  Translate to English
+  
+  |     |
+  | --- |
+  | Hello,<br>My goal here is to have two different application/json+ld scripts in the head when I'm on a product page. 1 organizational that sits on all pages and 1 for individual product pages. I've simplified things just for the sake of the discussion. [Here](https://codesandbox.io/p/sandbox/goofy-julien-vqffs6?selection=%5B%7B%22endColumn%22%3A1%2C%22endLineNumber%22%3A24%2C%22startColumn%22%3A1%2C%22startLineNumber%22%3A24%7D%5D&file=%2Fpackage.json) is a code sandbox that lays out a couple different strategies I've tried that have not worked.<br>1. Components representing the script tag inserted between head on \_document and the product page. (GlobalSEO and ProductSEO)<br>2. Components wrapped in Head placed in \_document and product outside the head. (WrappedGlobalSEO and WrappedProductSEO).<br>3. bare script tags in the head of \_document and product<br>Interestingly, it appears the only way to get product page to have the product schema is to actually remove the global schema json altogether.<br>Another tactic might be to create some kind of super component that produces a json+ld array, 0th position having the organizational data and then conditionally adding another index for the product data if those props exist, but that would be a fair amount of code repetition. Is there a better way?<br>Some threads I've been looking over that may or may not be related: [#22729](https://github.com/vercel/next.js/issues/22729), [#11012](https://github.com/vercel/next.js/issues/11012), and [#9126](https://github.com/vercel/next.js/issues/9126). This [comment](https://github.com/vercel/next.js/issues/22729#issuecomment-974516530), in particular, seemed to suggest it was completely possible, but I haven't had luck using that method (third on the list above). |
+  
+  BetaWas this translation helpful? [Give feedback.](https://github.com/vercel/next.js/discussions/44836#)
+  
+  1You must be logged in to vote
+  
+  All reactions
+  
+  Answered by
+  [icyJoseph](https://github.com/icyJoseph)[on Jan 13, 2023Jan 13, 2023](https://github.com/vercel/next.js/discussions/44836#discussioncomment-4674680)
+  
+  You could define a data getter at page level, and then from within \_app collect the page data, if any, and merge that with some baseline/defaults.
+  
+  ```
+  import type { AppProps } from "next/app";
+  
+  type AnyObject = Record<string, unknown>;
+  
+  type Data = {'@content': string; '@type': string; name: string; pid: number}
+  
+  export type MyPage<P = AnyObject, IP = AnyObject> = NextPage<P, IP> & {
+      getJSONStructuredData?: (pageProps: P) => Array<Data>;
+  };
+  
+  type MyAppProps = AppProps & {
+      Component: MyPage;
+  }
+  
+  const MyApp = ({Component, pageProps, initialState}: MyAppProps) =>  {
+      return (
+          <>
+                  <InjectSEO pageOwnData={Component?.getJSONStructuredData?.(pageProps)} />
+        …
+  ```
+  
+  [View full answer](https://github.com/vercel/next.js/discussions/44836#discussioncomment-4674680)
+  
+  ## Replies:   1 comment  ·  3 replies
+  
+  Comment options
+  
+  ### Uh oh!
+  
+  There was an error while loading. [Please reload this page](https://github.com/vercel/next.js/discussions/44836).
+  
+  # {{title}}
+  
+  Quote reply
+  
+  edited
+  
+  ### Uh oh!
+  
+  There was an error while loading. [Please reload this page](https://github.com/vercel/next.js/discussions/44836).
+  
+  # {{editor}}'s edit
+  
+  {{actor}} deleted this content
+  .
+  
+  # {{editor}}'s edit
+  
+  ### [![](https://avatars.githubusercontent.com/u/21013447?s=64&v=4)\ icyJoseph](https://github.com/icyJoseph) [on Jan 13, 2023Jan 13, 2023](https://github.com/vercel/next.js/discussions/44836\#discussioncomment-4674680)   Maintainer
+  
+  Original comment in English -
+  Translate to English
+  
+  |     |
+  | --- |
+  | You could define a data getter at page level, and then from within \_app collect the page data, if any, and merge that with some baseline/defaults.<br>```<br>import type { AppProps } from "next/app";<br>type AnyObject = Record<string, unknown>;<br>type Data = {'@content': string; '@type': string; name: string; pid: number}<br>export type MyPage<P = AnyObject, IP = AnyObject> = NextPage<P, IP> & {<br>    getJSONStructuredData?: (pageProps: P) => Array<Data>;<br>};<br>type MyAppProps = AppProps & {<br>    Component: MyPage;<br>}<br>const MyApp = ({Component, pageProps, initialState}: MyAppProps) =>  {<br>    return (<br>        <>   <br>                <InjectSEO pageOwnData={Component?.getJSONStructuredData?.(pageProps)} /><br>                <Component {...pageProps} /><br>        </><br>    );<br>}<br>```<br>And then each page can opt-in to implementing `getJSONStructruredData`:<br>```<br>const Product: MyPage<ProductProps> = () => <div>P</div><br>// props here is typed as ProductProps<br>Product. getJSONStructuredData = (props) => { return [ /* something */] } <br>```<br>Pretty much the way shared layouts work in Next.js pages directory: [https://nextjs.org/docs/basic-features/layouts](https://nextjs.org/docs/basic-features/layouts)<br>The InjectSEO component takes care of filling in defaults ~ |
+  
+  BetaWas this translation helpful? [Give feedback.](https://github.com/vercel/next.js/discussions/44836#)
+  
+  Marked as answer
+  
+  1You must be logged in to vote
+  
+  All reactions
+  
+  3 replies
+  
+  
+  [![@telestrial](https://avatars.githubusercontent.com/u/1040081?s=60&v=4)](https://github.com/telestrial)
+  
+  Comment options
+  
+  ### Uh oh!
+  
+  There was an error while loading. [Please reload this page](https://github.com/vercel/next.js/discussions/44836).
+  
+  # {{title}}
+  
+  Quote reply
+  
+  edited
+  
+  ### Uh oh!
+  
+  There was an error while loading. [Please reload this page](https://github.com/vercel/next.js/discussions/44836).
+  
+  # {{editor}}'s edit
+  
+  {{actor}} deleted this content
+  .
+  
+  # {{editor}}'s edit
+  
+  #### [telestrial](https://github.com/telestrial) [on Jan 13, 2023Jan 13, 2023](https://github.com/vercel/next.js/discussions/44836\#discussioncomment-4679086)   Author
+  
+  Original comment in English -
+  Translate to English
+  
+  |     |
+  | --- |
+  | Does<br>```<br>export type Page<P = AnyObject, IP = AnyObject> = NextPage<P, IP> & {<br>    getJSONStructuredData?: (pageProps: P) => Array<Data>;<br>};<br>```<br>need to be MyPage ? I'm not being critical I'm just trying to make sure I understand the example. |
+  
+  BetaWas this translation helpful? [Give feedback.](https://github.com/vercel/next.js/discussions/44836#)
+  
+  All reactions
+  
+  [![@icyJoseph](https://avatars.githubusercontent.com/u/21013447?s=60&v=4)](https://github.com/icyJoseph)
+  
+  Comment options
+  
+  ### Uh oh!
+  
+  There was an error while loading. [Please reload this page](https://github.com/vercel/next.js/discussions/44836).
+  
+  # {{title}}
+  
+  Quote reply
+  
+  #### [icyJoseph](https://github.com/icyJoseph) [on Jan 13, 2023Jan 13, 2023](https://github.com/vercel/next.js/discussions/44836\#discussioncomment-4679408)   Maintainer
+  
+  Original comment in English -
+  Translate to English
+  
+  |     |
+  | --- |
+  | AH yeah, my bad, it was very early when I wrote that... |
+  
+  BetaWas this translation helpful? [Give feedback.](https://github.com/vercel/next.js/discussions/44836#)
+  
+  All reactions
+  
+  [![@telestrial](https://avatars.githubusercontent.com/u/1040081?s=60&v=4)](https://github.com/telestrial)
+  
+  Comment options
+  
+  ### Uh oh!
+  
+  There was an error while loading. [Please reload this page](https://github.com/vercel/next.js/discussions/44836).
+  
+  # {{title}}
+  
+  Quote reply
+  
+  edited
+  
+  ### Uh oh!
+  
+  There was an error while loading. [Please reload this page](https://github.com/vercel/next.js/discussions/44836).
+  
+  # {{editor}}'s edit
+  
+  {{actor}} deleted this content
+  .
+  
+  # {{editor}}'s edit
+  
+  #### [telestrial](https://github.com/telestrial) [on Jan 13, 2023Jan 13, 2023](https://github.com/vercel/next.js/discussions/44836\#discussioncomment-4679494)   Author
+  
+  Original comment in English -
+  Translate to English
+  
+  |     |
+  | --- |
+  | No problem! I'm a junior dev so I'm like barely hanging with you here. However: I implemented this and it works really well. This is a way to condense two (or three or infinity) json+ld objects that could be page specific along with other more general structured data you may want to include on a page. The only thing I changed was returning an object instead of an array. I then collect these objects in the InjectSEO component to compile a json+ld array. This reads well and passes schema.org validation. Given that Next seems to do some "magic" in the Head to prevent having two separate tags and Google/others may not even pay attention to a second tag, this is the good stuff.<br>P.S. In the second snippet, it's also `getJSONStructuredData` instead of `getJSONStructruredData`, just in case anyone else finds their way here.<br>Thank you so much for your help. This is great. |
+  
+  BetaWas this translation helpful? [Give feedback.](https://github.com/vercel/next.js/discussions/44836#)
+  
+  ![rocket](https://github.githubassets.com/assets/1f680-d0ef47fdb515.png)1
+  
+  All reactions
+  
+  - ![rocket](https://github.githubassets.com/assets/1f680-d0ef47fdb515.png)1
+  
+  Answer selected by [telestrial](https://github.com/telestrial)
+  
+  [Sign up for free](https://github.com/join?source=comment-repo) **to join this conversation on GitHub**.
+  Already have an account?
+  [Sign in to comment](https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Fdiscussions%2F44836)
+  
+  Category
+  
+  
+  [![mortar_board](https://github.githubassets.com/assets/1f393-852c7412e9c7.png)\\
+  \\
+  Help](https://github.com/vercel/next.js/discussions/categories/help)
+  
+  Labels
+  
+  
+  None yet
+  
+  
+  2 participants
+  
+  
+  [![@telestrial](https://avatars.githubusercontent.com/u/1040081?s=48&v=4)](https://github.com/telestrial)[![@icyJoseph](https://avatars.githubusercontent.com/u/21013447?s=48&v=4)](https://github.com/icyJoseph)
+  
+  Heading
+  
+  Bold
+  
+  Italic
+  
+  Quote
+  
+  Code
+  
+  Link
+  
+  * * *
+  
+  Numbered list
+  
+  Unordered list
+  
+  Task list
+  
+  * * *
+  
+  Attach files
+  
+  Mention
+  
+  Reference
+  
+  # Select a reply
+  
+  Loading
+  
+  [Create a new saved reply](https://github.com/vercel/next.js/discussions/44836)
+  
+  👍1 reacted with thumbs up emoji👎1 reacted with thumbs down emoji😄1 reacted with laugh emoji🎉1 reacted with hooray emoji😕1 reacted with confused emoji❤️1 reacted with heart emoji🚀1 reacted with rocket emoji👀1 reacted with eyes emoji
+  
+  You can’t perform that action at this time.
+  --- End Content ---
+
+Schema.org for SEO: Ready-to-Use JSON-LD Examples - Incremys
+  URL: https://www.incremys.com/en/resources/blog/schema-seo
+  Master schema for SEO with Schema.org: JSON-LD markup, validation, required fields and Search Console monitoring to improve rich results and ...
+
+  --- Content ---
+  [![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/69330bbd636a1ed3de1a398f_Cover%20YouTube%20(1).png)![](https://cdn.prod.website-files.com/675174c2182accb9cbdaaecf/67d409c033855ff6a762cb7d_youtube-icon.svg)](https://youtu.be/AZA06w-XJPs)
+  
+  Tech for Retail 2025 Workshop: From SEO to GEO – Gaining Visibility in the Era of Generative Engines
+  
+  [Back to blog](https://www.incremys.com/en/resources/blog)
+  
+  # Schema for SEO: How to Choose, Validate and Optimise Your Schema Markup
+  
+  SEO
+  
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)
+  
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)
+  
+  Discover Incremys
+  
+  The 360° Next Gen SEO Platform
+  
+  ![](https://cdn.prod.website-files.com/675174c2182accb9cbdaaecf/675ac692de1415367d233f7f_BG-Article-01.avif)
+  
+  [Request a demo](https://www.incremys.com/en/resources/blog/schema-seo#section-cta)
+  
+  Last updated on
+  
+  9/3/2026
+  
+  [Chapitre 01\\
+  \\
+  Understanding Schema for SEO (Schema Markup): a Practical Guide Built on Structured Data](https://www.incremys.com/en/resources/blog/schema-seo#understanding-schema-for-seo-schema-markup-a-practical-guide-built-on-structured-data)
+  
+  [What You Will Find Here: a 100% Schema.org Approach, with JSON-LD Examples](https://www.incremys.com/en/resources/blog/schema-seo#what-you-will-find-here-a-100percent-schemaorg-approach-with-json-ld-examples)
+  
+  [Prerequisites: Essential Definitions of Structured Data Are Covered Elsewhere](https://www.incremys.com/en/resources/blog/schema-seo#prerequisites-essential-definitions-of-structured-data-are-covered-elsewhere)
+  
+  [Chapitre 02\\
+  \\
+  What Markup Changes: Impact on Rich Results, Rich Snippets and Featured Snippets](https://www.incremys.com/en/resources/blog/schema-seo#what-markup-changes-impact-on-rich-results-rich-snippets-and-featured-snippets)
+  
+  [What Google Understands Thanks to Markup (and What It Does Not Replace)](https://www.incremys.com/en/resources/blog/schema-seo#what-google-understands-thanks-to-markup-and-what-it-does-not-replace)
+  
+  [Rich Snippets and CTR: What Is Realistic to Expect](https://www.incremys.com/en/resources/blog/schema-seo#rich-snippets-and-ctr-what-is-realistic-to-expect)
+  
+  [GEO Angle: Improving Visibility in Generative AI Answers](https://www.incremys.com/en/resources/blog/schema-seo#geo-angle-improving-visibility-in-generative-ai-answers)
+  
+  [Chapitre 03\\
+  \\
+  Structured Data Formats: JSON-LD, Microdata and RDFa](https://www.incremys.com/en/resources/blog/schema-seo#structured-data-formats-json-ld-microdata-and-rdfa)
+  
+  [JSON-LD vs Microdata vs RDFa: Practical Differences](https://www.incremys.com/en/resources/blog/schema-seo#json-ld-vs-microdata-vs-rdfa-practical-differences)
+  
+  [Why Google Recommends JSON-LD (and What It Means Operationally)](https://www.incremys.com/en/resources/blog/schema-seo#why-google-recommends-json-ld-and-what-it-means-operationally)
+  
+  [Ground Rules: Consistency Between Visible Content, Markup and Intent](https://www.incremys.com/en/resources/blog/schema-seo#ground-rules-consistency-between-visible-content-markup-and-intent)
+  
+  [Chapitre 04\\
+  \\
+  A JSON-LD Implementation Method: from Page to Code You Can Validate](https://www.incremys.com/en/resources/blog/schema-seo#a-json-ld-implementation-method-from-page-to-code-you-can-validate)
+  
+  [Step 1: Choose Which Pages to Mark Up Based on Intent and Business Value](https://www.incremys.com/en/resources/blog/schema-seo#step-1-choose-which-pages-to-mark-up-based-on-intent-and-business-value)
+  
+  [Step 2: Map Entities, Types and Properties (Minimum Viable vs Enrichment)](https://www.incremys.com/en/resources/blog/schema-seo#step-2-map-entities-types-and-properties-minimum-viable-vs-enrichment)
+  
+  [Step 3: Produce Robust JSON-LD (Types, Required Fields, URL, @id)](https://www.incremys.com/en/resources/blog/schema-seo#step-3-produce-robust-json-ld-types-required-fields-url-id)
+  
+  [Step 4: Integrate the Code (CMS, Templates, Server Rendering) and Avoid Duplicates](https://www.incremys.com/en/resources/blog/schema-seo#step-4-integrate-the-code-cms-templates-server-rendering-and-avoid-duplicates)
+  
+  [Step 5: Test, Fix and Monitor in Google Search Console](https://www.incremys.com/en/resources/blog/schema-seo#step-5-test-fix-and-monitor-in-google-search-console)
+  
+  [Checks That Prevent 80% of Issues: Syntax, Required Fields and Page/Markup Alignment](https://www.incremys.com/en/resources/blog/schema-seo#checks-that-prevent-80percent-of-issues-syntax-required-fields-and-pagemarkup-alignment)
+  
+  [Chapitre 05\\
+  \\
+  High-Impact Schema.org Types: Code Examples for Article, Product, HowTo, Breadcrumb, FAQ and LocalBusiness](https://www.incremys.com/en/resources/blog/schema-seo#high-impact-schemaorg-types-code-examples-for-article-product-howto-breadcrumb-faq-and-localbusiness)
+  
+  [Article: Mark Up Editorial Content Without Over-Declaring](https://www.incremys.com/en/resources/blog/schema-seo#article-mark-up-editorial-content-without-over-declaring)
+  
+  [JSON-LD Example for Article (headline, author, datePublished, image)](https://www.incremys.com/en/resources/blog/schema-seo#json-ld-example-for-article-headline-author-datepublished-image)
+  
+  [Product: Structure a Product Page for Rich Results](https://www.incremys.com/en/resources/blog/schema-seo#product-structure-a-product-page-for-rich-results)
+  
+  [JSON-LD Example for Product + Offer (price, availability, brand) and Key Checks](https://www.incremys.com/en/resources/blog/schema-seo#json-ld-example-for-product-offer-price-availability-brand-and-key-checks)
+  
+  [FAQPage: Mark Up a FAQ Without Harming Quality](https://www.incremys.com/en/resources/blog/schema-seo#faqpage-mark-up-a-faq-without-harming-quality)
+  
+  [JSON-LD Example for FAQPage (question/answer) and Maintenance Best Practices](https://www.incremys.com/en/resources/blog/schema-seo#json-ld-example-for-faqpage-questionanswer-and-maintenance-best-practices)
+  
+  [HowTo: Describe a Step-by-Step Process That Can Be Extracted](https://www.incremys.com/en/resources/blog/schema-seo#howto-describe-a-step-by-step-process-that-can-be-extracted)
+  
+  [JSON-LD Example for HowTo (steps, tools, supplies) and Eligibility Criteria](https://www.incremys.com/en/resources/blog/schema-seo#json-ld-example-for-howto-steps-tools-supplies-and-eligibility-criteria)
+  
+  [BreadcrumbList: Make Navigation Hierarchy Explicit](https://www.incremys.com/en/resources/blog/schema-seo#breadcrumblist-make-navigation-hierarchy-explicit)
+  
+  [JSON-LD Example for BreadcrumbList (itemListElement) and URL Consistency](https://www.incremys.com/en/resources/blog/schema-seo#json-ld-example-for-breadcrumblist-itemlistelement-and-url-consistency)
+  
+  [LocalBusiness: Clarify Local Presence (NAP, Opening Hours, Geolocation)](https://www.incremys.com/en/resources/blog/schema-seo#localbusiness-clarify-local-presence-nap-opening-hours-geolocation)
+  
+  [JSON-LD Example for LocalBusiness (address, geo, openingHoursSpecification)](https://www.incremys.com/en/resources/blog/schema-seo#json-ld-example-for-localbusiness-address-geo-openinghoursspecification)
+  
+  [Organization: Strengthen Understanding of Your Brand and Corporate Pages](https://www.incremys.com/en/resources/blog/schema-seo#organization-strengthen-understanding-of-your-brand-and-corporate-pages)
+  
+  [JSON-LD Example for Organization (logo, sameAs, contactPoint) and @id Management](https://www.incremys.com/en/resources/blog/schema-seo#json-ld-example-for-organization-logo-sameas-contactpoint-and-id-management)
+  
+  [Chapitre 06\\
+  \\
+  Tools: Choosing a JSON Generator, Markup Generator and Validators](https://www.incremys.com/en/resources/blog/schema-seo#tools-choosing-a-json-generator-markup-generator-and-validators)
+  
+  [When to Use a JSON Generator or Markup Generator Without Producing "Cosmetic" Markup](https://www.incremys.com/en/resources/blog/schema-seo#when-to-use-a-json-generator-or-markup-generator-without-producing-cosmetic-markup)
+  
+  [How to Read a Schema.org Validator and Rich Results Test: Errors vs Warnings](https://www.incremys.com/en/resources/blog/schema-seo#how-to-read-a-schemaorg-validator-and-rich-results-test-errors-vs-warnings)
+  
+  [QA and Rollout: Versioning, Post-Release Checks and Tracking SEO Impact](https://www.incremys.com/en/resources/blog/schema-seo#qa-and-rollout-versioning-post-release-checks-and-tracking-seo-impact)
+  
+  [Chapitre 07\\
+  \\
+  WordPress: Getting Value from Yoast Without Breaking Consistency](https://www.incremys.com/en/resources/blog/schema-seo#wordpress-getting-value-from-yoast-without-breaking-consistency)
+  
+  [What Yoast Generates by Default: Limits, Checks and Markup Debt](https://www.incremys.com/en/resources/blog/schema-seo#what-yoast-generates-by-default-limits-checks-and-markup-debt)
+  
+  [Working with Yoast's Organization Output: Correctly Connecting Organization to Site Entities](https://www.incremys.com/en/resources/blog/schema-seo#working-with-yoasts-organization-output-correctly-connecting-organization-to-site-entities)
+  
+  [Yoast FAQ Governance: Avoid Duplication and Keep Quality High](https://www.incremys.com/en/resources/blog/schema-seo#yoast-faq-governance-avoid-duplication-and-keep-quality-high)
+  
+  [Chapitre 08\\
+  \\
+  Common Pitfalls: Schema.org Issues That Harm Eligibility or Trust](https://www.incremys.com/en/resources/blog/schema-seo#common-pitfalls-schemaorg-issues-that-harm-eligibility-or-trust)
+  
+  [Page vs JSON-LD Mismatches (Price, Reviews, Author, Dates): Why It Is Risky](https://www.incremys.com/en/resources/blog/schema-seo#page-vs-json-ld-mismatches-price-reviews-author-dates-why-it-is-risky)
+  
+  [Multiple Types Done Badly: When to Combine and When to Separate](https://www.incremys.com/en/resources/blog/schema-seo#multiple-types-done-badly-when-to-combine-and-when-to-separate)
+  
+  [Duplicate Microdata and JSON-LD: Avoid Competing Declarations](https://www.incremys.com/en/resources/blog/schema-seo#duplicate-microdata-and-json-ld-avoid-competing-declarations)
+  
+  [Chapitre 09\\
+  \\
+  Measuring Impact: Connecting Markup, Rich Results and SEO Performance](https://www.incremys.com/en/resources/blog/schema-seo#measuring-impact-connecting-markup-rich-results-and-seo-performance)
+  
+  [What to Track: Impressions, CTR, Enriched Pages and Structured Data Coverage](https://www.incremys.com/en/resources/blog/schema-seo#what-to-track-impressions-ctr-enriched-pages-and-structured-data-coverage)
+  
+  [When to Iterate: Completeness, Field Fixes and Expanding to More Templates](https://www.incremys.com/en/resources/blog/schema-seo#when-to-iterate-completeness-field-fixes-and-expanding-to-more-templates)
+  
+  [Chapitre 10\\
+  \\
+  Scaling with Incremys: Automate Audits, Prioritisation and ROI for Structured Data](https://www.incremys.com/en/resources/blog/schema-seo#scaling-with-incremys-automate-audits-prioritisation-and-roi-for-structured-data)
+  
+  [Spot Opportunities, Plan Delivery and Track Impact with a Data-Driven Approach](https://www.incremys.com/en/resources/blog/schema-seo#spot-opportunities-plan-delivery-and-track-impact-with-a-data-driven-approach)
+  
+  [Chapitre 11\\
+  \\
+  FAQ: Common Questions About Schema.org, Markup, JSON-LD and Validation](https://www.incremys.com/en/resources/blog/schema-seo#faq-common-questions-about-schemaorg-markup-json-ld-and-validation)
+  
+  [What Is Schema in SEO, and What Does Markup Do?](https://www.incremys.com/en/resources/blog/schema-seo#what-is-schema-in-seo-and-what-does-markup-do)
+  
+  [Which Structured Data Formats Should You Choose (JSON-LD, Microdata, RDFa), and What Does Microdata Mean?](https://www.incremys.com/en/resources/blog/schema-seo#which-structured-data-formats-should-you-choose-json-ld-microdata-rdfa-and-what-does-microdata-mean)
+  
+  [Why Does Google Recommend JSON-LD?](https://www.incremys.com/en/resources/blog/schema-seo#why-does-google-recommend-json-ld)
+  
+  [How Do You Implement JSON-LD Step by Step Without Recurring Issues?](https://www.incremys.com/en/resources/blog/schema-seo#how-do-you-implement-json-ld-step-by-step-without-recurring-issues)
+  
+  [Which Schema.org Types Should You Prioritise to Improve Rich Snippets?](https://www.incremys.com/en/resources/blog/schema-seo#which-schemaorg-types-should-you-prioritise-to-improve-rich-snippets)
+  
+  [How Do You Write Clean Article Markup (Author, Dates, Image)?](https://www.incremys.com/en/resources/blog/schema-seo#how-do-you-write-clean-article-markup-author-dates-image)
+  
+  [How Do You Structure Product Markup for Rich Results (Offer, Availability, Price)?](https://www.incremys.com/en/resources/blog/schema-seo#how-do-you-structure-product-markup-for-rich-results-offer-availability-price)
+  
+  [How Do You Mark Up a FAQ with Structured Data Without Creating Redundant Content?](https://www.incremys.com/en/resources/blog/schema-seo#how-do-you-mark-up-a-faq-with-structured-data-without-creating-redundant-content)
+  
+  [When Should You Use HowTo Rather Than a Standard Article?](https://www.incremys.com/en/resources/blog/schema-seo#when-should-you-use-howto-rather-than-a-standard-article)
+  
+  [What Is BreadcrumbList For, and What Should Breadcrumb Hierarchy Include?](https://www.incremys.com/en/resources/blog/schema-seo#what-is-breadcrumblist-for-and-what-should-breadcrumb-hierarchy-include)
+  
+  [LocalBusiness: Which Fields Are Essential for NAP, Opening Hours and Geo?](https://www.incremys.com/en/resources/blog/schema-seo#localbusiness-which-fields-are-essential-for-nap-opening-hours-and-geo)
+  
+  [Organization: How Do You Manage @id, Logo and sameAs Profiles Properly?](https://www.incremys.com/en/resources/blog/schema-seo#organization-how-do-you-manage-id-logo-and-sameas-profiles-properly)
+  
+  [Which Should You Use: a Schema.org Validator or a Markup Validator?](https://www.incremys.com/en/resources/blog/schema-seo#which-should-you-use-a-schemaorg-validator-or-a-markup-validator)
+  
+  [How Do You Use a JSON Generator or Markup Generator Without Creating Technical Debt?](https://www.incremys.com/en/resources/blog/schema-seo#how-do-you-use-a-json-generator-or-markup-generator-without-creating-technical-debt)
+  
+  [Errors vs Warnings: What Should You Fix First During Validation?](https://www.incremys.com/en/resources/blog/schema-seo#errors-vs-warnings-what-should-you-fix-first-during-validation)
+  
+  [Can You Combine Multiple Schema Types on the Same Page?](https://www.incremys.com/en/resources/blog/schema-seo#can-you-combine-multiple-schema-types-on-the-same-page)
+  
+  [Do Structured Data Improve SEO Rankings Directly?](https://www.incremys.com/en/resources/blog/schema-seo#do-structured-data-improve-seo-rankings-directly)
+  
+  [What Is the Link Between Rich Snippets, Featured Snippets and Optimising CTR?](https://www.incremys.com/en/resources/blog/schema-seo#what-is-the-link-between-rich-snippets-featured-snippets-and-optimising-ctr)
+  
+  [GEO Angle: What Is the Impact on Visibility in Generative AI Answers?](https://www.incremys.com/en/resources/blog/schema-seo#geo-angle-what-is-the-impact-on-visibility-in-generative-ai-answers)
+  
+  [How Do You Avoid Inconsistencies Between Visible Content and JSON-LD?](https://www.incremys.com/en/resources/blog/schema-seo#how-do-you-avoid-inconsistencies-between-visible-content-and-json-ld)
+  
+  ## Understanding Schema for SEO (Schema Markup): a Practical Guide Built on Structured Data
+  
+  If you have already read our guide to [structured data](https://www.incremys.com/en/resources/blog/structured-data), you have the fundamentals. Here, we zoom in on the technical implementation of **Schema.org markup for SEO**: how to generate it cleanly, deploy it without creating technical debt, test it, and choose the types that genuinely matter (Article, Product, FAQPage, HowTo, BreadcrumbList, LocalBusiness, Organization).
+  
+  The goal is straightforward: reliable markup that is consistent with what users can see on the page, and usable both for Google rich results and, increasingly, for understanding by LLM-based systems.
+  
+  ### What You Will Find Here: a 100% Schema.org Approach, with JSON-LD Examples
+  
+  - A template-first implementation method (CMS, server-side rendering, scaling).
+  - Why JSON-LD remains the easiest format to maintain at scale (and the one Google recommends).
+  - Ready-to-adapt JSON-LD snippets for the most useful types.
+  - A validation workflow (errors vs warnings) and monitoring in Google Search Console.
+  
+  ### Prerequisites: Essential Definitions of Structured Data Are Covered Elsewhere
+  
+  We do not re-cover the full definition, the general benefits, or overall prioritisation here: that is handled in the main article and its Q&A page. If you are unsure about terminology or principles, refer to the dedicated [structured data FAQ](https://www.incremys.com/en/resources/blog/faq-structured-data).
+  
+  ## What Markup Changes: Impact on Rich Results, Rich Snippets and Featured Snippets
+  
+  ### What Google Understands Thanks to Markup (and What It Does Not Replace)
+  
+  Schema.org markup makes explicit information (entities, attributes, relationships) that Google would otherwise have to infer from HTML signals. In practice, it helps Google interpret and categorise a page, and may contribute to eligibility for rich results (for example: images, breadcrumbs, product information). Source: SEO.com.
+  
+  That said, markup does not replace:
+  
+  - content quality (usefulness, accuracy, structure),
+  - overall technical hygiene (indexability, performance, canonicals, etc.),
+  - or relevance to the user's [search intent](https://www.incremys.com/en/resources/blog/search-intent).
+  
+  ### Rich Snippets and CTR: What Is Realistic to Expect
+  
+  Rich results (rich snippets) increase the visual footprint of a listing and can build trust (stars, price, availability, breadcrumbs, etc.). They are not a confirmed direct ranking factor, but they can improve visibility and engagement on the SERP. Source: Oncrawl and a 2025 summary referencing John Mueller confirming no direct impact on ranking (via relayed official Google sources). Source: Abondance.
+  
+  Realistic use cases include:
+  
+  - **E-commerce**: Product + Offer to surface price, availability and ratings. Source: SEO.com.
+  - **Editorial content**: Article to clarify author, date and image; also useful for entity understanding (publisher, brand).
+  - **Navigation**: BreadcrumbList to display a hierarchy instead of the URL in the snippet (when breadcrumbs genuinely exist). Source: Oncrawl.
+  - **Local**: LocalBusiness to strengthen NAP consistency (name, address, phone), opening hours, actions (booking) and knowledge panel signals. Source: SEO.com.
+  
+  To frame the CTR stakes, note that position 1 captures a large share of clicks (for example, 27.6% according to Backlinko, 2026) and page 2 captures very little (0.78% according to Ahrefs, 2025). We contextualise these benchmarks in our [SEO statistics](https://www.incremys.com/en/resources/blog/seo-statistics). Snippet improvements (and therefore CTR gains) matter even more in a high zero-click environment (60% according to Semrush, 2025, also referenced in our resources).
+  
+  For a step-by-step approach to improving snippets, see our guide on how to [optimise CTR](https://www.incremys.com/en/resources/blog/optimise-ctr).
+  
+  ### GEO Angle: Improving Visibility in Generative AI Answers
+  
+  Beyond how your result appears in Google, structured data helps AI systems understand content, extract facts and attribute information more cleanly (article, product, organisation, FAQ, how-to). This becomes especially valuable when answers are synthesised by an LLM: the more explicit your elements are (entity, author, price, contact details, steps), the easier they are to extract. Source: SEO.com.
+  
+  This aligns with how SERPs are evolving: our [GEO statistics](https://www.incremys.com/en/resources/blog/geo-statistics) highlight the growth of generative environments (user volumes and traffic shifts), as well as the potential impact on organic CTR when AI overviews take up more space on the page.
+  
+  For a dedicated view of this dimension, our article on [structured data for GEO](https://www.incremys.com/en/resources/blog/geo-structured-data) explains how markup supports citability in AI-generated responses.
+  
+  ## Structured Data Formats: JSON-LD, Microdata and RDFa
+  
+  ### JSON-LD vs Microdata vs RDFa: Practical Differences
+  
+  Three formats dominate: JSON-LD, microdata and RDFa. Google supports all of them, but your choice mainly affects production and maintenance. Source: SEO.com.
+  
+  - **JSON-LD**: a data block separate from visible HTML, generally easier to maintain and scale.
+  - **Microdata**: attributes added directly into HTML (itemscope, itemtype, itemprop). This can become fragile as components change. For a dedicated focus, see our resource on [microdata](https://www.incremys.com/en/resources/blog/microdata).
+  - **RDFa**: annotations via attributes (typeof, property, etc.), often used in more specialised semantic web contexts.
+  
+  ### Why Google Recommends JSON-LD (and What It Means Operationally)
+  
+  Google commonly recommends JSON-LD and, operationally, it is usually the most CMS-friendly format: you can generate it from templates and render it without touching the visible HTML. Source: Oncrawl and SEO.com.
+  
+  The key implication: treat markup as a machine output of your templates (like technical tags), not as page-by-page patchwork. That reduces drift and makes versioning far easier.
+  
+  ### Ground Rules: Consistency Between Visible Content, Markup and Intent
+  
+  Two rules prevent most problems:
+  
+  - **Only mark up what is genuinely present and verifiable on the page** (price, availability, author, reviews, etc.). A marked-up price must match the visible price. Source: SEO.com and laconsole.dev.
+  - **Choose a type that matches the intent**: do not declare Product for a category page, or FAQPage for a page without a real, useful FAQ. The mapping must reflect actual usage and [search intent](https://www.incremys.com/en/resources/blog/search-intent).
+  
+  ## A JSON-LD Implementation Method: from Page to Code You Can Validate
+  
+  ### Step 1: Choose Which Pages to Mark Up Based on Intent and Business Value
+  
+  Prioritise templates that combine business value, URL volume and the ability to surface verifiable information. Typical candidates include product pages, local pages, high-traffic articles and corporate pages. Ideally, this prioritisation sits inside an [SEO content strategy](https://www.incremys.com/en/resources/blog/seo-content-strategy) aligned with your goals — markup is not a standalone project.
+  
+  ### Step 2: Map Entities, Types and Properties (Minimum Viable vs Enrichment)
+  
+  Create a mapping between CMS fields and Schema.org properties:
+  
+  - **Main entity** of the page (Article, Product, LocalBusiness, etc.).
+  - **Minimum viable properties** (name/headline, description, image, url, etc.).
+  - **Properties that unlock enhancements** (offers, availability, aggregateRating, openingHoursSpecification, etc.).
+  
+  Then decide what is **required**, **recommended**, **optional** and **not allowed** (for example: reviews not displayed, data that is not updated automatically).
+  
+  ### Step 3: Produce Robust JSON-LD (Types, Required Fields, URL, @id)
+  
+  JSON-LD sits inside an HTML script element:
+  
+  `<script type='application/ld+json'>{ "...": "..." }</script>`
+  
+  Technical best practices:
+  
+  - `"@context"` is most often `"https://schema.org"`. Source: laconsole.dev.
+  - `"@type"` must match the actual template (not what you would like to be eligible for).
+  - Use stable `@id` values to connect entities (Organization, logo, page, etc.) and reduce duplication when you add multiple objects.
+  - Prefer normalised values when the reference expects them (for example, availability via a Schema.org URL).
+  
+  ### Step 4: Integrate the Code (CMS, Templates, Server Rendering) and Avoid Duplicates
+  
+  Two common approaches:
+  
+  - **Template injection** (recommended): templates generate JSON-LD from CMS fields.
+  - **Tag-manager injection**: useful for a proof of concept, but be careful with governance (risk of drift and duplication).
+  
+  Avoid competing declarations (microdata plus JSON-LD for the same fields) and markup variations across duplicate pages. These inconsistencies reduce machine trust and make debugging considerably harder.
+  
+  ### Step 5: Test, Fix and Monitor in Google Search Console
+  
+  The "test before release → release → monitor" cycle is non-negotiable:
+  
+  - Before going live, validate with Google's rich results test and a Schema.org validator (criteria can differ: markup may be valid for Schema.org yet fail Google's stricter eligibility requirements). Source: laconsole.dev.
+  - After release, monitor enhancement reports in Google Search Console (errors, impacted URLs, fix validation). Source: Oncrawl.
+  - For a step-by-step QA workflow, see our guide on how to [test structured data](https://www.incremys.com/en/resources/blog/test-structured-data).
+  
+  #### Checks That Prevent 80% of Issues: Syntax, Required Fields and Page/Markup Alignment
+  
+  - **JSON syntax**: quotes, commas, arrays and braces (invalid JSON means the markup is ignored entirely).
+  - **Required fields**: ensure the properties Google expects for the target type are present.
+  - **Visible-content alignment**: price, stock, author, dates, reviews and steps must match between the page and JSON-LD.
+  
+  ## High-Impact Schema.org Types: Code Examples for Article, Product, HowTo, Breadcrumb, FAQ and LocalBusiness
+  
+  ### Article: Mark Up Editorial Content Without Over-Declaring
+  
+  For editorial pages, the goal is not to stack properties, but to make the essentials explicit: title, dates, author, image and publisher. Only declare what the page genuinely displays (identifiable author, exact date, accessible image).
+  
+  #### JSON-LD Example for Article (headline, author, datePublished, image)
+  
+  `<script type='application/ld+json'>{ "@context": "https://schema.org", "@type": "Article", "headline": "A practical guide to implementing Schema.org markup in JSON-LD", "image": [ "https://www.example.com/images/schema-json-ld.jpg" ], "datePublished": "2026-02-21", "author": { "@type": "Person", "name": "First name Surname", "url": "https://www.example.com/authors/first-name-surname" }, "publisher": { "@type": "Organization", "name": "Organisation name", "url": "https://www.example.com", "logo": { "@type": "ImageObject", "url": "https://www.example.com/images/logo.png" } }}</script>`
+  
+  **Watch out**: if the author is not shown on the page, do not declare it. The same applies to dates and images.
+  
+  ### Product: Structure a Product Page for Rich Results
+  
+  The Product type exposes key e-commerce signals (price, availability, ratings) that may appear in results. Source: SEO.com.
+  
+  #### JSON-LD Example for Product + Offer (price, availability, brand) and Key Checks
+  
+  `<script type='application/ld+json'>{ "@context": "https://schema.org", "@type": "Product", "name": "Ergonomic office chair", "description": "Adjustable chair with lumbar support.", "image": [ "https://www.example.com/images/ergonomic-chair.jpg" ], "brand": { "@type": "Brand", "name": "Example brand" }, "offers": { "@type": "Offer", "url": "https://www.example.com/products/ergonomic-chair", "priceCurrency": "GBP", "price": "199.90", "availability": "https://schema.org/InStock" }}</script>`
+  
+  - **Critical alignment**: when the price changes, JSON-LD must update at the same time as the visible page.
+  - **Availability**: use Schema.org normalised values (URLs), not free text.
+  - **Reviews**: do not add ratings unless they are genuinely displayed and substantiated.
+  
+  ### FAQPage: Mark Up a FAQ Without Harming Quality
+  
+  Marking up a FAQ can make your Q&A more usable, but it must remain user-led: real questions, complete answers, no artificial repetition. Rich results are never guaranteed, even with correct markup. Source: Abondance.
+  
+  #### JSON-LD Example for FAQPage (question/answer) and Maintenance Best Practices
+  
+  `<script type='application/ld+json'>{ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [ { "@type": "Question", "name": "Why use JSON-LD for structured data?", "acceptedAnswer": { "@type": "Answer", "text": "Because it lets you add metadata without changing visible HTML and it is easier to maintain at scale." } }, { "@type": "Question", "name": "Should you mark up information that is not displayed?", "acceptedAnswer": { "@type": "Answer", "text": "No. Markup should faithfully reflect information that is visible and verifiable on the page." } } ]}</script>`
+  
+  Maintenance: treat your FAQ as content in its own right. Any change to visible text should trigger an update to the JSON-LD.
+  
+  ### HowTo: Describe a Step-by-Step Process That Can Be Extracted
+  
+  The HowTo type structures a procedure into steps. Depending on SERP formats, display can vary by device (for example, some HowTo presentations only appear on mobile). Source: Oncrawl.
+  
+  #### JSON-LD Example for HowTo (steps, tools, supplies) and Eligibility Criteria
+  
+  `<script type='application/ld+json'>{ "@context": "https://schema.org", "@type": "HowTo", "name": "Implement JSON-LD markup on a page", "description": "A five-step process to produce, integrate and validate JSON-LD.", "tool": [ { "@type": "HowToTool", "name": "Access to the CMS or source code" } ], "supply": [ { "@type": "HowToSupply", "name": "Page data (title, price, author, opening hours, etc.)" } ], "step": [ { "@type": "HowToStep", "name": "Choose the Schema.org type", "text": "Select a primary type (Article, Product, LocalBusiness, etc.) that matches the template." }, { "@type": "HowToStep", "name": "Map your fields", "text": "Link CMS fields to the expected properties (offers, author, address, etc.)." }, { "@type": "HowToStep", "name": "Generate JSON-LD", "text": "Produce valid JSON with @context and @type, then add stable @id values." }, { "@type": "HowToStep", "name": "Integrate into the page", "text": "Insert the application/ld+json script into the rendered HTML." }, { "@type": "HowToStep", "name": "Test and monitor", "text": "Validate using the rich results test and monitor reports in Search Console." } ]}</script>`
+  
+  ### BreadcrumbList: Make Navigation Hierarchy Explicit
+  
+  BreadcrumbList makes an existing breadcrumb trail explicit. Google can then show that hierarchy in place of the URL in the snippet. Source: Oncrawl.
+  
+  #### JSON-LD Example for BreadcrumbList (itemListElement) and URL Consistency
+  
+  `<script type='application/ld+json'>{ "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [ { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.example.com/" }, { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.example.com/blog/" }, { "@type": "ListItem", "position": 3, "name": "JSON-LD markup", "item": "https://www.example.com/blog/json-ld-markup/" } ]}</script>`
+  
+  Check: the marked-up hierarchy must match the visible breadcrumb trail and the real information architecture — otherwise you create a contradictory signal.
+  
+  ### LocalBusiness: Clarify Local Presence (NAP, Opening Hours, Geolocation)
+  
+  LocalBusiness can help clarify a location (address, opening hours, phone number, booking link, and sometimes ratings) and feed surfaces such as the knowledge panel. Source: SEO.com.
+  
+  #### JSON-LD Example for LocalBusiness (address, geo, openingHoursSpecification)
+  
+  `<script type='application/ld+json'>{ "@context": "https://schema.org", "@type": "LocalBusiness", "name": "Location name", "url": "https://www.example.com/locations/london-1", "telephone": "+44-20-0000-0000", "address": { "@type": "PostalAddress", "streetAddress": "10 Example Street", "addressLocality": "London", "postalCode": "SW1A 1AA", "addressCountry": "GB" }, "geo": { "@type": "GeoCoordinates", "latitude": 51.507351, "longitude": -0.127758 }, "openingHoursSpecification": [ { "@type": "OpeningHoursSpecification", "dayOfWeek": [ "monday", "tuesday", "wednesday", "thursday", "friday" ], "opens": "09:00", "closes": "18:00" } ]}</script>`
+  
+  Important: keep NAP consistent with the page and all public information. For local performance framing, our [SEO statistics](https://www.incremys.com/en/resources/blog/seo-statistics) highlight how significant local intent can be in searches (for example, 46% according to Webnyxt, 2026, cited in our resources), which supports prioritising local templates.
+  
+  ### Organization: Strengthen Understanding of Your Brand and Corporate Pages
+  
+  The Organization type helps make the brand or company entity explicit: official site, logo, profiles and contact points. It is often used as a foundation to connect other entities (publisher for Article, provider for Service, brand for Product), improving overall coherence across your markup.
+  
+  #### JSON-LD Example for Organization (logo, sameAs, contactPoint) and @id Management
+  
+  `<script type='application/ld+json'>{ "@context": "https://schema.org", "@type": "Organization", "@id": "https://www.example.com/#organization", "name": "Organisation name", "url": "https://www.example.com/", "logo": { "@type": "ImageObject", "@id": "https://www.example.com/#logo", "url": "https://www.example.com/images/logo.png" }, "sameAs": [ "https://www.linkedin.com/company/example", "https://www.youtube.com/@example" ], "contactPoint": [ { "@type": "ContactPoint", "contactType": "support", "email": "support@example.com", "availableLanguage": [ "en" ] } ]}</script>`
+  
+  **@id**: use a stable identifier across the entire site and reuse it everywhere the organisation is referenced.
+  
+  ## Tools: Choosing a JSON Generator, Markup Generator and Validators
+  
+  ### When to Use a JSON Generator or Markup Generator Without Producing "Cosmetic" Markup
+  
+  A generator can help you prototype, but it does not replace template-based mapping. A common risk is producing "cosmetic" markup — visually tidy, but disconnected from the real page — or markup that cannot be maintained (price and stock change in the CMS but not in JSON-LD).
+  
+  Good usage:
+  
+  - Proof of concept on one template (e.g. ten product pages),
+  - validate the minimum viable properties,
+  - then industrialise via templates and CMS variables.
+  
+  ### How to Read a Schema.org Validator and Rich Results Test: Errors vs Warnings
+  
+  Two validation layers usually coexist:
+  
+  - **Schema.org validator**: checks vocabulary compliance (types, properties, values), without judging Google eligibility.
+  - **Google rich results test**: checks whether the page is eligible for certain enhancements (without guaranteeing display). Source: Oncrawl.
+  
+  How to interpret results:
+  
+  - **Errors**: blocking (syntax, missing required fields, incoherent types). Fix before any release.
+  - **Warnings**: often about recommended fields and completeness. Prioritise for high-stakes pages after stabilisation.
+  
+  ### QA and Rollout: Versioning, Post-Release Checks and Tracking SEO Impact
+  
+  Treat markup like code:
+  
+  - version your mapping rules (CMS fields → properties),
+  - test across a panel of URLs before release,
+  - verify after release (final HTML can differ depending on the CMS, caching or JS rendering),
+  - then measure using impressions and CTR in Search Console, and behaviour analysis in Analytics (without automatically attributing every change to markup: seasonality, queries, competition and device all play a role).
+  
+  To frame SERP benchmarks (CTR, zero-click, featured snippets), you can cross-reference our [SEA statistics](https://www.incremys.com/en/resources/blog/sea-statistics) and, especially, our [SEO statistics](https://www.incremys.com/en/resources/blog/seo-statistics) to keep your gains grounded in a realistic traffic mix.
+  
+  ## WordPress: Getting Value from Yoast Without Breaking Consistency
+  
+  ### What Yoast Generates by Default: Limits, Checks and Markup Debt
+  
+  On WordPress, Yoast often outputs baseline schema. It can speed up the initial setup, but it also introduces pitfalls: generic types, duplication and difficulty aligning properties precisely with your content (authors, dates, organisation, breadcrumbs). The right reflex is to audit what is actually rendered in the final HTML, then decide whether you should extend it, replace it or unify everything via templates.
+  
+  ### Working with Yoast's Organization Output: Correctly Connecting Organization to Site Entities
+  
+  If Yoast outputs an Organization entity, ensure:
+  
+  - it is unique and reused via a stable `@id`,
+  - it matches your real entity (name, URL, logo, profiles),
+  - it becomes the reference (publisher for articles, brand for products) rather than duplicating divergent objects.
+  
+  ### Yoast FAQ Governance: Avoid Duplication and Keep Quality High
+  
+  If you use FAQ blocks, avoid also injecting another FAQPage JSON-LD via a template or tag manager. The rule is simple: **one source of truth**. On the content side, keep the FAQ genuinely useful: no artificial questions, no ultra-short answers, and no repetition designed to "force" a rich result.
+  
+  ## Common Pitfalls: Schema.org Issues That Harm Eligibility or Trust
+  
+  ### Page vs JSON-LD Mismatches (Price, Reviews, Author, Dates): Why It Is Risky
+  
+  This is the most costly mistake because it combines:
+  
+  - a risk of ineligibility for certain enhancements,
+  - loss of machine trust (and therefore a lower likelihood of being reused or cited),
+  - maintenance complexity (especially on large sites).
+  
+  Typical examples include: a marked-up price different from the visible price, reviews marked up but not displayed, a fixed datePublished despite article updates, or an author declared in JSON-LD but not shown on the page. Source: laconsole.dev and SEO.com.
+  
+  ### Multiple Types Done Badly: When to Combine and When to Separate
+  
+  You can combine multiple types on a page (for example: Article + BreadcrumbList + Organization), but combinations must reflect reality:
+  
+  - **One primary type** describing the core object of the page.
+  - **Supporting types** nested appropriately (Person as author, Organization as publisher, Brand, etc.). Source: laconsole.dev.
+  
+  Avoid declaring multiple competing primary entities (for example, an article page also declared as Product without any content justification).
+  
+  ### Duplicate Microdata and JSON-LD: Avoid Competing Declarations
+  
+  If a page already contains microdata (often inherited from an old theme or plugin), adding JSON-LD on top can create duplicates or contradictions. In that case:
+  
+  - audit what is rendered,
+  - choose a target format (often JSON-LD for maintainability),
+  - progressively remove redundant HTML annotations.
+  
+  ## Measuring Impact: Connecting Markup, Rich Results and SEO Performance
+  
+  ### What to Track: Impressions, CTR, Enriched Pages and Structured Data Coverage
+  
+  Track a simple set of indicators:
+  
+  - **Coverage**: how many eligible URLs have the expected markup (by template).
+  - **Errors and warnings**: volume, recurrence and types.
+  - **Impressions and CTR** for marked-up pages (before/after, accounting for seasonality and query mix).
+  - **Share of visibility without clicks** (zero-click and rich SERP context): interpret using trends from our [SEO statistics](https://www.incremys.com/en/resources/blog/seo-statistics) and [GEO statistics](https://www.incremys.com/en/resources/blog/geo-statistics).
+  
+  ### When to Iterate: Completeness, Field Fixes and Expanding to More Templates
+  
+  Iterate in this order:
+  
+  1. Fix blocking errors (syntax, required fields, inconsistencies).
+  2. Stabilise automatic updates (price, stock, opening hours, authors, dates).
+  3. Improve completeness (recommended fields) on high-value pages.
+  4. Expand to the next template (categories, services, additional local pages, etc.).
+  
+  ## Scaling with Incremys: Automate Audits, Prioritisation and ROI for Structured Data
+  
+  ### Spot Opportunities, Plan Delivery and Track Impact with a Data-Driven Approach
+  
+  When Schema.org markup scales to hundreds or thousands of URLs, the challenge becomes operational: spotting inconsistencies, prioritising fixes and measuring impact without endless exports. Incremys helps structure that workflow by consolidating SEO and GEO signals and integrating with Google Search Console and Google Analytics via API (an SEO 360° SaaS approach), making it easier to audit, plan and track ROI without a patchwork of tools.
+  
+  To strengthen the technical foundations upstream, our guide to a [technical SEO audit](https://www.incremys.com/en/resources/blog/technical-seo-audit) is a helpful complement (indexability, rendering, performance), as even perfect markup cannot compensate for fragile technical foundations. And if you need a centralised view, the [SEO 360° Audit module](https://www.incremys.com/en/platform/modules/seo-360-audit) is designed to prioritise workstreams on complex sites.
+  
+  ## FAQ: Common Questions About Schema.org, Markup, JSON-LD and Validation
+  
+  ### What Is Schema in SEO, and What Does Markup Do?
+  
+  Schema.org markup is code added to a page to help search engines understand and categorise content and, potentially, display richer results (images, breadcrumbs, price, and so on). Source: SEO.com and Solocal.
+  
+  ### Which Structured Data Formats Should You Choose (JSON-LD, Microdata, RDFa), and What Does Microdata Mean?
+  
+  The main formats are JSON-LD, microdata and RDFa. Microdata refers to HTML attributes embedded directly in the markup itself. For maintainability and scaling, JSON-LD is often the most practical choice. Source: SEO.com. Additional resource: [microdata](https://www.incremys.com/en/resources/blog/microdata).
+  
+  ### Why Does Google Recommend JSON-LD?
+  
+  Because it separates the data layer from visible HTML, making it easier to maintain — especially as templates evolve. Google commonly recommends it as a best practice. Source: Oncrawl and SEO.com.
+  
+  ### How Do You Implement JSON-LD Step by Step Without Recurring Issues?
+  
+  A reliable process is: (1) pick high-impact pages, (2) choose a primary type, (3) map CMS fields to properties, (4) generate valid JSON with stable `@id` values, (5) integrate into rendered HTML, and (6) test and monitor in Search Console. For validation, follow our guide on how to [test structured data](https://www.incremys.com/en/resources/blog/test-structured-data).
+  
+  ### Which Schema.org Types Should You Prioritise to Improve Rich Snippets?
+  
+  The best types depend on the site, but common high-ROI candidates are Product (e-commerce), LocalBusiness (local), BreadcrumbList (navigation), Article (editorial) and FAQPage or HowTo when the content genuinely fits. Google supports only a limited number of types for visible enhancements (30 types cited as understood by Google in a summary). Source: SEO.com.
+  
+  ### How Do You Write Clean Article Markup (Author, Dates, Image)?
+  
+  Declare only what is displayed: headline, datePublished (and optionally dateModified if managed properly), author (Person) if clearly shown on the page, and image if it exists and is accessible. Add publisher (Organization) to connect the article to your brand, ideally via a stable `@id`.
+  
+  ### How Do You Structure Product Markup for Rich Results (Offer, Availability, Price)?
+  
+  Use Product as the main entity and an Offer for price, currency and availability via a normalised value (`https://schema.org/InStock`, etc.). Align these fields strictly with what is visible on the page. Source: SEO.com.
+  
+  ### How Do You Mark Up a FAQ with Structured Data Without Creating Redundant Content?
+  
+  Do not write a FAQ "for the markup". Start from genuine customer questions and objections, write complete answers, then map them into FAQPage. Keep a single source of truth (avoid plugin plus template duplication). Maintain it consistently: every visible FAQ update should be reflected in JSON-LD.
+  
+  ### When Should You Use HowTo Rather Than a Standard Article?
+  
+  Use HowTo when the page describes a procedure with clear steps and, ideally, prerequisites (tools, supplies). If it is explanatory content without an action sequence, stick with Article.
+  
+  ### What Is BreadcrumbList For, and What Should Breadcrumb Hierarchy Include?
+  
+  BreadcrumbList makes the breadcrumb trail explicit and can replace the displayed URL with a clearer hierarchy. It should reflect the real breadcrumbs (positions, labels and URLs). Source: Oncrawl.
+  
+  ### LocalBusiness: Which Fields Are Essential for NAP, Opening Hours and Geo?
+  
+  Essentials include name, address (PostalAddress), telephone, url and openingHoursSpecification. GeoCoordinates can also help remove ambiguity. Search engines may use these details, including in the knowledge panel. Source: SEO.com.
+  
+  ### Organization: How Do You Manage @id, Logo and sameAs Profiles Properly?
+  
+  Create a single Organization entity with a stable `@id` (e.g. `https://yourdomain/#organization`), a logo as an ImageObject (id + url), and official `sameAs` profiles. Then reuse that `@id` as publisher, provider or brand across pages.
+  
+  ### Which Should You Use: a Schema.org Validator or a Markup Validator?
+  
+  Use a Schema.org validator to check vocabulary compliance, and Google's rich results test to check Google eligibility (which can be stricter). Eligibility does not guarantee a rich result. Source: Oncrawl.
+  
+  ### How Do You Use a JSON Generator or Markup Generator Without Creating Technical Debt?
+  
+  Limit generators to prototyping, then switch to template-based generation. Document the mapping, automate variable fields (price, stock, opening hours), and version the rule. Otherwise, the markup becomes outdated as soon as the page changes.
+  
+  ### Errors vs Warnings: What Should You Fix First During Validation?
+  
+  Fix errors first (blocking): invalid JSON, missing required fields, incoherent types, non-compliant values. Then address warnings (completeness) on pages with the highest potential ROI.
+  
+  ### Can You Combine Multiple Schema Types on the Same Page?
+  
+  Yes, as long as it reflects the page: one main type plus supporting types (BreadcrumbList, Organization, Person, Brand, etc.). Use consistent `@id` values to connect objects and avoid duplication.
+  
+  ### Do Structured Data Improve SEO Rankings Directly?
+  
+  Structured data are not a guaranteed direct ranking lever, but they can improve visibility and engagement via richer results. Source: Abondance.
+  
+  ### What Is the Link Between Rich Snippets, Featured Snippets and Optimising CTR?
+  
+  Rich snippets improve how results look and increase the amount of information visible on the SERP, which can lift CTR. Featured snippets follow different selection logic, but a well-structured and explicit page (content, markup, hierarchy) makes extraction easier. For a practical framework, see our guide on how to [optimise CTR](https://www.incremys.com/en/resources/blog/optimise-ctr) and our [SEO statistics](https://www.incremys.com/en/resources/blog/seo-statistics).
+  
+  ### GEO Angle: What Is the Impact on Visibility in Generative AI Answers?
+  
+  Markup can improve extraction and attribution by AI systems by making entities and attributes more explicit (product, price, organisation, FAQ, steps). It does not guarantee citation, but it strengthens machine readability. Source: SEO.com. Context and metrics: [GEO statistics](https://www.incremys.com/en/resources/blog/geo-statistics).
+  
+  ### How Do You Avoid Inconsistencies Between Visible Content and JSON-LD?
+  
+  Industrialise via templates, automate updates for variable fields, remove duplicates (microdata plus JSON-LD), and enforce QA checks before release (URL panels plus validation). After a CMS redesign, retest systematically — component changes often break mappings.
+  
+  To keep learning about SEO, GEO and digital marketing with actionable guides, explore the [Incremys Blog](https://www.incremys.com/en/resources/blog).
+  
+  ## Discover other items
+  
+  [See all](https://www.incremys.com/en/resources/blog)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  4/3/2026\\
+  \\
+  **Backlinks and Local SEO: Effective Local Link-Building Strategies**](https://www.incremys.com/en/resources/blog/local-seo-backlinks)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  4/3/2026\\
+  \\
+  **Local Pack SEO: Optimising Your Listing and Local Visibility**](https://www.incremys.com/en/resources/blog/local-pack-seo)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  4/3/2026\\
+  \\
+  **How to Improve Your Local SEO on Google**](https://www.incremys.com/en/resources/blog/improve-local-seo)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  4/3/2026\\
+  \\
+  **Local SEO: Why Your Google Listing Makes You Visible but Doesn't Always Convert**](https://www.incremys.com/en/resources/blog/local-seo)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  4/3/2026\\
+  \\
+  **Boost Your Local Visibility on Google Maps**](https://www.incremys.com/en/resources/blog/google-maps-seo)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  4/3/2026\\
+  \\
+  **Create a High-Performing Google My Business Listing**](https://www.incremys.com/en/resources/blog/google-my-business-listing)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  4/3/2026\\
+  \\
+  **A Local SEO Audit Methodology to Improve Your Visibility**](https://www.incremys.com/en/resources/blog/local-seo-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  4/3/2026\\
+  \\
+  **How to Strengthen Your Local Visibility**](https://www.incremys.com/en/resources/blog/local-visibility)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  27/2/2026\\
+  \\
+  **Link Building Strategy 2026: Boost Qualified Traffic and ROI**](https://www.incremys.com/en/resources/blog/link-building-strategy)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **Google Tag Manager CSP: script-src and connect-src Rules Explained**](https://www.incremys.com/en/resources/blog/google-tag-manager-csp)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **How to Install the Meta Pixel With Google Tag Manager**](https://www.incremys.com/en/resources/blog/meta-pixel-google-tag-manager)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **Google Tag Manager Noscript Tag: Role and Limitations**](https://www.incremys.com/en/resources/blog/google-tag-manager-noscript)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **Google Tag Manager Variables: A Practical Guide**](https://www.incremys.com/en/resources/blog/google-tag-manager-variables)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **Google Tag Manager Cookies: consent and compliance**](https://www.incremys.com/en/resources/blog/google-tag-manager-cookies)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **Install GA4 via Google Tag Manager Without Duplicate Tracking**](https://www.incremys.com/en/resources/blog/google-tag-manager-and-google-analytics)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **Deploy and Audit Your GTM Tags With the Google Tag Manager API**](https://www.incremys.com/en/resources/blog/google-tag-manager-api)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **The Google Tag Manager Data Layer: A Complete Guide**](https://www.incremys.com/en/resources/blog/google-tag-manager-data-layer)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **How to Organise Containers and Scripts in Google Tag Manager**](https://www.incremys.com/en/resources/blog/google-tag-manager-script)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **Understanding Google Tag Manager: Tags, Triggers and Variables**](https://www.incremys.com/en/resources/blog/google-tag-manager)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **Google Tag Manager vs Google Analytics: Roles and Key Differences**](https://www.incremys.com/en/resources/blog/google-tag-manager-vs-google-analytics)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **How to Install Google Tag Manager on a Website**](https://www.incremys.com/en/resources/blog/install-google-tag-manager)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **How to Test Google Tag Manager: Validating Tags, Triggers and GA4**](https://www.incremys.com/en/resources/blog/test-google-tag-manager)
+  
+  [GEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **GEO Structured Data: Improve Accuracy, Citations and Impact**](https://www.incremys.com/en/resources/blog/geo-structured-data)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **How to Test Structured Data: Methods and Google Tools**](https://www.incremys.com/en/resources/blog/test-structured-data)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **Structured Data for FAQs: FAQPage Markup in JSON-LD**](https://www.incremys.com/en/resources/blog/faq-structured-data)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **Structured Data: Method, Formats and Prioritisation for SEO and GEO**](https://www.incremys.com/en/resources/blog/structured-data)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  21/2/2026\\
+  \\
+  **Microdata for SEO in HTML5: Mark Up Your Content Without Errors**](https://www.incremys.com/en/resources/blog/microdata)
+  
+  [GEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **AI GEO Audit: Improve Your Brand's Visibility in AI Answers**](https://www.incremys.com/en/resources/blog/ai-geo-audit)
+  
+  [GEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **LLM Audit and SEO: Managing Citations, Sources and ROI**](https://www.incremys.com/en/resources/blog/llm-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **On-Page SEO Audit: Analyse Each Page and Remove Ranking Barriers**](https://www.incremys.com/en/resources/blog/on-page-seo-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **Google Ranking Audit: A Reliable, Actionable Method**](https://www.incremys.com/en/resources/blog/ranking-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **SEO Crawl Budget: Stakes and Method**](https://www.incremys.com/en/resources/blog/seo-crawl-budget)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **Incremys 360° SEO Audit: Mapping and Prioritising Your Actions**](https://www.incremys.com/en/resources/blog/360-seo-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **Website Performance Audit: A Reliable Method**](https://www.incremys.com/en/resources/blog/website-performance-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **SEO Link Building Audit: Spot Risks and Opportunities**](https://www.incremys.com/en/resources/blog/link-building-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **How to Carry Out an Effective SEO Audit: A Clear Method and Checklist**](https://www.incremys.com/en/resources/blog/how-to-carry-out-an-seo-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **E-commerce SEO Audit: Fix Pagination, Facets and Duplicate Content**](https://www.incremys.com/en/resources/blog/e-commerce-seo-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **A Content Audit: Clear Diagnosis and a Measurable Action Plan**](https://www.incremys.com/en/resources/blog/content-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **SEO Rank Tracking: Decisions, Alerts and Priorities**](https://www.incremys.com/en/resources/blog/seo-tracking)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **SEO Crawling: Understand Site Exploration to Rank Better**](https://www.incremys.com/en/resources/blog/seo-crawling)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **SEO Competitive Analysis: A Practical, Actionable Method**](https://www.incremys.com/en/resources/blog/seo-competitive-analysis)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **Technical SEO Training: Avoid Common Mistakes and Measure Impact**](https://www.incremys.com/en/resources/blog/technical-seo-training)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **An SEO Audit Example: Report Structure, Method and Checklist**](https://www.incremys.com/en/resources/blog/seo-audit-example)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **Agency, Freelancer or SaaS: How to Get Your SEO Audit Right**](https://www.incremys.com/en/resources/blog/seo-audit-agency)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **Technical SEO Audit: Crawling, Performance and Architecture**](https://www.incremys.com/en/resources/blog/technical-seo-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **Website Audit: Performance, UX and SEO**](https://www.incremys.com/en/resources/blog/website-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **How to Run a Performance-Led Semantic Audit**](https://www.incremys.com/en/resources/blog/semantic-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **Which SEO Audit Tools Should You Choose for a Complete Audit?**](https://www.incremys.com/en/resources/blog/seo-audit-tools)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  18/2/2026\\
+  \\
+  **SEO Audit: Interpreting the Signals That Matter**](https://www.incremys.com/en/resources/blog/seo-audit)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  16/2/2026\\
+  \\
+  **SEA vs SEO: A Marketing Strategy Adapted to GEO**](https://www.incremys.com/en/resources/blog/sea-vs-seo-marketing)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  16/2/2026\\
+  \\
+  **SEO vs SEM in Marketing: How to Drive Acquisition With Data**](https://www.incremys.com/en/resources/blog/seo-vs-sem-marketing)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  16/2/2026\\
+  \\
+  **Understanding the Relationship Between SEO and SEA**](https://www.incremys.com/en/resources/blog/seo-sea-relationship)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  16/2/2026\\
+  \\
+  **SEO, SEA and SEM: Differences, Scope and Use Cases**](https://www.incremys.com/en/resources/blog/seo-sea-sem)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  16/2/2026\\
+  \\
+  **SEO vs SEA Click-Through Rate: Understanding the Gap**](https://www.incremys.com/en/resources/blog/seo-vs-sea-click-rate)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  16/2/2026\\
+  \\
+  **SEO, SEA and SEM: Understanding the Difference to Manage Traffic, Costs and ROI**](https://www.incremys.com/en/resources/blog/seo-sem-sea-differences)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  16/2/2026\\
+  \\
+  **The Differences Between SEO and SEA: Costs, ROI and Decision Criteria**](https://www.incremys.com/en/resources/blog/seo-sea-differences)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  15/2/2026\\
+  \\
+  **Semantic Cocoon Tools: Analyse and Manage Internal Linking**](https://www.incremys.com/en/resources/blog/semantic-cocoon-tool)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  15/2/2026\\
+  \\
+  **Semantic Cocoon Structure: Method and Mistakes to Avoid**](https://www.incremys.com/en/resources/blog/semantic-cocoon-structure)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  15/2/2026\\
+  \\
+  **Advantages of Semantic Cocoons: Measurable SEO Gains**](https://www.incremys.com/en/resources/blog/semantic-cocoon-advantages)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  15/2/2026\\
+  \\
+  **Creating a Semantic Cocoon: An End-to-End Practical Method**](https://www.incremys.com/en/resources/blog/semantic-cocoon-creation)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  15/2/2026\\
+  \\
+  **Semantic Cocoons and Internal Linking: An Operational Guide**](https://www.incremys.com/en/resources/blog/semantic-cocoon)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  15/2/2026\\
+  \\
+  **The Definition of a Semantic Cocoon Explained Simply**](https://www.incremys.com/en/resources/blog/semantic-cocoon-definition)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  15/2/2026\\
+  \\
+  **Semantic Cocoon Example: Structure, Pages and Internal Linking**](https://www.incremys.com/en/resources/blog/semantic-cocoon-example)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  15/2/2026\\
+  \\
+  **Internal Linking and Semantic Cocoons: Useful, Coherent Links**](https://www.incremys.com/en/resources/blog/semantic-cocoon-internal-linking)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  15/2/2026\\
+  \\
+  **Producing a Semantic Cocoon: An SEO Delivery Method**](https://www.incremys.com/en/resources/blog/semantic-cocoon-production)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  15/2/2026\\
+  \\
+  **Internal Linking and Writing: How to Build a Successful Semantic Cocoon**](https://www.incremys.com/en/resources/blog/semantic-cocoon-writing)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **Informational Search Intent in B2B SEO: Definition and Key Levers**](https://www.incremys.com/en/resources/blog/informational-search-intent)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **Search Intent Classification: An Actionable SEO Method**](https://www.incremys.com/en/resources/blog/search-intent-classification)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **Search Intent Examples: 20 Queries Explained**](https://www.incremys.com/en/resources/blog/search-intent-examples)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **Classifying Search Intent Types With a Rigorous Method**](https://www.incremys.com/en/resources/blog/search-intent-types)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **Navigational Search Intent: Optimise Your SEO Strategy**](https://www.incremys.com/en/resources/blog/navigational-search-intent)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **Transactional SEO: Optimise Demos, Pricing and Quote Requests**](https://www.incremys.com/en/resources/blog/transactional-search-intent)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **Query Intent in SEO: Aligning Content With User Expectations**](https://www.incremys.com/en/resources/blog/query-intent)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **Commercial Search Intent: Optimise the SERP Without Overselling**](https://www.incremys.com/en/resources/blog/commercial-search-intent)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **Understanding Search Intent: Backed by GSC and Analytics Data**](https://www.incremys.com/en/resources/blog/seo-search-intent)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **Search Intent in B2B Marketing: Transforming Demand**](https://www.incremys.com/en/resources/blog/search-intent-marketing)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **User Intent: How Do You Know What Your Visitors Really Want?**](https://www.incremys.com/en/resources/blog/user-intent)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **High Intent Keywords: Which Ones to Target for Maximum Conversions**](https://www.incremys.com/en/resources/blog/high-intent-keywords)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  14/2/2026\\
+  \\
+  **Search Intent and the Buying Journey: Guiding Users Towards Action**](https://www.incremys.com/en/resources/blog/search-intent)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  8/2/2026\\
+  \\
+  **Robots.txt: role and key directives for SEO**](https://www.incremys.com/en/resources/blog/robots-txt)
+  
+  [GEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  8/2/2026\\
+  \\
+  **LLMS txt: Practical Guide to Mastering /llms.txt**](https://www.incremys.com/en/resources/blog/llms-txt)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  30/1/2026\\
+  \\
+  **E-commerce 2026 content strategy: the keys to success**](https://www.incremys.com/en/resources/blog/e-commerce-content-strategy)
+  
+  [GEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  30/1/2026\\
+  \\
+  **GEO 2026 content strategy: practical guide to creating content cited by AI**](https://www.incremys.com/en/resources/blog/geo-content-strategy)
+  
+  [Digital\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  30/1/2026\\
+  \\
+  **Editorial content production in 2026: ROI, scalability and SEO performance**](https://www.incremys.com/en/resources/blog/editorial-content-production)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  30/1/2026\\
+  \\
+  **SEO content strategy: maximising web visibility in 2026**](https://www.incremys.com/en/resources/blog/seo-content-strategy)
+  
+  [Digital\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  30/1/2026\\
+  \\
+  **Editorial strategy: steps and fundamentals to succeed in 2026**](https://www.incremys.com/en/resources/blog/editorial-strategy)
+  
+  [Digital\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  29/1/2026\\
+  \\
+  **Inbound Marketing 2026 content strategy: attract and engage your customers**](https://www.incremys.com/en/resources/blog/inbound-marketing-content-strategy)
+  
+  [Digital\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  29/1/2026\\
+  \\
+  **Editorial plan example: steps and essential tools in 2026**](https://www.incremys.com/en/resources/blog/editorial-plan-example)
+  
+  [Digital\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  29/1/2026\\
+  \\
+  **How to define an effective content strategy in 2026**](https://www.incremys.com/en/resources/blog/how-to-define-a-content-strategy)
+  
+  [Digital\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  29/1/2026\\
+  \\
+  **Social networks 2026 content strategy: maximise your digital impact**](https://www.incremys.com/en/resources/blog/social-networks-content-strategy)
+  
+  [Digital\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  29/1/2026\\
+  \\
+  **Content strategy : 10 examples in 2026**](https://www.incremys.com/en/resources/blog/content-strategy-example)
+  
+  [Digital\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/6909eef70cb8776687723519_68066b5cf62c442b4f738685_BG-Article-01%2520(1).jpeg)\\
+  \\
+  29/1/2026\\
+  \\
+  **Instagram 2026 content strategy: succeed and maximise your impact**](https://www.incremys.com/en/resources/blog/instagram-content-strategy)
+  
+  [Digital\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  29/1/2026\\
+  \\
+  **LinkedIn content strategy: which techniques should you adopt in 2026?**](https://www.incremys.com/en/resources/blog/linkedin-content-strategy)
+  
+  [Digital\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  29/1/2026\\
+  \\
+  **B2B 2026 content strategy: creating value for every target audience**](https://www.incremys.com/en/resources/blog/b2b-content-strategy)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  29/1/2026\\
+  \\
+  **Web content strategy in 2026 to capture your complete organic traffic potential**](https://www.incremys.com/en/resources/blog/web-content-strategy)
+  
+  [GEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697481a46fac621d762aae84_03%20-%20Background%20image%20(Hover)%20-%20blue.jpeg)\\
+  \\
+  27/1/2026\\
+  \\
+  **2026 GEO statistics: applications, market and future outlook**](https://www.incremys.com/en/resources/blog/geo-statistics)
+  
+  [SEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c3bcad662d9b2a9c80_Visuel-Article-01-bis.svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf23c87044b72c26e2d9f4_Visuel-Article-01.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf242418d72900dba7587c_BG-Article-01%20(1).jpg)\\
+  \\
+  27/1/2026\\
+  \\
+  **Advanced 2026 SEO statistics: performance and ROI analysis**](https://www.incremys.com/en/resources/blog/seo-statistics)
+  
+  [GEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf226a4a003a4cd91bf738_BG-Article-03%20(1).jpg)\\
+  \\
+  27/1/2026\\
+  \\
+  **AI 2026 statistics: overview of trends and key figures**](https://www.incremys.com/en/resources/blog/ai-statistics)
+  
+  [Digital\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf2245d74edb6ef40ed83d_Visuel-Article-03-bis%20(1).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22192164093c79710195_Visuel-Article-03%20(2).svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799ba86085fafc86b83b0_67cf226a4a003a4cd91bf738_BG-Article-03%2520(1).jpeg)\\
+  \\
+  26/1/2026\\
+  \\
+  **Digital Marketing 2026 statistics: overview of trends and performance**](https://www.incremys.com/en/resources/blog/digital-marketing-statistics)
+  
+  [GEO\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf230769f7649628d828bf_Visuel-Article-02-bis%20(2).svg)![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/67cf22f9b9f5e1fc8a76b3d5_Visuel-Article-02.svg)\\
+  \\
+  ![](https://cdn.prod.website-files.com/675180addb256c84dda6f7bd/697799b9d648c5ec73af9ea4_697481a46fac621d762aae84_03%2520-%2520Background%2520image%2520(Hover)%2520-%2520blue.jpeg)\\
+  \\
+  26/1/2026\\
+  \\
+  **Perplexity AI statistics: 2025-2026 trends and SEO impact**](https://www.incremys.com/en/resources/blog/perplexity-statistics)
+  
+  ## Next-Gen GEO/SEO starts here
+  
+  [Request a demo](https://www.incremys.com/en/resources/blog/schema-seo#)
+  
+  Complete the form so we can contact you.
+  
+  First name
+  
+  Professional email
+  
+  Web site
+  
+  Tell us about your project so we can prepare a personalized demo
+  
+  [Send](https://www.incremys.com/en/resources/blog/schema-seo#)
+  
+  The new generation of SEO
+  
+  is on!
+  
+  Thank you for your request, we will get back to you as soon as possible.
+  
+  Oops! Something went wrong while submitting the form.
+  
+  ![](https://cdn.prod.website-files.com/675174c2182accb9cbdaaecf/67bc481a25a4bd7d6a11fba0_bg-cta-height-2%20(1).avif)
+  
+  ", "inDefinedTermSet": {"@id": "https://www.incremys.com/en/resources/blog/schema-seo#defined-terms"}}, {"@type": "DefinedTerm", "name": "Step 4: Integrate the Code (CMS, Templates, Server Rendering) and Avoid Duplicates", "description": "Two common approaches: Avoid competing declarations (microdata plus JSON-LD for the same fields) and markup variations across duplicate pages. These inconsistencies reduce machine trust and make debugging considerably harder.", "inDefinedTermSet": {"@id": "https://www.incremys.com/en/resources/blog/schema-seo#defined-terms"}}, {"@type": "DefinedTerm", "name": "Step 5: Test, Fix and Monitor in Google Search Console", "description": "The \\"test before release → release → monitor\\" cycle is non-negotiable:", "inDefinedTermSet": {"@id": "https://www.incremys.com/en/resources/blog/schema-seo#defined-terms"}}, {"@type": "DefinedTerm", "name": "Checks That Prevent 80% of Issues: Syntax, Required Fields and Page/Markup Alignment", "description": "✓ JSON syntax: quotes, commas, arrays and braces (invalid JSON means the markup is ignored entirely). ✓ Required fields: ensure the properties Google expects for the target type are present. ✓ Visible-content alignment: price, stock, author, dates, reviews and steps must match between the page and JSON-LD.", "inDefinedTermSet": {"@id": "https://www.incremys.com/en/resources/blog/schema-seo#defined-terms"}}, {"@type": "DefinedTerm", "name": "Article: Mark Up Editorial Content Without Over-Declaring", "description": "For editorial pages, the goal is not to stack properties, but to make the essentials explicit: title, dates, author, image and publisher. Only declare what the page genuinely displays (identifiable author, exact date, accessible image).", "inDefinedTermSet": {"@id": "https://www.incremys.com/en/resources/blog/schema-seo#defined-terms"}}, {"@type": "DefinedTerm", "name": "JSON-LD Example for Article (headline, author, datePublished, image)", "description": ""}, {"@type": "ListItem", "position": 13, "name": "Step 4: Integrate the Code (CMS, Templates, Server Rendering) and Avoid Duplicates", "description": "Two common approaches: Avoid competing declarations (microdata plus JSON-LD for the same fields) and markup variations across duplicate pages. These inconsistencies reduce machine trust and make debugging considerably harder."}, {"@type": "ListItem", "position": 14, "name": "Step 5: Test, Fix and Monitor in Google Search Console", "description": "The \\"test before release → release → monitor\\" cycle is non-negotiable:"}, {"@type": "ListItem", "position": 15, "name": "Checks That Prevent 80% of Issues: Syntax, Required Fields and Page/Markup Alignment", "description": "✓ JSON syntax: quotes, commas, arrays and braces (invalid JSON means the markup is ignored entirely). ✓ Required fields: ensure the properties Google expects for the target type are present. ✓ Visible-content alignment: price, stock, author, dates, r"}, {"@type": "ListItem", "position": 16, "name": "Article: Mark Up Editorial Content Without Over-Declaring", "description": "For editorial pages, the goal is not to stack properties, but to make the essentials explicit: title, dates, author, image and publisher. Only declare what the page genuinely displays (identifiable author, exact date, accessible image)."}, {"@type": "ListItem", "position": 17, "name": "JSON-LD Example for Article (headline, author, datePublished, image)", "description": "
+  --- End Content ---
+
+Tutorial: Add Structured Data to your Next.js site's pages for better SEO
+  URL: https://www.reddit.com/r/nextjs/comments/1ccr79j/tutorial_add_structured_data_to_your_nextjs_sites/
+  A metadata format that can be embedded on your website to tell search engines more about the content available on the page.

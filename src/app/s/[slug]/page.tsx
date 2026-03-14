@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MessageCircle, AlertTriangle, ArrowLeft, Grid3X3 } from "lucide-react";
+import { MessageCircle, AlertTriangle, ArrowLeft, Grid3X3, Home, Store } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { whatsappLink } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
@@ -154,6 +154,19 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   return (
     <div className="min-h-screen bg-gray-50">
       <TrackView merchantId={merchant.id} />
+      {/* Site Navigation */}
+      <nav className="bg-gray-900 text-white">
+        <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between text-sm">
+          <Link href="/" className="flex items-center gap-1.5 hover:text-green-400 transition-colors">
+            <Home size={14} />
+            OshiCart
+          </Link>
+          <Link href="/stores" className="flex items-center gap-1.5 hover:text-green-400 transition-colors">
+            <Store size={14} />
+            Browse Stores
+          </Link>
+        </div>
+      </nav>
       {/* Store Header */}
       <header className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-6">

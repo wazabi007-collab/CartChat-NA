@@ -140,6 +140,14 @@ function HowItWorksSection() {
         <p className="text-gray-500 mt-3 max-w-xl mx-auto">
           The easiest way to sell online in Namibia
         </p>
+        <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm font-medium">
+          <span className="bg-green-50 text-green-700 px-4 py-1.5 rounded-full border border-green-200">
+            From &lsquo;How much?&rsquo; to &lsquo;Order Received&rsquo; in one click
+          </span>
+          <span className="bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full border border-blue-200">
+            Turning your WhatsApp status into a Money-Maker
+          </span>
+        </div>
       </div>
       {/* Full-width banner image */}
       <div className="w-full">
@@ -336,7 +344,7 @@ function PricingSection() {
               "EFT proof upload",
               "OshiCart branding",
             ]}
-            cta="Claim Your Shop Link Now"
+            cta="Vat-en-Sit Your Shop"
             href="/signup"
             highlighted={false}
           />
@@ -351,7 +359,7 @@ function PricingSection() {
               "Sales analytics",
               "Everything in Start",
             ]}
-            cta="Stop Chatting, Start Selling."
+            cta="Secure the Zula"
             href="/signup?tier=oshi_basic"
             highlighted={true}
             badge="Most Popular"
@@ -367,7 +375,7 @@ function PricingSection() {
               "Coupon codes",
               "Everything in Basic",
             ]}
-            cta="Turning Every 'How Much?' into a 'Paid!'"
+            cta="Open Your Oshipindi"
             href="/signup?tier=oshi_grow"
             highlighted={false}
           />
@@ -383,7 +391,7 @@ function PricingSection() {
               "All features",
               "Everything in Grow",
             ]}
-            cta="The Bridge Between Your DMs and Your Bank Account."
+            cta="Sell Like a Boss"
             href="/signup?tier=oshi_pro"
             highlighted={false}
           />

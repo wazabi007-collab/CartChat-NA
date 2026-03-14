@@ -388,7 +388,7 @@ function PricingSection() {
           />
           <PricingCard
             name="Oshi-Grow"
-            price="N$499"
+            price="N$399"
             period="/month"
             features={[
               "200 products",
@@ -403,11 +403,12 @@ function PricingSection() {
           />
           <PricingCard
             name="Oshi-Pro"
-            price="N$1,200"
+            price="N$999"
             period="/month"
             features={[
               "Unlimited products",
               "Unlimited orders",
+              "Import via API, Excel & CSV",
               "Priority support",
               "All features",
               "Everything in Grow",

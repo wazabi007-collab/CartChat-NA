@@ -82,13 +82,16 @@ export async function POST(request: NextRequest) {
       outputContentType = file.type || "image/jpeg";
     }
 
-    // Generate unique filename
+    // Generate unique filename — sanitize extension to safe characters only
+    const safeExt = outputExt.replace(/[^a-z0-9]/gi, "").toLowerCase() || "webp";
     const timestamp = Date.now();
     const randomSuffix = Math.random().toString(36).substring(2, 8);
-    const fileName = `${timestamp}-${randomSuffix}.${outputExt}`;
-    const fullPath = storagePath
+    const fileName = `${timestamp}-${randomSuffix}.${safeExt}`;
+    // Sanitize path — only allow alphanumeric, hyphens, slashes, underscores
+    const rawPath = storagePath
       ? `${storagePath}/${fileName}`
       : `${user.id}/${fileName}`;
+    const fullPath = rawPath.replace(/[^a-zA-Z0-9\-_\/\.]/g, "_");
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage

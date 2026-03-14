@@ -50,6 +50,9 @@ function HeroSection() {
             Your Namibian Business,{" "}
             <span className="text-[#4A9B3E]">Online in 5 Minutes.</span>
           </h1>
+          <p className="mt-2 text-sm font-medium text-gray-500">
+            Your side hustle, now professional.
+          </p>
           <p className="mt-3 text-base text-gray-700 leading-relaxed">
             Create your digital catalog, accept local payments, and manage
             orders effortlessly via WhatsApp.
@@ -92,6 +95,9 @@ function HeroSection() {
                 Your Namibian Business,{" "}
                 <span className="text-[#4A9B3E]">Online in 5 Minutes.</span>
               </h1>
+              <p className="mt-2 text-base font-medium text-gray-500">
+                Your side hustle, now professional.
+              </p>
               <p className="mt-4 text-lg text-gray-700 leading-relaxed">
                 Create your digital catalog, accept local payments, and manage
                 orders effortlessly via WhatsApp.
@@ -132,7 +138,7 @@ function HowItWorksSection() {
           How It Works
         </h2>
         <p className="text-gray-500 mt-3 max-w-xl mx-auto">
-          Three simple steps to start selling online in Namibia
+          The easiest way to sell online in Namibia
         </p>
       </div>
       {/* Full-width banner image */}
@@ -459,7 +465,7 @@ function WhatsAppCTASection() {
     <section className="py-16 px-4 sm:px-6">
       <div className="max-w-2xl mx-auto text-center">
         <h3 className="text-2xl font-bold text-gray-900">
-          Ready to grow your WhatsApp business?
+          Start for Free. Scale with Us.
         </h3>
         <p className="text-gray-500 mt-2">
           Join Namibian sellers who are saving hours every day with OshiCart.

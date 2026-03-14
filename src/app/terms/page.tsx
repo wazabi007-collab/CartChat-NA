@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PublicNavbar } from "@/components/public-navbar";
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description: "OshiCart Terms of Service — merchant responsibilities, payment disclaimer, prohibited items, and new store limits for the Namibian e-commerce platform.",
+  alternates: { canonical: "/terms" },
+};
 
 export default function TermsPage() {
   return (

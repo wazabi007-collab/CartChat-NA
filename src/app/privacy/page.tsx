@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PublicNavbar } from "@/components/public-navbar";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "OshiCart Privacy Policy — how we collect, use, and protect merchant and customer data on the Namibian e-commerce platform.",
+  alternates: { canonical: "/privacy" },
+};
 
 export default function PrivacyPage() {
   return (

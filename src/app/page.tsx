@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -11,10 +12,30 @@ import {
 import { VideoModalButton } from "@/components/video-modal";
 import { PublicNavbar } from "@/components/public-navbar";
 import { SupportButton } from "@/components/support-button";
+import { JsonLd } from "@/components/json-ld";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "OshiCart",
+  url: "https://oshicart.com",
+  description: "The Simplest Way to Sell Online in Namibia. Create your WhatsApp store in 5 minutes with zero transaction fees.",
+  foundingLocation: { "@type": "Place", name: "Namibia" },
+  parentOrganization: { "@type": "Organization", name: "Octovia Nexus Investments CC" },
+  contactPoint: [
+    { "@type": "ContactPoint", telephone: "+264816274823", contactType: "customer support", availableLanguage: "English" },
+    { "@type": "ContactPoint", telephone: "+264816262961", contactType: "sales", availableLanguage: "English" },
+  ],
+};
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
+      <JsonLd data={organizationSchema} />
       <PublicNavbar />
       <HeroSection />
       <HowItWorksSection />

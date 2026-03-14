@@ -841,7 +841,7 @@ export function CheckoutForm({
                 </p>
                 <p className="font-bold text-lg">{pay2cellNumber}</p>
                 <p className="text-xs mt-1">
-                  Open your FNB App → Payments → Pay2Cell, or dial *140*321# and select Pay2Cell.
+                  Open your FNB App → Payments → Pay2Cell.
                   Upload proof of payment below after sending.
                 </p>
               </>

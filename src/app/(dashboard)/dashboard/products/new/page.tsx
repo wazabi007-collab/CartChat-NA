@@ -195,29 +195,30 @@ export default function NewProductPage() {
         return;
       }
 
-      // Upload images via the upload API route
+      // Upload images directly to Supabase Storage
       const imageUrls: string[] = [];
       for (const file of imageFiles) {
-        const formData = new FormData();
-        formData.append("file", file);
+        const timestamp = Date.now();
+        const rand = Math.random().toString(36).substring(2, 8);
+        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+        const filePath = `${userId}/${timestamp}-${rand}.${ext}`;
 
-        let res;
-        try {
-          res = await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("merchant-assets")
+          .upload(filePath, file, {
+            cacheControl: "31536000",
+            upsert: false,
           });
-        } catch (fetchErr) {
-          throw new Error(`Network error: ${fetchErr instanceof Error ? fetchErr.message : "failed to reach server"}`);
+
+        if (uploadError) {
+          throw new Error(`Image upload: ${uploadError.message}`);
         }
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
-          throw new Error(`Image upload: ${err.error || `HTTP ${res.status}`}`);
-        }
+        const { data: urlData } = supabase.storage
+          .from("merchant-assets")
+          .getPublicUrl(uploadData.path);
 
-        const { url } = await res.json();
-        imageUrls.push(url);
+        imageUrls.push(urlData.publicUrl);
       }
 
       // Insert product
@@ -243,8 +244,10 @@ export default function NewProductPage() {
       router.push("/dashboard/products");
       router.refresh();
     } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("Product form error:", err);
       setGlobalError(
-        err instanceof Error ? err.message : "Something went wrong"
+        msg.includes(":") ? msg : `Unexpected: ${msg}`
       );
     } finally {
       setLoading(false);

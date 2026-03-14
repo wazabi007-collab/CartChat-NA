@@ -19,13 +19,13 @@ export default function PrivacyPage() {
           <p>
             <strong>Merchants:</strong> Email address (for authentication),
             WhatsApp number (for customer communication), store name,
-            description, payment details (bank account, mobile money, or
-            eWallet information displayed to customers at checkout), and
-            product information.
+            description, industry, and product/service information.
           </p>
           <p>
             <strong>Customers:</strong> Name and WhatsApp number (provided at
-            checkout), order details, proof-of-payment images.
+            checkout), order details, proof-of-payment images. Customers
+            can look up their order status using their WhatsApp number on
+            the store page.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
             How We Use It

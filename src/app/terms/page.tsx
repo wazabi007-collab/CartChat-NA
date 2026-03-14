@@ -27,21 +27,23 @@ export default function TermsPage() {
           </h2>
           <p>
             Merchants are responsible for the accuracy of their product
-            listings, pricing, and fulfillment of orders. OshiCart does not
+            and service listings, pricing, and fulfillment of orders. OshiCart does not
             handle payment processing directly — merchants receive payments
             through their chosen payment methods, which may include bank
-            transfer (EFT), Cash on Delivery, MTC MoMo, and eWallet services.
+            transfer (EFT), Cash on Delivery, MTC MoMo, FNB Pay2Cell, and eWallet services.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
             3. Payment Disclaimer
           </h2>
           <p>
             OshiCart facilitates the display of merchant payment details
-            (including bank account information, mobile money numbers, and
-            eWallet details) and enables proof-of-payment uploads for EFT
-            transactions. We do not process, hold, or transfer funds. All
-            financial transactions occur directly between the customer and
-            merchant. OshiCart is not liable for payment disputes.
+            (including bank account information, mobile money numbers, FNB
+            Pay2Cell numbers, and eWallet details) and enables
+            proof-of-payment uploads. We generate unique payment references
+            for each order to help merchants match payments. We do not
+            process, hold, or transfer funds. All financial transactions
+            occur directly between the customer and merchant. OshiCart is
+            not liable for payment disputes.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
             4. Data Usage
@@ -138,14 +140,15 @@ export default function TermsPage() {
             on any storefront. All reports are reviewed by the OshiCart team.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
-            9. Store Review &amp; New Store Limits
+            9. New Store Limits
           </h2>
           <p>
-            New stores undergo a review period. During the first 30 days,
-            stores are limited to 10 orders per month and N$5,000 in total
-            order value. These limits are automatically lifted after the review
-            period or can be increased by contacting support via WhatsApp
-            at +264 81 627 4823 or email at info@octovianexus.com.
+            New stores are active immediately upon signup. During the first
+            30 days, stores are limited to 10 orders per month and N$5,000
+            in total order value as a safety measure. These limits are
+            automatically lifted after 30 days or can be increased by
+            contacting support via WhatsApp at +264 81 627 4823 or email
+            at info@octovianexus.com.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
             10. Termination

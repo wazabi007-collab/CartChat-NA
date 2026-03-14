@@ -133,13 +133,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Merchant not found" }, { status: 404 });
     }
 
-    // Delete in order: order_items → orders → stock_adjustments → products → categories → reports → subscriptions → payments → merchant
-    // Most have ON DELETE CASCADE, but let's be explicit for safety
-    await service.from("subscriptions").delete().eq("merchant_id", id);
-    await service.from("payments").delete().eq("merchant_id", id);
-    await service.from("reports").delete().eq("merchant_id", id);
-
-    // Delete the merchant (cascades to products, orders, categories, etc.)
+    // All child tables have ON DELETE CASCADE — deleting merchant removes everything
     const { error } = await service.from("merchants").delete().eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

@@ -87,18 +87,6 @@ export default async function DashboardPage() {
       </div>
 
       {/* Store status banner */}
-      {merchant.store_status === "pending" && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-start gap-3">
-          <Clock size={20} className="text-yellow-600 flex-shrink-0 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-yellow-900">Store Under Review</h3>
-            <p className="text-sm text-yellow-800 mt-1">
-              Your store is being reviewed by the OshiCart team. You can still set up your products
-              and settings while you wait. Your store will be visible to customers once approved.
-            </p>
-          </div>
-        </div>
-      )}
       {merchant.store_status === "suspended" && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start gap-3">
           <ShieldAlert size={20} className="text-red-600 flex-shrink-0 mt-0.5" />

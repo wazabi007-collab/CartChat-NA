@@ -4,7 +4,6 @@ import {
   DollarSign,
   Users,
   UserPlus,
-  Clock,
   AlertTriangle,
   Flag,
 } from "lucide-react";
@@ -31,8 +30,8 @@ export default async function AdminOverviewPage() {
     // New signups this week
     service.from("merchants").select("id", { count: "exact", head: true })
       .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
-    // Pending approval
-    service.from("merchants").select("id", { count: "exact", head: true }).eq("store_status", "pending"),
+    // (no longer used — stores go active on signup)
+    Promise.resolve({ count: 0 }),
     // Overdue
     service.from("subscriptions").select("id", { count: "exact", head: true })
       .in("status", ["grace", "soft_suspended"]),
@@ -91,13 +90,6 @@ export default async function AdminOverviewPage() {
           value={newSignupsResult.count || 0}
           icon={UserPlus}
           href="/admin/merchants"
-        />
-        <StatCard
-          label="Pending Approval"
-          value={pendingResult.count || 0}
-          icon={Clock}
-          highlight={(pendingResult.count || 0) > 0}
-          href="/admin/merchants?status=pending"
         />
         <StatCard
           label="Overdue"

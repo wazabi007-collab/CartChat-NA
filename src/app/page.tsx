@@ -47,11 +47,11 @@ function HeroSection() {
         </div>
         <div className="px-5 pb-8 -mt-12 relative z-10">
           <h1 className="text-3xl font-extrabold text-gray-900 leading-tight">
-            Your Namibian Business,{" "}
-            <span className="text-[#4A9B3E]">Online in 5 Minutes.</span>
+            The Simplest Way to Sell{" "}
+            <span className="text-[#4A9B3E]">Online in Namibia.</span>
           </h1>
-          <p className="mt-2 text-sm font-medium text-gray-500">
-            Your side hustle, now professional.
+          <p className="mt-2 text-lg font-semibold text-gray-600">
+            Your Namibian business, online in 5 minutes.
           </p>
           <p className="mt-3 text-base text-gray-700 leading-relaxed">
             Create your digital catalog, accept local payments, and manage
@@ -92,11 +92,11 @@ function HeroSection() {
           <div className="max-w-6xl mx-auto px-6 h-full flex items-center">
             <div className="max-w-lg">
               <h1 className="text-5xl lg:text-[3.25rem] font-extrabold text-gray-900 leading-tight">
-                Your Namibian Business,{" "}
-                <span className="text-[#4A9B3E]">Online in 5 Minutes.</span>
+                The Simplest Way to Sell{" "}
+                <span className="text-[#4A9B3E]">Online in Namibia.</span>
               </h1>
-              <p className="mt-2 text-base font-medium text-gray-500">
-                Your side hustle, now professional.
+              <p className="mt-2 text-xl font-semibold text-gray-600">
+                Your Namibian business, online in 5 minutes.
               </p>
               <p className="mt-4 text-lg text-gray-700 leading-relaxed">
                 Create your digital catalog, accept local payments, and manage
@@ -137,9 +137,6 @@ function HowItWorksSection() {
         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
           How It Works
         </h2>
-        <p className="text-gray-500 mt-3 max-w-xl mx-auto">
-          The easiest way to sell online in Namibia
-        </p>
         <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm font-medium">
           <span className="bg-green-50 text-green-700 px-4 py-1.5 rounded-full border border-green-200">
             From &lsquo;How much?&rsquo; to &lsquo;Order Received&rsquo; in one click
@@ -275,24 +272,29 @@ function FeaturesSection() {
         </h2>
         <div className="grid md:grid-cols-2 gap-6">
           <Feature
-            icon={<ShoppingCart size={24} />}
-            title="Product Catalog"
-            description="Add products with photos and prices in NAD. Customers browse on their phone — no app download needed."
-          />
-          <Feature
             icon={<CreditCard size={24} />}
-            title="Local Payment Methods"
-            description="Accept EFT with proof-of-payment upload, PayToday, eWallet, and Cash on Delivery. All popular Namibian payment options in one place."
-          />
+            title="PayToday Ready. EFT Friendly. Zero Transaction Fees."
+            description="Accept EFT with proof-of-payment upload, PayToday, Pay2Cell, eWallet, and Cash on Delivery. All popular Namibian payment options in one place."
+          >
+            <span className="inline-flex items-center gap-1.5 mt-2 text-xs font-medium text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
+              <Check size={12} />
+              Proudly Namibian &amp; Secure
+            </span>
+          </Feature>
           <Feature
             icon={<MessageCircle size={24} />}
-            title="WhatsApp Notifications"
-            description="One-tap WhatsApp messages to customers when you confirm or complete their order."
+            title="Manage Your Business from the Palm of Your Hand."
+            description="One-tap WhatsApp messages to customers when you confirm or complete their order. Run your store from anywhere."
+          />
+          <Feature
+            icon={<ShoppingCart size={24} />}
+            title="Keep 100% of Your Profits. One Fixed Price. No Hidden Taxes."
+            description="No commission on sales. No transaction fees. Just one simple monthly subscription — what you earn is what you keep."
           />
           <Feature
             icon={<BarChart3 size={24} />}
-            title="Sales Analytics"
-            description="Track views, orders, and revenue. Know your top products and busiest days."
+            title="Smart Stock Tracking. No More 'Is this still available?' Chats."
+            description="Real-time inventory updates, low stock alerts, and automatic out-of-stock badges. Your customers always see what&apos;s available."
           />
         </div>
       </div>
@@ -304,10 +306,12 @@ function Feature({
   icon,
   title,
   description,
+  children,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
+  children?: React.ReactNode;
 }) {
   return (
     <div className="flex gap-4 p-4">
@@ -315,6 +319,7 @@ function Feature({
       <div>
         <h4 className="font-medium text-gray-900">{title}</h4>
         <p className="text-sm text-gray-500 mt-1">{description}</p>
+        {children}
       </div>
     </div>
   );
@@ -482,7 +487,7 @@ function WhatsAppCTASection() {
           href="/signup"
           className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-[#2B5EA7] text-white rounded-lg hover:bg-[#234B86] font-medium"
         >
-          Create Your Free Store <ArrowRight size={18} />
+          Start my Free Zula <ArrowRight size={18} />
         </Link>
       </div>
     </section>

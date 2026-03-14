@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
-    const storagePath = formData.get("path") as string | null;
 
     if (!file) {
       return NextResponse.json(
@@ -29,14 +28,12 @@ export async function POST(request: NextRequest) {
 
     if (file.size > MAX_IMAGE_SIZE) {
       return NextResponse.json(
-        { error: "File exceeds 20MB limit" },
+        { error: "File is too large" },
         { status: 400 }
       );
     }
 
-    // Validate file type (HEIC/HEIF are iPhone native formats)
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/heic", "image/heif"];
-    if (!allowedTypes.includes(file.type) && !file.type.startsWith("image/")) {
+    if (!file.type.startsWith("image/")) {
       return NextResponse.json(
         { error: "Invalid file type. Please upload an image." },
         { status: 400 }
@@ -48,13 +45,12 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(arrayBuffer);
 
     let processedBuffer: Buffer;
-    let outputExt = "webp";
-    let outputContentType = "image/webp";
 
     try {
       // Process with Sharp: resize and convert to WebP
       let quality = 80;
       processedBuffer = await sharp(buffer)
+        .rotate() // auto-rotate based on EXIF
         .resize(MAX_IMAGE_WIDTH, undefined, {
           withoutEnlargement: true,
           fit: "inside",
@@ -66,6 +62,7 @@ export async function POST(request: NextRequest) {
       while (processedBuffer.length > TARGET_IMAGE_SIZE && quality > 20) {
         quality -= 10;
         processedBuffer = await sharp(buffer)
+          .rotate()
           .resize(MAX_IMAGE_WIDTH, undefined, {
             withoutEnlargement: true,
             fit: "inside",
@@ -73,31 +70,26 @@ export async function POST(request: NextRequest) {
           .webp({ quality })
           .toBuffer();
       }
-    } catch (sharpError) {
-      // Fallback: upload original image if sharp fails
-      console.error("Sharp processing failed, uploading original:", sharpError);
-      processedBuffer = buffer;
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      outputExt = ext;
-      outputContentType = file.type || "image/jpeg";
+    } catch {
+      // Fallback: try to at least convert to jpeg
+      try {
+        processedBuffer = await sharp(buffer).rotate().jpeg({ quality: 80 }).toBuffer();
+      } catch {
+        // Last resort: upload raw buffer
+        processedBuffer = buffer;
+      }
     }
 
-    // Generate unique filename — sanitize extension to safe characters only
-    const safeExt = outputExt.replace(/[^a-z0-9]/gi, "").toLowerCase() || "webp";
+    // Simple path: userId/timestamp-random.webp
     const timestamp = Date.now();
-    const randomSuffix = Math.random().toString(36).substring(2, 8);
-    const fileName = `${timestamp}-${randomSuffix}.${safeExt}`;
-    // Sanitize path — only allow alphanumeric, hyphens, slashes, underscores
-    const rawPath = storagePath
-      ? `${storagePath}/${fileName}`
-      : `${user.id}/${fileName}`;
-    const fullPath = rawPath.replace(/[^a-zA-Z0-9\-_\/\.]/g, "_");
+    const rand = Math.random().toString(36).substring(2, 8);
+    const fullPath = `${user.id}/${timestamp}-${rand}.webp`;
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
       .from("merchant-assets")
       .upload(fullPath, processedBuffer, {
-        contentType: outputContentType,
+        contentType: "image/webp",
         cacheControl: "31536000",
         upsert: false,
       });

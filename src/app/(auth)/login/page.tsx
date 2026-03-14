@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
+import { PublicNavbar } from "@/components/public-navbar";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -70,11 +71,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen bg-gray-50">
+      <PublicNavbar />
+      <div className="flex items-center justify-center px-4 py-16 sm:py-24">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <Image src="/logo.svg" alt="OshiCart" width={160} height={42} priority />
-          <p className="text-gray-500 mt-1">Sign in to your store</p>
+          <h1 className="text-2xl font-bold text-gray-900">Sign in to your store</h1>
+          <p className="text-gray-500 mt-1">Welcome back to OshiCart</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -174,6 +177,7 @@ export default function LoginPage() {
             Create one free
           </Link>
         </p>
+      </div>
       </div>
     </div>
   );

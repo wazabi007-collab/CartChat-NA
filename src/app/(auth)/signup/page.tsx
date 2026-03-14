@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
+import { PublicNavbar } from "@/components/public-navbar";
 
 export default function SignupPage() {
   return (
@@ -131,12 +132,14 @@ function SignupForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen bg-gray-50">
+      <PublicNavbar />
+      <div className="flex items-center justify-center px-4 py-16 sm:py-24">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <Image src="/logo.svg" alt="OshiCart" width={160} height={42} priority />
+          <h1 className="text-2xl font-bold text-gray-900">Create your store</h1>
           <p className="text-gray-500 mt-1">
-            Create your WhatsApp store in 5 minutes
+            Get your WhatsApp store live in 5 minutes
           </p>
         </div>
 
@@ -261,6 +264,7 @@ function SignupForm() {
             <span>No credit card needed</span>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Store, Search, ArrowRight, MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SITE_NAME } from "@/lib/constants";
+import { PublicNavbar } from "@/components/public-navbar";
 
 export const metadata: Metadata = {
   title: `Browse Stores | ${SITE_NAME}`,
@@ -108,30 +109,9 @@ export default async function StoresPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/">
-            <Image src="/logo.svg" alt={SITE_NAME} width={140} height={37} />
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/signup"
-              className="text-sm px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              Create Store
-            </Link>
-          </div>
-        </div>
-      </header>
+      <PublicNavbar />
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {/* Page Title & Search */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
@@ -286,14 +266,23 @@ export default async function StoresPage({
       </main>
 
       {/* Footer */}
-      <footer className="border-t bg-white mt-8">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-400">
-          <p>{SITE_NAME} — Made in Namibia</p>
-          <div className="flex gap-4">
-            <Link href="/terms" className="hover:text-gray-600">
+      <footer className="bg-gray-900 text-gray-400 py-8 px-4 sm:px-6 mt-8">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo.svg"
+              alt={SITE_NAME}
+              width={100}
+              height={27}
+              className="brightness-0 invert"
+            />
+            <span className="text-gray-500">— Made in Namibia</span>
+          </div>
+          <div className="flex gap-6">
+            <Link href="/terms" className="hover:text-white transition-colors">
               Terms
             </Link>
-            <Link href="/privacy" className="hover:text-gray-600">
+            <Link href="/privacy" className="hover:text-white transition-colors">
               Privacy
             </Link>
           </div>

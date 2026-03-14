@@ -9,11 +9,12 @@ import {
   Check,
 } from "lucide-react";
 import { VideoModalButton } from "@/components/video-modal";
+import { PublicNavbar } from "@/components/public-navbar";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
+      <PublicNavbar />
       <HeroSection />
       <HowItWorksSection />
       <FeaturesSection />
@@ -22,45 +23,6 @@ export default function LandingPage() {
       <WhatsAppCTASection />
       <Footer />
     </div>
-  );
-}
-
-/* ─── Navbar ──────────────────────────────────────────────── */
-function Navbar() {
-  return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-        <Link href="/" className="flex-shrink-0">
-          <Image
-            src="/logo.svg"
-            alt="OshiCart"
-            width={150}
-            height={40}
-            priority
-          />
-        </Link>
-        <nav className="hidden md:flex items-center gap-8">
-          <Link
-            href="/stores"
-            className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            Browse Stores
-          </Link>
-          <Link
-            href="/login"
-            className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            Sign in
-          </Link>
-        </nav>
-        <Link
-          href="/signup"
-          className="text-sm px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-        >
-          Create Free Store
-        </Link>
-      </div>
-    </header>
   );
 }
 

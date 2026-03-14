@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { VideoModalButton } from "@/components/video-modal";
 import { PublicNavbar } from "@/components/public-navbar";
+import { SupportButton } from "@/components/support-button";
 
 export default function LandingPage() {
   return (
@@ -22,6 +23,7 @@ export default function LandingPage() {
       <KeySolutionsSection />
       <WhatsAppCTASection />
       <Footer />
+      <SupportButton />
     </div>
   );
 }

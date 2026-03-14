@@ -9,6 +9,7 @@ import { whatsappLink } from "@/lib/utils";
 interface OrderActionsProps {
   orderId: string;
   currentStatus: string;
+  merchantId: string;
   merchantIndustry: string;
   merchantStoreName: string;
   customerName: string;
@@ -20,6 +21,7 @@ interface OrderActionsProps {
 export function OrderActions({
   orderId,
   currentStatus,
+  merchantId,
   merchantIndustry,
   merchantStoreName,
   customerName,
@@ -44,6 +46,13 @@ export function OrderActions({
       router.refresh();
       return;
     }
+
+    // Sync analytics after status change
+    fetch("/api/analytics/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ merchant_id: merchantId }),
+    }).catch(() => {});
 
     if (
       (newStatus === "confirmed" || newStatus === "completed" || newStatus === "cancelled") &&

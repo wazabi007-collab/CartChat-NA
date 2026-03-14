@@ -320,6 +320,13 @@ export function CheckoutForm({
 
       const order = orderData[0] as { order_id: string; order_number: number; payment_reference: string };
 
+      // Sync analytics for new order
+      fetch("/api/analytics/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ merchant_id: merchantId }),
+      }).catch(() => {});
+
       // Clear cart
       localStorage.removeItem(`oshicart-cart-${storeSlug}`);
 

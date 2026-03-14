@@ -171,6 +171,7 @@ export default async function OrdersPage({
                 <OrderActions
                   orderId={order.id}
                   currentStatus={order.status}
+                  merchantId={merchant.id}
                   merchantIndustry={merchant.industry ?? ""}
                   merchantStoreName={merchant.store_name}
                   customerName={order.customer_name}

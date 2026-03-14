@@ -150,7 +150,7 @@ export default function EditProductPage() {
       if (file.size > MAX_IMAGE_SIZE) {
         setErrors((prev) => ({
           ...prev,
-          images: `${file.name} exceeds 5MB limit`,
+          images: `${file.name} exceeds 20MB limit`,
         }));
         return;
       }

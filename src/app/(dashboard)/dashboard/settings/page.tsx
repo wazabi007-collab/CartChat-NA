@@ -221,7 +221,7 @@ export default function SettingsPage() {
                       const file = e.target.files?.[0];
                       if (!file) return;
                       if (file.size > MAX_IMAGE_SIZE) {
-                        setLogoError("Image must be under 5MB");
+                        setLogoError("Image must be under 20MB");
                         return;
                       }
                       setUploadingLogo(true);
@@ -260,7 +260,7 @@ export default function SettingsPage() {
                   </button>
                 )}
                 <p className="text-xs text-gray-400 mt-1">
-                  Square image recommended. Max 5MB. Shows on your storefront and invoices.
+                  Square image recommended. Shows on your storefront and invoices.
                 </p>
                 {logoError && <p className="text-xs text-red-500 mt-1">{logoError}</p>}
               </div>

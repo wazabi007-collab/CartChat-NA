@@ -7,7 +7,7 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:30
 
 export const NAD_CURRENCY = "NAD";
 
-export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB upload limit
+export const MAX_IMAGE_SIZE = 20 * 1024 * 1024; // 20MB upload limit (sharp compresses before storage)
 export const TARGET_IMAGE_SIZE = 300 * 1024; // 300KB after compression
 export const MAX_IMAGE_WIDTH = 1200; // px
 

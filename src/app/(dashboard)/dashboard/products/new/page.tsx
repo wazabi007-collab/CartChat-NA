@@ -112,7 +112,7 @@ export default function NewProductPage() {
       if (file.size > MAX_IMAGE_SIZE) {
         setErrors((prev) => ({
           ...prev,
-          images: `${file.name} exceeds 5MB limit`,
+          images: `${file.name} exceeds 20MB limit`,
         }));
         return;
       }
@@ -594,7 +594,7 @@ export default function NewProductPage() {
             <p className="text-red-500 text-xs mt-1">{errors.images}</p>
           )}
           <p className="text-xs text-gray-400 mt-1">
-            Max 5MB per image. Images will be compressed automatically.
+            Images will be compressed automatically.
           </p>
         </div>
 

@@ -147,15 +147,12 @@ export default function TermsPage() {
             on any storefront. All reports are reviewed by the OshiCart team.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
-            9. New Store Limits
+            9. New Stores
           </h2>
           <p>
-            New stores are active immediately upon signup. During the first
-            30 days, stores are limited to 10 orders per month and N$5,000
-            in total order value as a safety measure. These limits are
-            automatically lifted after 30 days or can be increased by
-            contacting support via WhatsApp at +264 81 627 4823 or email
-            at info@octovianexus.com.
+            New stores are active immediately upon signup with no order
+            limits. OshiCart reserves the right to monitor new stores and
+            take action if fraudulent activity is detected.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
             10. Termination

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     if (file.size > MAX_IMAGE_SIZE) {
       return NextResponse.json(
-        { error: "File exceeds 5MB limit" },
+        { error: "File exceeds 20MB limit" },
         { status: 400 }
       );
     }

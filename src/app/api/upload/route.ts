@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
           "Cache-Control": "max-age=31536000",
           "x-upsert": "false",
         },
-        body: processedBuffer,
+        body: new Uint8Array(processedBuffer),
       }
     );
 

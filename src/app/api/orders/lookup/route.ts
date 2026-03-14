@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const { data: orders, error } = await supabase
     .from("orders")
     .select(
-      "id, order_number, status, subtotal_nad, delivery_fee_nad, discount_nad, delivery_method, payment_reference, created_at, order_items(product_name, quantity, line_total)"
+      "id, order_number, status, subtotal_nad, delivery_fee_nad, discount_nad, delivery_method, payment_method, payment_reference, proof_of_payment_url, created_at, order_items(product_name, quantity, line_total)"
     )
     .eq("merchant_id", merchantId)
     .eq("customer_whatsapp", normalized)

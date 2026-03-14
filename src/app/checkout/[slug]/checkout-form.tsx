@@ -79,6 +79,12 @@ function getEwalletLabel(provider: string | null): string {
   return EWALLET_PROVIDERS.find((p) => p.value === provider)?.label ?? "eWallet";
 }
 
+function generatePaymentRef(storeName: string): string {
+  const prefix = storeName.replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 4).padEnd(3, "X");
+  const random = Math.random().toString(36).substring(2, 10).toUpperCase();
+  return `${prefix}-${random}`;
+}
+
 type CheckoutStep = "form" | "success";
 
 export function CheckoutForm({
@@ -118,6 +124,9 @@ export function CheckoutForm({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     (acceptedPaymentMethods[0] as PaymentMethod) || "eft"
   );
+
+  // Pre-generated payment reference for EFT
+  const [preRef] = useState(() => generatePaymentRef(storeName));
 
   // Coupon
   const [couponCode, setCouponCode] = useState("");
@@ -301,6 +310,7 @@ export function CheckoutForm({
           p_payment_method: paymentMethod,
           p_coupon_code: couponApplied?.code || null,
           p_discount_nad: 0, // server calculates
+          p_payment_ref: paymentMethod === "eft" ? preRef : null,
         }
       );
 
@@ -761,6 +771,13 @@ export function CheckoutForm({
             <p className="mt-2 text-gray-500">
               Amount: <span className="font-bold text-green-600">{formatPrice(total)}</span>
             </p>
+            <div className="mt-3 bg-blue-50 rounded-md p-3 border border-blue-200">
+              <p className="text-xs text-blue-600 font-medium">Your Payment Reference</p>
+              <p className="text-xl font-bold text-blue-900 tracking-wide">{preRef}</p>
+              <p className="text-xs text-blue-500 mt-1">
+                Use this as the reference/description when making your EFT payment so the merchant can match it to your order.
+              </p>
+            </div>
           </div>
         )}
 

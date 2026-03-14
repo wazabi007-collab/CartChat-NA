@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Package, Clock, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { useState, useRef } from "react";
+import { Search, Package, Clock, CheckCircle2, XCircle, Loader2, Upload, ImageIcon } from "lucide-react";
 
 interface OrderItem {
   product_name: string;
@@ -17,7 +17,9 @@ interface Order {
   delivery_fee_nad: number;
   discount_nad: number;
   delivery_method: string;
+  payment_method: string;
   payment_reference: string | null;
+  proof_of_payment_url: string | null;
   created_at: string;
   order_items: OrderItem[];
 }
@@ -34,6 +36,10 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadOrderIdRef = useRef<string | null>(null);
 
   async function handleLookup(e: React.FormEvent) {
     e.preventDefault();
@@ -43,6 +49,7 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
     setLoading(true);
     setError("");
     setOrders(null);
+    setUploadSuccess(null);
 
     try {
       const res = await fetch(
@@ -60,6 +67,59 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
       setError("Failed to look up orders. Please try again.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  function handleUploadClick(orderId: string) {
+    uploadOrderIdRef.current = orderId;
+    fileInputRef.current?.click();
+  }
+
+  async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    const orderId = uploadOrderIdRef.current;
+    if (!file || !orderId) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("File must be under 5MB");
+      return;
+    }
+
+    setUploadingId(orderId);
+    setError("");
+    setUploadSuccess(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("order_id", orderId);
+      formData.append("whatsapp", whatsapp.trim());
+      formData.append("file", file);
+
+      const res = await fetch("/api/orders/upload-pop", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Failed to upload");
+        return;
+      }
+
+      // Update the order in local state
+      setOrders((prev) =>
+        prev?.map((o) =>
+          o.id === orderId ? { ...o, proof_of_payment_url: data.url } : o
+        ) ?? null
+      );
+      setUploadSuccess(orderId);
+    } catch {
+      setError("Failed to upload proof of payment");
+    } finally {
+      setUploadingId(null);
+      // Reset file input
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
 
@@ -87,6 +147,15 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
         </button>
       </form>
 
+      {/* Hidden file input for POP upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileSelected}
+        className="hidden"
+      />
+
       {error && <p className="text-red-600 text-sm mt-3">{error}</p>}
 
       {orders !== null && orders.length === 0 && (
@@ -103,6 +172,9 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
             const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
             const StatusIcon = config.icon;
             const total = order.subtotal_nad + order.delivery_fee_nad - order.discount_nad;
+            const needsProof = order.payment_method !== "cod" && !order.proof_of_payment_url;
+            const isUploading = uploadingId === order.id;
+            const justUploaded = uploadSuccess === order.id;
 
             return (
               <div key={order.id} className="bg-white border rounded-lg p-4">
@@ -145,6 +217,43 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
                     {formatPrice(total)}
                   </span>
                 </div>
+
+                {/* POP upload section */}
+                {needsProof && order.status !== "cancelled" && order.status !== "completed" && (
+                  <div className="mt-3 pt-3 border-t">
+                    <button
+                      type="button"
+                      onClick={() => handleUploadClick(order.id)}
+                      disabled={isUploading}
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-600 hover:border-green-500 hover:text-green-600 transition-colors disabled:opacity-50"
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload size={16} />
+                          Upload Proof of Payment
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* POP uploaded confirmation */}
+                {order.proof_of_payment_url && (
+                  <div className="mt-3 pt-3 border-t flex items-center gap-2 text-sm text-green-700">
+                    <ImageIcon size={14} />
+                    <span>Proof of payment uploaded</span>
+                    {justUploaded && (
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                        Just now
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}

@@ -583,7 +583,7 @@ export default function NewProductPage() {
                 <span className="text-xs text-gray-400 mt-1">Upload</span>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
                   onChange={handleImageSelect}
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />

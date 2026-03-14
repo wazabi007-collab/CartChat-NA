@@ -324,7 +324,7 @@ export function CheckoutForm({
         if (msg.includes("coupon") || msg.includes("Coupon")) {
           throw new Error("Invalid or expired coupon code");
         }
-        throw new Error("Failed to create order. Please try again.");
+        throw new Error(msg || "Failed to create order. Please try again.");
       }
       if (!orderData?.[0]) {
         throw new Error("Failed to create order");

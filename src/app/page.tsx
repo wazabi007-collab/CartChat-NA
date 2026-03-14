@@ -177,8 +177,8 @@ function HowItWorksSection() {
           src="/how-it-works-banner.webp"
           alt="How It Works: 1. Create Your Catalog, 2. Share Your Link, 3. Get Orders and Payments"
           width={1920}
-          height={500}
-          className="w-full h-auto object-cover"
+          height={1072}
+          className="w-full h-auto"
         />
       </div>
     </section>

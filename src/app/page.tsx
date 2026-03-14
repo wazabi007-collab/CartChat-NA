@@ -62,7 +62,7 @@ function HeroSection() {
               href="/signup"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#2B5EA7] text-white rounded-lg hover:bg-[#234B86] font-semibold text-sm shadow-lg shadow-[#2B5EA7]/25 transition-all"
             >
-              Start Your Free Trial
+              Claim Your Shop Link Now
               <ArrowRight size={18} />
             </Link>
             <VideoModalButton />
@@ -108,7 +108,7 @@ function HeroSection() {
                     href="/signup"
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#2B5EA7] text-white rounded-lg hover:bg-[#234B86] font-semibold text-base shadow-lg shadow-[#2B5EA7]/25 transition-all hover:shadow-xl hover:shadow-[#2B5EA7]/30"
                   >
-                    Start Your Free Trial
+                    Claim Your Shop Link Now
                     <ArrowRight size={18} />
                   </Link>
                   <VideoModalButton />
@@ -336,7 +336,7 @@ function PricingSection() {
               "EFT proof upload",
               "OshiCart branding",
             ]}
-            cta="Start Free Trial"
+            cta="Claim Your Shop Link Now"
             href="/signup"
             highlighted={false}
           />
@@ -351,7 +351,7 @@ function PricingSection() {
               "Sales analytics",
               "Everything in Start",
             ]}
-            cta="Get Started"
+            cta="Stop Chatting, Start Selling."
             href="/signup?tier=oshi_basic"
             highlighted={true}
             badge="Most Popular"
@@ -367,7 +367,7 @@ function PricingSection() {
               "Coupon codes",
               "Everything in Basic",
             ]}
-            cta="Get Started"
+            cta="Turning Every 'How Much?' into a 'Paid!'"
             href="/signup?tier=oshi_grow"
             highlighted={false}
           />
@@ -383,7 +383,7 @@ function PricingSection() {
               "All features",
               "Everything in Grow",
             ]}
-            cta="Get Started"
+            cta="The Bridge Between Your DMs and Your Bank Account."
             href="/signup?tier=oshi_pro"
             highlighted={false}
           />

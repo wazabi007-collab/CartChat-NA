@@ -596,16 +596,23 @@ export default function EditProductPage() {
             ))}
 
             {totalImages < 3 && (
-              <label className="relative w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
-                <Upload size={20} className="text-gray-400" />
-                <span className="text-xs text-gray-400 mt-1">Upload</span>
+              <>
                 <input
+                  id="edit-image-upload"
                   type="file"
                   accept="image/*"
                   onChange={handleImageSelect}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  className="hidden"
                 />
-              </label>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("edit-image-upload")?.click()}
+                  className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors"
+                >
+                  <Upload size={20} className="text-gray-400" />
+                  <span className="text-xs text-gray-400 mt-1">Upload</span>
+                </button>
+              </>
             )}
           </div>
           {errors.images && (

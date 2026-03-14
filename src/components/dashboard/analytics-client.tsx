@@ -194,7 +194,7 @@ export function AnalyticsClient({ allData, topProducts }: AnalyticsClientProps) 
       </div>
 
       {/* Stat Cards with Period Comparison */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <StatBox label="Page Views" value={totals.views.toLocaleString()} change={pctChange(totals.views, prevTotals.views)} />
         <StatBox label="Orders Placed" value={totals.orders.toLocaleString()} change={pctChange(totals.orders, prevTotals.orders)} />
         <StatBox label="Orders Confirmed" value={totals.confirmed.toLocaleString()} change={pctChange(totals.confirmed, prevTotals.confirmed)} />
@@ -315,7 +315,7 @@ function StatBox({
   return (
     <div className="bg-white rounded-lg border p-4">
       <p className="text-xs text-gray-500">{label}</p>
-      <p className={`text-2xl font-bold mt-1 ${highlight ? "text-green-600" : "text-gray-900"}`}>{value}</p>
+      <p className={`text-lg sm:text-2xl font-bold mt-1 truncate ${highlight ? "text-green-600" : "text-gray-900"}`} title={value}>{value}</p>
       <div className="flex items-center gap-1 mt-1">
         {change.neutral ? (
           <Minus size={12} className="text-gray-400" />

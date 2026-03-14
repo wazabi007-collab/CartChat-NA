@@ -272,7 +272,7 @@ function StatCard({
         {icon}
         <span className="text-xs text-gray-500">{label}</span>
       </div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
+      <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate" title={value}>{value}</p>
     </div>
   );
   if (href) return <Link href={href}>{content}</Link>;

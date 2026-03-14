@@ -13,10 +13,10 @@ interface StatCardProps {
 export function StatCard({ label, value, icon: Icon, trend, highlight, href }: StatCardProps) {
   const content = (
     <div className={`bg-white rounded-lg border p-6 ${highlight ? "ring-2 ring-orange-400" : ""} ${href ? "hover:shadow-sm hover:border-gray-300 transition-all cursor-pointer" : ""}`}>
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-gray-500">{label}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
+          <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={String(value)}>{value}</p>
           {trend && (
             <p className={`text-sm mt-1 ${trend.positive ? "text-green-600" : "text-red-600"}`}>
               {trend.value}

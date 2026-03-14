@@ -6,7 +6,6 @@ import { Package, ShoppingCart, Eye, ArrowRight, AlertTriangle, ShieldAlert, Clo
 import { formatPrice } from "@/lib/utils";
 import { SITE_URL } from "@/lib/constants";
 import { CopyStoreLink } from "./copy-store-link";
-import { STATUS_LABELS, TIER_LABELS, type SubscriptionStatus, type SubscriptionTier } from "@/lib/tier-limits";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -73,6 +72,7 @@ export default async function DashboardPage() {
 
   const storeUrl = `/s/${merchant.store_slug}`;
   const storeAbsoluteUrl = `${SITE_URL}/s/${merchant.store_slug}`;
+  const now = new Date().getTime();
 
   return (
     <div className="md:ml-56">
@@ -109,7 +109,7 @@ export default async function DashboardPage() {
             <p className="text-sm text-orange-800 mt-1">
               Your {subscription.trial_ends_at ? "trial" : "subscription"} has ended. You have{" "}
               {subscription.grace_ends_at
-                ? Math.max(0, Math.ceil((new Date(subscription.grace_ends_at).getTime() - Date.now()) / 86400000))
+                ? Math.max(0, Math.ceil((new Date(subscription.grace_ends_at).getTime() - now) / 86400000))
                 : 7}{" "}
               days to renew before your store is paused.
             </p>
@@ -131,7 +131,7 @@ export default async function DashboardPage() {
       {subscription && ["trial", "active"].includes(subscription.status) && (() => {
         const endDate = subscription.current_period_end || subscription.trial_ends_at;
         if (!endDate) return null;
-        const daysLeft = Math.ceil((new Date(endDate).getTime() - Date.now()) / 86400000);
+        const daysLeft = Math.ceil((new Date(endDate).getTime() - now) / 86400000);
         if (daysLeft > 7) return null;
         return (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-start gap-3">

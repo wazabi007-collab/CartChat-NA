@@ -67,7 +67,7 @@ export default function NewProductPage() {
 
       if (sub?.tier) setTier(sub.tier as SubscriptionTier);
 
-      // Load current product count
+      // Load current product count (includes soft-deleted — counts toward tier limit by design)
       const { count } = await supabase
         .from("products")
         .select("id", { count: "exact", head: true })

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 import sharp from "sharp";
@@ -89,9 +90,12 @@ async function processImage(
 }
 
 export async function POST(request: NextRequest) {
-  // Auth: admin only or CRON_SECRET
-  const cronSecret = request.headers.get("x-cron-secret");
-  if (cronSecret !== process.env.CRON_SECRET) {
+  // Auth: admin only or CRON_SECRET (timing-safe comparison)
+  const cronSecret = request.headers.get("x-cron-secret") || "";
+  const expectedSecret = process.env.CRON_SECRET || "";
+  const isValidCron = cronSecret.length > 0 && cronSecret.length === expectedSecret.length &&
+    crypto.timingSafeEqual(Buffer.from(cronSecret), Buffer.from(expectedSecret));
+  if (!isValidCron) {
     const admin = await getAuthenticatedAdmin();
     if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
@@ -196,7 +200,7 @@ export async function POST(request: NextRequest) {
     let created = 0;
     let updated = 0;
     let imagesSynced = 0;
-    let errors: string[] = [];
+    const errors: string[] = [];
 
     for (const product of toSync) {
       try {
@@ -210,7 +214,7 @@ export async function POST(request: NextRequest) {
           .single();
 
         // Process images if needed
-        let imageUrls: string[] = existing?.images || [];
+        const imageUrls: string[] = existing?.images || [];
         if (!skipImages && product.imageUrls.length > 0 && imageUrls.length === 0) {
           for (const url of product.imageUrls) {
             const compressed = await processImage(

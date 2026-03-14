@@ -92,7 +92,7 @@ export function CheckoutForm({
   merchantId,
   storeName,
   storeSlug,
-  merchantTier,
+  merchantTier: _merchantTier,
   whatsappNumber,
   bankName,
   bankAccountNumber,
@@ -322,7 +322,7 @@ export function CheckoutForm({
           throw new Error(msg.replace(/^.*Insufficient stock/, "Insufficient stock"));
         }
         if (msg.includes("coupon") || msg.includes("Coupon")) {
-          throw new Error(msg.replace(/^.*?(Invalid|Coupon)/, "$1"));
+          throw new Error("Invalid or expired coupon code");
         }
         throw new Error("Failed to create order. Please try again.");
       }

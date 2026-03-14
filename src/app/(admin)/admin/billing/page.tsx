@@ -10,6 +10,7 @@ export default async function BillingPage() {
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const twoWeeksAhead = new Date(now.getTime() + 14 * 86400000).toISOString();
 
   const [subsRes, paymentsRes, thisMonthRes, overdueRes, expiringRes, merchantsRes] = await Promise.all([
     // Active subs for MRR
@@ -28,7 +29,7 @@ export default async function BillingPage() {
     // Expiring in 14 days
     service.from("subscriptions").select("merchant_id, status, tier, trial_ends_at, current_period_end, merchants!inner(store_name)")
       .in("status", ["trial", "active"])
-      .or(`trial_ends_at.lte.${new Date(Date.now() + 14 * 86400000).toISOString()},current_period_end.lte.${new Date(Date.now() + 14 * 86400000).toISOString()}`)
+      .or(`trial_ends_at.lte.${twoWeeksAhead},current_period_end.lte.${twoWeeksAhead}`)
       .limit(20),
     // Merchants for dropdown
     service.from("merchants").select("id, store_name").eq("store_status", "active").order("store_name"),

@@ -40,27 +40,19 @@ export function CartProvider({
   slug: string;
   children: ReactNode;
 }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [loaded, setLoaded] = useState(false);
-
-  // Load cart from localStorage on mount
-  useEffect(() => {
+  const [items, setItems] = useState<CartItem[]>(() => {
+    if (typeof window === "undefined") return [];
     try {
       const stored = localStorage.getItem(getStorageKey(slug));
-      if (stored) {
-        setItems(JSON.parse(stored));
-      }
+      return stored ? JSON.parse(stored) : [];
     } catch {
-      // ignore parse errors
+      return [];
     }
-    setLoaded(true);
-  }, [slug]);
-
+  });
   // Persist cart to localStorage on change
   useEffect(() => {
-    if (!loaded) return;
     localStorage.setItem(getStorageKey(slug), JSON.stringify(items));
-  }, [items, slug, loaded]);
+  }, [items, slug]);
 
   const addItem = useCallback(
     (item: Omit<CartItem, "quantity">) => {

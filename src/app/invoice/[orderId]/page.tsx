@@ -293,7 +293,7 @@ export default async function InvoicePage({ params }: Props) {
                 )}
                 <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between">
                   <span className="font-bold text-gray-900">
-                    Total{hasVat ? (merchant!.vat_inclusive ? " (incl. VAT)" : " (incl. VAT)") : ""}
+                    Total{hasVat ? (merchant!.vat_inclusive ? " (incl. VAT)" : " (excl. VAT)") : ""}
                   </span>
                   <span className="font-bold text-lg text-gray-900">{formatPrice(total)}</span>
                 </div>

@@ -1,41 +1,47 @@
-# Known Issues
+# Known Issues — QA/Fix Cycle (FINAL)
 
-Full platform deployed. 3,043 products synced from SMD Technologies.
+## Current Status (2026-03-14)
+- **Build**: PASS (43 routes, 0 TS errors, 0 ESLint errors)
+- **Platform**: Vercel + Supabase Pro
+- **All P0/P1 resolved.**
 
-## Current Status
-- **Hosting**: Vercel (auto-deploy from GitHub `master`)
-- **Database**: Supabase Pro (EU West), all migrations applied
-- **Domain**: oshicart.com
-- All features deployed: Admin, Subscriptions, Themed Storefronts, Invoices, VAT, Checkout, SMD Sync
-- Vercel Speed Insights + Analytics active
-- 3,043 products synced across 22 categories in Octovia Nexus store
+## Fixed This Cycle (10 bugs)
 
-## Pending Manual Steps
+| Bug ID | Severity | Description | Iteration |
+|--------|----------|-------------|-----------|
+| BUG-001 | P0 | Legacy RLS allowed suspended stores visible | Prior |
+| BUG-002 | P1 | Product detail missing store_status check | 1 |
+| BUG-003 | P1 | Checkout missing store_status check | 1 |
+| BUG-004 | P0 | Invoice VAT label wrong for exclusive | 2 |
+| BUG-005 | P0 | File upload accepts any extension/MIME | 2 |
+| BUG-007 | P1 | Analytics endpoint no merchant validation | 2 |
+| BUG-008 | P1 | Analytics sync unauthenticated | 2 |
+| BUG-009 | P1 | CRON secret timing attack vulnerable | 3 |
+| BUG-010 | P1 | Check-email no input validation | 3 |
+| BUG-011 | P1 | Coupon errors leak validation details | 3 |
+
+## Code Quality Improvements
+- 12 ESLint errors eliminated (iter 1)
+- 8 unused imports removed (iter 4)
+- Final: 0 errors, 6 warnings (all cosmetic P2)
+
+## Remaining P2 (future hardening, not blockers)
+
+| Item | Risk Level |
+|------|------------|
+| Rate limiting on public endpoints (lookup, reports, check-email) | Low |
+| Content Security Policy headers | Low |
+| ISR/caching for storefronts | Low |
+| Category image upload UI | Low |
+| `<img>` vs `<Image>` for Supabase URLs | Low |
+| Order status server-side validation | Low (UI enforces) |
+
+## Ops Tasks (manual)
 - Add `CRON_SECRET` env var in Vercel Dashboard
-- Add `SMD_BEARER_TOKEN` + `SMD_CLIENT_ACCESS_KEY` in Vercel for automated re-sync
+- Add `SMD_BEARER_TOKEN` + `SMD_CLIENT_ACCESS_KEY` in Vercel
+- Clean up "Playwright Test Store" from production DB
 
-## Open Items
-- SMD sync should be automated (daily cron or manual trigger from admin)
-- Category images could be improved (currently auto-assigned from first product)
-- E2E test environment needs reconfiguration
-- "Playwright Test Store" in production DB — consider cleanup
-- ESLint: 2 non-blocking errors — P2
-
-## Open Feature Gaps (P2 — future sprints)
-- GAP-006: Customer list + order history
-- GAP-007: Product variants (size/color)
-- GAP-008: Payment gateway (PayToday/PayFast)
-- CSV product import for merchants
-- PWA (manifest, service worker, install prompt)
-- WhatsApp Business API
-- Multi-language support
-
-## Resolved (Sessions 13-14)
-- All admin post-deploy fixes
-- Orders/invoice pages: removed dropped merchants.tier column
-- Invoice SSR print button fix
-- Signup/setup Suspense boundary
-- Pricing card routing
-- Most Popular badge clipping
-- Hydration errors on dates
-- Old stores pages + dead code cleanup
+## Feature Gaps (future sprints)
+- Customer list + order history
+- Product variants (size/color)
+- Payment gateway integration

@@ -13,10 +13,16 @@ import { TIER_LABELS, STATUS_LABELS, type SubscriptionTier, type SubscriptionSta
 export default async function AdminOverviewPage() {
   const service = createServiceClient();
 
+  const now = new Date();
+  const nowMs = now.getTime();
+  const oneWeekAgo = new Date(nowMs - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const sixMonthsAgo = new Date(nowMs - 180 * 24 * 60 * 60 * 1000).toISOString();
+  const oneWeekAhead = new Date(nowMs + 7 * 24 * 60 * 60 * 1000).toISOString();
+
   const [
     subsResult,
     newSignupsResult,
-    pendingResult,
+    /* pendingResult — reserved for future pending store count */,
     overdueResult,
     reportsResult,
     paymentsResult,
@@ -29,7 +35,7 @@ export default async function AdminOverviewPage() {
     service.from("subscriptions").select("tier, status"),
     // New signups this week
     service.from("merchants").select("id", { count: "exact", head: true })
-      .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
+      .gte("created_at", oneWeekAgo),
     // (no longer used — stores go active on signup)
     Promise.resolve({ count: 0 }),
     // Overdue
@@ -39,14 +45,14 @@ export default async function AdminOverviewPage() {
     service.from("reports").select("id", { count: "exact", head: true }).eq("status", "open"),
     // Revenue trend (last 6 months payments)
     service.from("payments").select("amount_nad, created_at").is("voided_at", null)
-      .gte("created_at", new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString()),
+      .gte("created_at", sixMonthsAgo),
     // Signups trend (last 6 months)
     service.from("merchants").select("created_at")
-      .gte("created_at", new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString()),
+      .gte("created_at", sixMonthsAgo),
     // Expiring trials (next 7 days)
     service.from("subscriptions").select("merchant_id, trial_ends_at, merchants!inner(store_name)")
       .eq("status", "trial")
-      .lte("trial_ends_at", new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString())
+      .lte("trial_ends_at", oneWeekAhead)
       .order("trial_ends_at", { ascending: true }).limit(10),
     // Overdue subscriptions
     service.from("subscriptions").select("merchant_id, status, grace_ends_at, soft_suspended_at, tier, merchants!inner(store_name)")
@@ -131,7 +137,7 @@ export default async function AdminOverviewPage() {
               {(expiringResult.data || []).map((s: Record<string, unknown>) => {
                 const merchant = s.merchants as Record<string, unknown>;
                 const daysLeft = Math.max(0, Math.ceil(
-                  (new Date(s.trial_ends_at as string).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                  (new Date(s.trial_ends_at as string).getTime() - nowMs) / (1000 * 60 * 60 * 24)
                 ));
                 return (
                   <li key={s.merchant_id as string} className="flex items-center justify-between text-sm">

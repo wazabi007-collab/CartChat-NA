@@ -1,5 +1,52 @@
 # Changelog
 
+## 2026-03-14 (QA Cycle — Iteration 4) — Code Cleanup
+
+### Cleanup
+- Removed unused imports: `Image` from login + signup pages, `Link` from privacy page
+- Removed unused import: `STATUS_LABELS`, `TIER_LABELS`, `SubscriptionStatus`, `SubscriptionTier` from dashboard page
+- Renamed destructured `pendingResult` to skip-pattern in admin overview
+- ESLint warnings: 14 → 6 (remaining are `<img>` tags for Supabase URLs and 1 interface contract prop)
+
+---
+
+## 2026-03-14 (QA Cycle — Iteration 3) — Security Hardening
+
+### Security
+- **BUG-009** (P1): CRON secret endpoints now use `crypto.timingSafeEqual` instead of `===` (prevents timing attacks) — 2 endpoints: check-subscriptions, smd-sync
+- **BUG-010** (P1): Check-email endpoint validates email format + length before processing
+- **BUG-011** (P1): Coupon RPC error messages now return generic "Invalid or expired coupon code" instead of leaking specific validation failures
+
+---
+
+## 2026-03-14 (QA Cycle — Iteration 2) — Critical Bug Fixes
+
+### Bug Fixes
+- **BUG-004** (P0): Invoice VAT label showed "incl. VAT" for both inclusive and exclusive modes — fixed to show "excl. VAT" for exclusive
+- **BUG-005** (P0): File upload (proof-of-payment) accepted ANY file extension with client-supplied MIME type — now validates whitelist (jpg/png/gif/webp/pdf) and uses server-determined MIME
+- **BUG-007** (P1): Analytics page-view endpoint accepted arbitrary merchant_id without validation — now validates UUID format and verifies merchant exists + is active
+- **BUG-008** (P1): Analytics sync endpoint was unauthenticated — now requires user auth + merchant ownership
+
+### Security Hardening
+- WhatsApp number normalization in upload-pop: `.replace(/\s+/g, "")` → `.replace(/\D/g, "")` (strips all non-digits)
+
+---
+
+## 2026-03-14 (QA Cycle — Iteration 1) — Security Fixes + Lint Cleanup
+
+### Bug Fixes
+- **BUG-002** (P1): Product detail page `/s/[slug]/[productId]` now checks `store_status='active'` — previously only checked `is_active`, allowing suspended/pending store products to be visible via direct URL
+- **BUG-003** (P1): Checkout page `/checkout/[slug]` now checks `store_status='active'` — previously only checked `is_active`, potentially allowing orders on pending stores
+
+### Code Quality (12 ESLint errors → 0)
+- Cart provider: Eliminated `setState` in `useEffect` by using `useState` initializer for localStorage hydration
+- Admin overview: Extracted `Date.now()` calls to pre-computed variables (React compiler purity)
+- Admin billing: Same `Date.now()` extraction
+- Dashboard: Same `Date.now()` extraction
+- SMD sync: `let` → `const` for arrays that are never reassigned
+
+---
+
 ## 2026-03-14 (Session 15) — SMD Sync, Category Folders, Search/Sort, Analytics
 
 ### SMD Technologies Product Sync

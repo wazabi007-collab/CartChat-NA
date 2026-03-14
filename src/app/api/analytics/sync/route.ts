@@ -9,11 +9,26 @@ import { createClient } from "@/lib/supabase/server";
 export async function POST(request: NextRequest) {
   try {
     const { merchant_id } = await request.json();
-    if (!merchant_id) {
+    if (!merchant_id || typeof merchant_id !== "string") {
       return NextResponse.json({ error: "merchant_id required" }, { status: 400 });
     }
 
     const supabase = await createClient();
+
+    // Verify authenticated user owns this merchant
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const { data: merchant } = await supabase
+      .from("merchants")
+      .select("id")
+      .eq("id", merchant_id)
+      .eq("user_id", user.id)
+      .single();
+    if (!merchant) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     const today = new Date().toISOString().split("T")[0];
 
     // Count today's orders placed (non-cancelled)

@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .select("store_name")
     .eq("store_slug", slug)
     .eq("is_active", true)
+    .eq("store_status", "active")
     .single();
 
   if (!merchant) return { title: "Checkout" };
@@ -39,6 +40,7 @@ export default async function CheckoutPage({ params }: Props) {
     )
     .eq("store_slug", slug)
     .eq("is_active", true)
+    .eq("store_status", "active")
     .single();
 
   if (!merchant) notFound();

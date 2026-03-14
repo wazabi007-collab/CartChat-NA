@@ -21,6 +21,7 @@ export default function NewProductPage() {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
+  const [itemType, setItemType] = useState<"product" | "service">("product");
   const [name, setName] = useState("");
   const [priceDisplay, setPriceDisplay] = useState("");
   const [description, setDescription] = useState("");
@@ -212,6 +213,7 @@ export default function NewProductPage() {
       // Insert product
       const { error: insertError } = await supabase.from("products").insert({
         merchant_id: merchantId,
+        item_type: itemType,
         name: validation.data.name,
         description: validation.data.description || null,
         price_nad: validation.data.price_nad,
@@ -289,10 +291,10 @@ export default function NewProductPage() {
           <ArrowLeft size={16} />
           Back to products
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Add Product</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Add {itemType === "service" ? "Service" : "Product"}</h1>
         {productLimit !== -1 && (
           <p className="text-xs text-gray-400 mt-1">
-            {productCount}/{productLimit} products used ({TIER_LABELS[tier]})
+            {productCount}/{productLimit} items used ({TIER_LABELS[tier]})
           </p>
         )}
       </div>
@@ -307,13 +309,61 @@ export default function NewProductPage() {
           </div>
         )}
 
+        {/* Item Type Toggle */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            What are you adding?
+          </label>
+          <div className="flex gap-3">
+            <label
+              className={`flex-1 border rounded-lg p-3 cursor-pointer text-center transition-colors ${
+                itemType === "product"
+                  ? "border-green-600 bg-green-50 text-green-700"
+                  : "border-gray-300 text-gray-600 hover:border-gray-400"
+              }`}
+            >
+              <input
+                type="radio"
+                name="itemType"
+                value="product"
+                checked={itemType === "product"}
+                onChange={() => setItemType("product")}
+                className="sr-only"
+              />
+              <span className="font-medium text-sm">Product</span>
+              <p className="text-xs mt-0.5 opacity-70">Physical item for sale</p>
+            </label>
+            <label
+              className={`flex-1 border rounded-lg p-3 cursor-pointer text-center transition-colors ${
+                itemType === "service"
+                  ? "border-green-600 bg-green-50 text-green-700"
+                  : "border-gray-300 text-gray-600 hover:border-gray-400"
+              }`}
+            >
+              <input
+                type="radio"
+                name="itemType"
+                value="service"
+                checked={itemType === "service"}
+                onChange={() => {
+                  setItemType("service");
+                  setTrackInventory(false);
+                }}
+                className="sr-only"
+              />
+              <span className="font-medium text-sm">Service</span>
+              <p className="text-xs mt-0.5 opacity-70">Service you offer</p>
+            </label>
+          </div>
+        </div>
+
         {/* Name */}
         <div>
           <label
             htmlFor="name"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            Product name *
+            {itemType === "service" ? "Service" : "Product"} name *
           </label>
           <input
             id="name"
@@ -338,8 +388,11 @@ export default function NewProductPage() {
             htmlFor="price"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            Price (NAD) *
+            Price (NAD) {itemType === "service" ? "" : "*"}
           </label>
+          {itemType === "service" && (
+            <p className="text-xs text-gray-400 mb-1">Leave at 0 for &quot;Request a Quote&quot;</p>
+          )}
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
               N$
@@ -377,7 +430,7 @@ export default function NewProductPage() {
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
-            placeholder="Describe your product..."
+            placeholder={itemType === "service" ? "Describe your service..." : "Describe your product..."}
             maxLength={1000}
           />
           {errors.description && (
@@ -422,8 +475,8 @@ export default function NewProductPage() {
           </label>
         </div>
 
-        {/* Inventory */}
-        {hasInventory ? (
+        {/* Inventory (hidden for services) */}
+        {itemType !== "service" && (hasInventory ? (
           <div className="border rounded-lg p-4 space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -499,7 +552,7 @@ export default function NewProductPage() {
               <Link href="/#pricing" className="text-green-600 hover:underline">Upgrade</Link>
             </p>
           </div>
-        )}
+        ))}
 
         {/* Images */}
         <div>
@@ -558,7 +611,7 @@ export default function NewProductPage() {
             )}
           >
             {loading && <Loader2 size={16} className="animate-spin" />}
-            {loading ? "Saving..." : "Add Product"}
+            {loading ? "Saving..." : itemType === "service" ? "Add Service" : "Add Product"}
           </button>
           <Link
             href="/dashboard/products"

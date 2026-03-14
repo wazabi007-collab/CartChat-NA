@@ -317,6 +317,8 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
             theme={theme}
             slug={slug}
             disabled={isSoftSuspended}
+            whatsappNumber={merchant.whatsapp_number}
+            storeName={merchant.store_name}
           />
 
           {/* Pagination */}

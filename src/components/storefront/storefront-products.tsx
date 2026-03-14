@@ -22,6 +22,7 @@ interface Product {
   stock_quantity: number | null;
   low_stock_threshold: number | null;
   allow_backorder: boolean;
+  item_type?: string;
 }
 
 interface StorefrontProductsProps {
@@ -30,6 +31,8 @@ interface StorefrontProductsProps {
   theme: ThemeConfig | null;
   slug: string;
   disabled: boolean;
+  whatsappNumber?: string;
+  storeName?: string;
 }
 
 export function StorefrontProducts({
@@ -38,6 +41,8 @@ export function StorefrontProducts({
   theme,
   slug,
   disabled,
+  whatsappNumber,
+  storeName,
 }: StorefrontProductsProps) {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("default");
@@ -120,6 +125,9 @@ export function StorefrontProducts({
                 accentColor={theme?.accent}
                 accentHover={theme?.accentHover}
                 ctaText={theme?.ctaText}
+                itemType={product.item_type as "product" | "service" | undefined}
+                whatsappNumber={whatsappNumber}
+                storeName={storeName}
               />
             ))}
           </div>
@@ -135,6 +143,8 @@ export function StorefrontProducts({
               theme={theme}
               slug={slug}
               disabled={disabled}
+              whatsappNumber={whatsappNumber}
+              storeName={storeName}
             />
           ))}
         </div>
@@ -160,6 +170,9 @@ export function StorefrontProducts({
                     lowStockThreshold={product.low_stock_threshold ?? undefined}
                     allowBackorder={product.allow_backorder}
                     disabled={disabled}
+                    itemType={product.item_type as "product" | "service" | undefined}
+                    whatsappNumber={whatsappNumber}
+                    storeName={storeName}
                   />
                 ))}
               </div>

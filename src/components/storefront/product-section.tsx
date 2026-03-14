@@ -15,6 +15,8 @@ interface ProductSectionProps {
   theme: ThemeConfig;
   slug: string;
   disabled?: boolean;
+  whatsappNumber?: string;
+  storeName?: string;
 }
 
 export function ProductSection({
@@ -23,6 +25,8 @@ export function ProductSection({
   theme,
   slug,
   disabled,
+  whatsappNumber,
+  storeName,
 }: ProductSectionProps) {
   return (
     <section>
@@ -56,6 +60,9 @@ export function ProductSection({
               accentColor={theme.accent}
               accentHover={theme.accentHover}
               ctaText={theme.ctaText}
+              itemType={(product as unknown as Record<string, unknown>).item_type as "product" | "service" | undefined}
+              whatsappNumber={whatsappNumber}
+              storeName={storeName}
             />
           ))}
         </div>

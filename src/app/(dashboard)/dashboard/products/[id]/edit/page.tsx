@@ -36,6 +36,7 @@ export default function EditProductPage() {
   const supabase = useMemo(() => createClient(), []);
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [itemType, setItemType] = useState<"product" | "service">("product");
   const [name, setName] = useState("");
   const [priceDisplay, setPriceDisplay] = useState("");
   const [description, setDescription] = useState("");
@@ -102,6 +103,7 @@ export default function EditProductPage() {
       }
 
       setProduct(prod);
+      setItemType(prod.item_type === "service" ? "service" : "product");
       setName(prod.name);
       setPriceDisplay((prod.price_nad / 100).toFixed(2));
       setDescription(prod.description || "");
@@ -238,6 +240,7 @@ export default function EditProductPage() {
       const { error: updateError } = await supabase
         .from("products")
         .update({
+          item_type: itemType,
           name: validation.data.name,
           description: validation.data.description || null,
           price_nad: validation.data.price_nad,
@@ -303,7 +306,7 @@ export default function EditProductPage() {
           <ArrowLeft size={16} />
           Back to products
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Edit Product</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Edit {itemType === "service" ? "Service" : "Product"}</h1>
         <p className="text-sm text-gray-500 mt-1">
           Current price: {formatPrice(product.price_nad)}
         </p>
@@ -320,13 +323,40 @@ export default function EditProductPage() {
           </div>
         )}
 
+        {/* Item Type Toggle */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+          <div className="flex gap-3">
+            <label
+              className={`flex-1 border rounded-lg p-3 cursor-pointer text-center transition-colors ${
+                itemType === "product"
+                  ? "border-green-600 bg-green-50 text-green-700"
+                  : "border-gray-300 text-gray-600 hover:border-gray-400"
+              }`}
+            >
+              <input type="radio" name="itemType" value="product" checked={itemType === "product"} onChange={() => setItemType("product")} className="sr-only" />
+              <span className="font-medium text-sm">Product</span>
+            </label>
+            <label
+              className={`flex-1 border rounded-lg p-3 cursor-pointer text-center transition-colors ${
+                itemType === "service"
+                  ? "border-green-600 bg-green-50 text-green-700"
+                  : "border-gray-300 text-gray-600 hover:border-gray-400"
+              }`}
+            >
+              <input type="radio" name="itemType" value="service" checked={itemType === "service"} onChange={() => { setItemType("service"); setTrackInventory(false); }} className="sr-only" />
+              <span className="font-medium text-sm">Service</span>
+            </label>
+          </div>
+        </div>
+
         {/* Name */}
         <div>
           <label
             htmlFor="name"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            Product name *
+            {itemType === "service" ? "Service" : "Product"} name *
           </label>
           <input
             id="name"

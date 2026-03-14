@@ -214,7 +214,7 @@ export default function SettingsPage() {
                   )}
                   <input
                     type="file"
-                    accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                    accept="image/*"
                     className="hidden"
                     disabled={uploadingLogo}
                     onChange={async (e) => {

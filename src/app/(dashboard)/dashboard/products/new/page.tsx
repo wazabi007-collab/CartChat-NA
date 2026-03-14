@@ -165,11 +165,17 @@ export default function NewProductPage() {
     setLoading(true);
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setGlobalError("You must be logged in");
+      let userId = "";
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setGlobalError("You must be logged in");
+          setLoading(false);
+          return;
+        }
+        userId = user.id;
+      } catch (authErr) {
+        setGlobalError(`Auth error: ${authErr instanceof Error ? authErr.message : "session expired"}`);
         setLoading(false);
         return;
       }
@@ -194,16 +200,20 @@ export default function NewProductPage() {
       for (const file of imageFiles) {
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("path", `${user.id}/products`);
 
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+        let res;
+        try {
+          res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+        } catch (fetchErr) {
+          throw new Error(`Network error: ${fetchErr instanceof Error ? fetchErr.message : "failed to reach server"}`);
+        }
 
         if (!res.ok) {
-          const err = await res.json();
-          throw new Error(`Image upload: ${err.error || "failed"}`);
+          const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+          throw new Error(`Image upload: ${err.error || `HTTP ${res.status}`}`);
         }
 
         const { url } = await res.json();

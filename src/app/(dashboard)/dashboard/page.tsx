@@ -80,11 +80,10 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900">
           Welcome, {merchant.store_name}
         </h1>
-        <p className="text-gray-500 text-sm mt-1 flex items-center gap-1 flex-wrap">
-          Your store:{" "}
-          <CopyStoreLink url={storeAbsoluteUrl} />
-        </p>
       </div>
+
+      {/* Share Store Card */}
+      <CopyStoreLink url={storeAbsoluteUrl} />
 
       {/* Store status banner */}
       {merchant.store_status === "suspended" && (

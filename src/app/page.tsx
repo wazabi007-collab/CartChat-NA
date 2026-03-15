@@ -371,7 +371,7 @@ function PricingSection() {
           />
           <PricingCard
             name="Oshi-Basic"
-            price="N$199"
+            price="N$99"
             period="/month"
             features={[
               "30 products",
@@ -387,7 +387,7 @@ function PricingSection() {
           />
           <PricingCard
             name="Oshi-Grow"
-            price="N$399"
+            price="N$299"
             period="/month"
             features={[
               "200 products",
@@ -402,7 +402,7 @@ function PricingSection() {
           />
           <PricingCard
             name="Oshi-Pro"
-            price="N$999"
+            price="N$499"
             period="/month"
             features={[
               "Unlimited products",

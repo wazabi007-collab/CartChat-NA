@@ -76,17 +76,17 @@ export default function TermsPage() {
               20 orders per month for 30 days.
             </li>
             <li>
-              <strong>Oshi-Basic (N$199/month):</strong> Up to 30 products and
+              <strong>Oshi-Basic (N$99/month):</strong> Up to 30 products and
               200 orders per month. Includes sales analytics and no OshiCart
               branding.
             </li>
             <li>
-              <strong>Oshi-Grow (N$399/month):</strong> Up to 200 products and
+              <strong>Oshi-Grow (N$299/month):</strong> Up to 200 products and
               500 orders per month. Includes inventory tracking and coupon
               codes.
             </li>
             <li>
-              <strong>Oshi-Pro (N$999/month):</strong> Unlimited products and
+              <strong>Oshi-Pro (N$499/month):</strong> Unlimited products and
               orders. Includes product import via API, Excel &amp; CSV, and
               priority support.
             </li>

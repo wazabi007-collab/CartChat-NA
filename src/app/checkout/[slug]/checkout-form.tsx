@@ -339,6 +339,65 @@ export function CheckoutForm({
         body: JSON.stringify({ merchant_id: merchantId }),
       }).catch(() => {});
 
+      // Send email notification to merchant
+      fetch("/api/orders/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchant_id: merchantId,
+          order_number: order.order_number,
+          customer_name: customerName.trim(),
+          customer_whatsapp: customerWhatsapp.trim(),
+          items: cartItems.map((item) => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          subtotal,
+          delivery_fee: deliveryFee,
+          discount,
+          total,
+          payment_method: paymentMethod,
+          payment_ref: order.payment_reference,
+          delivery_method: deliveryMethod,
+          delivery_address: deliveryMethod === "delivery" ? deliveryAddress.trim() : null,
+          delivery_date: deliveryDate || null,
+          delivery_time: deliveryTime || null,
+          notes: notes.trim() || null,
+        }),
+      }).catch(() => {});
+
+      // Build WhatsApp message and auto-open
+      const itemLines = cartItems
+        .map((item) => `• ${item.name} x${item.quantity} — ${formatPrice(item.price * item.quantity)}`)
+        .join("\n");
+      const invoiceUrl = `${window.location.origin}/invoice/${order.order_id}`;
+      const waMessage = [
+        `Hi ${storeName}! 🛒 New order #${order.order_number}`,
+        ``,
+        `*Customer:* ${customerName}`,
+        `*WhatsApp:* ${customerWhatsapp}`,
+        ``,
+        `*Items:*`,
+        itemLines,
+        ``,
+        `*Subtotal:* ${formatPrice(subtotal)}`,
+        ...(discount > 0 ? [`*Discount:* -${formatPrice(discount)}${couponApplied ? ` (${couponApplied.code})` : ""}`] : []),
+        ...(deliveryFee > 0 ? [`*Delivery Fee:* ${formatPrice(deliveryFee)}`] : []),
+        `*Total:* ${formatPrice(total)}`,
+        ...(order.payment_reference ? [`*Payment Ref:* ${order.payment_reference}`] : []),
+        `*Payment:* ${getPaymentLabel(paymentMethod)}`,
+        `*Delivery:* ${deliveryMethod === "delivery" ? `Delivery to: ${deliveryAddress}` : "Pickup"}`,
+        ...(deliveryDate ? [`*Scheduled:* ${deliveryDate}${deliveryTime ? ` — ${deliveryTime}` : ""}`] : []),
+        ...(notes ? [`*Notes:* ${notes}`] : []),
+        ``,
+        `*Invoice:* ${invoiceUrl}`,
+      ].join("\n");
+
+      // Auto-open WhatsApp with the order message
+      const waUrl = whatsappLink(whatsappNumber, waMessage);
+      window.open(waUrl, "_blank");
+
       // Clear cart
       localStorage.removeItem(`oshicart-cart-${storeSlug}`);
 

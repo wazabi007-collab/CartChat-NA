@@ -83,7 +83,7 @@ function HeroSection() {
               href="/signup"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#2B5EA7] text-white rounded-lg hover:bg-[#234B86] font-semibold text-sm shadow-lg shadow-[#2B5EA7]/25 transition-all"
             >
-              Claim Your Shop Link Now
+              Start Your Free Store
               <ArrowRight size={18} />
             </Link>
             <VideoModalButton />
@@ -129,7 +129,7 @@ function HeroSection() {
                     href="/signup"
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#2B5EA7] text-white rounded-lg hover:bg-[#234B86] font-semibold text-base shadow-lg shadow-[#2B5EA7]/25 transition-all hover:shadow-xl hover:shadow-[#2B5EA7]/30"
                   >
-                    Claim Your Shop Link Now
+                    Start Your Free Store
                     <ArrowRight size={18} />
                   </Link>
                   <VideoModalButton />
@@ -158,14 +158,9 @@ function HowItWorksSection() {
         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
           How It Works
         </h2>
-        <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm font-medium">
-          <span className="bg-green-50 text-green-700 px-4 py-1.5 rounded-full border border-green-200">
-            From &lsquo;How much?&rsquo; to &lsquo;Order Received&rsquo; in one click
-          </span>
-          <span className="bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full border border-blue-200">
-            Turning your WhatsApp status into a Money-Maker
-          </span>
-        </div>
+        <p className="text-gray-500 mt-3 max-w-xl mx-auto">
+          Three simple steps to start selling online in Namibia
+        </p>
       </div>
       {/* Full-width banner image */}
       <div className="w-full">
@@ -370,7 +365,7 @@ function PricingSection() {
               "EFT proof upload",
               "OshiCart branding",
             ]}
-            cta="Secure the Zula"
+            cta="Start Free Trial"
             href="/signup"
             highlighted={false}
           />
@@ -385,7 +380,7 @@ function PricingSection() {
               "Sales analytics",
               "Everything in Start",
             ]}
-            cta="Order with Me"
+            cta="Get Started"
             href="/signup?tier=oshi_basic"
             highlighted={true}
             badge="Most Popular"
@@ -401,7 +396,7 @@ function PricingSection() {
               "Coupon codes",
               "Everything in Basic",
             ]}
-            cta="Open Your Oshipindi"
+            cta="Get Started"
             href="/signup?tier=oshi_grow"
             highlighted={false}
           />
@@ -417,7 +412,7 @@ function PricingSection() {
               "All features",
               "Everything in Grow",
             ]}
-            cta="Sell Like a Boss"
+            cta="Get Started"
             href="/signup?tier=oshi_pro"
             highlighted={false}
           />
@@ -508,7 +503,7 @@ function WhatsAppCTASection() {
           href="/signup"
           className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-[#2B5EA7] text-white rounded-lg hover:bg-[#234B86] font-medium"
         >
-          Start my Free Zula <ArrowRight size={18} />
+          Create Your Free Store <ArrowRight size={18} />
         </Link>
       </div>
     </section>

@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/utils";
-import { BANKS_NAMIBIA, INDUSTRIES_NAMIBIA } from "@/lib/constants";
+import { BANKS_NAMIBIA, INDUSTRIES_NAMIBIA, PAYMENT_METHODS } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { Store, ArrowRight, Check } from "lucide-react";
 
@@ -35,7 +35,10 @@ function StoreSetupForm() {
     bank_account_number: "",
     bank_account_holder: "",
     bank_branch_code: "",
+    momo_number: "",
+    pay2cell_number: "",
   });
+  const [selectedMethods, setSelectedMethods] = useState<string[]>(["cod"]);
 
   function update(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -89,6 +92,9 @@ function StoreSetupForm() {
         bank_account_number: form.bank_account_number || null,
         bank_account_holder: form.bank_account_holder || null,
         bank_branch_code: form.bank_branch_code || null,
+        accepted_payment_methods: selectedMethods,
+        momo_number: form.momo_number || null,
+        pay2cell_number: form.pay2cell_number || null,
         store_status: "active",
       })
       .select("id")
@@ -217,7 +223,7 @@ function StoreSetupForm() {
                 }}
                 className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium flex items-center justify-center gap-2"
               >
-                Next: Bank Details <ArrowRight size={16} />
+                Next: Payment Methods <ArrowRight size={16} />
               </button>
             </>
           )}
@@ -225,68 +231,107 @@ function StoreSetupForm() {
           {step === 2 && (
             <>
               <h2 className="font-medium text-gray-900">
-                Bank Details{" "}
-                <span className="text-gray-400 font-normal text-sm">
-                  (for customers to pay you)
-                </span>
+                How would you like to get paid?
               </h2>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Bank
-                </label>
-                <select
-                  value={form.bank_name}
-                  onChange={(e) => update("bank_name", e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">Select bank...</option>
-                  {BANKS_NAMIBIA.map((bank) => (
-                    <option key={bank} value={bank}>
-                      {bank}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Account Holder Name
-                </label>
-                <input
-                  type="text"
-                  value={form.bank_account_holder}
-                  onChange={(e) =>
-                    update("bank_account_holder", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Account Number
-                </label>
-                <input
-                  type="text"
-                  value={form.bank_account_number}
-                  onChange={(e) =>
-                    update("bank_account_number", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Branch Code
-                </label>
-                <input
-                  type="text"
-                  value={form.bank_branch_code}
-                  onChange={(e) => update("bank_branch_code", e.target.value)}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <p className="text-xs text-gray-400">
-                You can skip bank details and add them later in Settings.
+              <p className="text-xs text-gray-400 -mt-2">
+                Select the payment methods your customers can use. You can change these later in Settings.
               </p>
+
+              {/* Payment method checkboxes */}
+              <div className="grid grid-cols-2 gap-2">
+                {PAYMENT_METHODS.map((method) => (
+                  <label
+                    key={method.value}
+                    className={`flex items-center gap-2 border rounded-lg p-3 cursor-pointer transition-colors ${
+                      selectedMethods.includes(method.value)
+                        ? "border-green-600 bg-green-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedMethods.includes(method.value)}
+                      onChange={(e) => {
+                        setSelectedMethods((prev) =>
+                          e.target.checked
+                            ? [...prev, method.value]
+                            : prev.filter((m) => m !== method.value)
+                        );
+                      }}
+                      className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                    />
+                    <span className="text-lg">{method.icon}</span>
+                    <span className="text-sm font-medium text-gray-700">{method.label}</span>
+                  </label>
+                ))}
+              </div>
+
+              {/* EFT bank details — shown if EFT selected */}
+              {selectedMethods.includes("eft") && (
+                <div className="space-y-3 border-t pt-3">
+                  <p className="text-sm font-medium text-gray-700">Bank Details for EFT</p>
+                  <select
+                    value={form.bank_name}
+                    onChange={(e) => update("bank_name", e.target.value)}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="">Select bank...</option>
+                    {BANKS_NAMIBIA.map((bank) => (
+                      <option key={bank} value={bank}>{bank}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="text"
+                    value={form.bank_account_holder}
+                    onChange={(e) => update("bank_account_holder", e.target.value)}
+                    placeholder="Account holder name"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                  <input
+                    type="text"
+                    value={form.bank_account_number}
+                    onChange={(e) => update("bank_account_number", e.target.value)}
+                    placeholder="Account number"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                  <input
+                    type="text"
+                    value={form.bank_branch_code}
+                    onChange={(e) => update("bank_branch_code", e.target.value)}
+                    placeholder="Branch code"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              )}
+
+              {/* MoMo number — shown if MoMo selected */}
+              {selectedMethods.includes("momo") && (
+                <div className="border-t pt-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">MoMo Number</label>
+                  <input
+                    type="tel"
+                    value={form.momo_number}
+                    onChange={(e) => update("momo_number", e.target.value)}
+                    placeholder="+264 81 123 4567"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              )}
+
+              {/* Pay2Cell number — shown if Pay2Cell selected */}
+              {selectedMethods.includes("pay2cell") && (
+                <div className="border-t pt-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">FNB Pay2Cell Number</label>
+                  <input
+                    type="tel"
+                    value={form.pay2cell_number}
+                    onChange={(e) => update("pay2cell_number", e.target.value)}
+                    placeholder="+264 81 123 4567"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              )}
+
               <div className="flex gap-3">
                 <button
                   type="button"
@@ -297,7 +342,7 @@ function StoreSetupForm() {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || selectedMethods.length === 0}
                   className="flex-1 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 font-medium flex items-center justify-center gap-2"
                 >
                   {loading ? (

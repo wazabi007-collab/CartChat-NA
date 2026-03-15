@@ -596,13 +596,27 @@ export default function EditProductPage() {
             ))}
 
             {totalImages < 3 && (
-              <div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageSelect}
-                  className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border file:border-gray-300 file:text-sm file:font-medium file:bg-white file:text-gray-700 hover:file:bg-green-50 hover:file:border-green-500 file:cursor-pointer cursor-pointer"
-                />
+              <div className="flex gap-2">
+                <label className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors text-sm text-gray-600">
+                  <Upload size={16} />
+                  Choose Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                </label>
+                <label className="flex items-center justify-center gap-2 py-2.5 px-4 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors text-sm text-blue-600">
+                  📷 Take Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                </label>
               </div>
             )}
           </div>

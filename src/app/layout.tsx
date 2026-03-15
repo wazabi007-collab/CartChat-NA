@@ -45,7 +45,6 @@ export const metadata: Metadata = {
     icon: "/icon.svg",
     apple: "/icon.svg",
   },
-  manifest: "/manifest.json",
   openGraph: {
     title: "OshiCart — The Simplest Way to Sell Online in Namibia",
     description: "Create your WhatsApp store in 5 minutes. Zero transaction fees. Keep 100% of your profits. Built for Namibian businesses.",

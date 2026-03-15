@@ -591,23 +591,16 @@ export default function NewProductPage() {
               </div>
             ))}
             {imageFiles.length < 3 && (
-              <>
+              <label className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors overflow-hidden">
+                <Upload size={20} className="text-gray-400" />
+                <span className="text-xs text-gray-400 mt-1">Upload</span>
                 <input
-                  id="product-image-upload"
                   type="file"
                   accept="image/*"
                   onChange={handleImageSelect}
-                  className="hidden"
+                  style={{ position: "absolute", width: "1px", height: "1px", padding: 0, margin: "-1px", overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}
                 />
-                <button
-                  type="button"
-                  onClick={() => document.getElementById("product-image-upload")?.click()}
-                  className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors"
-                >
-                  <Upload size={20} className="text-gray-400" />
-                  <span className="text-xs text-gray-400 mt-1">Upload</span>
-                </button>
-              </>
+              </label>
             )}
           </div>
           {errors.images && (

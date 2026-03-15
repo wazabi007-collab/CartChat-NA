@@ -37,8 +37,12 @@ function StoreSetupForm() {
     bank_branch_code: "",
     momo_number: "",
     pay2cell_number: "",
+    pickup_address: "",
+    delivery_fee_display: "",
   });
   const [selectedMethods, setSelectedMethods] = useState<string[]>(["cod"]);
+  const [offersPickup, setOffersPickup] = useState(true);
+  const [offersDelivery, setOffersDelivery] = useState(false);
 
   function update(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -95,6 +99,8 @@ function StoreSetupForm() {
         accepted_payment_methods: selectedMethods,
         momo_number: form.momo_number || null,
         pay2cell_number: form.pay2cell_number || null,
+        pickup_address: form.pickup_address || null,
+        delivery_fee_nad: offersDelivery ? Math.round((parseFloat(form.delivery_fee_display) || 0) * 100) : 0,
         store_status: "active",
       })
       .select("id")
@@ -133,7 +139,7 @@ function StoreSetupForm() {
         </div>
         <h1 className="text-2xl font-bold text-gray-900">Set up your store</h1>
         <p className="text-gray-500 text-sm mt-1">
-          Step {step} of 2 — takes under 2 minutes
+          Step {step} of 3 — takes under 2 minutes
         </p>
       </div>
 
@@ -223,12 +229,120 @@ function StoreSetupForm() {
                 }}
                 className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium flex items-center justify-center gap-2"
               >
-                Next: Payment Methods <ArrowRight size={16} />
+                Next: Delivery Options <ArrowRight size={16} />
               </button>
             </>
           )}
 
           {step === 2 && (
+            <>
+              <h2 className="font-medium text-gray-900">
+                Delivery & Pickup
+              </h2>
+              <p className="text-xs text-gray-400 -mt-2">
+                How will customers receive their orders?
+              </p>
+
+              <div className="space-y-3">
+                <label
+                  className={`flex items-center gap-3 border rounded-lg p-3 cursor-pointer transition-colors ${
+                    offersPickup ? "border-green-600 bg-green-50" : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={offersPickup}
+                    onChange={(e) => setOffersPickup(e.target.checked)}
+                    className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-gray-900">Pickup</span>
+                    <p className="text-xs text-gray-500">Customers collect from your location</p>
+                  </div>
+                </label>
+
+                {offersPickup && (
+                  <div className="ml-7">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Pickup Address
+                    </label>
+                    <textarea
+                      value={form.pickup_address}
+                      onChange={(e) => update("pickup_address", e.target.value)}
+                      placeholder="e.g. Shop 5, Wernhil Park, Windhoek"
+                      rows={2}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm resize-none"
+                    />
+                  </div>
+                )}
+
+                <label
+                  className={`flex items-center gap-3 border rounded-lg p-3 cursor-pointer transition-colors ${
+                    offersDelivery ? "border-green-600 bg-green-50" : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={offersDelivery}
+                    onChange={(e) => setOffersDelivery(e.target.checked)}
+                    className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-gray-900">Delivery</span>
+                    <p className="text-xs text-gray-500">You deliver to the customer</p>
+                  </div>
+                </label>
+
+                {offersDelivery && (
+                  <div className="ml-7">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Delivery Fee (NAD)
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">N$</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={form.delivery_fee_display}
+                        onChange={(e) => update("delivery_fee_display", e.target.value)}
+                        placeholder="0.00"
+                        className="w-full pl-9 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">Set to 0 for free delivery</p>
+                  </div>
+                )}
+              </div>
+
+              {!offersPickup && !offersDelivery && (
+                <p className="text-red-500 text-xs">Please select at least one option</p>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="flex-1 py-2 border rounded-md text-gray-600 hover:bg-gray-50"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  disabled={!offersPickup && !offersDelivery}
+                  onClick={() => {
+                    if (!offersPickup && !offersDelivery) return;
+                    setStep(3);
+                  }}
+                  className="flex-1 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+                >
+                  Next: Payment Methods <ArrowRight size={16} />
+                </button>
+              </div>
+            </>
+          )}
+
+          {step === 3 && (
             <>
               <h2 className="font-medium text-gray-900">
                 How would you like to get paid?
@@ -335,7 +449,7 @@ function StoreSetupForm() {
               <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => setStep(1)}
+                  onClick={() => setStep(2)}
                   className="flex-1 py-2 border rounded-md text-gray-600 hover:bg-gray-50"
                 >
                   Back

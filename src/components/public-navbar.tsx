@@ -30,6 +30,12 @@ export function PublicNavbar() {
             Browse Stores
           </Link>
           <Link
+            href="/pricing"
+            className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            Pricing
+          </Link>
+          <Link
             href="/login"
             className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
           >
@@ -65,6 +71,13 @@ export function PublicNavbar() {
             className="block px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
           >
             Browse Stores
+          </Link>
+          <Link
+            href="/pricing"
+            onClick={() => setMobileOpen(false)}
+            className="block px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+          >
+            Pricing
           </Link>
           <Link
             href="/login"

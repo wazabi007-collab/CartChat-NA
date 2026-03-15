@@ -591,16 +591,14 @@ export default function NewProductPage() {
               </div>
             ))}
             {imageFiles.length < 3 && (
-              <label className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors overflow-hidden">
-                <Upload size={20} className="text-gray-400" />
-                <span className="text-xs text-gray-400 mt-1">Upload</span>
+              <div>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageSelect}
-                  style={{ position: "absolute", width: "1px", height: "1px", padding: 0, margin: "-1px", overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0 }}
+                  className="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border file:border-gray-300 file:text-sm file:font-medium file:bg-white file:text-gray-700 hover:file:bg-green-50 hover:file:border-green-500 file:cursor-pointer cursor-pointer"
                 />
-              </label>
+              </div>
             )}
           </div>
           {errors.images && (

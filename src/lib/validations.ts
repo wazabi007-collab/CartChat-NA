@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-// Namibian phone: +264 followed by 8-9 digits
-const phoneRegex = /^\+?264\d{8,9}$/;
+// Namibian phone: +264... or 081/085/061 local format
+const phoneRegex = /^(\+?264\d{8,9}|0\d{9,10})$/;
 
 export const storeSetupSchema = z.object({
   store_name: z
@@ -14,7 +14,7 @@ export const storeSetupSchema = z.object({
     .optional(),
   whatsapp_number: z
     .string()
-    .regex(phoneRegex, "Enter a valid Namibian WhatsApp number (+264...)"),
+    .regex(phoneRegex, "Enter a valid Namibian number (e.g. 0811234567 or +264811234567)"),
   bank_name: z.string().optional(),
   bank_account_number: z.string().optional(),
   bank_account_holder: z.string().optional(),

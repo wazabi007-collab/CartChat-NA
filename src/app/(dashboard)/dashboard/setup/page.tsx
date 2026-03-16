@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { slugify } from "@/lib/utils";
+import { slugify, normalizeNamibianPhone } from "@/lib/utils";
 import { BANKS_NAMIBIA, INDUSTRIES_NAMIBIA, PAYMENT_METHODS } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { Store, ArrowRight, Check } from "lucide-react";
@@ -90,7 +90,7 @@ function StoreSetupForm() {
         store_name: form.store_name,
         store_slug: finalSlug,
         description: form.description || null,
-        whatsapp_number: form.whatsapp_number,
+        whatsapp_number: normalizeNamibianPhone(form.whatsapp_number),
         industry: form.industry || "other",
         bank_name: form.bank_name || null,
         bank_account_number: form.bank_account_number || null,

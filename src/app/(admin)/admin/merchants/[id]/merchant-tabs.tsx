@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MessageCircle, Trash2 } from "lucide-react";
+import { normalizeNamibianPhone } from "@/lib/utils";
 import { TIER_LABELS, STATUS_LABELS, formatTierPrice, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
 
 const TABS = ["Overview", "Subscription", "Performance", "Products", "Orders", "Activity", "Danger Zone"] as const;
@@ -507,7 +508,7 @@ function DangerZone({
 }
 
 function WhatsAppButton({ phone, label, message }: { phone: string; label: string; message: string }) {
-  const cleanPhone = phone.replace(/\D/g, "");
+  const cleanPhone = normalizeNamibianPhone(phone).replace(/\D/g, "");
   const href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
   return (
     <a

@@ -29,12 +29,30 @@ export function slugify(text: string): string {
 }
 
 /**
+ * Normalize a Namibian phone number to +264 international format.
+ * e.g. "0811234567" → "+264811234567", "+081..." → "+264811234567"
+ */
+export function normalizeNamibianPhone(phone: string): string {
+  let digits = phone.replace(/\D/g, "");
+  // Strip leading 0 (local format like 0811234567)
+  if (digits.startsWith("0")) {
+    digits = digits.slice(1);
+  }
+  // Ensure 264 country code prefix
+  if (!digits.startsWith("264")) {
+    digits = "264" + digits;
+  }
+  return "+" + digits;
+}
+
+/**
  * Generate WhatsApp deep link
- * @param phone - Phone number with country code (e.g., "264811234567")
+ * @param phone - Phone number in any format (auto-normalized to +264)
  * @param message - Pre-filled message text
  */
 export function whatsappLink(phone: string, message: string): string {
-  const cleanPhone = phone.replace(/\D/g, "");
+  const normalized = normalizeNamibianPhone(phone);
+  const cleanPhone = normalized.replace(/\D/g, "");
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
 

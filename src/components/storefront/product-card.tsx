@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart, MessageCircle } from "lucide-react";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, normalizeNamibianPhone } from "@/lib/utils";
 import { useCart } from "./cart-provider";
 
 interface ProductCardProps {
@@ -40,7 +40,7 @@ export function ProductCard({
 
   function handleQuoteClick() {
     if (!whatsappNumber) return;
-    const cleanPhone = whatsappNumber.replace(/\D/g, "");
+    const cleanPhone = normalizeNamibianPhone(whatsappNumber).replace(/\D/g, "");
     const msg = `Hi ${storeName || ""}! I'd like to enquire about your service: ${name}`;
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, "_blank");
   }

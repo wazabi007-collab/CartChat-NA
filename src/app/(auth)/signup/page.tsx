@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { normalizeNamibianPhone } from "@/lib/utils";
 import Link from "next/link";
 import { PublicNavbar } from "@/components/public-navbar";
 
@@ -80,7 +81,7 @@ function SignupForm() {
       return;
     }
 
-    const formattedPhone = whatsapp.startsWith("+") ? whatsapp : `+${whatsapp}`;
+    const formattedPhone = normalizeNamibianPhone(whatsapp);
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -227,7 +228,7 @@ function SignupForm() {
                       setError("");
                       const { error } = await supabase.auth.signInWithOtp({
                         email,
-                        options: { data: { whatsapp_number: whatsapp }, shouldCreateUser: true },
+                        options: { data: { whatsapp_number: normalizeNamibianPhone(whatsapp) }, shouldCreateUser: true },
                       });
                       setLoading(false);
                       if (error) setError(error.message);

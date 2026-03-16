@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { BANKS_NAMIBIA, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
+import { normalizeNamibianPhone } from "@/lib/utils";
 import Image from "next/image";
 import { Save, Plus, X, Upload, Loader2 } from "lucide-react";
 import { MAX_IMAGE_SIZE } from "@/lib/constants";
@@ -118,7 +119,7 @@ export default function SettingsPage() {
       .update({
         store_name: form.store_name,
         description: form.description || null,
-        whatsapp_number: form.whatsapp_number,
+        whatsapp_number: normalizeNamibianPhone(form.whatsapp_number),
         bank_name: form.bank_name || null,
         bank_account_number: form.bank_account_number || null,
         bank_account_holder: form.bank_account_holder || null,

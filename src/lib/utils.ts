@@ -30,25 +30,30 @@ export function slugify(text: string): string {
 
 /**
  * Normalize a Namibian phone number to +264 international format.
- * e.g. "0811234567" → "+264811234567", "+081..." → "+264811234567"
+ * Only touches local-format numbers (0811234567) or bare digits (811234567).
+ * Foreign numbers with a valid country code (e.g. +27...) are left as-is.
  */
 export function normalizeNamibianPhone(phone: string): string {
   let digits = phone.replace(/\D/g, "");
-  // Strip leading 0 (local format like 0811234567)
-  if (digits.startsWith("0")) {
-    digits = digits.slice(1);
+  // Already has +264 country code — return as-is
+  if (digits.startsWith("264") && digits.length >= 11) {
+    return "+" + digits;
   }
-  // Ensure 264 country code prefix
-  if (!digits.startsWith("264")) {
-    digits = "264" + digits;
+  // Local format: starts with 0 (e.g. 0811234567)
+  if (digits.startsWith("0") && digits.length <= 11) {
+    return "+264" + digits.slice(1);
   }
+  // Bare local digits without leading 0 (e.g. 811234567) — 8-9 digits
+  if (digits.length >= 8 && digits.length <= 10 && !digits.startsWith("264")) {
+    return "+264" + digits;
+  }
+  // Anything else (foreign number like +27..., +1...) — just ensure + prefix
   return "+" + digits;
 }
 
 /**
- * Generate WhatsApp deep link
- * @param phone - Phone number in any format (auto-normalized to +264)
- * @param message - Pre-filled message text
+ * Generate WhatsApp deep link.
+ * Normalizes Namibian local numbers; leaves foreign numbers intact.
  */
 export function whatsappLink(phone: string, message: string): string {
   const normalized = normalizeNamibianPhone(phone);

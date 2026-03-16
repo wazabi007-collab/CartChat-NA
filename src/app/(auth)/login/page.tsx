@@ -65,7 +65,18 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      window.location.href = "/dashboard";
+      // Check if merchant exists to route correctly
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: merchant } = await supabase
+          .from("merchants")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+        window.location.href = merchant ? "/dashboard" : "/dashboard/setup";
+      } else {
+        window.location.href = "/dashboard";
+      }
     }
   }
 

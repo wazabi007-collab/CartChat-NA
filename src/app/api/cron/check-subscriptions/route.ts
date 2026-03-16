@@ -3,9 +3,14 @@ import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
 
 export async function GET(request: NextRequest) {
+  // Reject if CRON_SECRET is not properly configured
+  if (!process.env.CRON_SECRET || process.env.CRON_SECRET.length < 16) {
+    return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 500 });
+  }
+
   // Verify cron secret with timing-safe comparison
   const authHeader = request.headers.get("authorization") || "";
-  const expected = `Bearer ${process.env.CRON_SECRET || ""}`;
+  const expected = `Bearer ${process.env.CRON_SECRET}`;
   const isValid = authHeader.length === expected.length &&
     crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
   if (!isValid) {

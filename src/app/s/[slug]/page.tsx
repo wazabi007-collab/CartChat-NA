@@ -18,7 +18,7 @@ const PRODUCTS_PER_PAGE = 100;
 
 interface Props {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string; cat?: string; tab?: string }>;
+  searchParams: Promise<{ page?: string; cat?: string; tab?: string; search?: string; sort?: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -50,7 +50,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function StorefrontPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { page: pageParam, cat: categoryFilter, tab } = await searchParams;
+  const { page: pageParam, cat: categoryFilter, tab, search: searchParam, sort: sortParam } = await searchParams;
+  // Build extra params string for pagination links
+  const extraParams = [
+    categoryFilter ? `cat=${categoryFilter}` : "",
+    searchParam ? `search=${encodeURIComponent(searchParam)}` : "",
+    sortParam ? `sort=${encodeURIComponent(sortParam)}` : "",
+  ].filter(Boolean).join("&");
   const activeTab = tab === "orders" ? "orders" : "products";
   const currentPage = Math.max(1, parseInt(pageParam || "1") || 1);
   const supabase = await createClient();
@@ -350,7 +356,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
             <div className="flex items-center justify-center gap-2 mt-8 pt-6 border-t">
               {currentPage > 1 && (
                 <a
-                  href={`/s/${slug}?page=${currentPage - 1}${categoryFilter ? `&cat=${categoryFilter}` : ""}`}
+                  href={`/s/${slug}?page=${currentPage - 1}${extraParams ? `&${extraParams}` : ""}`}
                   className="px-4 py-2 text-sm border rounded-lg hover:bg-white transition-colors"
                 >
                   Previous
@@ -370,7 +376,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
                 return (
                   <a
                     key={pageNum}
-                    href={`/s/${slug}?page=${pageNum}${categoryFilter ? `&cat=${categoryFilter}` : ""}`}
+                    href={`/s/${slug}?page=${pageNum}${extraParams ? `&${extraParams}` : ""}`}
                     className={`w-10 h-10 flex items-center justify-center text-sm rounded-lg transition-colors ${
                       pageNum === currentPage
                         ? "bg-gray-900 text-white"
@@ -384,7 +390,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
               })}
               {currentPage < totalPages && (
                 <a
-                  href={`/s/${slug}?page=${currentPage + 1}${categoryFilter ? `&cat=${categoryFilter}` : ""}`}
+                  href={`/s/${slug}?page=${currentPage + 1}${extraParams ? `&${extraParams}` : ""}`}
                   className="px-4 py-2 text-sm border rounded-lg hover:bg-white transition-colors"
                 >
                   Next

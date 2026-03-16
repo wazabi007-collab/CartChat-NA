@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
   try {
+    // Verify the caller is authenticated and owns this merchant
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const { merchant_id, order_number, customer_name, customer_whatsapp, items, subtotal, delivery_fee, discount, total, payment_method, payment_ref, delivery_method, delivery_address, delivery_date, delivery_time, notes } = body;
 
@@ -11,6 +19,18 @@ export async function POST(req: NextRequest) {
     }
 
     const service = createServiceClient();
+
+    // Verify merchant ownership
+    const { data: ownerCheck } = await service
+      .from("merchants")
+      .select("id")
+      .eq("id", merchant_id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!ownerCheck) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     // Get merchant info + email
     const { data: merchant } = await service

@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 import { hasPermission } from "@/lib/admin-permissions";
+import { z } from "zod";
+
+const paymentSchema = z.object({
+  merchant_id: z.string().uuid(),
+  amount_nad: z.number().positive("Amount must be positive"),
+  payment_method: z.string().min(1, "Payment method required"),
+  period_start: z.string().min(1),
+  period_end: z.string().min(1),
+  reference: z.string().max(200).optional(),
+  notes: z.string().max(500).optional(),
+  tier: z.enum(["oshi_start", "oshi_basic", "oshi_grow", "oshi_pro"]).optional(),
+});
 
 export async function GET(request: NextRequest) {
   const admin = await getAuthenticatedAdmin();
@@ -36,11 +48,11 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { merchant_id, amount_nad, payment_method, reference, notes, period_start, period_end, tier } = body;
-
-  if (!merchant_id || !amount_nad || !payment_method || !period_start || !period_end) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  const parsed = paymentSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
+  const { merchant_id, amount_nad, payment_method, reference, notes, period_start, period_end, tier } = parsed.data;
 
   const service = createServiceClient();
 

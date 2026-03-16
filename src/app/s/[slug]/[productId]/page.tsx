@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .eq("id", productId)
     .eq("merchant_id", merchant.id)
     .eq("is_available", true)
+    .is("deleted_at", null)
     .single();
 
   if (!product) return { title: "Not Found" };
@@ -71,6 +72,7 @@ export default async function ProductDetailPage({ params }: Props) {
     .eq("id", productId)
     .eq("merchant_id", merchant.id)
     .eq("is_available", true)
+    .is("deleted_at", null)
     .single();
 
   if (!product) notFound();

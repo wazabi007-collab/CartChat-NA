@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MessageCircle, Trash2 } from "lucide-react";
 import { normalizeNamibianPhone } from "@/lib/utils";
-import { TIER_LABELS, STATUS_LABELS, formatTierPrice, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
+import { TIER_LABELS, TIER_LIMITS, STATUS_LABELS, formatTierPrice, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
 
 const TABS = ["Overview", "Subscription", "Performance", "Products", "Orders", "Activity", "Danger Zone"] as const;
 
@@ -126,6 +126,17 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
                         key={t}
                         disabled={saving || subscription.tier === t}
                         onClick={async () => {
+                          // Warn on downgrade if merchant has more products than new tier allows
+                          const newLimit = TIER_LIMITS[t].products;
+                          if (newLimit !== -1 && (merchant as Record<string, unknown>).product_count) {
+                            const count = (merchant as Record<string, unknown>).product_count as number;
+                            if (count > newLimit) {
+                              const confirmed = window.confirm(
+                                `This merchant has ${count} products but ${TIER_LABELS[t]} allows only ${newLimit}. They won't be able to add new products. Continue?`
+                              );
+                              if (!confirmed) return;
+                            }
+                          }
                           setSaving(true);
                           setActionError("");
                           try {

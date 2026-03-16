@@ -6,6 +6,14 @@ import { useRouter } from "next/navigation";
 import { getOrderMessage, type NotifiableStatus } from "@/lib/industry";
 import { whatsappLink } from "@/lib/utils";
 
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  pending: ["confirmed", "cancelled"],
+  confirmed: ["ready", "completed", "cancelled"],
+  ready: ["completed", "cancelled"],
+  completed: [],
+  cancelled: [],
+};
+
 interface OrderActionsProps {
   orderId: string;
   currentStatus: string;
@@ -35,6 +43,11 @@ export function OrderActions({
   const supabase = createClient();
 
   async function updateStatus(newStatus: string) {
+    const allowed = VALID_TRANSITIONS[currentStatus] || [];
+    if (!allowed.includes(newStatus)) {
+      return;
+    }
+
     setLoading(true);
     const { error } = await supabase
       .from("orders")
@@ -115,25 +128,35 @@ export function OrderActions({
     );
   }
 
+  const validNext = VALID_TRANSITIONS[currentStatus] || [];
+
+  if (validNext.length === 0) {
+    return (
+      <span className={`text-xs ${currentStatus === "completed" ? "text-green-600" : "text-gray-400"}`}>
+        {currentStatus === "completed" ? "Order complete" : "Order cancelled"}
+      </span>
+    );
+  }
+
   return (
     <>
-      {currentStatus === "pending" && (
-        <>
-          <button
-            onClick={() => updateStatus("confirmed")}
-            className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Confirm
-          </button>
-          <button
-            onClick={() => updateStatus("cancelled")}
-            className="px-3 py-1.5 text-sm bg-red-50 text-red-600 rounded-md hover:bg-red-100"
-          >
-            Cancel
-          </button>
-        </>
+      {validNext.includes("confirmed") && (
+        <button
+          onClick={() => updateStatus("confirmed")}
+          className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Confirm
+        </button>
       )}
-      {currentStatus === "confirmed" && (
+      {validNext.includes("ready") && (
+        <button
+          onClick={() => updateStatus("ready")}
+          className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+        >
+          Mark Ready
+        </button>
+      )}
+      {validNext.includes("completed") && (
         <button
           onClick={() => updateStatus("completed")}
           className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
@@ -141,11 +164,13 @@ export function OrderActions({
           Mark Completed
         </button>
       )}
-      {currentStatus === "cancelled" && (
-        <span className="text-xs text-gray-400">Order cancelled</span>
-      )}
-      {currentStatus === "completed" && (
-        <span className="text-xs text-green-600">Order complete</span>
+      {validNext.includes("cancelled") && (
+        <button
+          onClick={() => updateStatus("cancelled")}
+          className="px-3 py-1.5 text-sm bg-red-50 text-red-600 rounded-md hover:bg-red-100"
+        >
+          Cancel
+        </button>
       )}
     </>
   );

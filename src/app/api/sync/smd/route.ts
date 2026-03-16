@@ -93,7 +93,8 @@ export async function POST(request: NextRequest) {
   // Auth: admin only or CRON_SECRET (timing-safe comparison)
   const cronSecret = request.headers.get("x-cron-secret") || "";
   const expectedSecret = process.env.CRON_SECRET || "";
-  const isValidCron = cronSecret.length > 0 && cronSecret.length === expectedSecret.length &&
+  const isValidCron = expectedSecret.length >= 16 && cronSecret.length > 0 &&
+    cronSecret.length === expectedSecret.length &&
     crypto.timingSafeEqual(Buffer.from(cronSecret), Buffer.from(expectedSecret));
   if (!isValidCron) {
     const admin = await getAuthenticatedAdmin();

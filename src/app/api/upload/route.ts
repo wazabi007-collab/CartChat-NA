@@ -21,7 +21,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // Simple upload — no processing, just store the file
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: "File must be under 5MB" }, { status: 400 });
+    }
+
+    // Validate MIME type
+    const allowedMimes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!file.type || !allowedMimes.includes(file.type)) {
+      return NextResponse.json({ error: "Invalid file type. Allowed: JPG, PNG, WebP, GIF" }, { status: 400 });
+    }
+
+    // Validate file extension matches MIME
+    const allowedExts = ["jpg", "jpeg", "png", "webp", "gif"];
+    const fileExt = file.name.split(".").pop()?.toLowerCase();
+    if (!fileExt || !allowedExts.includes(fileExt)) {
+      return NextResponse.json({ error: "Invalid file extension" }, { status: 400 });
+    }
+
     const timestamp = Date.now();
     const rand = Math.random().toString(36).substring(2, 8);
     const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
@@ -46,9 +63,8 @@ export async function POST(request: NextRequest) {
     );
 
     if (!uploadRes.ok) {
-      const errText = await uploadRes.text();
       return NextResponse.json(
-        { error: `Storage error (${uploadRes.status}): ${errText}` },
+        { error: "Upload failed" },
         { status: 500 }
       );
     }

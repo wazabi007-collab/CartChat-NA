@@ -119,9 +119,11 @@ function SignupForm() {
     }
 
     // Redirect to setup for new users, dashboard for existing ones
+    const { data: { user: verifiedUser } } = await supabase.auth.getUser();
     const { data: merchant } = await supabase
       .from("merchants")
       .select("id")
+      .eq("user_id", verifiedUser!.id)
       .single();
 
     if (merchant) {

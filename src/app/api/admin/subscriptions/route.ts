@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 import { hasPermission } from "@/lib/admin-permissions";
+import { z } from "zod";
+
+const subscriptionUpdateSchema = z.object({
+  merchant_id: z.string().uuid(),
+  tier: z.enum(["oshi_start", "oshi_basic", "oshi_grow", "oshi_pro"]).optional(),
+  status: z.enum(["trial", "active", "grace", "soft_suspended", "hard_suspended"]).optional(),
+  set_period: z.boolean().optional(),
+}).refine((d) => d.tier || d.status, { message: "Must provide tier or status" });
 
 export async function PATCH(request: NextRequest) {
   const admin = await getAuthenticatedAdmin();
@@ -11,8 +19,13 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { merchant_id, tier, status, set_period } = await request.json();
-  if (!merchant_id) return NextResponse.json({ error: "Missing merchant_id" }, { status: 400 });
+  const body = await request.json();
+  const parsed = subscriptionUpdateSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
+  }
+
+  const { merchant_id, tier, status, set_period } = parsed.data;
 
   const service = createServiceClient();
 
@@ -26,10 +39,11 @@ export async function PATCH(request: NextRequest) {
   if (!before) return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
 
   const updates: Record<string, unknown> = {};
-  if (tier && ["oshi_start", "oshi_basic", "oshi_grow", "oshi_pro"].includes(tier)) {
+  if (tier) {
     updates.tier = tier;
+    updates.pending_tier = null; // Clear pending upgrade request
   }
-  if (status && ["trial", "active", "grace", "soft_suspended", "hard_suspended"].includes(status)) {
+  if (status) {
     updates.status = status;
     // When activating with set_period, set a 30-day billing period
     if (status === "active" && set_period) {

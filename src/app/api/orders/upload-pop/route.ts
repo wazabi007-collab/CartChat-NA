@@ -60,15 +60,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
   }
 
-  const { data: urlData } = supabase.storage
+  const { data: urlData } = await supabase.storage
     .from("order-proofs")
-    .getPublicUrl(uploadData.path);
+    .createSignedUrl(uploadData.path, 604800); // 7-day expiry
 
-  // Update the order with the proof URL
+  const signedUrl = urlData?.signedUrl || "";
+
+  // Update the order with the proof URL (store the path for re-signing later)
   await service
     .from("orders")
-    .update({ proof_of_payment_url: urlData.publicUrl })
+    .update({ proof_of_payment_url: uploadData.path })
     .eq("id", orderId);
 
-  return NextResponse.json({ success: true, url: urlData.publicUrl });
+  return NextResponse.json({ success: true, url: signedUrl });
 }

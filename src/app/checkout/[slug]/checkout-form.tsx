@@ -264,6 +264,44 @@ export function CheckoutForm({
     setSubmitting(true);
 
     try {
+      // Re-validate prices before submitting
+      const productIds = cartItems.map((item) => item.productId);
+      const { data: currentProducts, error: priceError } = await supabase
+        .from("products")
+        .select("id, price_nad")
+        .in("id", productIds);
+
+      if (priceError || !currentProducts) {
+        setError("Unable to verify current prices. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      const priceMap = new Map(
+        currentProducts.map((p: { id: string; price_nad: number }) => [p.id, p.price_nad])
+      );
+
+      let pricesChanged = false;
+      const updatedItems = cartItems.map((item) => {
+        const currentPrice = priceMap.get(item.productId);
+        if (currentPrice !== undefined && currentPrice !== item.price) {
+          pricesChanged = true;
+          return { ...item, price: currentPrice };
+        }
+        return item;
+      });
+
+      if (pricesChanged) {
+        setCartItems(updatedItems);
+        localStorage.setItem(
+          `oshicart-cart-${storeSlug}`,
+          JSON.stringify(updatedItems)
+        );
+        setError("Some prices have changed since you added items to your cart. Please review your updated cart and try again.");
+        setSubmitting(false);
+        return;
+      }
+
       // Upload proof of payment if provided
       let proofUrl: string | null = null;
       if (proofFile) {
@@ -280,11 +318,11 @@ export function CheckoutForm({
           throw new Error("Failed to upload proof of payment");
         }
 
-        const { data: urlData } = supabase.storage
+        const { data: urlData } = await supabase.storage
           .from("order-proofs")
-          .getPublicUrl(uploadData.path);
+          .createSignedUrl(uploadData.path, 604800); // 7-day expiry
 
-        proofUrl = urlData.publicUrl;
+        proofUrl = urlData?.signedUrl || null;
       }
 
       // Create order via RPC

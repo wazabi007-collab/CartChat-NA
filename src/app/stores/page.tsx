@@ -92,20 +92,22 @@ export default async function StoresPage({
     });
   }
 
-  // Fetch product counts for each merchant
-  const merchantIds = storeList.map((m) => m.id);
-  const { data: productCounts } = merchantIds.length > 0
-    ? await supabase
-        .from("products")
-        .select("merchant_id")
-        .in("merchant_id", merchantIds)
-        .eq("is_available", true)
-        .is("deleted_at", null)
-    : { data: [] };
-
+  // Fetch product counts per merchant using individual count queries
   const countMap = new Map<string, number>();
-  for (const p of productCounts || []) {
-    countMap.set(p.merchant_id, (countMap.get(p.merchant_id) || 0) + 1);
+  if (storeList.length > 0) {
+    const countPromises = storeList.map(async (m) => {
+      const { count } = await supabase
+        .from("products")
+        .select("id", { count: "exact", head: true })
+        .eq("merchant_id", m.id)
+        .eq("is_available", true)
+        .is("deleted_at", null);
+      return { id: m.id, count: count || 0 };
+    });
+    const counts = await Promise.all(countPromises);
+    for (const c of counts) {
+      countMap.set(c.id, c.count);
+    }
   }
 
   return (

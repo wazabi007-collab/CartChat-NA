@@ -19,7 +19,7 @@ export default async function OrdersPage({
 
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("id, industry, store_name")
+    .select("id, industry, store_name, store_slug")
     .eq("user_id", user.id)
     .single();
 
@@ -34,7 +34,7 @@ export default async function OrdersPage({
 
   if (
     statusFilter &&
-    ["pending", "confirmed", "completed", "cancelled"].includes(statusFilter)
+    ["pending", "confirmed", "ready", "completed", "cancelled"].includes(statusFilter)
   ) {
     query = query.eq("status", statusFilter);
   }
@@ -44,11 +44,12 @@ export default async function OrdersPage({
   const statusColors: Record<string, string> = {
     pending: "bg-yellow-100 text-yellow-800",
     confirmed: "bg-blue-100 text-blue-800",
+    ready: "bg-indigo-100 text-indigo-800",
     completed: "bg-green-100 text-green-800",
     cancelled: "bg-red-100 text-red-800",
   };
 
-  const statuses = ["all", "pending", "confirmed", "completed", "cancelled"];
+  const statuses = ["all", "pending", "confirmed", "ready", "completed", "cancelled"];
 
   return (
     <div className="md:ml-56">
@@ -174,10 +175,13 @@ export default async function OrdersPage({
                   merchantId={merchant.id}
                   merchantIndustry={merchant.industry ?? ""}
                   merchantStoreName={merchant.store_name}
+                  merchantStoreSlug={merchant.store_slug}
                   customerName={order.customer_name}
                   customerWhatsapp={order.customer_whatsapp}
                   orderNumber={order.order_number}
                   orderTotal={formatPrice(order.subtotal_nad - (order.discount_nad || 0) + (order.delivery_fee_nad || 0))}
+                  trackingToken={order.tracking_token || ""}
+                  deliveryMethod={order.delivery_method || "pickup"}
                 />
                 <a
                   href={`/invoice/${order.id}`}

@@ -20,10 +20,13 @@ interface OrderActionsProps {
   merchantId: string;
   merchantIndustry: string;
   merchantStoreName: string;
+  merchantStoreSlug: string;
   customerName: string;
   customerWhatsapp: string;
   orderNumber: number;
   orderTotal: string;
+  trackingToken: string;
+  deliveryMethod: string;
 }
 
 export function OrderActions({
@@ -32,10 +35,13 @@ export function OrderActions({
   merchantId,
   merchantIndustry,
   merchantStoreName,
+  merchantStoreSlug,
   customerName,
   customerWhatsapp,
   orderNumber,
   orderTotal,
+  trackingToken,
+  deliveryMethod,
 }: OrderActionsProps) {
   const [loading, setLoading] = useState(false);
   const [notifyStatus, setNotifyStatus] = useState<NotifiableStatus | null>(null);
@@ -49,10 +55,11 @@ export function OrderActions({
     }
 
     setLoading(true);
-    const { error } = await supabase
-      .from("orders")
-      .update({ status: newStatus })
-      .eq("id", orderId);
+    // Use append_order_status RPC to atomically update status + append history
+    const { error } = await supabase.rpc("append_order_status", {
+      p_order_id: orderId,
+      p_status: newStatus,
+    });
     setLoading(false);
 
     if (error) {
@@ -75,12 +82,34 @@ export function OrderActions({
         completed: "order_completed",
         cancelled: "order_cancelled",
       };
-      const templateName = templateMap[newStatus];
-      const baseVars = [customerName || "Customer", String(orderNumber), merchantStoreName];
-      // order_completed includes total
-      const variables = newStatus === "completed"
-        ? [...baseVars, orderTotal || "N$0.00"]
-        : baseVars;
+
+      let variables: string[];
+      let buttonParams: string[] | undefined;
+
+      switch (newStatus) {
+        case "confirmed":
+          variables = [customerName || "Customer", String(orderNumber), merchantStoreName];
+          buttonParams = [trackingToken];
+          break;
+        case "ready": {
+          const fulfillmentText = deliveryMethod === "delivery"
+            ? "out for delivery"
+            : "ready for pickup. Please collect at your earliest convenience";
+          variables = [customerName || "Customer", String(orderNumber), merchantStoreName, fulfillmentText];
+          buttonParams = [trackingToken];
+          break;
+        }
+        case "completed":
+          variables = [customerName || "Customer", String(orderNumber), merchantStoreName, orderTotal || "N$0.00"];
+          buttonParams = [merchantStoreSlug];
+          break;
+        case "cancelled":
+          variables = [customerName || "Customer", String(orderNumber), merchantStoreName];
+          buttonParams = undefined;
+          break;
+        default:
+          variables = [];
+      }
 
       fetch("/api/whatsapp/send", {
         method: "POST",
@@ -88,9 +117,10 @@ export function OrderActions({
         body: JSON.stringify({
           merchant_id: merchantId,
           order_id: orderId,
-          template_name: templateName,
+          template_name: templateMap[newStatus],
           recipient_phone: customerWhatsapp,
           variables,
+          button_params: buttonParams,
         }),
       }).catch(() => {});
     }

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { normalizeNamibianPhone } from "@/lib/utils";
 import Link from "next/link";
 import { PublicNavbar } from "@/components/public-navbar";
+import { GoogleSignInButton } from "@/components/google-sign-in-button";
 
 export default function SignupPage() {
   return (
@@ -146,6 +147,17 @@ function SignupForm() {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border p-6">
+          <GoogleSignInButton tier={tierParam} />
+
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-white px-3 text-gray-400">or</span>
+            </div>
+          </div>
+
           {step === "form" ? (
             <form onSubmit={handleSendOTP} className="space-y-4">
               <div>

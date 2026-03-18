@@ -1,11 +1,21 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { PublicNavbar } from "@/components/public-navbar";
+import { GoogleSignInButton } from "@/components/google-sign-in-button";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"email" | "otp">("email");
@@ -14,6 +24,8 @@ export default function LoginPage() {
   const [countdown, setCountdown] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const supabase = createClient();
+  const searchParams = useSearchParams();
+  const authError = searchParams.get("error");
 
   useEffect(() => {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
@@ -91,6 +103,23 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border p-6">
+          {authError === "auth" && (
+            <p className="text-red-600 text-sm mb-4 text-center">
+              Sign-in failed or was cancelled. Please try again.
+            </p>
+          )}
+
+          <GoogleSignInButton />
+
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-white px-3 text-gray-400">or</span>
+            </div>
+          </div>
+
           {step === "email" ? (
             <form onSubmit={handleSendOTP} className="space-y-4">
               <div>

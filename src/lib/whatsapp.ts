@@ -19,6 +19,10 @@ export function isWhatsAppEnabled(): boolean {
 
 // ---------- Template message builder ----------
 
+type TemplateComponent =
+  | { type: "body"; parameters: Array<{ type: "text"; text: string }> }
+  | { type: "button"; sub_type: "url"; index: string; parameters: Array<{ type: "text"; text: string }> };
+
 interface TemplateMessage {
   messaging_product: "whatsapp";
   to: string;
@@ -26,20 +30,38 @@ interface TemplateMessage {
   template: {
     name: string;
     language: { code: string };
-    components?: Array<{
-      type: "body";
-      parameters: Array<{ type: "text"; text: string }>;
-    }>;
+    components?: TemplateComponent[];
   };
 }
 
 function buildTemplateMessage(
   recipientPhone: string,
   templateName: string,
-  variables: string[]
+  variables: string[],
+  buttonParams?: string[]
 ): TemplateMessage {
   const normalized = normalizeNamibianPhone(recipientPhone);
   const cleanPhone = normalized.replace(/\D/g, "");
+
+  const components: TemplateComponent[] = [];
+
+  if (variables.length > 0) {
+    components.push({
+      type: "body",
+      parameters: variables.map((v) => ({ type: "text" as const, text: v })),
+    });
+  }
+
+  if (buttonParams && buttonParams.length > 0) {
+    buttonParams.forEach((param, index) => {
+      components.push({
+        type: "button",
+        sub_type: "url",
+        index: String(index),
+        parameters: [{ type: "text", text: param }],
+      });
+    });
+  }
 
   const msg: TemplateMessage = {
     messaging_product: "whatsapp",
@@ -48,17 +70,9 @@ function buildTemplateMessage(
     template: {
       name: templateName,
       language: { code: "en" },
+      components: components.length > 0 ? components : undefined,
     },
   };
-
-  if (variables.length > 0) {
-    msg.template.components = [
-      {
-        type: "body",
-        parameters: variables.map((v) => ({ type: "text" as const, text: v })),
-      },
-    ];
-  }
 
   return msg;
 }
@@ -74,7 +88,8 @@ interface SendResult {
 export async function sendWhatsAppTemplate(
   recipientPhone: string,
   templateName: string,
-  variables: string[]
+  variables: string[],
+  buttonParams?: string[]
 ): Promise<SendResult> {
   const config = getConfig();
 
@@ -82,7 +97,7 @@ export async function sendWhatsAppTemplate(
     return { success: false, error: "WhatsApp is disabled" };
   }
 
-  const message = buildTemplateMessage(recipientPhone, templateName, variables);
+  const message = buildTemplateMessage(recipientPhone, templateName, variables, buttonParams);
 
   try {
     const res = await fetch(
@@ -126,7 +141,6 @@ export async function verifyWebhookSignature(
   const config = getConfig();
   const expectedSig = signature.replace("sha256=", "");
 
-  // Use Web Crypto API (available in Edge and Node.js 18+)
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",

@@ -20,12 +20,14 @@ export async function POST(req: NextRequest) {
       template_name,
       recipient_phone,
       variables,
+      button_params,
     } = body as {
       merchant_id: string;
       order_id?: string;
       template_name: string;
       recipient_phone: string;
       variables: string[];
+      button_params?: string[];
     };
 
     if (!template_name || !recipient_phone || !variables) {
@@ -55,7 +57,8 @@ export async function POST(req: NextRequest) {
     const result = await sendWhatsAppTemplate(
       recipient_phone,
       template_name,
-      variables
+      variables,
+      button_params
     );
 
     // Update log with result

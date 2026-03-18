@@ -368,7 +368,7 @@ export function CheckoutForm({
         throw new Error("Failed to create order");
       }
 
-      const order = orderData[0] as { order_id: string; order_number: number; payment_reference: string };
+      const order = orderData[0] as { order_id: string; order_number: number; payment_reference: string; tracking_token: string };
 
       // Sync analytics for new order
       fetch("/api/analytics/sync", {
@@ -425,6 +425,25 @@ export function CheckoutForm({
             paymentMethod === "cod" ? "Cash on Delivery" : paymentMethod.toUpperCase(),
             `https://oshicart.com/dashboard/orders`,
           ],
+        }),
+      }).catch(() => {});
+
+      // WhatsApp Business API: notify customer order is placed
+      fetch("/api/whatsapp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchant_id: merchantId,
+          order_id: order.order_id,
+          template_name: "order_placed",
+          recipient_phone: customerWhatsapp.trim(),
+          variables: [
+            customerName.trim(),
+            String(order.order_number),
+            storeName,
+            formatPrice(total),
+          ],
+          button_params: [order.tracking_token],
         }),
       }).catch(() => {});
 

@@ -423,7 +423,6 @@ export function CheckoutForm({
             itemSummary,
             formatPrice(total),
             paymentMethod === "cod" ? "Cash on Delivery" : paymentMethod.toUpperCase(),
-            `https://oshicart.com/dashboard/orders`,
           ],
         }),
       }).catch(() => {});

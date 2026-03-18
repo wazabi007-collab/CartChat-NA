@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1080px; font-family: 'Segoe UI', -apple-system, sans-serif; overflow: hidden; }
+  .container {
+    width: 1080px; height: 1080px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 70px;
+  }
+  .split { display: flex; width: 100%; gap: 30px; flex: 1; }
+  .side {
+    flex: 1; border-radius: 20px; padding: 40px 35px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .bad { background: #FEF2F2; border: 2px solid #FECACA; }
+  .good { background: #F0FDF4; border: 2px solid #BBF7D0; }
+  .side-label { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }
+  .bad .side-label { color: #DC2626; }
+  .good .side-label { color: #16A34A; }
+  .msg { background: white; border-radius: 12px; padding: 14px 18px; margin-bottom: 10px; font-size: 17px; color: #374151; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+  .msg.them { border-left: 3px solid #9CA3AF; }
+  .msg.you { border-left: 3px solid #2B5EA7; }
+  .msg .name { font-size: 13px; font-weight: 700; color: #6B7280; margin-bottom: 4px; }
+  .msg .seen { font-size: 12px; color: #9CA3AF; text-align: right; margin-top: 4px; }
+  .result-box { background: white; border-radius: 16px; padding: 20px; text-align: center; margin-top: 12px; }
+  .result-box .emoji { font-size: 36px; }
+  .result-box .text { font-size: 16px; font-weight: 600; margin-top: 6px; }
+  .bad .result-box .text { color: #DC2626; }
+  .good .result-box .text { color: #16A34A; }
+
+  .store-preview { background: white; border-radius: 16px; padding: 16px; border: 1px solid #E5E7EB; margin-top: 10px; }
+  .store-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #F3F4F6; }
+  .store-item:last-child { border: none; }
+  .item-img { width: 40px; height: 40px; background: #F3F4F6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .item-name { font-size: 14px; font-weight: 600; color: #374151; }
+  .item-price { font-size: 14px; color: #4A9B3E; font-weight: 700; margin-left: auto; }
+  .cart-btn { background: #4A9B3E; color: white; border: none; border-radius: 8px; padding: 10px; width: 100%; font-size: 15px; font-weight: 700; margin-top: 10px; }
+
+  .header { text-align: center; margin-bottom: 30px; }
+  .header h1 { font-size: 42px; font-weight: 800; color: #1F2937; }
+  .header p { font-size: 20px; color: #6B7280; margin-top: 8px; }
+
+  .footer { text-align: center; margin-top: 30px; }
+  .logo-text { font-size: 28px; font-weight: 800; }
+  .logo-text .oshi { color: #2B5EA7; }
+  .logo-text .cart { color: #4A9B3E; }
+  .footer-cta { font-size: 18px; color: #6B7280; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Selling in DMs vs OshiCart</h1>
+    <p>Which one is your business?</p>
+  </div>
+
+  <div class="split">
+    <div class="side bad">
+      <div class="side-label">❌ Without OshiCart</div>
+      <div>
+        <div class="msg them"><div class="name">Customer</div>How much is the black bag?</div>
+        <div class="msg you"><div class="name">You</div>N$350</div>
+        <div class="msg them"><div class="name">Customer</div>And the brown one?</div>
+        <div class="msg you"><div class="name">You</div>N$420. Want me to send more pics?</div>
+        <div class="msg them"><div class="name">Customer</div><div class="seen">Seen ✓✓</div></div>
+      </div>
+      <div class="result-box">
+        <div class="emoji">😤</div>
+        <div class="text">Sale lost. Time wasted.</div>
+      </div>
+    </div>
+
+    <div class="side good">
+      <div class="side-label">✅ With OshiCart</div>
+      <div class="store-preview">
+        <div class="store-item">
+          <div class="item-img">👜</div>
+          <div class="item-name">Black Leather Bag</div>
+          <div class="item-price">N$350</div>
+        </div>
+        <div class="store-item">
+          <div class="item-img">👜</div>
+          <div class="item-name">Brown Classic Bag</div>
+          <div class="item-price">N$420</div>
+        </div>
+        <div class="store-item">
+          <div class="item-img">👜</div>
+          <div class="item-name">Mini Crossbody</div>
+          <div class="item-price">N$280</div>
+        </div>
+        <div class="cart-btn">🛒 Add to Cart → Checkout</div>
+      </div>
+      <div class="result-box">
+        <div class="emoji">🎉</div>
+        <div class="text">Order received. Payment done.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="logo-text"><span class="oshi">Oshi</span><span class="cart">Cart</span> 🛒</div>
+    <div class="footer-cta">Free for 30 days → oshicart.com</div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1080px; font-family: 'Segoe UI', -apple-system, sans-serif; overflow: hidden; }
+  .container {
+    width: 1080px; height: 1080px; background: white;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 60px 70px;
+  }
+  .header { text-align: center; margin-bottom: 50px; }
+  .logo-text { font-size: 32px; font-weight: 800; margin-bottom: 20px; }
+  .logo-text .oshi { color: #2B5EA7; }
+  .logo-text .cart { color: #4A9B3E; }
+  .header h1 { font-size: 48px; font-weight: 800; color: #1F2937; }
+  .header p { font-size: 22px; color: #6B7280; margin-top: 8px; }
+
+  .steps { display: flex; gap: 24px; width: 100%; margin-bottom: 50px; }
+  .step {
+    flex: 1; text-align: center; padding: 36px 24px;
+    background: #F9FAFB; border-radius: 20px; border: 1px solid #E5E7EB;
+  }
+  .step-num {
+    width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 800; color: white;
+  }
+  .step:nth-child(1) .step-num { background: #2B5EA7; }
+  .step:nth-child(2) .step-num { background: #4A9B3E; }
+  .step:nth-child(3) .step-num { background: #2B5EA7; }
+  .step-icon { font-size: 44px; margin-bottom: 12px; }
+  .step-title { font-size: 22px; font-weight: 700; color: #1F2937; margin-bottom: 6px; }
+  .step-desc { font-size: 16px; color: #6B7280; line-height: 1.4; }
+
+  .arrows { display: flex; align-items: center; justify-content: center; gap: 0; width: 100%; margin-bottom: -20px; margin-top: -20px; position: relative; z-index: 1; }
+  .arrow { font-size: 40px; color: #4A9B3E; font-weight: 700; margin: 0 110px; }
+
+  .footer { text-align: center; }
+  .cta-btn {
+    display: inline-block; background: #2B5EA7; color: white;
+    font-size: 22px; font-weight: 700; padding: 16px 44px;
+    border-radius: 12px; box-shadow: 0 4px 14px rgba(43,94,167,0.3);
+  }
+  .footer-sub { font-size: 16px; color: #9CA3AF; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo-text"><span class="oshi">Oshi</span><span class="cart">Cart</span> 🛒</div>
+    <h1>How It Works</h1>
+    <p>Three simple steps to sell online</p>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-icon">📱</div>
+      <div class="step-title">Create Your Store</div>
+      <div class="step-desc">Add products with photos &amp; prices. Takes under 5 minutes.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-icon">🔗</div>
+      <div class="step-title">Share Your Link</div>
+      <div class="step-desc">Post on WhatsApp Status, send to customers, add to bio.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-icon">💰</div>
+      <div class="step-title">Get Paid</div>
+      <div class="step-desc">Customers order &amp; pay via EFT, MoMo, Pay2Cell or COD.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="cta-btn">Start Your Free Store → oshicart.com</span>
+    <div class="footer-sub">Free for 30 days • No credit card needed</div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1080px; height: 1080px; font-family: 'Segoe UI', -apple-system, sans-serif; background: white; overflow: hidden; }
+
+  .container {
+    width: 1080px; height: 1080px;
+    background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: 60px 70px;
+  }
+
+  .logo { height: 60px; }
+
+  .hero { text-align: center; }
+  .hero h1 { font-size: 52px; font-weight: 800; color: #1F2937; line-height: 1.15; margin-bottom: 16px; }
+  .hero h1 span { color: #4A9B3E; }
+  .hero p { font-size: 24px; color: #6B7280; font-weight: 500; }
+
+  .features { width: 100%; display: flex; flex-direction: column; gap: 16px; }
+  .feature {
+    display: flex; align-items: center; gap: 16px;
+    background: white; border: 1px solid #E5E7EB; border-radius: 16px;
+    padding: 20px 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .check {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #E8F5E3; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .check svg { width: 20px; height: 20px; color: #4A9B3E; }
+  .feature-text { font-size: 22px; font-weight: 600; color: #1F2937; }
+
+  .cta-section { text-align: center; width: 100%; }
+  .cta-btn {
+    display: inline-block; background: #2B5EA7; color: white;
+    font-size: 24px; font-weight: 700; padding: 18px 48px;
+    border-radius: 12px; text-decoration: none;
+    box-shadow: 0 4px 14px rgba(43,94,167,0.3);
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 16px; background: #E8F5E3; border: 1px solid #BBF7D0;
+    padding: 8px 20px; border-radius: 100px;
+    font-size: 15px; font-weight: 600; color: #166534;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Logo -->
+  <img src="../../public/logo.svg" class="logo" onerror="this.style.display='none'">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>The Simplest Way to Sell<br><span>Online in Namibia.</span></h1>
+    <p>Your Namibian business, online in 5 minutes.</p>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature">
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#4A9B3E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="feature-text">Zero Transaction Fees — Keep 100%</span>
+    </div>
+    <div class="feature">
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#4A9B3E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="feature-text">EFT • MoMo • Pay2Cell • eWallet • COD</span>
+    </div>
+    <div class="feature">
+      <div class="check"><svg viewBox="0 0 24 24" fill="none" stroke="#4A9B3E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <span class="feature-text">WhatsApp Order Notifications</span>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <span class="cta-btn">Start Your Free Store → oshicart.com</span>
+    <br>
+    <span class="badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Proudly Namibian &amp; Secure
+    </span>
+  </div>
+</div>
+</body>
+</html>

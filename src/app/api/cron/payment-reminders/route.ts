@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
     .select(`
       id, order_number, customer_name, customer_whatsapp,
       created_at, reminder_count, total_nad, payment_method,
-      merchant_id,
+      merchant_id, tracking_token,
       merchants!inner(store_name, store_slug)
     `)
     .eq("status", "pending")
@@ -54,9 +54,9 @@ export async function GET(req: NextRequest) {
 
       let shouldRemind = false;
 
-      if (ageHours >= 2 && reminderCount === 0) shouldRemind = true;
-      else if (ageHours >= 24 && reminderCount === 1) shouldRemind = true;
-      else if (ageHours >= 72 && reminderCount === 2) shouldRemind = true;
+      if (ageHours >= 1 && reminderCount === 0) shouldRemind = true;
+      else if (ageHours >= 12 && reminderCount === 1) shouldRemind = true;
+      else if (ageHours >= 48 && reminderCount === 2) shouldRemind = true;
 
       if (shouldRemind && order.customer_whatsapp) {
         const total = formatPrice(order.total_nad || 0);
@@ -78,6 +78,7 @@ export async function GET(req: NextRequest) {
               total,
               storeUrl,
             ],
+            button_params: order.tracking_token ? [order.tracking_token] : undefined,
           }),
         }).catch(() => {});
 
@@ -98,7 +99,7 @@ export async function GET(req: NextRequest) {
   // ---- 2. Auto-cancel expired unpaid orders (3 days + 1 hour) ----
 
   const expiredCutoff = new Date(
-    now.getTime() - (3 * 24 + 1) * 60 * 60 * 1000
+    now.getTime() - 49 * 60 * 60 * 1000
   );
 
   const { data: expiredOrders } = await supabase

@@ -101,7 +101,7 @@ export function OrderActions({
         }
         case "completed":
           variables = [customerName || "Customer", String(orderNumber), merchantStoreName, orderTotal || "N$0.00"];
-          buttonParams = [merchantStoreSlug];
+          buttonParams = [trackingToken];
           break;
         case "cancelled":
           variables = [customerName || "Customer", String(orderNumber), merchantStoreName];

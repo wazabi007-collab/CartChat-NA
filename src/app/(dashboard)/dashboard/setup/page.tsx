@@ -123,6 +123,21 @@ function StoreSetupForm() {
       trial_ends_at: trialEnds.toISOString(),
     });
 
+    // WhatsApp Business API: welcome message
+    fetch("/api/whatsapp/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        merchant_id: newMerchant.id,
+        template_name: "welcome_merchant",
+        recipient_phone: form.whatsapp_number,
+        variables: [
+          form.store_name,
+          `https://oshicart.com/s/${finalSlug}`,
+        ],
+      }),
+    }).catch(() => {});
+
     if (tierParam) {
       router.push(`/pricing/checkout?tier=${tierParam}`);
     } else {

@@ -67,6 +67,34 @@ export function OrderActions({
       body: JSON.stringify({ merchant_id: merchantId }),
     }).catch(() => {});
 
+    // Auto-send WhatsApp notification via Business API
+    if (customerWhatsapp && ["confirmed", "ready", "completed", "cancelled"].includes(newStatus)) {
+      const templateMap: Record<string, string> = {
+        confirmed: "order_confirmed",
+        ready: "order_ready",
+        completed: "order_completed",
+        cancelled: "order_cancelled",
+      };
+      const templateName = templateMap[newStatus];
+      const baseVars = [customerName || "Customer", String(orderNumber), merchantStoreName];
+      // order_completed includes total
+      const variables = newStatus === "completed"
+        ? [...baseVars, orderTotal || "N$0.00"]
+        : baseVars;
+
+      fetch("/api/whatsapp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchant_id: merchantId,
+          order_id: orderId,
+          template_name: templateName,
+          recipient_phone: customerWhatsapp,
+          variables,
+        }),
+      }).catch(() => {});
+    }
+
     if (
       (newStatus === "confirmed" || newStatus === "completed" || newStatus === "cancelled") &&
       customerWhatsapp

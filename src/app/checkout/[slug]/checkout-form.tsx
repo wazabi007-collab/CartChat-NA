@@ -405,6 +405,29 @@ export function CheckoutForm({
         }),
       }).catch(() => {});
 
+      // WhatsApp Business API: notify merchant of new order
+      const itemSummary = cartItems.length === 1
+        ? `${cartItems[0].name} x${cartItems[0].quantity}`
+        : `${cartItems.length} items`;
+      fetch("/api/whatsapp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchant_id: merchantId,
+          order_id: order.order_id,
+          template_name: "new_order_merchant",
+          recipient_phone: whatsappNumber,
+          variables: [
+            String(order.order_number),
+            customerName.trim(),
+            itemSummary,
+            formatPrice(total),
+            paymentMethod === "cod" ? "Cash on Delivery" : paymentMethod.toUpperCase(),
+            `https://oshicart.com/dashboard/orders`,
+          ],
+        }),
+      }).catch(() => {});
+
       // Build WhatsApp message and auto-open
       const itemLines = cartItems
         .map((item) => `• ${item.name} x${item.quantity} — ${formatPrice(item.price * item.quantity)}`)

@@ -43,9 +43,35 @@ function StoreSetupForm() {
   const [selectedMethods, setSelectedMethods] = useState<string[]>(["cod"]);
   const [offersPickup, setOffersPickup] = useState(true);
   const [offersDelivery, setOffersDelivery] = useState(false);
+  const [whatsappStatus, setWhatsappStatus] = useState<"idle" | "checking" | "blocked" | "warning" | "clear">("idle");
 
   function update(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  async function checkWhatsapp(phone: string) {
+    if (!phone || phone.length < 7) {
+      setWhatsappStatus("idle");
+      return;
+    }
+    setWhatsappStatus("checking");
+    try {
+      const res = await fetch("/api/check-whatsapp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const data = await res.json();
+      if (data.blocked) {
+        setWhatsappStatus("blocked");
+      } else if (data.exists) {
+        setWhatsappStatus("warning");
+      } else {
+        setWhatsappStatus("clear");
+      }
+    } catch {
+      setWhatsappStatus("idle");
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -82,6 +108,19 @@ function StoreSetupForm() {
     const finalSlug = existing
       ? `${slug}-${Date.now().toString(36)}`
       : slug;
+
+    // Server-side WhatsApp duplicate check (safety net)
+    const waCheck = await fetch("/api/check-whatsapp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: form.whatsapp_number }),
+    }).then((r) => r.json()).catch(() => ({ blocked: false }));
+
+    if (waCheck.blocked) {
+      setError("This WhatsApp number is already linked to a store. Please subscribe to continue.");
+      setLoading(false);
+      return;
+    }
 
     const { data: newMerchant, error: insertError } = await supabase
       .from("merchants")
@@ -201,11 +240,36 @@ function StoreSetupForm() {
                 <input
                   type="tel"
                   value={form.whatsapp_number}
-                  onChange={(e) => update("whatsapp_number", e.target.value)}
+                  onChange={(e) => {
+                    update("whatsapp_number", e.target.value);
+                    if (whatsappStatus !== "idle") setWhatsappStatus("idle");
+                  }}
+                  onBlur={(e) => checkWhatsapp(e.target.value)}
                   placeholder="+264811234567"
                   required
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
+                {whatsappStatus === "checking" && (
+                  <p className="text-xs text-gray-400 mt-1">Checking number...</p>
+                )}
+                {whatsappStatus === "blocked" && (
+                  <div className="mt-1">
+                    <p className="text-xs text-red-600">
+                      This WhatsApp number is already linked to a store. Please subscribe to continue.
+                    </p>
+                    <a
+                      href="/pricing"
+                      className="text-xs text-[#2B5EA7] hover:underline font-medium"
+                    >
+                      View Plans →
+                    </a>
+                  </div>
+                )}
+                {whatsappStatus === "warning" && (
+                  <p className="text-xs text-amber-600 mt-1">
+                    This number is already linked to another store.
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -237,6 +301,10 @@ function StoreSetupForm() {
                   }
                   if (!form.industry) {
                     setError("Please select your industry");
+                    return;
+                  }
+                  if (whatsappStatus === "blocked") {
+                    setError("This WhatsApp number is already linked to a store. Please subscribe to continue.");
                     return;
                   }
                   setError("");

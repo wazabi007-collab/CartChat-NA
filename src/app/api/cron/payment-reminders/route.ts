@@ -60,7 +60,6 @@ export async function GET(req: NextRequest) {
 
       if (shouldRemind && order.customer_whatsapp) {
         const total = formatPrice(order.total_nad || 0);
-        const storeUrl = `https://oshicart.com/s/${merchant.store_slug}`;
 
         // Fire-and-forget WhatsApp reminder
         fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "https://oshicart.com"}/api/whatsapp/send`, {
@@ -76,7 +75,6 @@ export async function GET(req: NextRequest) {
               String(order.order_number),
               merchant.store_name,
               total,
-              storeUrl,
             ],
             button_params: order.tracking_token ? [order.tracking_token] : undefined,
           }),

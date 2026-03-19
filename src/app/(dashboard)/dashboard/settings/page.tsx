@@ -7,8 +7,24 @@ import { BANKS_NAMIBIA, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constan
 import { storeSetupSchema } from "@/lib/validations";
 import { normalizeNamibianPhone } from "@/lib/utils";
 import Image from "next/image";
-import { Save, Plus, X, Upload, Loader2 } from "lucide-react";
+import { Save, Plus, X, Upload, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { MAX_IMAGE_SIZE } from "@/lib/constants";
+import {
+  inputBase,
+  textareaBase,
+  selectBase,
+  focusGreen,
+  label,
+  helperText,
+  card,
+  sectionHeading,
+  btnPrimaryGreen,
+  btnSmallGreen,
+  alertError,
+  alertSuccess,
+  alertIcon,
+  alertInfo,
+} from "@/lib/ui";
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -180,14 +196,14 @@ export default function SettingsPage() {
     <div className="md:ml-56 max-w-lg">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Store Settings</h1>
 
-      <form onSubmit={handleSave} className="space-y-6">
+      <form onSubmit={handleSave} className="space-y-5">
         {/* Store Details */}
-        <div className="bg-white rounded-lg border p-6 space-y-4">
-          <h2 className="font-medium text-gray-900">Store Details</h2>
+        <div className={`${card} space-y-4`}>
+          <h2 className={sectionHeading}>Store Details</h2>
 
           {/* Logo upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className={label}>
               Store Logo
             </label>
             <div className="flex items-center gap-4">
@@ -201,7 +217,7 @@ export default function SettingsPage() {
                 </div>
               )}
               <div className="flex-1">
-                <label className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors">
+                <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors">
                   {uploadingLogo ? (
                     <>
                       <Loader2 size={14} className="animate-spin" />
@@ -260,7 +276,7 @@ export default function SettingsPage() {
                     Remove
                   </button>
                 )}
-                <p className="text-xs text-gray-400 mt-1">
+                <p className={helperText}>
                   Square image recommended. Shows on your storefront and invoices.
                 </p>
                 {logoError && <p className="text-xs text-red-500 mt-1">{logoError}</p>}
@@ -269,7 +285,7 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={label}>
               Store Name
             </label>
             <input
@@ -278,11 +294,11 @@ export default function SettingsPage() {
               onChange={(e) =>
                 setForm((p) => ({ ...p, store_name: e.target.value }))
               }
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={`${inputBase} ${focusGreen}`}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={label}>
               Description
             </label>
             <textarea
@@ -291,11 +307,11 @@ export default function SettingsPage() {
                 setForm((p) => ({ ...p, description: e.target.value }))
               }
               rows={3}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={`${textareaBase} ${focusGreen}`}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={label}>
               WhatsApp Number
             </label>
             <input
@@ -304,19 +320,22 @@ export default function SettingsPage() {
               onChange={(e) =>
                 setForm((p) => ({ ...p, whatsapp_number: e.target.value }))
               }
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={`${inputBase} ${focusGreen}`}
             />
+            <p className={helperText}>
+              Customers will contact you on this number
+            </p>
           </div>
         </div>
 
         {/* Bank Details */}
-        <div className="bg-white rounded-lg border p-6 space-y-4">
-          <h2 className="font-medium text-gray-900">Bank Details</h2>
-          <p className="text-xs text-gray-400">
+        <div className={`${card} space-y-4`}>
+          <h2 className={sectionHeading}>Bank Details</h2>
+          <p className={helperText + " !mt-0"}>
             Shown to customers at checkout for EFT payment
           </p>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={label}>
               Bank
             </label>
             <select
@@ -324,7 +343,7 @@ export default function SettingsPage() {
               onChange={(e) =>
                 setForm((p) => ({ ...p, bank_name: e.target.value }))
               }
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={`${selectBase} ${focusGreen}`}
             >
               <option value="">Select bank...</option>
               {BANKS_NAMIBIA.map((bank) => (
@@ -335,7 +354,7 @@ export default function SettingsPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={label}>
               Account Holder
             </label>
             <input
@@ -347,11 +366,11 @@ export default function SettingsPage() {
                   bank_account_holder: e.target.value,
                 }))
               }
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={`${inputBase} ${focusGreen}`}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={label}>
               Account Number
             </label>
             <input
@@ -363,11 +382,11 @@ export default function SettingsPage() {
                   bank_account_number: e.target.value,
                 }))
               }
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={`${inputBase} ${focusGreen}`}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={label}>
               Branch Code
             </label>
             <input
@@ -376,19 +395,19 @@ export default function SettingsPage() {
               onChange={(e) =>
                 setForm((p) => ({ ...p, bank_branch_code: e.target.value }))
               }
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={`${inputBase} ${focusGreen}`}
             />
           </div>
         </div>
 
         {/* VAT */}
-        <div className="bg-white rounded-lg border p-6 space-y-4">
-          <h2 className="font-medium text-gray-900">VAT Registration</h2>
-          <p className="text-xs text-gray-400">
+        <div className={`${card} space-y-4`}>
+          <h2 className={sectionHeading}>VAT Registration</h2>
+          <p className={helperText + " !mt-0"}>
             Only fill this in if your business is VAT-registered with NamRA. Namibia VAT rate is 15%.
           </p>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={label}>
               VAT Number
             </label>
             <input
@@ -398,7 +417,7 @@ export default function SettingsPage() {
                 setForm((p) => ({ ...p, vat_number: e.target.value }))
               }
               placeholder="e.g. 1234567-01-5"
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={`${inputBase} ${focusGreen}`}
             />
           </div>
           {form.vat_number && (
@@ -418,18 +437,20 @@ export default function SettingsPage() {
             </div>
           )}
           {form.vat_number && (
-            <div className="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 text-xs text-blue-700">
-              {form.vat_inclusive
-                ? "Invoices will show VAT extracted from your prices (price ÷ 1.15). Customers pay the listed price."
-                : "Invoices will show VAT added on top of your prices (price × 1.15). Customers pay price + 15% VAT."}
+            <div className={alertInfo}>
+              <p>
+                {form.vat_inclusive
+                  ? "Invoices will show VAT extracted from your prices (price ÷ 1.15). Customers pay the listed price."
+                  : "Invoices will show VAT added on top of your prices (price × 1.15). Customers pay price + 15% VAT."}
+              </p>
             </div>
           )}
         </div>
 
         {/* Payment Methods */}
-        <div className="bg-white rounded-lg border p-6 space-y-4">
-          <h2 className="font-medium text-gray-900">Payment Methods</h2>
-          <p className="text-xs text-gray-400">
+        <div className={`${card} space-y-4`}>
+          <h2 className={sectionHeading}>Payment Methods</h2>
+          <p className={helperText + " !mt-0"}>
             Choose which payment methods customers can use at checkout
           </p>
           <div className="space-y-3">
@@ -457,7 +478,7 @@ export default function SettingsPage() {
 
           {form.accepted_payment_methods.includes("momo") && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={label}>
                 MoMo Number
               </label>
               <input
@@ -465,9 +486,9 @@ export default function SettingsPage() {
                 value={form.momo_number}
                 onChange={(e) => setForm((p) => ({ ...p, momo_number: e.target.value }))}
                 placeholder="+264 81 123 4567"
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className={`${inputBase} ${focusGreen}`}
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className={helperText}>
                 Customers will send MTC Money/Maris payment to this number
               </p>
             </div>
@@ -476,13 +497,13 @@ export default function SettingsPage() {
           {form.accepted_payment_methods.includes("ewallet") && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={label}>
                   eWallet Provider
                 </label>
                 <select
                   value={form.ewallet_provider}
                   onChange={(e) => setForm((p) => ({ ...p, ewallet_provider: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className={`${selectBase} ${focusGreen}`}
                 >
                   <option value="">Select provider...</option>
                   {EWALLET_PROVIDERS.map((provider) => (
@@ -493,7 +514,7 @@ export default function SettingsPage() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={label}>
                   eWallet Number
                 </label>
                 <input
@@ -501,9 +522,9 @@ export default function SettingsPage() {
                   value={form.ewallet_number}
                   onChange={(e) => setForm((p) => ({ ...p, ewallet_number: e.target.value }))}
                   placeholder="+264 81 123 4567"
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className={`${inputBase} ${focusGreen}`}
                 />
-                <p className="text-xs text-gray-400 mt-1">
+                <p className={helperText}>
                   Customers will send eWallet payment to this number
                 </p>
               </div>
@@ -512,7 +533,7 @@ export default function SettingsPage() {
 
           {form.accepted_payment_methods.includes("pay2cell") && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={label}>
                 FNB Pay2Cell Number
               </label>
               <input
@@ -520,9 +541,9 @@ export default function SettingsPage() {
                 value={form.pay2cell_number}
                 onChange={(e) => setForm((p) => ({ ...p, pay2cell_number: e.target.value }))}
                 placeholder="+264 81 123 4567"
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className={`${inputBase} ${focusGreen}`}
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className={helperText}>
                 Your FNB cellphone banking number. Customers will send Pay2Cell payments to this number.
               </p>
             </div>
@@ -530,9 +551,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Delivery Fee */}
-        <div className="bg-white rounded-lg border p-6 space-y-4">
-          <h2 className="font-medium text-gray-900">Delivery Fee</h2>
-          <p className="text-xs text-gray-400">
+        <div className={`${card} space-y-4`}>
+          <h2 className={sectionHeading}>Delivery Fee</h2>
+          <p className={helperText + " !mt-0"}>
             Flat rate charged when customers choose delivery. Set to 0 for free delivery.
           </p>
           <div className="relative max-w-xs">
@@ -547,18 +568,18 @@ export default function SettingsPage() {
               onChange={(e) =>
                 setForm((p) => ({ ...p, delivery_fee_display: e.target.value }))
               }
-              className="w-full pl-9 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className={`${inputBase} ${focusGreen} pl-9`}
               placeholder="30.00"
             />
           </div>
         </div>
 
         {/* Delivery Scheduling */}
-        <div className="bg-white rounded-lg border p-6 space-y-4">
+        <div className={`${card} space-y-4`}>
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-medium text-gray-900">Delivery Scheduling</h2>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <h2 className={sectionHeading}>Delivery Scheduling</h2>
+              <p className={helperText}>
                 Let customers choose a delivery date and time slot
               </p>
             </div>
@@ -590,11 +611,11 @@ export default function SettingsPage() {
             <>
               {/* Days */}
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">
+                <p className={label}>
                   Available days
                 </p>
                 <div className="flex gap-2 flex-wrap">
-                  {DAY_LABELS.map((label, i) => (
+                  {DAY_LABELS.map((dlabel, i) => (
                     <button
                       key={i}
                       type="button"
@@ -605,7 +626,7 @@ export default function SettingsPage() {
                           : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
-                      {label}
+                      {dlabel}
                     </button>
                   ))}
                 </div>
@@ -613,20 +634,20 @@ export default function SettingsPage() {
 
               {/* Time slots */}
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">
+                <p className={label}>
                   Time slots
                 </p>
                 <div className="space-y-2 mb-3">
                   {deliverySlots.times.map((slot) => (
                     <div
                       key={slot}
-                      className="flex items-center justify-between bg-gray-50 rounded-md px-3 py-2 text-sm"
+                      className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2.5 text-sm"
                     >
                       <span className="text-gray-700">{slot}</span>
                       <button
                         type="button"
                         onClick={() => removeTimeSlot(slot)}
-                        className="text-gray-400 hover:text-red-500"
+                        className="text-gray-400 hover:text-red-500 transition-colors"
                       >
                         <X size={14} />
                       </button>
@@ -640,12 +661,12 @@ export default function SettingsPage() {
                     value={newTimeSlot}
                     onChange={(e) => setNewTimeSlot(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTimeSlot())}
-                    className="flex-1 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={`flex-1 ${inputBase} ${focusGreen}`}
                   />
                   <button
                     type="button"
                     onClick={addTimeSlot}
-                    className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
+                    className={btnSmallGreen + " flex items-center gap-1"}
                   >
                     <Plus size={14} />
                     Add
@@ -656,15 +677,23 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {error && <p className="text-red-600 text-sm">{error}</p>}
+        {error && (
+          <div className={alertError}>
+            <AlertCircle className={alertIcon} />
+            <p>{error}</p>
+          </div>
+        )}
         {success && (
-          <p className="text-green-600 text-sm">Settings saved!</p>
+          <div className={alertSuccess}>
+            <CheckCircle className={alertIcon} />
+            <p>Settings saved successfully!</p>
+          </div>
         )}
 
         <button
           type="submit"
           disabled={saving}
-          className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+          className={btnPrimaryGreen + " flex items-center justify-center gap-2"}
         >
           <Save size={16} />
           {saving ? "Saving..." : "Save Settings"}

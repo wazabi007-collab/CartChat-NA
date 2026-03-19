@@ -7,6 +7,18 @@ import { normalizeNamibianPhone } from "@/lib/utils";
 import Link from "next/link";
 import { PublicNavbar } from "@/components/public-navbar";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
+import { AlertCircle } from "lucide-react";
+import {
+  inputBase,
+  focusBrand,
+  label,
+  helperText,
+  card,
+  btnPrimaryBrand,
+  btnGhost,
+  alertError,
+  alertIcon,
+} from "@/lib/ui";
 
 export default function SignupPage() {
   return (
@@ -141,12 +153,12 @@ function SignupForm() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Create your store</h1>
-          <p className="text-gray-500 mt-1">
+          <p className="text-gray-500 mt-1.5">
             Get your WhatsApp store live in 5 minutes
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className={card}>
           <GoogleSignInButton tier={tierParam} />
 
           <div className="relative my-5">
@@ -161,25 +173,25 @@ function SignupForm() {
           {step === "form" ? (
             <form onSubmit={handleSendOTP} className="space-y-4">
               <div>
-                <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700 mb-1">
-                  WhatsApp Number
+                <label htmlFor="whatsapp" className={label}>
+                  WhatsApp Number<span className="text-red-500 ml-0.5">*</span>
                 </label>
                 <input
                   id="whatsapp"
                   type="tel"
-                  placeholder="+264811234567"
+                  placeholder="+264 81 123 4567"
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B5EA7] focus:border-transparent"
+                  className={`${inputBase} ${focusBrand}`}
                 />
-                <p className="text-xs text-gray-400 mt-1">
+                <p className={helperText}>
                   Customers will WhatsApp you on this number
                 </p>
               </div>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                <label htmlFor="email" className={label}>
+                  Email<span className="text-red-500 ml-0.5">*</span>
                 </label>
                 <input
                   id="email"
@@ -188,14 +200,19 @@ function SignupForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#2B5EA7] focus:border-transparent"
+                  className={`${inputBase} ${focusBrand}`}
                 />
               </div>
-              {error && <p className="text-red-600 text-sm">{error}</p>}
+              {error && (
+                <div className={alertError}>
+                  <AlertCircle className={alertIcon} />
+                  <p>{error}</p>
+                </div>
+              )}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2 bg-[#2B5EA7] text-white rounded-md hover:bg-[#234B86] disabled:opacity-50 font-medium"
+                className={btnPrimaryBrand}
               >
                 {loading ? "Sending code..." : "Get Started — It's Free"}
               </button>
@@ -215,14 +232,19 @@ function SignupForm() {
                   onChange={(e) => setOtp(e.target.value)}
                   required
                   maxLength={6}
-                  className="w-full px-3 py-2 border rounded-md text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-[#2B5EA7] focus:border-transparent"
+                  className={`${inputBase} ${focusBrand} text-center text-2xl tracking-widest`}
                 />
               </div>
-              {error && <p className="text-red-600 text-sm">{error}</p>}
+              {error && (
+                <div className={alertError}>
+                  <AlertCircle className={alertIcon} />
+                  <p>{error}</p>
+                </div>
+              )}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2 bg-[#2B5EA7] text-white rounded-md hover:bg-[#234B86] disabled:opacity-50 font-medium"
+                className={btnPrimaryBrand}
               >
                 {loading ? "Verifying..." : "Create My Store"}
               </button>
@@ -248,7 +270,7 @@ function SignupForm() {
                       if (error) setError(error.message);
                       else startCountdown();
                     }}
-                    className="text-[#2B5EA7] hover:underline"
+                    className="text-[#2B5EA7] hover:underline font-medium"
                   >
                     Resend code
                   </button>
@@ -257,7 +279,7 @@ function SignupForm() {
               <button
                 type="button"
                 onClick={() => { setStep("form"); setOtp(""); setError(""); if (timerRef.current) clearInterval(timerRef.current); }}
-                className="w-full text-sm text-gray-500 hover:text-gray-700"
+                className={btnGhost}
               >
                 Use a different email
               </button>
@@ -268,7 +290,7 @@ function SignupForm() {
         <div className="text-center mt-6 space-y-2">
           <p className="text-sm text-gray-500">
             Already have a store?{" "}
-            <Link href="/login" className="text-[#2B5EA7] hover:underline">
+            <Link href="/login" className="text-[#2B5EA7] hover:underline font-medium">
               Sign in
             </Link>
           </p>

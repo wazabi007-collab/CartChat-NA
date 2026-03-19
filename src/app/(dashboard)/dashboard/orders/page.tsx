@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { formatPrice, whatsappLink } from "@/lib/utils";
 import Link from "next/link";
 import { OrderActions } from "./order-actions";
+import { card, statusColors, statusPill } from "@/lib/ui";
 
 export default async function OrdersPage({
   searchParams,
@@ -41,14 +42,6 @@ export default async function OrdersPage({
 
   const { data: orders } = await query;
 
-  const statusColors: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-800",
-    confirmed: "bg-blue-100 text-blue-800",
-    ready: "bg-indigo-100 text-indigo-800",
-    completed: "bg-green-100 text-green-800",
-    cancelled: "bg-red-100 text-red-800",
-  };
-
   const statuses = ["all", "pending", "confirmed", "ready", "completed", "cancelled"];
 
   return (
@@ -61,7 +54,7 @@ export default async function OrdersPage({
           <Link
             key={s}
             href={s === "all" ? "/dashboard/orders" : `/dashboard/orders?status=${s}`}
-            className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               (s === "all" && !statusFilter) || s === statusFilter
                 ? "bg-green-600 text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -73,9 +66,9 @@ export default async function OrdersPage({
       </div>
 
       {!orders || orders.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-lg border">
+        <div className={`${card} text-center py-16`}>
           <p className="text-gray-500">No orders yet</p>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-gray-400 mt-1.5">
             Share your store link to start receiving orders
           </p>
         </div>
@@ -84,7 +77,7 @@ export default async function OrdersPage({
           {orders.map((order) => (
             <div
               key={order.id}
-              className="bg-white rounded-lg border p-4"
+              className={card}
             >
               <div className="flex items-start justify-between mb-3">
                 <div>
@@ -93,14 +86,14 @@ export default async function OrdersPage({
                       #{order.order_number}
                     </span>
                     <span
-                      className={`text-xs px-2 py-0.5 rounded-full ${
-                        statusColors[order.status]
+                      className={`${statusPill} ${
+                        statusColors[order.status] || ""
                       }`}
                     >
                       {order.status}
                     </span>
                     {order.payment_method && order.payment_method !== "eft" && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                      <span className={`${statusPill} bg-gray-100 text-gray-600`}>
                         {order.payment_method === "cod" ? "COD" : order.payment_method === "momo" ? "MoMo" : order.payment_method === "ewallet" ? "eWallet" : "EFT"}
                       </span>
                     )}
@@ -149,7 +142,7 @@ export default async function OrdersPage({
                     href={order.proof_of_payment_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-green-600 hover:underline"
+                    className="text-green-600 hover:underline font-medium"
                   >
                     View proof
                   </a>
@@ -168,7 +161,7 @@ export default async function OrdersPage({
                 </p>
               )}
 
-              <div className="mt-3 pt-3 border-t flex flex-wrap gap-2">
+              <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-2">
                 <OrderActions
                   orderId={order.id}
                   currentStatus={order.status}
@@ -187,7 +180,7 @@ export default async function OrdersPage({
                   href={`/invoice/${order.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 text-sm bg-gray-50 text-gray-700 rounded-md hover:bg-gray-100"
+                  className="px-3 py-1.5 text-sm font-medium bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   View Invoice
                 </a>
@@ -198,7 +191,7 @@ export default async function OrdersPage({
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1.5 text-sm bg-green-50 text-green-700 rounded-md hover:bg-green-100"
+                  className="px-3 py-1.5 text-sm font-medium bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors"
                 >
                   WhatsApp customer
                 </a>

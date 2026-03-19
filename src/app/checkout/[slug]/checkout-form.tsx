@@ -17,6 +17,25 @@ import { formatPrice, whatsappLink } from "@/lib/utils";
 import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
 import type { CartItem } from "@/components/storefront/cart-provider";
 import type { DeliveryMethod, PaymentMethod } from "@/types/database";
+import {
+  inputBase,
+  textareaBase,
+  selectBase,
+  focusGreen,
+  label,
+  helperText,
+  card,
+  sectionHeading,
+  btnPrimaryGreen,
+  btnSmallGreen,
+  alertError,
+  alertWarning,
+  alertInfo,
+  alertIcon,
+  radioCardBase,
+  radioCardSelected,
+  radioCardUnselected,
+} from "@/lib/ui";
 
 interface DeliverySlots {
   enabled: boolean;
@@ -526,7 +545,7 @@ export function CheckoutForm({
     const waUrl = whatsappLink(whatsappNumber, waMessage);
 
     return (
-      <div className="bg-white rounded-lg border p-6 text-center">
+      <div className={`${card} text-center`}>
         <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
         <h2 className="text-xl font-bold text-gray-900 mt-4">
           Order Confirmed!
@@ -536,7 +555,7 @@ export function CheckoutForm({
           <span className="font-bold text-gray-900">#{orderNumber}</span>
         </p>
         {paymentRef && paymentMethod !== "cod" && (
-          <div className="mt-3 bg-blue-50 rounded-md p-3">
+          <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
             <p className="text-xs text-blue-600 font-medium">Payment Reference</p>
             <p className="text-lg font-bold text-blue-900">{paymentRef}</p>
             <p className="text-xs text-blue-500 mt-1">
@@ -544,7 +563,7 @@ export function CheckoutForm({
             </p>
           </div>
         )}
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-gray-500 mt-3">
           {paymentMethod === "cod"
             ? "Please have cash ready for payment on delivery/pickup."
             : "Please contact the merchant on WhatsApp to confirm your order."}
@@ -555,7 +574,7 @@ export function CheckoutForm({
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-md inline-flex items-center justify-center gap-2 transition-colors"
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg inline-flex items-center justify-center gap-2 transition-colors"
           >
             <MessageCircle className="w-5 h-5" />
             Message {storeName} on WhatsApp
@@ -572,7 +591,7 @@ export function CheckoutForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {/* Back to store */}
       <Link
         href={`/s/${storeSlug}`}
@@ -583,17 +602,17 @@ export function CheckoutForm({
       </Link>
 
       {/* Order Summary */}
-      <div className="bg-white rounded-lg border p-4">
-        <h2 className="font-bold text-gray-900 mb-3">Order Summary</h2>
+      <div className={card}>
+        <h2 className={`${sectionHeading} mb-3`}>Order Summary</h2>
         {cartItems.length === 0 ? (
           <p className="text-gray-500 text-sm">Your cart is empty</p>
         ) : (
           <>
-            <ul className="divide-y">
+            <ul className="divide-y divide-gray-100">
               {cartItems.map((item) => (
                 <li
                   key={item.productId}
-                  className="py-2 flex justify-between text-sm"
+                  className="py-2.5 flex justify-between text-sm"
                 >
                   <span className="text-gray-700">
                     {item.name} x {item.quantity}
@@ -604,7 +623,7 @@ export function CheckoutForm({
                 </li>
               ))}
             </ul>
-            <div className="border-t pt-2 mt-2 space-y-1">
+            <div className="border-t border-gray-100 pt-3 mt-1 space-y-1.5">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="text-gray-900">{formatPrice(subtotal)}</span>
@@ -623,7 +642,7 @@ export function CheckoutForm({
                   <span className="text-gray-900">{formatPrice(deliveryFee)}</span>
                 </div>
               )}
-              <div className="flex justify-between font-bold pt-1 border-t">
+              <div className="flex justify-between font-bold pt-2 border-t border-gray-100">
                 <span>Total</span>
                 <span className="text-green-600">{formatPrice(total)}</span>
               </div>
@@ -633,13 +652,13 @@ export function CheckoutForm({
       </div>
 
       {/* Coupon Code */}
-      <div className="bg-white rounded-lg border p-4 space-y-3">
-        <h2 className="font-bold text-gray-900 flex items-center gap-2">
+      <div className={`${card} space-y-3`}>
+        <h2 className={`${sectionHeading} flex items-center gap-2`}>
           <Tag className="w-4 h-4" />
           Discount Code
         </h2>
         {couponApplied ? (
-          <div className="flex items-center justify-between bg-green-50 rounded-md px-3 py-2">
+          <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2.5">
             <span className="text-sm text-green-700 font-medium">
               {couponApplied.code} applied —{" "}
               {couponApplied.discount_type === "percentage"
@@ -649,7 +668,7 @@ export function CheckoutForm({
             <button
               type="button"
               onClick={handleRemoveCoupon}
-              className="text-green-600 hover:text-red-500"
+              className="text-green-600 hover:text-red-500 transition-colors"
             >
               <X size={16} />
             </button>
@@ -665,13 +684,13 @@ export function CheckoutForm({
               }}
               placeholder="Enter code"
               maxLength={20}
-              className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent uppercase"
+              className={`flex-1 ${inputBase} ${focusGreen} uppercase`}
             />
             <button
               type="button"
               onClick={handleApplyCoupon}
               disabled={applyingCoupon || !couponCode.trim()}
-              className="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 disabled:opacity-50"
+              className={btnSmallGreen}
             >
               {applyingCoupon ? "..." : "Apply"}
             </button>
@@ -683,12 +702,12 @@ export function CheckoutForm({
       </div>
 
       {/* Customer Details */}
-      <div className="bg-white rounded-lg border p-4 space-y-4">
-        <h2 className="font-bold text-gray-900">Your Details</h2>
+      <div className={`${card} space-y-4`}>
+        <h2 className={sectionHeading}>Your Details</h2>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Full Name *
+          <label className={label}>
+            Full Name<span className="text-red-500 ml-0.5">*</span>
           </label>
           <input
             type="text"
@@ -696,14 +715,14 @@ export function CheckoutForm({
             onChange={(e) => setCustomerName(e.target.value)}
             required
             maxLength={100}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className={`${inputBase} ${focusGreen}`}
             placeholder="Your full name"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            WhatsApp Number *
+          <label className={label}>
+            WhatsApp Number<span className="text-red-500 ml-0.5">*</span>
           </label>
           <input
             type="tel"
@@ -711,22 +730,23 @@ export function CheckoutForm({
             onChange={(e) => setCustomerWhatsapp(e.target.value)}
             required
             maxLength={15}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className={`${inputBase} ${focusGreen}`}
             placeholder="+264 81 123 4567"
           />
+          <p className={helperText}>
+            The merchant will contact you on this number
+          </p>
         </div>
       </div>
 
       {/* Delivery Method */}
-      <div className="bg-white rounded-lg border p-4 space-y-4">
-        <h2 className="font-bold text-gray-900">Delivery Method</h2>
+      <div className={`${card} space-y-4`}>
+        <h2 className={sectionHeading}>Delivery Method</h2>
 
         <div className="flex gap-3">
           <label
-            className={`flex-1 border rounded-md p-3 cursor-pointer text-center transition-colors ${
-              deliveryMethod === "pickup"
-                ? "border-green-600 bg-green-50 text-green-700"
-                : "border-gray-300 text-gray-600 hover:border-gray-400"
+            className={`flex-1 ${radioCardBase} ${
+              deliveryMethod === "pickup" ? radioCardSelected : radioCardUnselected
             }`}
           >
             <input
@@ -737,13 +757,11 @@ export function CheckoutForm({
               onChange={() => setDeliveryMethod("pickup")}
               className="sr-only"
             />
-            <span className="font-medium text-sm">Pickup</span>
+            Pickup
           </label>
           <label
-            className={`flex-1 border rounded-md p-3 cursor-pointer text-center transition-colors ${
-              deliveryMethod === "delivery"
-                ? "border-green-600 bg-green-50 text-green-700"
-                : "border-gray-300 text-gray-600 hover:border-gray-400"
+            className={`flex-1 ${radioCardBase} ${
+              deliveryMethod === "delivery" ? radioCardSelected : radioCardUnselected
             }`}
           >
             <input
@@ -754,14 +772,14 @@ export function CheckoutForm({
               onChange={() => setDeliveryMethod("delivery")}
               className="sr-only"
             />
-            <span className="font-medium text-sm">Delivery</span>
+            Delivery
           </label>
         </div>
 
         {deliveryMethod === "delivery" && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Delivery Address *
+            <label className={label}>
+              Delivery Address<span className="text-red-500 ml-0.5">*</span>
             </label>
             <textarea
               value={deliveryAddress}
@@ -769,7 +787,7 @@ export function CheckoutForm({
               required
               maxLength={500}
               rows={3}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+              className={`${textareaBase} ${focusGreen}`}
               placeholder="Enter your full delivery address"
             />
           </div>
@@ -783,14 +801,14 @@ export function CheckoutForm({
               return availableDates.length > 0 ? (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Delivery Date *
+                    <label className={label}>
+                      Delivery Date<span className="text-red-500 ml-0.5">*</span>
                     </label>
                     <select
                       value={deliveryDate}
                       onChange={(e) => setDeliveryDate(e.target.value)}
                       required
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className={`${selectBase} ${focusGreen}`}
                     >
                       <option value="">Select a date...</option>
                       {availableDates.map((d) => (
@@ -802,17 +820,15 @@ export function CheckoutForm({
                   </div>
                   {deliverySlots.times.length > 0 && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Time Slot *
+                      <label className={label}>
+                        Time Slot<span className="text-red-500 ml-0.5">*</span>
                       </label>
                       <div className="grid grid-cols-2 gap-2">
                         {deliverySlots.times.map((slot) => (
                           <label
                             key={slot}
-                            className={`flex items-center justify-center border rounded-md p-2 cursor-pointer text-sm text-center transition-colors ${
-                              deliveryTime === slot
-                                ? "border-green-600 bg-green-50 text-green-700 font-medium"
-                                : "border-gray-300 text-gray-600 hover:border-gray-400"
+                            className={`flex items-center justify-center ${radioCardBase} ${
+                              deliveryTime === slot ? radioCardSelected : radioCardUnselected
                             }`}
                           >
                             <input
@@ -831,16 +847,17 @@ export function CheckoutForm({
                   )}
                 </>
               ) : (
-                <p className="text-sm text-amber-600 bg-amber-50 rounded-md p-3">
-                  No delivery slots available in the next 14 days. Please contact the merchant directly.
-                </p>
+                <div className={alertWarning}>
+                  <AlertCircle className={alertIcon} />
+                  <p>No delivery slots available in the next 14 days. Please contact the merchant directly.</p>
+                </div>
               );
             })()}
           </>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className={label}>
             Notes (optional)
           </label>
           <textarea
@@ -848,15 +865,15 @@ export function CheckoutForm({
             onChange={(e) => setNotes(e.target.value)}
             maxLength={500}
             rows={2}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+            className={`${textareaBase} ${focusGreen}`}
             placeholder="Any special instructions..."
           />
         </div>
       </div>
 
       {/* Payment Method */}
-      <div className="bg-white rounded-lg border p-4 space-y-4">
-        <h2 className="font-bold text-gray-900">Payment Method</h2>
+      <div className={`${card} space-y-4`}>
+        <h2 className={sectionHeading}>Payment Method</h2>
 
         <div className="grid grid-cols-2 gap-2">
           {acceptedPaymentMethods.map((method) => {
@@ -865,10 +882,8 @@ export function CheckoutForm({
             return (
               <label
                 key={method}
-                className={`border rounded-md p-3 cursor-pointer text-center transition-colors ${
-                  paymentMethod === method
-                    ? "border-green-600 bg-green-50 text-green-700"
-                    : "border-gray-300 text-gray-600 hover:border-gray-400"
+                className={`${radioCardBase} ${
+                  paymentMethod === method ? radioCardSelected : radioCardUnselected
                 }`}
               >
                 <input
@@ -880,7 +895,7 @@ export function CheckoutForm({
                   className="sr-only"
                 />
                 <div className="text-lg">{info.icon}</div>
-                <span className="font-medium text-xs block mt-1">{info.label}</span>
+                <span className="text-xs block mt-1">{info.label}</span>
               </label>
             );
           })}
@@ -888,8 +903,8 @@ export function CheckoutForm({
 
         {/* Payment Instructions */}
         {paymentMethod === "eft" && hasBankDetails && (
-          <div className="bg-gray-50 rounded-md p-3 text-sm space-y-1">
-            <p className="font-medium text-gray-900 mb-2">Bank Transfer Details</p>
+          <div className="bg-gray-50 rounded-lg p-3.5 text-sm space-y-1.5">
+            <p className="font-semibold text-gray-900 mb-2">Bank Transfer Details</p>
             <p>
               <span className="text-gray-500">Bank:</span>{" "}
               <span className="font-medium text-gray-900">{bankName}</span>
@@ -911,7 +926,7 @@ export function CheckoutForm({
             <p className="mt-2 text-gray-500">
               Amount: <span className="font-bold text-green-600">{formatPrice(total)}</span>
             </p>
-            <div className="mt-3 bg-blue-50 rounded-md p-3 border border-blue-200">
+            <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
               <p className="text-xs text-blue-600 font-medium">Your Payment Reference</p>
               <p className="text-xl font-bold text-blue-900 tracking-wide">{preRef}</p>
               <p className="text-xs text-blue-500 mt-1">
@@ -922,36 +937,40 @@ export function CheckoutForm({
         )}
 
         {paymentMethod === "cod" && (
-          <div className="bg-amber-50 rounded-md p-3 text-sm text-amber-800">
-            <p className="font-medium">Cash on Delivery</p>
-            <p className="mt-1">
-              Pay <span className="font-bold">{formatPrice(total)}</span> in cash when your order is{" "}
-              {deliveryMethod === "delivery" ? "delivered" : "picked up"}.
-            </p>
+          <div className={alertWarning}>
+            <div>
+              <p className="font-medium">Cash on Delivery</p>
+              <p className="mt-1">
+                Pay <span className="font-bold">{formatPrice(total)}</span> in cash when your order is{" "}
+                {deliveryMethod === "delivery" ? "delivered" : "picked up"}.
+              </p>
+            </div>
           </div>
         )}
 
         {paymentMethod === "momo" && (
-          <div className="bg-blue-50 rounded-md p-3 text-sm text-blue-800 space-y-1">
-            <p className="font-medium">MTC MoMo / Maris Payment</p>
-            {momoNumber ? (
-              <>
-                <p>
-                  Send <span className="font-bold">{formatPrice(total)}</span> to:
-                </p>
-                <p className="font-bold text-lg">{momoNumber}</p>
-                <p className="text-xs mt-1">
-                  Use MTC Money (*133#) or MTC Maris app. Upload proof below.
-                </p>
-              </>
-            ) : (
-              <p>Contact the merchant for their MoMo number.</p>
-            )}
+          <div className={alertInfo}>
+            <div className="space-y-1">
+              <p className="font-medium">MTC MoMo / Maris Payment</p>
+              {momoNumber ? (
+                <>
+                  <p>
+                    Send <span className="font-bold">{formatPrice(total)}</span> to:
+                  </p>
+                  <p className="font-bold text-lg">{momoNumber}</p>
+                  <p className="text-xs mt-1">
+                    Use MTC Money (*133#) or MTC Maris app. Upload proof below.
+                  </p>
+                </>
+              ) : (
+                <p>Contact the merchant for their MoMo number.</p>
+              )}
+            </div>
           </div>
         )}
 
         {paymentMethod === "ewallet" && (
-          <div className="bg-purple-50 rounded-md p-3 text-sm text-purple-800 space-y-1">
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-sm text-purple-800 space-y-1">
             <p className="font-medium">{getEwalletLabel(ewalletProvider)} Payment</p>
             {ewalletNumber ? (
               <>
@@ -970,7 +989,7 @@ export function CheckoutForm({
         )}
 
         {paymentMethod === "pay2cell" && (
-          <div className="bg-teal-50 rounded-md p-3 text-sm text-teal-800 space-y-1">
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 text-sm text-teal-800 space-y-1">
             <p className="font-medium">FNB Pay2Cell Payment</p>
             {pay2cellNumber ? (
               <>
@@ -992,13 +1011,13 @@ export function CheckoutForm({
         {/* Proof of Payment upload (not for COD) */}
         {needsProof && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={label}>
               Proof of Payment (optional)
             </label>
-            <p className="text-xs text-gray-500 mb-2">
+            <p className={`${helperText} mb-2`}>
               Upload a screenshot of your payment confirmation. Max 5MB.
             </p>
-            <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-md p-4 cursor-pointer hover:border-green-500 transition-colors">
+            <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-lg p-4 cursor-pointer hover:border-green-500 transition-colors">
               <Upload className="w-5 h-5 text-gray-400" />
               <span className="text-sm text-gray-600">
                 {proofFile ? proofFile.name : "Choose image..."}
@@ -1016,9 +1035,9 @@ export function CheckoutForm({
 
       {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-3 flex items-start gap-2">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700">{error}</p>
+        <div className={alertError}>
+          <AlertCircle className={alertIcon} />
+          <p>{error}</p>
         </div>
       )}
 
@@ -1026,7 +1045,7 @@ export function CheckoutForm({
       <button
         type="submit"
         disabled={submitting || cartItems.length === 0}
-        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-md transition-colors flex items-center justify-center gap-2"
+        className={`${btnPrimaryGreen} flex items-center justify-center gap-2`}
       >
         {submitting ? (
           <>

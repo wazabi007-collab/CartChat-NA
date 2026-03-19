@@ -6,6 +6,13 @@ import { Package, ShoppingCart, Eye, ArrowRight, AlertTriangle, ShieldAlert, Clo
 import { formatPrice } from "@/lib/utils";
 import { SITE_URL } from "@/lib/constants";
 import { CopyStoreLink } from "./copy-store-link";
+import {
+  card,
+  alertError,
+  alertWarning,
+  alertInfo,
+  alertIcon,
+} from "@/lib/ui";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -87,8 +94,8 @@ export default async function DashboardPage() {
 
       {/* Store status banner */}
       {merchant.store_status === "suspended" && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start gap-3">
-          <ShieldAlert size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+        <div className={`${alertError} mb-6`}>
+          <ShieldAlert size={20} className={alertIcon} />
           <div>
             <h3 className="font-medium text-red-900">Store Suspended</h3>
             <p className="text-sm text-red-800 mt-1">
@@ -101,11 +108,11 @@ export default async function DashboardPage() {
 
       {/* Subscription warning banners */}
       {subscription?.status === "grace" && (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6 flex items-start gap-3">
-          <AlertTriangle size={20} className="text-orange-600 flex-shrink-0 mt-0.5" />
+        <div className={`${alertWarning} mb-6`}>
+          <AlertTriangle size={20} className={alertIcon} />
           <div>
-            <h3 className="font-medium text-orange-900">Subscription Expired</h3>
-            <p className="text-sm text-orange-800 mt-1">
+            <h3 className="font-medium text-amber-900">Subscription Expired</h3>
+            <p className="text-sm text-amber-800 mt-1">
               Your {subscription.trial_ends_at ? "trial" : "subscription"} has ended. You have{" "}
               {subscription.grace_ends_at
                 ? Math.max(0, Math.ceil((new Date(subscription.grace_ends_at).getTime() - now) / 86400000))
@@ -116,8 +123,8 @@ export default async function DashboardPage() {
         </div>
       )}
       {subscription?.status === "soft_suspended" && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start gap-3">
-          <ShieldAlert size={20} className="text-red-600 flex-shrink-0 mt-0.5" />
+        <div className={`${alertError} mb-6`}>
+          <ShieldAlert size={20} className={alertIcon} />
           <div>
             <h3 className="font-medium text-red-900">Store Paused — Subscription Expired</h3>
             <p className="text-sm text-red-800 mt-1">
@@ -133,7 +140,7 @@ export default async function DashboardPage() {
         const daysLeft = Math.ceil((new Date(endDate).getTime() - now) / 86400000);
         if (daysLeft > 7) return null;
         return (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 flex items-start gap-3">
             <Clock size={20} className="text-yellow-600 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-medium text-yellow-900">
@@ -150,8 +157,8 @@ export default async function DashboardPage() {
       })()}
 
       {/* POP Education Banner (TRUST-08) */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
-        <ShieldAlert size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+      <div className={`${alertInfo} mb-6`}>
+        <ShieldAlert size={20} className={alertIcon} />
         <div>
           <h3 className="font-medium text-blue-900">Payment Safety Reminder</h3>
           <p className="text-sm text-blue-800 mt-1">
@@ -192,10 +199,10 @@ export default async function DashboardPage() {
 
       {/* Low stock warning */}
       {lowStockProducts.length > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-8">
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-8">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle size={18} className="text-orange-600" />
-            <h3 className="font-medium text-orange-900">
+            <h3 className="font-semibold text-orange-900">
               {lowStockProducts.length} product{lowStockProducts.length > 1 ? "s" : ""} low on stock
             </h3>
           </div>
@@ -266,10 +273,10 @@ function StatCard({
   href?: string;
 }) {
   const content = (
-    <div className={`bg-white rounded-lg border p-4 ${href ? "hover:shadow-sm hover:border-gray-300 transition-all cursor-pointer" : ""}`}>
+    <div className={`bg-white rounded-xl border border-gray-200 p-4 ${href ? "hover:shadow-sm hover:border-gray-300 transition-all cursor-pointer" : ""}`}>
       <div className="flex items-center gap-2 mb-2">
         {icon}
-        <span className="text-xs text-gray-500">{label}</span>
+        <span className="text-xs text-gray-500 font-medium">{label}</span>
       </div>
       <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate" title={value}>{value}</p>
     </div>
@@ -301,7 +308,7 @@ function QuickAction({
     <Link
       href={href}
       target={external ? "_blank" : undefined}
-      className={`flex items-center justify-between p-4 rounded-lg border ${colors[variant]} hover:shadow-sm transition-shadow`}
+      className={`flex items-center justify-between p-4 rounded-xl border ${colors[variant]} hover:shadow-sm transition-shadow`}
     >
       <div>
         <p className="font-medium text-gray-900">{title}</p>

@@ -54,7 +54,7 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
       <aside className="hidden md:flex md:w-56 md:flex-col md:fixed md:inset-y-0 bg-gray-900 text-white">
         <div className="flex flex-col flex-1 overflow-y-auto">
           <div className="p-4 border-b border-gray-700">
-            <Image src="/logo.svg" alt="OshiCart" width={120} height={32} className="invert" />
+            <Image src="/oshicart-logo.png" alt="OshiCart" width={120} height={32} className="brightness-0 invert" />
             <p className="text-xs text-red-400 font-medium mt-1">Admin Panel</p>
           </div>
           <nav className="flex-1 p-2 space-y-1">
@@ -101,7 +101,7 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
       {/* Mobile header */}
       <div className="md:hidden bg-gray-900 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-2">
-          <Image src="/logo.svg" alt="OshiCart" width={100} height={26} className="invert" />
+          <Image src="/oshicart-logo.png" alt="OshiCart" width={100} height={26} className="brightness-0 invert" />
           <span className="text-xs text-red-400 font-medium">Admin</span>
         </div>
         <button

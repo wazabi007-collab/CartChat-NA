@@ -61,7 +61,7 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier }: NavProps
         <div className="flex flex-col flex-1 overflow-y-auto">
           <div className="p-4 border-b">
             <Link href="/dashboard">
-              <Image src="/logo.svg" alt="OshiCart" width={120} height={32} />
+              <Image src="/oshicart-logo.png" alt="OshiCart" width={120} height={32} />
             </Link>
             {merchant && (
               <p className="text-xs text-gray-500 truncate">
@@ -106,7 +106,7 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier }: NavProps
       {/* Mobile header */}
       <div className="md:hidden bg-white border-b px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <Link href="/dashboard">
-          <Image src="/logo.svg" alt="OshiCart" width={100} height={26} />
+          <Image src="/oshicart-logo.png" alt="OshiCart" width={100} height={26} />
         </Link>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}

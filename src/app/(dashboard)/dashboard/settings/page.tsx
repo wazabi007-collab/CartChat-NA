@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { BANKS_NAMIBIA, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
+import { BANKS_NAMIBIA, BANK_BRANCH_CODES, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { normalizeNamibianPhone } from "@/lib/utils";
 import Image from "next/image";
@@ -341,7 +341,10 @@ export default function SettingsPage() {
             <select
               value={form.bank_name}
               onChange={(e) =>
-                setForm((p) => ({ ...p, bank_name: e.target.value }))
+                setForm((p) => {
+                  const branchCode = BANK_BRANCH_CODES[e.target.value];
+                  return { ...p, bank_name: e.target.value, ...(branchCode ? { bank_branch_code: branchCode } : {}) };
+                })
               }
               className={`${selectBase} ${focusGreen}`}
             >

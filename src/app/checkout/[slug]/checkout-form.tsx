@@ -193,6 +193,7 @@ export function CheckoutForm({
     }
     setError(null);
     setProofFile(file);
+    track("proof_uploaded", { merchant_id: merchantId, file_size: file.size });
   };
 
   const handleApplyCoupon = async () => {
@@ -244,6 +245,7 @@ export function CheckoutForm({
       discount_type: data.discount_type as "percentage" | "fixed",
       discount_value: data.discount_value,
     });
+    track("coupon_applied", { merchant_id: merchantId, code: data.code, discount_type: data.discount_type });
     setApplyingCoupon(false);
   };
 
@@ -1036,21 +1038,26 @@ export function CheckoutForm({
         </div>
       )}
 
-      {/* Submit */}
-      <button
-        type="submit"
-        disabled={submitting || cartItems.length === 0}
-        className={`${btnPrimaryGreen} flex items-center justify-center gap-2`}
-      >
-        {submitting ? (
-          <>
-            <Loader2 className="w-5 h-5 animate-spin" />
-            Placing Order...
-          </>
-        ) : (
-          "Place Order"
-        )}
-      </button>
+      {/* Submit — sticky on mobile for easy reach */}
+      <div className="sticky bottom-0 bg-gray-50 pt-3 pb-safe md:static md:bg-transparent md:pt-0">
+        <p className="text-xs text-center text-gray-400 mb-2 md:hidden">
+          Secure order — your info stays between you and {storeName}
+        </p>
+        <button
+          type="submit"
+          disabled={submitting || cartItems.length === 0}
+          className={`${btnPrimaryGreen} flex items-center justify-center gap-2`}
+        >
+          {submitting ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Placing Order...
+            </>
+          ) : (
+            "Place Order"
+          )}
+        </button>
+      </div>
     </form>
   );
 }

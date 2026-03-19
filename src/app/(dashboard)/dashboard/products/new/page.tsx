@@ -10,6 +10,7 @@ import { toCents, cn } from "@/lib/utils";
 import { canAddProduct, hasTierFeature, TIER_LIMITS, TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
 import { ArrowLeft, Upload, X, Loader2, Lock } from "lucide-react";
 import { MAX_IMAGE_SIZE } from "@/lib/constants";
+import { track } from "@/lib/track";
 
 interface Category {
   id: string;
@@ -241,6 +242,7 @@ export default function NewProductPage() {
         throw new Error(`Save product: ${insertError.message}`);
       }
 
+      track("product_created", { item_type: itemType, has_images: imageUrls.length > 0, category: categoryId || "none" });
       router.push("/dashboard/products");
       router.refresh();
     } catch (err) {

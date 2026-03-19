@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify, normalizeNamibianPhone } from "@/lib/utils";
-import { BANKS_NAMIBIA, INDUSTRIES_NAMIBIA, PAYMENT_METHODS } from "@/lib/constants";
+import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, PAYMENT_METHODS } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { track } from "@/lib/track";
 import { Store, ArrowRight, Check, AlertCircle } from "lucide-react";
@@ -531,7 +531,11 @@ function StoreSetupForm() {
                   <p className="text-sm font-medium text-gray-700">Bank Details for EFT</p>
                   <select
                     value={form.bank_name}
-                    onChange={(e) => update("bank_name", e.target.value)}
+                    onChange={(e) => {
+                      update("bank_name", e.target.value);
+                      const branchCode = BANK_BRANCH_CODES[e.target.value];
+                      if (branchCode) update("bank_branch_code", branchCode);
+                    }}
                     className={`${selectBase} ${focusGreen}`}
                   >
                     <option value="">Select bank...</option>

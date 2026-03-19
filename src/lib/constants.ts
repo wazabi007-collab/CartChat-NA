@@ -20,6 +20,16 @@ export const BANKS_NAMIBIA = [
   "Other",
 ] as const;
 
+/** Known branch codes for Namibian banks — auto-populate on bank selection */
+export const BANK_BRANCH_CODES: Record<string, string> = {
+  "FNB Namibia": "282-672",
+  "Bank Windhoek": "483-872",
+  "Standard Bank Namibia": "082-672",
+  "Nedbank Namibia": "461-089",
+  "Letshego": "",
+  "Other": "",
+};
+
 export const PAYMENT_METHODS = [
   { value: "eft", label: "Bank Transfer (EFT)", icon: "🏦" },
   { value: "cod", label: "Cash on Delivery", icon: "💵" },

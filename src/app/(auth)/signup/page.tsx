@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { normalizeNamibianPhone } from "@/lib/utils";
@@ -34,17 +34,30 @@ function SignupForm() {
   const tierParam = searchParams.get("tier");
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"form" | "otp">("form");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [countdown, setCountdown] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const otpRef = useRef<HTMLInputElement>(null);
+  const emailCheckRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (emailCheckRef.current) clearTimeout(emailCheckRef.current);
+    };
   }, []);
+
+  // Auto-focus OTP input when step changes
+  useEffect(() => {
+    if (step === "otp") {
+      setTimeout(() => otpRef.current?.focus(), 50);
+    }
+  }, [step]);
 
   // If already logged in with tier param, redirect to checkout or setup
   useEffect(() => {
@@ -66,6 +79,28 @@ function SignupForm() {
     checkUser();
   }, [tierParam, supabase]);
 
+  // Inline email duplicate check (debounced)
+  const checkEmailExists = useCallback((emailValue: string) => {
+    if (emailCheckRef.current) clearTimeout(emailCheckRef.current);
+    setEmailError("");
+    if (!emailValue || !emailValue.includes("@")) return;
+    emailCheckRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/check-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: emailValue }),
+        });
+        const { exists } = await res.json();
+        if (exists) {
+          setEmailError("Account exists — sign in instead");
+        }
+      } catch {
+        // Silent fail
+      }
+    }, 600);
+  }, []);
+
   function startCountdown() {
     setCountdown(300);
     if (timerRef.current) clearInterval(timerRef.current);
@@ -79,11 +114,12 @@ function SignupForm() {
 
   async function handleSendOTP(e: React.FormEvent) {
     e.preventDefault();
+    if (emailError) return;
     setLoading(true);
     setError("");
     track("signup_started", { method: "email" });
 
-    // Check if account already exists
+    // Check if account already exists (safety net)
     const checkRes = await fetch("/api/check-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -117,8 +153,8 @@ function SignupForm() {
     }
   }
 
-  async function handleVerifyOTP(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleVerifyOTP(e?: React.FormEvent) {
+    e?.preventDefault();
     setLoading(true);
     setError("");
 
@@ -148,6 +184,18 @@ function SignupForm() {
       window.location.href = tierParam ? `/pricing/checkout?tier=${tierParam}` : "/dashboard";
     } else {
       window.location.href = tierParam ? `/dashboard/setup?tier=${tierParam}` : "/dashboard/setup";
+    }
+  }
+
+  // OTP auto-submit when 6 digits entered
+  function handleOtpChange(value: string) {
+    const cleaned = value.replace(/\D/g, "").slice(0, 6);
+    setOtp(cleaned);
+    if (cleaned.length === 6) {
+      setTimeout(() => {
+        setOtp(cleaned);
+        handleVerifyOTP();
+      }, 150);
     }
   }
 
@@ -194,10 +242,22 @@ function SignupForm() {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailError("");
+                  }}
+                  onBlur={(e) => checkEmailExists(e.target.value)}
                   required
-                  className={`${inputBase} ${focusBrand}`}
+                  className={`${inputBase} ${focusBrand} ${emailError ? "border-red-300" : ""}`}
                 />
+                {emailError && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {emailError}{" "}
+                    <Link href="/login" className="text-[#2B5EA7] hover:underline font-medium">
+                      Sign in →
+                    </Link>
+                  </p>
+                )}
               </div>
               {error && (
                 <div className={alertError}>
@@ -207,7 +267,7 @@ function SignupForm() {
               )}
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !!emailError}
                 className={btnPrimaryBrand}
               >
                 {loading ? "Sending code..." : "Get Started — It's Free"}
@@ -221,11 +281,13 @@ function SignupForm() {
               </p>
               <div>
                 <input
+                  ref={otpRef}
                   type="text"
                   inputMode="numeric"
+                  autoComplete="one-time-code"
                   placeholder="123456"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
+                  onChange={(e) => handleOtpChange(e.target.value)}
                   required
                   maxLength={6}
                   className={`${inputBase} ${focusBrand} text-center text-2xl tracking-widest`}

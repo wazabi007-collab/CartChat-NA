@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { getOrderMessage, type NotifiableStatus } from "@/lib/industry";
 import { whatsappLink } from "@/lib/utils";
+import { track } from "@/lib/track";
+import { AlertTriangle } from "lucide-react";
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
   pending: ["confirmed", "cancelled"],
@@ -12,6 +14,13 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
   ready: ["completed", "cancelled"],
   completed: [],
   cancelled: [],
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  confirmed: "Confirm",
+  ready: "Mark Ready",
+  completed: "Mark Completed",
+  cancelled: "Cancel",
 };
 
 interface OrderActionsProps {
@@ -45,6 +54,7 @@ export function OrderActions({
 }: OrderActionsProps) {
   const [loading, setLoading] = useState(false);
   const [notifyStatus, setNotifyStatus] = useState<NotifiableStatus | null>(null);
+  const [confirmAction, setConfirmAction] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
 
@@ -54,7 +64,10 @@ export function OrderActions({
       return;
     }
 
+    setConfirmAction(null);
     setLoading(true);
+    track("order_status_changed", { order_id: orderId, from_status: currentStatus, to_status: newStatus, order_number: orderNumber });
+
     // Use append_order_status RPC to atomically update status + append history
     const { error } = await supabase.rpc("append_order_status", {
       p_order_id: orderId,
@@ -144,6 +157,41 @@ export function OrderActions({
     return <span className="text-sm text-gray-400">Updating...</span>;
   }
 
+  // Confirmation dialog
+  if (confirmAction) {
+    const isDestructive = confirmAction === "cancelled";
+    return (
+      <div className="flex flex-col gap-2 bg-gray-50 rounded-lg p-3 border border-gray-200">
+        <div className="flex items-start gap-2">
+          <AlertTriangle size={16} className={isDestructive ? "text-red-500 mt-0.5" : "text-amber-500 mt-0.5"} />
+          <p className="text-sm text-gray-700">
+            {isDestructive
+              ? `Cancel order #${orderNumber}? This cannot be undone.`
+              : `${STATUS_LABELS[confirmAction]} order #${orderNumber}?`}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => updateStatus(confirmAction)}
+            className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+              isDestructive
+                ? "bg-red-600 text-white hover:bg-red-700"
+                : "bg-green-600 text-white hover:bg-green-700"
+            }`}
+          >
+            Yes, {STATUS_LABELS[confirmAction].toLowerCase()}
+          </button>
+          <button
+            onClick={() => setConfirmAction(null)}
+            className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            No, go back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (notifyStatus) {
     const message = getOrderMessage(merchantIndustry, notifyStatus, {
       customerName,
@@ -159,7 +207,7 @@ export function OrderActions({
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
           onClick={() => {
             setTimeout(() => {
               setNotifyStatus(null);
@@ -200,32 +248,32 @@ export function OrderActions({
     <>
       {validNext.includes("confirmed") && (
         <button
-          onClick={() => updateStatus("confirmed")}
-          className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          onClick={() => setConfirmAction("confirmed")}
+          className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           Confirm
         </button>
       )}
       {validNext.includes("ready") && (
         <button
-          onClick={() => updateStatus("ready")}
-          className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          onClick={() => setConfirmAction("ready")}
+          className="px-3 py-1.5 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
         >
           Mark Ready
         </button>
       )}
       {validNext.includes("completed") && (
         <button
-          onClick={() => updateStatus("completed")}
-          className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+          onClick={() => setConfirmAction("completed")}
+          className="px-3 py-1.5 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
         >
           Mark Completed
         </button>
       )}
       {validNext.includes("cancelled") && (
         <button
-          onClick={() => updateStatus("cancelled")}
-          className="px-3 py-1.5 text-sm bg-red-50 text-red-600 rounded-md hover:bg-red-100"
+          onClick={() => setConfirmAction("cancelled")}
+          className="px-3 py-1.5 text-sm font-medium bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
         >
           Cancel
         </button>

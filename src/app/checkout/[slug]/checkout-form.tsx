@@ -14,9 +14,11 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice, whatsappLink } from "@/lib/utils";
+import { track } from "@/lib/track";
 import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
 import type { CartItem } from "@/components/storefront/cart-provider";
 import type { DeliveryMethod, PaymentMethod } from "@/types/database";
+import { PhoneInput } from "@/components/phone-input";
 import {
   inputBase,
   textareaBase,
@@ -281,6 +283,7 @@ export function CheckoutForm({
     }
 
     setSubmitting(true);
+    track("checkout_submitted", { merchant_id: merchantId, item_count: cartItems.length, total_nad: total, payment_method: paymentMethod });
 
     try {
       // Re-validate prices before submitting
@@ -502,6 +505,7 @@ export function CheckoutForm({
       setOrderId(order.order_id);
       setOrderNumber(order.order_number);
       setPaymentRef(order.payment_reference);
+      track("checkout_completed", { merchant_id: merchantId, order_number: order.order_number, total_nad: total, payment_method: paymentMethod });
       setStep("success");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -720,23 +724,14 @@ export function CheckoutForm({
           />
         </div>
 
-        <div>
-          <label className={label}>
-            WhatsApp Number<span className="text-red-500 ml-0.5">*</span>
-          </label>
-          <input
-            type="tel"
-            value={customerWhatsapp}
-            onChange={(e) => setCustomerWhatsapp(e.target.value)}
-            required
-            maxLength={15}
-            className={`${inputBase} ${focusGreen}`}
-            placeholder="+264 81 123 4567"
-          />
-          <p className={helperText}>
-            The merchant will contact you on this number
-          </p>
-        </div>
+        <PhoneInput
+          id="customer-whatsapp"
+          value={customerWhatsapp}
+          onChange={setCustomerWhatsapp}
+          required
+          variant="green"
+          hint="The merchant will contact you on this number"
+        />
       </div>
 
       {/* Delivery Method */}

@@ -4,15 +4,16 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { normalizeNamibianPhone } from "@/lib/utils";
+import { track } from "@/lib/track";
 import Link from "next/link";
 import { PublicNavbar } from "@/components/public-navbar";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
+import { PhoneInput } from "@/components/phone-input";
 import { AlertCircle } from "lucide-react";
 import {
   inputBase,
   focusBrand,
   label,
-  helperText,
   card,
   btnPrimaryBrand,
   btnGhost,
@@ -80,6 +81,7 @@ function SignupForm() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    track("signup_started", { method: "email" });
 
     // Check if account already exists
     const checkRes = await fetch("/api/check-email", {
@@ -108,6 +110,7 @@ function SignupForm() {
       setError(error.message);
       setLoading(false);
     } else {
+      track("signup_otp_sent", { method: "email" });
       setStep("otp");
       setLoading(false);
       startCountdown();
@@ -138,6 +141,8 @@ function SignupForm() {
       .select("id")
       .eq("user_id", verifiedUser!.id)
       .single();
+
+    track("signup_completed", { method: "email", had_merchant: !!merchant });
 
     if (merchant) {
       window.location.href = tierParam ? `/pricing/checkout?tier=${tierParam}` : "/dashboard";
@@ -172,23 +177,14 @@ function SignupForm() {
 
           {step === "form" ? (
             <form onSubmit={handleSendOTP} className="space-y-4">
-              <div>
-                <label htmlFor="whatsapp" className={label}>
-                  WhatsApp Number<span className="text-red-500 ml-0.5">*</span>
-                </label>
-                <input
-                  id="whatsapp"
-                  type="tel"
-                  placeholder="+264 81 123 4567"
-                  value={whatsapp}
-                  onChange={(e) => setWhatsapp(e.target.value)}
-                  required
-                  className={`${inputBase} ${focusBrand}`}
-                />
-                <p className={helperText}>
-                  Customers will WhatsApp you on this number
-                </p>
-              </div>
+              <PhoneInput
+                id="whatsapp"
+                value={whatsapp}
+                onChange={setWhatsapp}
+                required
+                variant="brand"
+                hint="Customers will WhatsApp you on this number"
+              />
               <div>
                 <label htmlFor="email" className={label}>
                   Email<span className="text-red-500 ml-0.5">*</span>

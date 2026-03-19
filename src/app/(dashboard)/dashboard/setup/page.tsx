@@ -6,13 +6,68 @@ import { createClient } from "@/lib/supabase/client";
 import { slugify, normalizeNamibianPhone } from "@/lib/utils";
 import { BANKS_NAMIBIA, INDUSTRIES_NAMIBIA, PAYMENT_METHODS } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
-import { Store, ArrowRight, Check } from "lucide-react";
+import { track } from "@/lib/track";
+import { Store, ArrowRight, Check, AlertCircle } from "lucide-react";
+import { PhoneInput } from "@/components/phone-input";
+import {
+  inputBase,
+  textareaBase,
+  selectBase,
+  focusGreen,
+  label,
+  helperText,
+  card,
+  sectionHeading,
+  btnPrimaryGreen,
+  alertError,
+  alertIcon,
+} from "@/lib/ui";
 
 export default function StoreSetupPage() {
   return (
     <Suspense>
       <StoreSetupForm />
     </Suspense>
+  );
+}
+
+/** Visual step progress bar */
+function StepProgress({ current, total }: { current: number; total: number }) {
+  const steps = [
+    { num: 1, label: "Store Info" },
+    { num: 2, label: "Delivery" },
+    { num: 3, label: "Payments" },
+  ];
+  return (
+    <div className="flex items-center justify-between mb-6 max-w-xs mx-auto">
+      {steps.slice(0, total).map((s, i) => (
+        <div key={s.num} className="flex items-center">
+          <div className="flex flex-col items-center">
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                s.num < current
+                  ? "bg-green-600 text-white"
+                  : s.num === current
+                  ? "bg-green-600 text-white ring-4 ring-green-100"
+                  : "bg-gray-200 text-gray-500"
+              }`}
+            >
+              {s.num < current ? <Check size={14} /> : s.num}
+            </div>
+            <span className={`text-xs mt-1 ${s.num <= current ? "text-green-700 font-medium" : "text-gray-400"}`}>
+              {s.label}
+            </span>
+          </div>
+          {i < steps.length - 1 && (
+            <div
+              className={`w-12 h-0.5 mx-1 mt-[-14px] ${
+                s.num < current ? "bg-green-600" : "bg-gray-200"
+              }`}
+            />
+          )}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -72,6 +127,12 @@ function StoreSetupForm() {
     } catch {
       setWhatsappStatus("idle");
     }
+  }
+
+  function goToStep(next: number) {
+    setError("");
+    track("onboarding_step_completed", { step_index: step, step_label: step === 1 ? "store_info" : step === 2 ? "delivery" : "payments" });
+    setStep(next);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -177,6 +238,8 @@ function StoreSetupForm() {
       }),
     }).catch(() => {});
 
+    track("onboarding_completed", { industry: form.industry, payment_methods: selectedMethods.join(",") });
+
     if (tierParam) {
       router.push(`/pricing/checkout?tier=${tierParam}`);
     } else {
@@ -185,26 +248,44 @@ function StoreSetupForm() {
     router.refresh();
   }
 
+  const whatsappStatusNode = (() => {
+    if (whatsappStatus === "checking") return <p className="text-xs text-gray-400">Checking number...</p>;
+    if (whatsappStatus === "blocked") return (
+      <div>
+        <p className="text-xs text-red-600">
+          This WhatsApp number is already linked to a store. Please subscribe to continue.
+        </p>
+        <a href="/pricing" className="text-xs text-[#2B5EA7] hover:underline font-medium">
+          View Plans →
+        </a>
+      </div>
+    );
+    if (whatsappStatus === "warning") return <p className="text-xs text-amber-600">This number is already linked to another store.</p>;
+    return undefined;
+  })();
+
   return (
     <div className="md:ml-56 max-w-lg mx-auto">
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mb-3">
           <Store className="text-green-600" size={24} />
         </div>
         <h1 className="text-2xl font-bold text-gray-900">Set up your store</h1>
         <p className="text-gray-500 text-sm mt-1">
-          Step {step} of 3 — takes under 2 minutes
+          Takes under 2 minutes
         </p>
       </div>
 
+      <StepProgress current={step} total={3} />
+
       <form onSubmit={handleSubmit}>
-        <div className="bg-white rounded-lg border shadow-sm p-6 space-y-4">
+        <div className={`${card} space-y-4`}>
           {step === 1 && (
             <>
-              <h2 className="font-medium text-gray-900">Store Details</h2>
+              <h2 className={sectionHeading}>Store Details</h2>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Store Name *
+                <label className={label}>
+                  Store Name<span className="text-red-500 ml-0.5">*</span>
                 </label>
                 <input
                   type="text"
@@ -212,17 +293,17 @@ function StoreSetupForm() {
                   onChange={(e) => update("store_name", e.target.value)}
                   placeholder="e.g. Mama's Kitchen"
                   required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className={`${inputBase} ${focusGreen}`}
                 />
                 {form.store_name && (
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className={helperText}>
                     Your store link: oshicart.com/s/
                     {slugify(form.store_name) || "..."}
                   </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={label}>
                   Description
                 </label>
                 <textarea
@@ -230,56 +311,31 @@ function StoreSetupForm() {
                   onChange={(e) => update("description", e.target.value)}
                   placeholder="What do you sell?"
                   rows={2}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className={`${textareaBase} ${focusGreen}`}
                 />
               </div>
+              <PhoneInput
+                id="setup-whatsapp"
+                value={form.whatsapp_number}
+                onChange={(val) => {
+                  update("whatsapp_number", val);
+                  if (whatsappStatus !== "idle") setWhatsappStatus("idle");
+                }}
+                onBlur={checkWhatsapp}
+                required
+                variant="green"
+                hint="Customers will contact you on this number"
+                status={whatsappStatusNode}
+              />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  WhatsApp Number *
-                </label>
-                <input
-                  type="tel"
-                  value={form.whatsapp_number}
-                  onChange={(e) => {
-                    update("whatsapp_number", e.target.value);
-                    if (whatsappStatus !== "idle") setWhatsappStatus("idle");
-                  }}
-                  onBlur={(e) => checkWhatsapp(e.target.value)}
-                  placeholder="+264811234567"
-                  required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-                {whatsappStatus === "checking" && (
-                  <p className="text-xs text-gray-400 mt-1">Checking number...</p>
-                )}
-                {whatsappStatus === "blocked" && (
-                  <div className="mt-1">
-                    <p className="text-xs text-red-600">
-                      This WhatsApp number is already linked to a store. Please subscribe to continue.
-                    </p>
-                    <a
-                      href="/pricing"
-                      className="text-xs text-[#2B5EA7] hover:underline font-medium"
-                    >
-                      View Plans →
-                    </a>
-                  </div>
-                )}
-                {whatsappStatus === "warning" && (
-                  <p className="text-xs text-amber-600 mt-1">
-                    This number is already linked to another store.
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Industry *
+                <label className={label}>
+                  Industry<span className="text-red-500 ml-0.5">*</span>
                 </label>
                 <select
                   value={form.industry}
                   onChange={(e) => update("industry", e.target.value)}
                   required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className={`${selectBase} ${focusGreen}`}
                 >
                   <option value="">What do you sell?</option>
                   {INDUSTRIES_NAMIBIA.map((ind) => (
@@ -288,10 +344,18 @@ function StoreSetupForm() {
                     </option>
                   ))}
                 </select>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className={helperText}>
                   Helps us personalise your store experience
                 </p>
               </div>
+
+              {error && (
+                <div className={alertError}>
+                  <AlertCircle className={alertIcon} />
+                  <p>{error}</p>
+                </div>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
@@ -307,10 +371,9 @@ function StoreSetupForm() {
                     setError("This WhatsApp number is already linked to a store. Please subscribe to continue.");
                     return;
                   }
-                  setError("");
-                  setStep(2);
+                  goToStep(2);
                 }}
-                className="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium flex items-center justify-center gap-2"
+                className={`${btnPrimaryGreen} flex items-center justify-center gap-2`}
               >
                 Next: Delivery Options <ArrowRight size={16} />
               </button>
@@ -319,10 +382,8 @@ function StoreSetupForm() {
 
           {step === 2 && (
             <>
-              <h2 className="font-medium text-gray-900">
-                Delivery & Pickup
-              </h2>
-              <p className="text-xs text-gray-400 -mt-2">
+              <h2 className={sectionHeading}>Delivery & Pickup</h2>
+              <p className={helperText + " !mt-0"}>
                 How will customers receive their orders?
               </p>
 
@@ -346,15 +407,13 @@ function StoreSetupForm() {
 
                 {offersPickup && (
                   <div className="ml-7">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Pickup Address
-                    </label>
+                    <label className={label}>Pickup Address</label>
                     <textarea
                       value={form.pickup_address}
                       onChange={(e) => update("pickup_address", e.target.value)}
                       placeholder="e.g. Shop 5, Wernhil Park, Windhoek"
                       rows={2}
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm resize-none"
+                      className={`${textareaBase} ${focusGreen}`}
                     />
                   </div>
                 )}
@@ -378,9 +437,7 @@ function StoreSetupForm() {
 
                 {offersDelivery && (
                   <div className="ml-7">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Delivery Fee (NAD)
-                    </label>
+                    <label className={label}>Delivery Fee (NAD)</label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">N$</span>
                       <input
@@ -390,10 +447,10 @@ function StoreSetupForm() {
                         value={form.delivery_fee_display}
                         onChange={(e) => update("delivery_fee_display", e.target.value)}
                         placeholder="0.00"
-                        className="w-full pl-9 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                        className={`${inputBase} ${focusGreen} pl-9`}
                       />
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">Set to 0 for free delivery</p>
+                    <p className={helperText}>Set to 0 for free delivery</p>
                   </div>
                 )}
               </div>
@@ -402,11 +459,18 @@ function StoreSetupForm() {
                 <p className="text-red-500 text-xs">Please select at least one option</p>
               )}
 
+              {error && (
+                <div className={alertError}>
+                  <AlertCircle className={alertIcon} />
+                  <p>{error}</p>
+                </div>
+              )}
+
               <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => setStep(1)}
-                  className="flex-1 py-2 border rounded-md text-gray-600 hover:bg-gray-50"
+                  onClick={() => { setError(""); setStep(1); }}
+                  className="flex-1 py-2.5 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 font-medium transition-colors"
                 >
                   Back
                 </button>
@@ -415,9 +479,9 @@ function StoreSetupForm() {
                   disabled={!offersPickup && !offersDelivery}
                   onClick={() => {
                     if (!offersPickup && !offersDelivery) return;
-                    setStep(3);
+                    goToStep(3);
                   }}
-                  className="flex-1 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+                  className={`flex-1 ${btnPrimaryGreen} flex items-center justify-center gap-2`}
                 >
                   Next: Payment Methods <ArrowRight size={16} />
                 </button>
@@ -427,10 +491,8 @@ function StoreSetupForm() {
 
           {step === 3 && (
             <>
-              <h2 className="font-medium text-gray-900">
-                How would you like to get paid?
-              </h2>
-              <p className="text-xs text-gray-400 -mt-2">
+              <h2 className={sectionHeading}>How would you like to get paid?</h2>
+              <p className={helperText + " !mt-0"}>
                 Select the payment methods your customers can use. You can change these later in Settings.
               </p>
 
@@ -470,7 +532,7 @@ function StoreSetupForm() {
                   <select
                     value={form.bank_name}
                     onChange={(e) => update("bank_name", e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={`${selectBase} ${focusGreen}`}
                   >
                     <option value="">Select bank...</option>
                     {BANKS_NAMIBIA.map((bank) => (
@@ -482,21 +544,21 @@ function StoreSetupForm() {
                     value={form.bank_account_holder}
                     onChange={(e) => update("bank_account_holder", e.target.value)}
                     placeholder="Account holder name"
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={`${inputBase} ${focusGreen}`}
                   />
                   <input
                     type="text"
                     value={form.bank_account_number}
                     onChange={(e) => update("bank_account_number", e.target.value)}
                     placeholder="Account number"
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={`${inputBase} ${focusGreen}`}
                   />
                   <input
                     type="text"
                     value={form.bank_branch_code}
                     onChange={(e) => update("bank_branch_code", e.target.value)}
                     placeholder="Branch code"
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className={`${inputBase} ${focusGreen}`}
                   />
                 </div>
               )}
@@ -504,13 +566,12 @@ function StoreSetupForm() {
               {/* MoMo number — shown if MoMo selected */}
               {selectedMethods.includes("momo") && (
                 <div className="border-t pt-3">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">MoMo Number</label>
-                  <input
-                    type="tel"
+                  <PhoneInput
+                    id="momo-number"
+                    labelText="MoMo Number"
                     value={form.momo_number}
-                    onChange={(e) => update("momo_number", e.target.value)}
-                    placeholder="+264 81 123 4567"
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    onChange={(val) => update("momo_number", val)}
+                    variant="green"
                   />
                 </div>
               )}
@@ -518,29 +579,35 @@ function StoreSetupForm() {
               {/* Pay2Cell number — shown if Pay2Cell selected */}
               {selectedMethods.includes("pay2cell") && (
                 <div className="border-t pt-3">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">FNB Pay2Cell Number</label>
-                  <input
-                    type="tel"
+                  <PhoneInput
+                    id="pay2cell-number"
+                    labelText="FNB Pay2Cell Number"
                     value={form.pay2cell_number}
-                    onChange={(e) => update("pay2cell_number", e.target.value)}
-                    placeholder="+264 81 123 4567"
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    onChange={(val) => update("pay2cell_number", val)}
+                    variant="green"
                   />
+                </div>
+              )}
+
+              {error && (
+                <div className={alertError}>
+                  <AlertCircle className={alertIcon} />
+                  <p>{error}</p>
                 </div>
               )}
 
               <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => setStep(2)}
-                  className="flex-1 py-2 border rounded-md text-gray-600 hover:bg-gray-50"
+                  onClick={() => { setError(""); setStep(2); }}
+                  className="flex-1 py-2.5 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 font-medium transition-colors"
                 >
                   Back
                 </button>
                 <button
                   type="submit"
                   disabled={loading || selectedMethods.length === 0}
-                  className="flex-1 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 font-medium flex items-center justify-center gap-2"
+                  className={`flex-1 ${btnPrimaryGreen} flex items-center justify-center gap-2`}
                 >
                   {loading ? (
                     "Creating..."
@@ -553,8 +620,6 @@ function StoreSetupForm() {
               </div>
             </>
           )}
-
-          {error && <p className="text-red-600 text-sm">{error}</p>}
         </div>
       </form>
     </div>

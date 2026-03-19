@@ -138,7 +138,12 @@ export function OrderActions({
       }).catch(() => {});
     }
 
+    // WhatsApp Business API already sent the notification above.
+    // Only show manual "Notify customer" fallback if API is disabled.
+    const waEnabled = await fetch("/api/whatsapp/status").then(r => r.json()).catch(() => ({ enabled: false }));
+
     if (
+      !waEnabled.enabled &&
       (newStatus === "confirmed" || newStatus === "completed" || newStatus === "cancelled") &&
       customerWhatsapp
     ) {

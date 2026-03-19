@@ -4,8 +4,10 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { TIER_LIMITS, TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
 import { SITE_NAME } from "@/lib/constants";
-import { Check, ArrowLeft, MessageCircle } from "lucide-react";
+import { isDpoEnabled } from "@/lib/dpo";
+import { Check, ArrowLeft, MessageCircle, CreditCard } from "lucide-react";
 import { CopyButton } from "./copy-button";
+import { DpoPayButton } from "./dpo-pay-button";
 
 const VALID_TIERS: SubscriptionTier[] = ["oshi_basic", "oshi_grow", "oshi_pro"];
 
@@ -89,6 +91,8 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
       .eq("merchant_id", merchantId);
   }
 
+  const dpoEnabled = isDpoEnabled();
+
   const waText = merchantName
     ? `Hi OshiCart! I would like to upgrade to the ${tierLabel} plan (${priceDisplay}/mo) for my store "${merchantName}". My reference: ${reference}`
     : `Hi OshiCart! I would like to subscribe to the ${tierLabel} plan (${priceDisplay}/mo). My reference: ${reference}`;
@@ -150,11 +154,61 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
             </div>
           </div>
 
-          {/* Payment details */}
+          {/* Payment options */}
           <div className="md:col-span-3 space-y-5">
+
+            {/* DPO Online Payment — shown first when enabled */}
+            {dpoEnabled && merchantId && (
+              <div className="bg-white rounded-xl border overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5">
+                  <div className="flex items-center gap-2">
+                    <CreditCard size={20} className="text-white" />
+                    <h3 className="text-white font-bold text-lg">Pay Online with Card</h3>
+                  </div>
+                  <p className="text-blue-200 text-sm mt-0.5">
+                    Instant activation — pay securely with Visa, Mastercard, or mobile money
+                  </p>
+                </div>
+
+                <div className="px-6 py-5 space-y-4">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Amount</span>
+                    <span className="font-bold text-gray-900 text-base">{priceDisplay} / month</span>
+                  </div>
+
+                  <DpoPayButton
+                    tier={tier}
+                    merchantId={merchantId}
+                    storeName={merchantName}
+                    reference={reference}
+                    priceNadCents={tierLimit.price_nad}
+                  />
+
+                  <p className="text-xs text-center text-gray-400">
+                    Secured by DPO Group — Visa, Mastercard, and mobile payments accepted
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Divider between payment options */}
+            {dpoEnabled && merchantId && (
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-gradient-to-br from-gray-50 to-gray-100 px-3 text-gray-400">or pay via EFT</span>
+                </div>
+              </div>
+            )}
+
+            {/* EFT Payment (existing) */}
             <div className="bg-white rounded-xl border overflow-hidden">
               <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-5">
-                <h3 className="text-white font-bold text-lg">Payment Details</h3>
+                <h3 className="text-white font-bold text-lg">
+                  {dpoEnabled && merchantId ? "Pay via Bank Transfer (EFT)" : "Payment Details"}
+                </h3>
                 <p className="text-gray-400 text-sm mt-0.5">
                   Pay via EFT and we&apos;ll activate your plan within 24 hours
                 </p>
@@ -188,7 +242,7 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
             </div>
 
             <div className="bg-white rounded-xl border px-6 py-5">
-              <h4 className="font-semibold text-gray-900 mb-3">How it works</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">How EFT works</h4>
               <ol className="space-y-3">
                 <Step num={1}>Make an EFT payment of <strong>{priceDisplay}</strong> using the reference above</Step>
                 <Step num={2}>Send us proof of payment on WhatsApp (screenshot or reference number)</Step>

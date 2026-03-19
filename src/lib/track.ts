@@ -34,7 +34,10 @@ export type TrackEvent =
   | "checkout_completed"
   | "order_status_changed"
   | "coupon_applied"
-  | "proof_uploaded";
+  | "proof_uploaded"
+  | "dpo_payment_initiated"
+  | "dpo_payment_success"
+  | "dpo_payment_failed";
 
 export function track(
   event: TrackEvent,

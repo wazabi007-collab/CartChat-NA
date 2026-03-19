@@ -273,7 +273,7 @@ export default async function StoresPage({
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
           <div className="flex items-center gap-3">
             <Image
-              src="/oshicart-logo.png"
+              src="/logo.svg"
               alt={SITE_NAME}
               width={100}
               height={27}

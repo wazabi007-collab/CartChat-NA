@@ -374,7 +374,7 @@ function Footer() {
           {/* Brand */}
           <div>
             <Image
-              src="/oshicart-logo.png"
+              src="/logo.svg"
               alt="OshiCart"
               width={130}
               height={35}

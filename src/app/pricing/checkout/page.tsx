@@ -99,7 +99,7 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
       <header className="bg-white border-b">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
-            <Image src="/oshicart-logo.png" alt={SITE_NAME} width={120} height={32} />
+            <Image src="/logo.svg" alt={SITE_NAME} width={120} height={32} />
           </Link>
           <Link href="/#pricing" className="text-sm text-gray-500 hover:text-gray-900 flex items-center gap-1">
             <ArrowLeft size={14} />

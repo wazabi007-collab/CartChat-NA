@@ -23,8 +23,18 @@ export function isDpoEnabled(): boolean {
 
 // ─── XML helpers ─────────────────────────────────────────────────────────────
 
+/** Escape XML special characters to prevent injection */
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 function xmlTag(tag: string, value: string | number): string {
-  return `<${tag}>${String(value)}</${tag}>`;
+  return `<${tag}>${escapeXml(String(value))}</${tag}>`;
 }
 
 function parseXmlValue(xml: string, tag: string): string {

@@ -37,6 +37,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // Input validation
+    if (!/^oshi_(basic|grow|pro)$/.test(tier)) {
+      return NextResponse.json({ error: "Invalid tier" }, { status: 400 });
+    }
+    if (!/^[0-9a-f-]{36}$/i.test(merchant_id)) {
+      return NextResponse.json({ error: "Invalid merchant ID" }, { status: 400 });
+    }
+
     const billingMonths = VALID_MONTHS.includes(months) ? months : 1;
     const discount = MONTH_DISCOUNTS[billingMonths] || 0;
 
@@ -68,11 +76,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Calculate total with discount
-    // TODO: Remove DPO_TEST_AMOUNT override once DPO raises test account limit
-    const isTestMode = process.env.DPO_COMPANY_TOKEN === "8D3DA73D-9D7F-4E09-96D4-3D44E7A83EA3";
     const subtotalCents = tierLimit.price_nad * billingMonths;
     const discountCents = Math.round(subtotalCents * discount / 100);
-    const totalCents = isTestMode ? 1000 : subtotalCents - discountCents; // N$10 for test mode
+    const totalCents = subtotalCents - discountCents;
 
     const tierLabel = TIER_LABELS[tierKey] || tier;
     const monthRef = `${reference}-${billingMonths}M`;
@@ -113,9 +119,9 @@ export async function POST(req: NextRequest) {
       transToken: result.transToken,
     });
 
+    // Only return the payment URL — never expose the transToken to the client
     return NextResponse.json({
       paymentUrl: result.paymentUrl,
-      transToken: result.transToken,
     });
   } catch (err) {
     console.error("[DPO Create] Error:", err);

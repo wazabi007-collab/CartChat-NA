@@ -87,6 +87,7 @@ export async function createToken(
     ${params.customerLastName ? xmlTag("customerLastName", params.customerLastName) : ""}
     ${params.customerEmail ? xmlTag("customerEmail", params.customerEmail) : ""}
     ${params.customerPhone ? xmlTag("customerPhone", params.customerPhone) : ""}
+    ${xmlTag("DefaultPayment", "CC")}
     ${xmlTag("TransactionSource", "Website")}
   </Transaction>
   <Services>

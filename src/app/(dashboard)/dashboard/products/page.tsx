@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus, Package } from "lucide-react";
 import { ProductGrid } from "./product-actions";
+import { getServiceLabels } from "@/lib/service-labels";
 
 export default async function ProductsPage() {
   const supabase = await createClient();
@@ -20,6 +21,8 @@ export default async function ProductsPage() {
 
   if (!merchant) redirect("/dashboard/setup");
 
+  const labels = getServiceLabels(merchant.industry);
+
   const { data: products } = await supabase
     .from("products")
     .select("*, categories(name)")
@@ -34,9 +37,9 @@ export default async function ProductsPage() {
     <div className="md:ml-56">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{labels.itemPlural}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {productList.length} product{productList.length !== 1 ? "s" : ""}
+            {productList.length} {labels.item.toLowerCase()}{productList.length !== 1 ? "s" : ""}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -51,7 +54,7 @@ export default async function ProductsPage() {
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
           >
             <Plus size={18} />
-            Add Product
+            {labels.addItem}
           </Link>
         </div>
       </div>
@@ -62,10 +65,10 @@ export default async function ProductsPage() {
             <Package size={32} className="text-gray-400" />
           </div>
           <h2 className="text-lg font-semibold text-gray-900 mb-2">
-            No products yet
+            No {labels.itemPlural.toLowerCase()} yet
           </h2>
           <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-            Start building your catalog by adding your first product. Your
+            Start building your catalog by adding your first {labels.item.toLowerCase()}. Your
             customers will see these in your WhatsApp store.
           </p>
           <Link
@@ -73,7 +76,7 @@ export default async function ProductsPage() {
             className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium"
           >
             <Plus size={18} />
-            Add your first product
+            {labels.firstItem}
           </Link>
         </div>
       ) : (
@@ -93,6 +96,15 @@ export default async function ProductsPage() {
           }))}
         />
       )}
+
+      {/* Mobile floating action button */}
+      <Link
+        href="/dashboard/products/new"
+        className="fixed bottom-20 right-4 z-40 md:hidden w-14 h-14 bg-green-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-green-700 transition-colors active:scale-95"
+        aria-label={labels.addItem}
+      >
+        <Plus size={24} />
+      </Link>
     </div>
   );
 }

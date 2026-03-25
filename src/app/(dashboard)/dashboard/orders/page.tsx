@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { formatPrice, whatsappLink } from "@/lib/utils";
 import Link from "next/link";
 import { OrderActions } from "./order-actions";
-import { card, statusColors, statusPill } from "@/lib/ui";
+import { QuickStatus } from "@/components/dashboard/quick-status";
+import { card, statusPill } from "@/lib/ui";
 
 export default async function OrdersPage({
   searchParams,
@@ -85,13 +86,18 @@ export default async function OrdersPage({
                     <span className="font-bold text-gray-900">
                       #{order.order_number}
                     </span>
-                    <span
-                      className={`${statusPill} ${
-                        statusColors[order.status] || ""
-                      }`}
-                    >
-                      {order.status}
-                    </span>
+                    <QuickStatus
+                      orderId={order.id}
+                      currentStatus={order.status}
+                      merchantId={merchant.id}
+                      merchantIndustry={merchant.industry ?? ""}
+                      merchantStoreName={merchant.store_name}
+                      customerName={order.customer_name}
+                      customerWhatsapp={order.customer_whatsapp}
+                      orderNumber={order.order_number}
+                      trackingToken={order.tracking_token || ""}
+                      deliveryMethod={order.delivery_method || "pickup"}
+                    />
                     {order.payment_method && order.payment_method !== "eft" && (
                       <span className={`${statusPill} bg-gray-100 text-gray-600`}>
                         {order.payment_method === "cod" ? "COD" : order.payment_method === "momo" ? "MoMo" : order.payment_method === "ewallet" ? "eWallet" : "EFT"}

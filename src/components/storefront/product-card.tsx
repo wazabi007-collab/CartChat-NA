@@ -115,7 +115,7 @@ export function ProductCard({
               onMouseEnter={accentHover ? (e) => { e.currentTarget.style.backgroundColor = accentHover; } : undefined}
               onMouseLeave={accentColor ? (e) => { e.currentTarget.style.backgroundColor = accentColor; } : undefined}
             >
-              {ctaText ?? (isService ? "Book Now" : "Add to Cart")}
+              {isService ? (ctaText ?? "Book Now") : "Add to Cart"}
             </button>
           )}
         </div>

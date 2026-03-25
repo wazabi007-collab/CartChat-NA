@@ -130,6 +130,28 @@ export async function sendWhatsAppTemplate(
   }
 }
 
+// ---------- Authentication OTP via WhatsApp ----------
+
+/**
+ * Send a 6-digit OTP code via WhatsApp authentication template.
+ * Requires an approved "authentication_otp" template in Meta Business Manager.
+ *
+ * Template format (authentication category):
+ *   Body: "Your OshiCart verification code is {{1}}. It expires in 5 minutes."
+ *   Button: Copy code (URL button with {{1}} parameter)
+ */
+export async function sendOtpMessage(
+  recipientPhone: string,
+  otpCode: string
+): Promise<SendResult> {
+  return sendWhatsAppTemplate(
+    recipientPhone,
+    "authentication_otp",
+    [otpCode],          // body variable {{1}}
+    [otpCode]           // button "copy code" parameter
+  );
+}
+
 // ---------- Webhook signature verification ----------
 
 export async function verifyWebhookSignature(

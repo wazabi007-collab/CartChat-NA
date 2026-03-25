@@ -117,15 +117,14 @@ export default async function ProductDetailPage({ params }: Props) {
     <div className="min-h-screen bg-gray-50">
       <JsonLd data={productSchema} />
       <JsonLd data={breadcrumbSchema} />
-      {/* Site Navigation */}
-      <nav className="bg-gray-900 text-white">
-        <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between text-sm">
-          <Link href="/" className="flex items-center gap-1.5 hover:text-green-400 transition-colors">
-            <Home size={14} />
+      {/* Site Navigation — slim transparent bar */}
+      <nav className="bg-white border-b border-gray-100">
+        <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between text-xs">
+          <Link href="/" className="flex items-center gap-1 text-gray-400 hover:text-gray-600 transition-colors">
+            <ArrowLeft size={12} />
             OshiCart
           </Link>
-          <Link href="/stores" className="flex items-center gap-1.5 hover:text-green-400 transition-colors">
-            <Store size={14} />
+          <Link href="/stores" className="text-gray-400 hover:text-gray-600 transition-colors">
             Browse Stores
           </Link>
         </div>

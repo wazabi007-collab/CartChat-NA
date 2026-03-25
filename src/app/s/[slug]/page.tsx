@@ -202,53 +202,59 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
       <JsonLd data={breadcrumbSchema} />
       <JsonLd data={localBusinessSchema} />
       <TrackView merchantId={merchant.id} />
-      {/* Site Navigation */}
-      <nav className="bg-gray-900 text-white">
-        <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between text-sm">
-          <Link href="/" className="flex items-center gap-1.5 hover:text-green-400 transition-colors">
-            <Home size={14} />
+      {/* Site Navigation — slim transparent bar */}
+      <nav className="bg-white border-b border-gray-100">
+        <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between text-xs">
+          <Link href="/" className="flex items-center gap-1 text-gray-400 hover:text-gray-600 transition-colors">
+            <ArrowLeft size={12} />
             OshiCart
           </Link>
-          <Link href="/stores" className="flex items-center gap-1.5 hover:text-green-400 transition-colors">
-            <Store size={14} />
+          <Link href="/stores" className="text-gray-400 hover:text-gray-600 transition-colors">
             Browse Stores
           </Link>
         </div>
       </nav>
       {/* Store Header */}
       <header className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-4 py-5">
+          <div className="flex items-start gap-4">
             {merchant.logo_url ? (
               <img
                 src={merchant.logo_url}
                 alt={merchant.store_name}
-                className="w-14 h-14 rounded-full object-cover border"
+                className="w-14 h-14 rounded-full object-cover border shrink-0"
               />
             ) : (
-              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                 <span className="text-green-700 font-bold text-xl">
                   {merchant.store_name.charAt(0).toUpperCase()}
                 </span>
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-gray-900 truncate">
+              <h1 className="text-xl font-bold text-gray-900">
                 {merchant.store_name}
               </h1>
               {merchant.description && (
-                <p className="text-sm text-gray-600 mt-0.5 line-clamp-2">
+                <p className="text-sm text-gray-500 mt-1 hidden sm:block sm:line-clamp-2">
                   {merchant.description}
                 </p>
               )}
             </div>
           </div>
 
+          {/* Description — full text on mobile, below the header row */}
+          {merchant.description && (
+            <p className="text-sm text-gray-500 mt-3 sm:hidden">
+              {merchant.description}
+            </p>
+          )}
+
           <a
             href={waLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-4 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-md transition-colors"
+            className="inline-flex items-center gap-2 mt-4 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
           >
             <MessageCircle className="w-4 h-4" />
             WhatsApp Us

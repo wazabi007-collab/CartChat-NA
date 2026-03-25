@@ -18,6 +18,14 @@ export function getCtaText(product: LayoutProduct, theme: ThemeConfig): string {
   return product.item_type === "service" ? theme.ctaText : "Add to Cart";
 }
 
+/** Returns formatted price or "Price on request" for zero-price products */
+export function getDisplayPrice(product: LayoutProduct, formatPrice: (n: number) => string): string {
+  if (product.item_type === "service" && product.price_nad === 0) return "Request a Quote";
+  if (product.item_type === "service" && product.price_nad > 0) return `From ${formatPrice(product.price_nad)}`;
+  if (product.price_nad === 0) return "Price on request";
+  return formatPrice(product.price_nad);
+}
+
 export interface LayoutProps {
   products: LayoutProduct[];
   theme: ThemeConfig;

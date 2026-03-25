@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "../cart-provider";
-import { getCtaText, type LayoutProps } from "./types";
+import { getCtaText, getDisplayPrice, type LayoutProps } from "./types";
 
 export function MenuList({ products, theme, slug, disabled }: LayoutProps) {
   const { addItem } = useCart();
@@ -49,7 +49,7 @@ export function MenuList({ products, theme, slug, disabled }: LayoutProps) {
             </Link>
             <div className="flex items-center gap-2 shrink-0">
               <span className="font-bold text-sm" style={{ color: theme.accent }}>
-                {formatPrice(product.price_nad)}
+                {getDisplayPrice(product, formatPrice)}
               </span>
               {isOutOfStock || disabled ? (
                 <span className="text-xs text-gray-400">Sold out</span>

@@ -36,7 +36,7 @@ export function ProductCard({
   const isService = itemType === "service";
   const isQuoteOnly = isService && price === 0;
   const isOutOfStock = !isService && trackInventory && (stockQuantity ?? 0) === 0 && !allowBackorder;
-  const isLowStock = !isService && trackInventory && !isOutOfStock && (stockQuantity ?? 0) <= (lowStockThreshold ?? 5);
+  const isLowStock = !isService && trackInventory && !isOutOfStock && (stockQuantity ?? 0) > 0 && (stockQuantity ?? 0) <= (lowStockThreshold ?? 5);
 
   function handleQuoteClick() {
     if (!whatsappNumber) return;
@@ -87,7 +87,7 @@ export function ProductCard({
           </h3>
         </Link>
         <p className={`font-bold text-base mt-1 ${accentColor ? '' : 'text-green-600'}`} style={accentColor ? { color: accentColor } : undefined}>
-          {isQuoteOnly ? "Request a Quote" : (isService && price > 0 ? `From ${formatPrice(price)}` : formatPrice(price))}
+          {isQuoteOnly ? "Request a Quote" : isService && price > 0 ? `From ${formatPrice(price)}` : price === 0 && !isService ? "Price on request" : formatPrice(price)}
         </p>
         <div className="mt-auto pt-2">
           {isOutOfStock || disabled ? (

@@ -162,7 +162,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   if (uncategorized && uncategorized.length > 0) {
     let fallbackName: string;
     if (sections.length > 0) {
-      fallbackName = "Other";
+      fallbackName = "More Products";
     } else {
       // Use theme label only if all items are services; otherwise "Products"
       const allServices = uncategorized.every((p: { item_type?: string }) => p.item_type === "service");

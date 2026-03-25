@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Check, Circle, Package, Link2, ShoppingCart, PartyPopper, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { getServiceLabels } from "@/lib/service-labels";
 
 interface GettingStartedProps {
   merchantId: string;
@@ -15,6 +16,7 @@ interface GettingStartedProps {
   storeName: string;
   dismissed: boolean;
   isWelcome: boolean;
+  industry?: string | null;
 }
 
 export function GettingStarted({
@@ -26,9 +28,11 @@ export function GettingStarted({
   storeName,
   dismissed,
   isWelcome,
+  industry,
 }: GettingStartedProps) {
   const router = useRouter();
   const supabase = createClient();
+  const labels = getServiceLabels(industry);
 
   const [copied, setCopied] = useState(false);
   const [localShared, setLocalShared] = useState(storeLinkShared);
@@ -36,7 +40,7 @@ export function GettingStarted({
 
   const items = [
     { label: "Create your store", done: true, icon: Package },
-    { label: "Add your first product", done: productCount > 0, icon: Package },
+    { label: labels.firstItem, done: productCount > 0, icon: Package },
     { label: "Share your store link", done: localShared, icon: Link2 },
     { label: "Get your first order", done: orderCount > 0, icon: ShoppingCart },
   ];
@@ -173,7 +177,7 @@ export function GettingStarted({
                         isWelcome ? "animate-pulse" : ""
                       }`}
                     >
-                      Add Product
+                      {labels.addItem}
                     </Link>
                   )}
 

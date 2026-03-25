@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Package, ShoppingCart, Eye, ArrowRight, AlertTriangle, ShieldAlert, Clock } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { SITE_URL } from "@/lib/constants";
+import { getServiceLabels } from "@/lib/service-labels";
 import { GettingStarted } from "@/components/dashboard/getting-started";
 import { ShareStoreCard } from "@/components/dashboard/share-store-card";
 import {
@@ -40,6 +41,8 @@ export default async function DashboardPage({
   if (!merchant) {
     redirect("/dashboard/setup");
   }
+
+  const labels = getServiceLabels(merchant.industry);
 
   // Cast to access runtime columns not yet in generated types
   const merchantExt = merchant as typeof merchant & {
@@ -140,6 +143,7 @@ export default async function DashboardPage({
           storeName={merchant.store_name}
           dismissed={merchantExt.getting_started_dismissed ?? false}
           isWelcome={isWelcome}
+          industry={merchant.industry}
         />
       )}
 
@@ -300,8 +304,8 @@ export default async function DashboardPage({
         {productCount === 0 && (
           <QuickAction
             href="/dashboard/products"
-            title="Add your first product"
-            description="Get started by adding products to your catalog"
+            title={labels.firstItem}
+            description={`Get started by adding ${labels.itemPlural.toLowerCase()} to your catalog`}
             variant="primary"
           />
         )}

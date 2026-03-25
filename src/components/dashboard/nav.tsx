@@ -11,14 +11,12 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  Menu,
-  X,
   Ticket,
   User,
 } from "lucide-react";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
+import { getServiceLabels } from "@/lib/service-labels";
 
 interface NavProps {
   merchant: {
@@ -28,6 +26,7 @@ interface NavProps {
   } | null;
   userPhone: string;
   subscriptionTier?: string | null;
+  industry?: string | null;
 }
 
 const baseNavItems = [
@@ -40,14 +39,14 @@ const baseNavItems = [
   { href: "/dashboard/settings", label: "Settings", icon: Settings, requireFeature: null },
 ];
 
-export function DashboardNav({ merchant, userPhone, subscriptionTier }: NavProps) {
+export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }: NavProps) {
   const tier = (subscriptionTier || "oshi_start") as SubscriptionTier;
   const navItems = baseNavItems.filter(
     (item) => !item.requireFeature || hasTierFeature(tier, item.requireFeature)
   );
   const pathname = usePathname();
   const router = useRouter();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const labels = getServiceLabels(industry);
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -75,6 +74,8 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier }: NavProps
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
+              const displayLabel =
+                item.href === "/dashboard/products" ? labels.itemPlural : item.label;
               return (
                 <Link
                   key={item.href}
@@ -87,7 +88,7 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier }: NavProps
                   )}
                 >
                   <Icon size={18} />
-                  {item.label}
+                  {displayLabel}
                 </Link>
               );
             })}
@@ -105,60 +106,12 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier }: NavProps
         </div>
       </aside>
 
-      {/* Mobile header */}
-      <div className="md:hidden bg-white border-b px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+      {/* Mobile header — logo only, BottomNav handles navigation */}
+      <div className="md:hidden bg-white border-b px-4 py-3 flex items-center justify-center sticky top-0 z-30">
         <Link href="/dashboard">
           <Image src="/logo.svg" alt="OshiCart" width={100} height={26} />
         </Link>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="text-gray-600"
-        >
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
       </div>
-
-      {/* Mobile menu overlay */}
-      {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-30 bg-black/30" onClick={() => setMobileOpen(false)}>
-          <div
-            className="absolute top-[52px] left-0 right-0 bg-white border-b shadow-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <nav className="p-2 space-y-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const active = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md text-sm",
-                      active
-                        ? "bg-green-50 text-green-700 font-medium"
-                        : "text-gray-600 hover:bg-gray-50"
-                    )}
-                  >
-                    <Icon size={18} />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-            <div className="p-4 border-t">
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-2 text-sm text-gray-500 hover:text-red-600"
-              >
-                <LogOut size={16} />
-                Sign out
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Spacer for desktop sidebar */}
       <div className="hidden md:block md:w-56" />

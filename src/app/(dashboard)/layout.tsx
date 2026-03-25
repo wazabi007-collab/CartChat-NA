@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { DashboardNav } from "@/components/dashboard/nav";
+import { BottomNav } from "@/components/dashboard/bottom-nav";
 
 export default async function DashboardLayout({
   children,
@@ -20,7 +21,7 @@ export default async function DashboardLayout({
   // Check if merchant has completed store setup
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("id, store_name, store_slug")
+    .select("id, store_name, store_slug, industry")
     .eq("user_id", user.id)
     .single();
 
@@ -51,14 +52,26 @@ export default async function DashboardLayout({
     }
   }
 
+  let pendingCount = 0;
+  if (merchant) {
+    const { count } = await supabase
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("merchant_id", merchant.id)
+      .eq("status", "pending");
+    pendingCount = count ?? 0;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardNav
         merchant={merchant}
         userPhone={user.phone || ""}
         subscriptionTier={subscriptionTier}
+        industry={merchant?.industry}
       />
-      <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
+      <main className="max-w-6xl mx-auto px-4 py-6 pb-20 md:pb-6">{children}</main>
+      {merchant && <BottomNav pendingOrders={pendingCount} industry={merchant.industry} />}
     </div>
   );
 }

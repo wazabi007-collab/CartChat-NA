@@ -4,6 +4,7 @@ import { formatPrice, whatsappLink } from "@/lib/utils";
 import Link from "next/link";
 import { OrderActions } from "./order-actions";
 import { QuickStatus } from "@/components/dashboard/quick-status";
+import { OrderItemsToggle } from "@/components/dashboard/order-items-toggle";
 import { card, statusPill } from "@/lib/ui";
 
 export default async function OrdersPage({
@@ -30,7 +31,7 @@ export default async function OrdersPage({
   const statusFilter = params.status;
   let query = supabase
     .from("orders")
-    .select("*")
+    .select("*, order_items(id, product_name, product_price, quantity, line_total)")
     .eq("merchant_id", merchant.id)
     .order("created_at", { ascending: false });
 
@@ -166,6 +167,9 @@ export default async function OrdersPage({
                   &quot;{order.notes}&quot;
                 </p>
               )}
+
+              {/* Expandable order items */}
+              <OrderItemsToggle items={order.order_items || []} />
 
               <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-2">
                 <OrderActions

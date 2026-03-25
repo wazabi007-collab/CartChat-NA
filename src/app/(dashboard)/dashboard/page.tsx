@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Package, ShoppingCart, Eye, ArrowRight, AlertTriangle, ShieldAlert, Clock } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { SITE_URL } from "@/lib/constants";
-import { CopyStoreLink } from "./copy-store-link";
+import { GettingStarted } from "@/components/dashboard/getting-started";
+import { ShareStoreCard } from "@/components/dashboard/share-store-card";
 import {
   card,
   alertError,
@@ -14,7 +15,15 @@ import {
   alertIcon,
 } from "@/lib/ui";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ welcome?: string; resume_checklist?: string }>;
+}) {
+  const params = await searchParams;
+  const isWelcome = params.welcome === "true";
+  const resumeChecklist = params.resume_checklist === "true";
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -32,8 +41,24 @@ export default async function DashboardPage() {
     redirect("/dashboard/setup");
   }
 
+  // Cast to access runtime columns not yet in generated types
+  const merchantExt = merchant as typeof merchant & {
+    store_link_shared?: boolean;
+    getting_started_dismissed?: boolean;
+  };
+
   // Fetch subscription status
   const service = createServiceClient();
+
+  // Handle resume_checklist: reset dismissed flag and redirect to clean URL
+  if (resumeChecklist) {
+    await service
+      .from("merchants")
+      .update({ getting_started_dismissed: false })
+      .eq("id", merchant.id);
+    redirect("/dashboard");
+  }
+
   const { data: subscription } = await service
     .from("subscriptions")
     .select("tier, status, trial_ends_at, current_period_end, grace_ends_at")
@@ -41,29 +66,34 @@ export default async function DashboardPage() {
     .single();
 
   // Fetch stats
-  const [productsResult, ordersResult, pendingResult, lowStockResult] = await Promise.all([
-    supabase
-      .from("products")
-      .select("id", { count: "exact", head: true })
-      .eq("merchant_id", merchant.id),
-    supabase
-      .from("orders")
-      .select("id, subtotal_nad", { count: "exact" })
-      .eq("merchant_id", merchant.id)
-      .eq("status", "completed"),
-    supabase
-      .from("orders")
-      .select("id", { count: "exact", head: true })
-      .eq("merchant_id", merchant.id)
-      .eq("status", "pending"),
-    supabase
-      .from("products")
-      .select("id, name, stock_quantity, low_stock_threshold")
-      .eq("merchant_id", merchant.id)
-      .eq("track_inventory", true)
-      .order("stock_quantity", { ascending: true })
-      .limit(5),
-  ]);
+  const [productsResult, ordersResult, pendingResult, lowStockResult, totalOrdersResult] =
+    await Promise.all([
+      supabase
+        .from("products")
+        .select("id", { count: "exact", head: true })
+        .eq("merchant_id", merchant.id),
+      supabase
+        .from("orders")
+        .select("id, subtotal_nad", { count: "exact" })
+        .eq("merchant_id", merchant.id)
+        .eq("status", "completed"),
+      supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("merchant_id", merchant.id)
+        .eq("status", "pending"),
+      supabase
+        .from("products")
+        .select("id, name, stock_quantity, low_stock_threshold")
+        .eq("merchant_id", merchant.id)
+        .eq("track_inventory", true)
+        .order("stock_quantity", { ascending: true })
+        .limit(5),
+      supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("merchant_id", merchant.id),
+    ]);
 
   const lowStockProducts = (lowStockResult.data || []).filter(
     (p) => p.stock_quantity <= (p.low_stock_threshold ?? 5)
@@ -76,21 +106,51 @@ export default async function DashboardPage() {
     (sum, o) => sum + o.subtotal_nad,
     0
   );
+  const totalOrders = totalOrdersResult.count || 0;
 
   const storeUrl = `/s/${merchant.store_slug}`;
   const storeAbsoluteUrl = `${SITE_URL}/s/${merchant.store_slug}`;
   const now = new Date().getTime();
 
+  // Dashboard state
+  const allChecklistComplete =
+    productCount > 0 &&
+    (merchantExt.store_link_shared ?? false) &&
+    totalOrders > 0;
+  const showChecklist =
+    !allChecklistComplete && !(merchantExt.getting_started_dismissed ?? false);
+  const isNewMerchant = productCount === 0;
+
   return (
     <div className="md:ml-56">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">
-          Welcome, {merchant.store_name}
+          {isWelcome ? "🎉 Your store is live!" : `Welcome, ${merchant.store_name}`}
         </h1>
       </div>
 
+      {/* Getting Started Checklist — for new/incomplete merchants */}
+      {showChecklist && (
+        <GettingStarted
+          merchantId={merchant.id}
+          productCount={productCount}
+          orderCount={totalOrders}
+          storeLinkShared={merchantExt.store_link_shared ?? false}
+          storeUrl={storeAbsoluteUrl}
+          storeName={merchant.store_name}
+          dismissed={merchantExt.getting_started_dismissed ?? false}
+          isWelcome={isWelcome}
+        />
+      )}
+
       {/* Share Store Card */}
-      <CopyStoreLink url={storeAbsoluteUrl} />
+      <ShareStoreCard
+        storeUrl={storeAbsoluteUrl}
+        storeName={merchant.store_name}
+        merchantId={merchant.id}
+        storeLinkShared={merchantExt.store_link_shared ?? false}
+        compact={!isNewMerchant}
+      />
 
       {/* Store status banner */}
       {merchant.store_status === "suspended" && (
@@ -169,33 +229,35 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard
-          icon={<Package size={20} className="text-blue-600" />}
-          label="Products"
-          value={productCount.toString()}
-          href="/dashboard/products"
-        />
-        <StatCard
-          icon={<ShoppingCart size={20} className="text-orange-600" />}
-          label="Pending Orders"
-          value={pendingOrders.toString()}
-          href="/dashboard/orders"
-        />
-        <StatCard
-          icon={<Eye size={20} className="text-purple-600" />}
-          label="Completed"
-          value={completedOrders.toString()}
-          href="/dashboard/orders"
-        />
-        <StatCard
-          icon={<span className="text-green-600 font-bold text-lg">N$</span>}
-          label="Revenue"
-          value={formatPrice(totalRevenue)}
-          href="/dashboard/analytics"
-        />
-      </div>
+      {/* Stats grid — hidden for new merchants (all zeros are discouraging) */}
+      {productCount > 0 && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <StatCard
+            icon={<Package size={20} className="text-blue-600" />}
+            label="Products"
+            value={productCount.toString()}
+            href="/dashboard/products"
+          />
+          <StatCard
+            icon={<ShoppingCart size={20} className="text-orange-600" />}
+            label="Pending Orders"
+            value={pendingOrders.toString()}
+            href="/dashboard/orders"
+          />
+          <StatCard
+            icon={<Eye size={20} className="text-purple-600" />}
+            label="Completed"
+            value={completedOrders.toString()}
+            href="/dashboard/orders"
+          />
+          <StatCard
+            icon={<span className="text-green-600 font-bold text-lg">N$</span>}
+            label="Revenue"
+            value={formatPrice(totalRevenue)}
+            href="/dashboard/analytics"
+          />
+        </div>
+      )}
 
       {/* Low stock warning */}
       {lowStockProducts.length > 0 && (
@@ -240,6 +302,14 @@ export default async function DashboardPage() {
             href="/dashboard/products"
             title="Add your first product"
             description="Get started by adding products to your catalog"
+            variant="primary"
+          />
+        )}
+        {merchantExt.getting_started_dismissed && !allChecklistComplete && (
+          <QuickAction
+            href="/dashboard?resume_checklist=true"
+            title="Resume Getting Started"
+            description="Complete your store setup checklist"
             variant="primary"
           />
         )}

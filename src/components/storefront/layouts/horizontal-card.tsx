@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Sparkles } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "../cart-provider";
-import type { LayoutProps } from "./types";
+import { getCtaText, type LayoutProps } from "./types";
 
 export function HorizontalCard({ products, theme, slug, disabled }: LayoutProps) {
   const { addItem } = useCart();
@@ -81,7 +81,7 @@ export function HorizontalCard({ products, theme, slug, disabled }: LayoutProps)
                       e.currentTarget.style.backgroundColor = theme.accent;
                     }}
                   >
-                    {theme.ctaText}
+                    {getCtaText(product, theme)}
                   </button>
                 )}
               </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Link2, MessageCircle, Check, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { StoreQRCode } from "./store-qr-code";
 
 interface ShareStoreCardProps {
   storeUrl: string;
@@ -66,6 +67,7 @@ export function ShareStoreCard({
           >
             <MessageCircle size={16} />
           </button>
+          <StoreQRCode storeUrl={storeUrl} storeName={storeName} />
           <Link
             href={storeUrl.replace("https://oshicart.com", "")}
             target="_blank"
@@ -98,6 +100,7 @@ export function ShareStoreCard({
           <MessageCircle size={14} />
           Share on WhatsApp
         </button>
+        <StoreQRCode storeUrl={storeUrl} storeName={storeName} />
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { formatPrice } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { JsonLd } from "@/components/json-ld";
 import { AddToCartButton } from "./add-to-cart-button";
+import { StickyAddToCart } from "./sticky-add-to-cart";
 
 interface Props {
   params: Promise<{ slug: string; productId: string }>;
@@ -226,7 +227,7 @@ export default async function ProductDetailPage({ params }: Props) {
               </div>
             )}
 
-            <div className="mt-6">
+            <div className="mt-6" data-add-to-cart-section>
               {product.track_inventory && product.stock_quantity === 0 && !product.allow_backorder ? (
                 <button
                   disabled
@@ -253,6 +254,15 @@ export default async function ProductDetailPage({ params }: Props) {
           Powered by {SITE_NAME}
         </div>
       </footer>
+
+      {/* Sticky mobile Add to Cart — appears when main button scrolls out of view */}
+      <StickyAddToCart
+        productId={product.id}
+        name={product.name}
+        price={product.price_nad}
+        imageUrl={images[0] ?? null}
+        isOutOfStock={isOutOfStock}
+      />
     </div>
   );
 }

@@ -243,7 +243,7 @@ function StoreSetupForm() {
     if (tierParam) {
       router.push(`/pricing/checkout?tier=${tierParam}`);
     } else {
-      router.push("/dashboard");
+      router.push("/dashboard?welcome=true");
     }
     router.refresh();
   }

@@ -49,6 +49,13 @@ function LoginForm() {
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
 
+  // Forgot password state
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
+
   // WhatsApp OTP state
   const [phone, setPhone] = useState("");
   const [waOtp, setWaOtp] = useState("");
@@ -145,6 +152,26 @@ function LoginForm() {
     } else {
       await routeAfterLogin("password");
     }
+  }
+
+  // ── Forgot password — send reset email ───────────────────────────────────────
+  async function handleForgotPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setForgotLoading(true);
+    setForgotError("");
+    track("login_started", { method: "forgot_password" });
+
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+
+    if (error) {
+      setForgotError(error.message);
+    } else {
+      setForgotSent(true);
+      track("login_otp_sent", { method: "forgot_password" });
+    }
+    setForgotLoading(false);
   }
 
   // ── WhatsApp OTP — send ──────────────────────────────────────────────────────
@@ -304,8 +331,73 @@ function LoginForm() {
               </div>
             )}
 
-            {/* ── Email / password tab ─────────────────────────────────────── */}
-            {(!showTabs || activeTab === "email") && emailStep === "credentials" && (
+            {/* ── Forgot password form ─────────────────────────────────────── */}
+            {showForgot ? (
+              <div className="space-y-4">
+                {forgotSent ? (
+                  <>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-700">
+                      <p className="font-medium">Reset link sent!</p>
+                      <p className="mt-1">Check your email at <span className="font-medium">{forgotEmail}</span> and click the reset link to set a new password.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setShowForgot(false); setForgotSent(false); setForgotEmail(""); }}
+                      className={btnGhost}
+                    >
+                      Back to sign in
+                    </button>
+                  </>
+                ) : (
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <p className="text-sm text-gray-600">
+                      Enter your email and we&apos;ll send you a link to reset your password.
+                    </p>
+                    <div>
+                      <label htmlFor="forgot-email" className={label}>
+                        Email<span className="text-red-500 ml-0.5">*</span>
+                      </label>
+                      <input
+                        id="forgot-email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        required
+                        autoFocus
+                        className={`${inputBase} ${focusBrand}`}
+                      />
+                    </div>
+
+                    {forgotError && (
+                      <div className={alertError}>
+                        <AlertCircle className={alertIcon} />
+                        <p>{forgotError}</p>
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={forgotLoading}
+                      className={btnPrimaryBrand}
+                    >
+                      {forgotLoading ? "Sending..." : "Send Reset Link"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => { setShowForgot(false); setForgotError(""); }}
+                      className={btnGhost}
+                    >
+                      Back to sign in
+                    </button>
+                  </form>
+                )}
+              </div>
+            ) : (
+
+            /* ── Email / password tab ─────────────────────────────────────── */
+            (!showTabs || activeTab === "email") && emailStep === "credentials" && (
               <form onSubmit={handleEmailSignIn} className="space-y-4">
                 <div>
                   <label htmlFor="email" className={label}>
@@ -328,12 +420,13 @@ function LoginForm() {
                     <label htmlFor="password" className={label} style={{ marginBottom: 0 }}>
                       Password<span className="text-red-500 ml-0.5">*</span>
                     </label>
-                    <Link
-                      href="/signup"
+                    <button
+                      type="button"
+                      onClick={() => { setShowForgot(true); setForgotEmail(email); }}
                       className="text-xs text-[#2B5EA7] hover:underline"
                     >
                       Forgot password?
-                    </Link>
+                    </button>
                   </div>
                   <input
                     id="password"
@@ -345,13 +438,6 @@ function LoginForm() {
                     autoComplete="current-password"
                     className={`${inputBase} ${focusBrand}`}
                   />
-                  <p className="text-xs text-gray-400 mt-1">
-                    Reset via{" "}
-                    <Link href="/signup" className="text-[#2B5EA7] hover:underline">
-                      signing up
-                    </Link>{" "}
-                    with your email.
-                  </p>
                 </div>
 
                 {emailError && (
@@ -369,6 +455,7 @@ function LoginForm() {
                   {emailLoading ? "Signing in..." : "Sign In"}
                 </button>
               </form>
+            )
             )}
 
             {/* ── WhatsApp OTP tab ─────────────────────────────────────────── */}

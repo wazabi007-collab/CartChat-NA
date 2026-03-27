@@ -75,7 +75,7 @@ function LoginForm() {
         const res = await fetch("/api/whatsapp/status");
         if (res.ok) {
           const data = await res.json();
-          setWhatsappEnabled(data.enabled === true);
+          setWhatsappEnabled(data.otpEnabled === true);
         }
       } catch {
         // WhatsApp unavailable — silently disable tab

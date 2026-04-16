@@ -55,6 +55,7 @@ function LoginForm() {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotError, setForgotError] = useState("");
   const [forgotSent, setForgotSent] = useState(false);
+  const [forgotGoogleOnly, setForgotGoogleOnly] = useState(false);
 
   // WhatsApp OTP state
   const [phone, setPhone] = useState("");
@@ -159,7 +160,34 @@ function LoginForm() {
     e.preventDefault();
     setForgotLoading(true);
     setForgotError("");
+    setForgotGoogleOnly(false);
     track("login_started", { method: "forgot_password" });
+
+    // Check whether this email belongs to a Google-only user. If so, a password
+    // reset email would silently no-op (Supabase only resets `email` identities),
+    // so we redirect them to Google sign-in instead of sending a dead link.
+    try {
+      const res = await fetch("/api/auth/check-identity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: forgotEmail }),
+      });
+      if (res.ok) {
+        const { providers } = await res.json();
+        if (
+          Array.isArray(providers) &&
+          providers.length > 0 &&
+          !providers.includes("email") &&
+          providers.includes("google")
+        ) {
+          setForgotGoogleOnly(true);
+          setForgotLoading(false);
+          return;
+        }
+      }
+    } catch {
+      // Fall through — send the reset anyway rather than block the user
+    }
 
     const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
@@ -334,7 +362,30 @@ function LoginForm() {
             {/* ── Forgot password form ─────────────────────────────────────── */}
             {showForgot ? (
               <div className="space-y-4">
-                {forgotSent ? (
+                {forgotGoogleOnly ? (
+                  <>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                      <p className="font-medium">You signed up with Google</p>
+                      <p className="mt-1">
+                        <span className="font-medium">{forgotEmail}</span> doesn&apos;t
+                        have a password yet. Sign in with Google below, then you can
+                        add a password any time from <span className="font-medium">Account Settings</span>.
+                      </p>
+                    </div>
+                    <GoogleSignInButton />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowForgot(false);
+                        setForgotGoogleOnly(false);
+                        setForgotEmail("");
+                      }}
+                      className={btnGhost}
+                    >
+                      Back to sign in
+                    </button>
+                  </>
+                ) : forgotSent ? (
                   <>
                     <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-700">
                       <p className="font-medium">Reset link sent!</p>

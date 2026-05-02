@@ -15,6 +15,9 @@ import { SupportButton } from "@/components/support-button";
 import { JsonLd } from "@/components/json-ld";
 import { Hero } from "@/components/landing/hero";
 import { PaymentTrustBar } from "@/components/landing/payment-trust-bar";
+import { HowItWorks } from "@/components/landing/how-it-works";
+import { StorefrontGallery } from "@/components/landing/storefront-gallery";
+import { FeatureBlocks } from "@/components/landing/feature-blocks";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -41,6 +44,9 @@ export default function LandingPage() {
       <PublicNavbar />
       <Hero />
       <PaymentTrustBar />
+      <HowItWorks />
+      <StorefrontGallery />
+      <FeatureBlocks />
       <HeroSection />
       <HowItWorksSection />
       <FeaturesSection />

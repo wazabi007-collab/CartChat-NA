@@ -63,6 +63,7 @@ OshiCart Website look.png
 
 # unoptimized source images (keep WebP only)
 public/*.png
+!public/landing/*.png
 public/hero-bg.webp
 public/hero-illustration.svg
 public/whatsapp-large.svg

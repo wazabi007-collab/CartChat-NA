@@ -13,6 +13,7 @@ import { VideoModalButton } from "@/components/video-modal";
 import { PublicNavbar } from "@/components/public-navbar";
 import { SupportButton } from "@/components/support-button";
 import { JsonLd } from "@/components/json-ld";
+import { Hero } from "@/components/landing/hero";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -37,6 +38,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white">
       <JsonLd data={organizationSchema} />
       <PublicNavbar />
+      <Hero />
       <HeroSection />
       <HowItWorksSection />
       <FeaturesSection />

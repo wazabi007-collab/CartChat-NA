@@ -3,6 +3,17 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Warm Local palette */
+  --sand: #fdf6ec;
+  --sand-2: #f7ead2;
+  --terracotta: #b45309;
+  --terracotta-soft: #fef3e2;
+  --acacia: #15803d;
+  --acacia-soft: #dcfce7;
+  --walnut: #1c1408;
+  --walnut-2: #5b4630;
+  --border-warm: #e7dcc7;
 }
 
 @theme inline {
@@ -10,6 +21,17 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Warm Local colors exposed to Tailwind */
+  --color-sand: var(--sand);
+  --color-sand-2: var(--sand-2);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-soft: var(--terracotta-soft);
+  --color-acacia: var(--acacia);
+  --color-acacia-soft: var(--acacia-soft);
+  --color-walnut: var(--walnut);
+  --color-walnut-2: var(--walnut-2);
+  --color-border-warm: var(--border-warm);
 }
 
 body {

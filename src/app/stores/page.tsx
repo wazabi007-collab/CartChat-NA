@@ -5,6 +5,7 @@ import { Store, Search, ArrowRight, MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SITE_NAME } from "@/lib/constants";
 import { PublicNavbar } from "@/components/public-navbar";
+import { StoreThumbGrid } from "@/components/storefront/store-thumb-grid";
 
 export const metadata: Metadata = {
   title: `Browse Stores | ${SITE_NAME}`,
@@ -110,17 +111,39 @@ export default async function StoresPage({
     }
   }
 
+  // Fetch up to 4 product image URLs per merchant for thumbnail grids
+  const merchantIds = storeList.map((m) => m.id);
+  const previewMap = new Map<string, string[]>();
+  if (merchantIds.length > 0) {
+    const { data: previews } = await supabase
+      .from("products")
+      .select("merchant_id, image_url")
+      .in("merchant_id", merchantIds)
+      .eq("is_available", true)
+      .is("deleted_at", null)
+      .not("image_url", "is", null)
+      .order("created_at", { ascending: false });
+    for (const p of previews ?? []) {
+      if (!p.image_url) continue;
+      const existing = previewMap.get(p.merchant_id) ?? [];
+      if (existing.length < 4) {
+        existing.push(p.image_url);
+        previewMap.set(p.merchant_id, existing);
+      }
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-sand">
       <PublicNavbar />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {/* Page Title & Search */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-walnut">
             Browse Namibian Stores
           </h1>
-          <p className="text-gray-500 mt-2">
+          <p className="text-walnut-2 mt-2">
             Discover local businesses and shop directly via WhatsApp
           </p>
         </div>
@@ -130,14 +153,14 @@ export default async function StoresPage({
           <div className="relative">
             <Search
               size={20}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-walnut-2/70"
             />
             <input
               type="text"
               name="q"
               defaultValue={q || ""}
               placeholder="Search stores by name..."
-              className="w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2B5EA7] focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-walnut placeholder-walnut-2/70 focus:outline-none focus:ring-2 focus:ring-terracotta focus:border-transparent"
             />
           </div>
         </form>
@@ -155,8 +178,8 @@ export default async function StoresPage({
                 href={href}
                 className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
                   isActive
-                    ? "bg-[#2B5EA7] text-white border-[#2B5EA7]"
-                    : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                    ? "bg-terracotta text-white border-terracotta"
+                    : "bg-white text-walnut-2 border-border-warm hover:bg-sand-2"
                 }`}
               >
                 {cat}
@@ -167,28 +190,28 @@ export default async function StoresPage({
 
         {/* Results */}
         {q && (
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-walnut-2 mb-4">
             {storeList.length} result{storeList.length !== 1 ? "s" : ""} for
             &ldquo;{q}&rdquo;
           </p>
         )}
 
         {storeList.length === 0 ? (
-          <div className="bg-white rounded-lg border p-12 text-center">
+          <div className="bg-white rounded-lg border border-border-warm p-12 text-center">
             <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <Store size={32} className="text-gray-400" />
+              <Store size={32} className="text-walnut-2/70" />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+            <h2 className="text-lg font-semibold text-walnut mb-2">
               {q ? "No stores found" : "No stores yet"}
             </h2>
-            <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+            <p className="text-walnut-2 mb-6 max-w-sm mx-auto">
               {q
                 ? `No stores matching "${q}". Try a different search.`
                 : "Be the first to create a store on OshiCart!"}
             </p>
             <Link
               href="/signup"
-              className="inline-flex items-center gap-2 bg-[#2B5EA7] text-white px-6 py-2.5 rounded-lg hover:bg-[#234B86] transition-colors font-medium"
+              className="inline-flex items-center gap-2 bg-terracotta text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity font-medium"
             >
               Create Your Store
             </Link>
@@ -201,45 +224,36 @@ export default async function StoresPage({
                 <Link
                   key={merchant.id}
                   href={`/s/${merchant.store_slug}`}
-                  className="bg-white rounded-lg border hover:shadow-md transition-shadow overflow-hidden group"
+                  className="bg-white rounded-lg border border-border-warm hover:shadow-md transition-shadow overflow-hidden group"
                 >
                   <div className="p-5">
                     <div className="flex items-center gap-3 mb-3">
-                      {merchant.logo_url ? (
-                        <img
-                          src={merchant.logo_url}
-                          alt={merchant.store_name}
-                          className="w-12 h-12 rounded-full object-cover border"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                          <span className="text-[#2B5EA7] font-bold text-lg">
-                            {merchant.store_name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
+                      <StoreThumbGrid
+                        productImages={previewMap.get(merchant.id) ?? []}
+                        fallbackInitial={merchant.store_name.charAt(0).toUpperCase()}
+                      />
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-gray-900 truncate group-hover:text-[#2B5EA7] transition-colors">
+                        <h3 className="font-semibold text-walnut truncate group-hover:text-terracotta transition-colors">
                           {merchant.store_name}
                         </h3>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-xs text-walnut-2/70">
                           {INDUSTRY_LABELS[merchant.industry || "other"] || "General"} &middot; {productCount} product{productCount !== 1 ? "s" : ""}
                         </p>
                       </div>
                     </div>
 
                     {merchant.description && (
-                      <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+                      <p className="text-sm text-walnut-2 line-clamp-2 mb-3">
                         {merchant.description}
                       </p>
                     )}
 
-                    <div className="flex items-center justify-between pt-3 border-t">
-                      <span className="inline-flex items-center gap-1 text-xs text-[#4A9B3E]">
+                    <div className="flex items-center justify-between pt-3 border-t border-border-warm">
+                      <span className="inline-flex items-center gap-1 text-xs text-acacia">
                         <MessageCircle size={14} />
                         WhatsApp Store
                       </span>
-                      <span className="text-xs text-gray-400 group-hover:text-[#2B5EA7] transition-colors flex items-center gap-1">
+                      <span className="text-xs text-walnut-2/70 group-hover:text-terracotta transition-colors flex items-center gap-1">
                         Visit Store <ArrowRight size={14} />
                       </span>
                     </div>
@@ -251,17 +265,17 @@ export default async function StoresPage({
         )}
 
         {/* CTA for merchants */}
-        <div className="mt-12 text-center bg-white rounded-lg border p-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        <div className="mt-12 text-center bg-white rounded-lg border border-border-warm p-8">
+          <h3 className="text-lg font-semibold text-walnut mb-2">
             Own a business in Namibia?
           </h3>
-          <p className="text-gray-500 text-sm mb-4">
+          <p className="text-walnut-2 text-sm mb-4">
             Create your free WhatsApp store in 5 minutes and reach more
             customers.
           </p>
           <Link
             href="/signup"
-            className="inline-flex items-center gap-2 bg-[#2B5EA7] text-white px-6 py-2.5 rounded-lg hover:bg-[#234B86] transition-colors font-medium text-sm"
+            className="inline-flex items-center gap-2 bg-terracotta text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity font-medium text-sm"
           >
             Create Free Store <ArrowRight size={16} />
           </Link>

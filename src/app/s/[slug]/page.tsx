@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MessageCircle, AlertTriangle, ArrowLeft, Grid3X3, Home, Store } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Grid3X3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { whatsappLink } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { getThemeConfig } from "@/lib/industry";
@@ -12,6 +11,9 @@ import { ReportButton } from "@/components/storefront/report-button";
 import { StorefrontProducts } from "@/components/storefront/storefront-products";
 import { StorefrontTabs } from "@/components/storefront/storefront-tabs";
 import { OrderTracker } from "@/components/storefront/order-tracker";
+import { StoreCover } from "@/components/storefront/store-cover";
+import { StoreHeaderCard } from "@/components/storefront/store-header-card";
+import { StorePaymentStrip } from "@/components/storefront/store-payment-strip";
 import { JsonLd } from "@/components/json-ld";
 
 const PRODUCTS_PER_PAGE = 100;
@@ -171,11 +173,6 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     sections.push({ name: fallbackName, products: uncategorized });
   }
 
-  const waLink = whatsappLink(
-    merchant.whatsapp_number,
-    `Hi ${merchant.store_name}, I'm browsing your store on OshiCart!`
-  );
-
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -214,53 +211,25 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
           </Link>
         </div>
       </nav>
-      {/* Store Header */}
-      <header className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-4 py-5">
-          <div className="flex items-start gap-4">
-            {merchant.logo_url ? (
-              <img
-                src={merchant.logo_url}
-                alt={merchant.store_name}
-                className="w-14 h-14 rounded-full object-cover border shrink-0"
-              />
-            ) : (
-              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                <span className="text-green-700 font-bold text-xl">
-                  {merchant.store_name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-gray-900">
-                {merchant.store_name}
-              </h1>
-              {merchant.description && (
-                <p className="text-sm text-gray-500 mt-1 hidden sm:block sm:line-clamp-2">
-                  {merchant.description}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Description — full text on mobile, below the header row */}
-          {merchant.description && (
-            <p className="text-sm text-gray-500 mt-3 sm:hidden">
-              {merchant.description}
-            </p>
-          )}
-
-          <a
-            href={waLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-4 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
-          >
-            <MessageCircle className="w-4 h-4" />
-            WhatsApp Us
-          </a>
-        </div>
-      </header>
+      {/* Store Header — revamped */}
+      <StoreCover archetype={merchant.industry} />
+      <StoreHeaderCard
+        store={{
+          storeName: merchant.store_name,
+          description: merchant.description,
+          logoUrl: merchant.logo_url,
+          location: null,
+          phone: null,
+          whatsappNumber: merchant.whatsapp_number,
+          openingHours: null,
+          rating: null,
+          orderCount: null,
+          slug: merchant.store_slug,
+        }}
+        storeUrl={`${SITE_URL}/s/${slug}`}
+        qrUrl={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`${SITE_URL}/s/${slug}`)}&margin=10`}
+      />
+      <StorePaymentStrip />
 
       {/* Soft-suspend banner */}
       {isSoftSuspended && (

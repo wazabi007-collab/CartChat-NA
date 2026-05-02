@@ -5,7 +5,7 @@ export function Footer() {
   return (
     <footer
       id="contact"
-      className="bg-gray-900 text-gray-400 py-12 px-4 sm:px-6"
+      className="bg-walnut text-[color:#d4c2a0] py-12 px-4 sm:px-6"
     >
       <div className="max-w-6xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8 items-start">
@@ -18,7 +18,7 @@ export function Footer() {
               height={35}
               className="brightness-0 invert"
             />
-            <p className="mt-3 text-sm text-gray-500">
+            <p className="mt-3 text-sm text-[color:#a89270]">
               Empowering Local Commerce in Namibia
             </p>
           </div>
@@ -26,7 +26,7 @@ export function Footer() {
           {/* About Us */}
           <div id="about" className="md:col-span-2">
             <h4 className="text-white font-semibold mb-3">About Us</h4>
-            <div className="text-sm text-gray-400 leading-relaxed space-y-3">
+            <div className="text-sm text-[color:#d4c2a0] leading-relaxed space-y-3">
               <p>
                 OshiCart is a proudly Namibian platform born from a single mission: to empower the local entrepreneur.
                 We know that in Namibia, business happens in the DMs and on WhatsApp Status. We built OshiCart to bridge
@@ -95,9 +95,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-gray-800 flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
+        <div className="mt-10 pt-6 border-t border-[color:#3a2b14] flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
           <p>&copy; {new Date().getFullYear()} OshiCart. Made in Namibia.</p>
-          <p className="text-gray-500">
+          <p className="text-[color:#a89270]">
             OshiCart is a product of Octovia Nexus Investments CC
           </p>
         </div>

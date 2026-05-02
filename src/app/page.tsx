@@ -14,6 +14,7 @@ import { PublicNavbar } from "@/components/public-navbar";
 import { SupportButton } from "@/components/support-button";
 import { JsonLd } from "@/components/json-ld";
 import { Hero } from "@/components/landing/hero";
+import { PaymentTrustBar } from "@/components/landing/payment-trust-bar";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -39,6 +40,7 @@ export default function LandingPage() {
       <JsonLd data={organizationSchema} />
       <PublicNavbar />
       <Hero />
+      <PaymentTrustBar />
       <HeroSection />
       <HowItWorksSection />
       <FeaturesSection />

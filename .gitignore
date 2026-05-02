@@ -66,3 +66,5 @@ public/*.png
 public/hero-bg.webp
 public/hero-illustration.svg
 public/whatsapp-large.svg
+
+.vercel

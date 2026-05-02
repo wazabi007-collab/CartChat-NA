@@ -24,6 +24,7 @@ export interface ThemeConfig {
   ctaText: string;
   sectionLabel: string;
   layout: LayoutVariant;
+  coverGradient: string;
 }
 
 export interface OrderMessageData {
@@ -80,6 +81,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     ctaText: "Order Now",
     sectionLabel: "Menu",
     layout: "menu-list",
+    coverGradient: "linear-gradient(135deg, #b45309 0%, #d97706 60%, #fcd34d 100%)",
   },
   food_fresh: {
     accent: "#15803d",
@@ -89,6 +91,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     ctaText: "Add to Basket",
     sectionLabel: "Fresh Picks",
     layout: "compact-grid",
+    coverGradient: "linear-gradient(135deg, #15803d 0%, #65a30d 100%)",
   },
   retail: {
     accent: "#16a34a",
@@ -98,6 +101,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     ctaText: "Add to Cart",
     sectionLabel: "Products",
     layout: "product-grid",
+    coverGradient: "linear-gradient(135deg, #b45309 0%, #15803d 100%)",
   },
   beauty: {
     accent: "#475569",
@@ -107,6 +111,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     ctaText: "Book Now",
     sectionLabel: "Treatments",
     layout: "horizontal-card",
+    coverGradient: "linear-gradient(135deg, #475569 0%, #be185d 100%)",
   },
   services: {
     accent: "#2563eb",
@@ -116,6 +121,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     ctaText: "Request",
     sectionLabel: "Our Services",
     layout: "service-list",
+    coverGradient: "linear-gradient(135deg, #15803d 0%, #0f766e 100%)",
   },
   gifting: {
     accent: "#b45309",
@@ -125,6 +131,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     ctaText: "Send Gift",
     sectionLabel: "Gift Collection",
     layout: "visual-gallery",
+    coverGradient: "linear-gradient(135deg, #b45309 0%, #f59e0b 100%)",
   },
 };
 
@@ -284,4 +291,11 @@ export function getOrderMessage(
     };
     return values[key] ?? "";
   });
+}
+
+export function getCoverGradient(archetype: IndustryArchetype | string | null | undefined): string {
+  const fallback = "linear-gradient(135deg, #b45309 0%, #15803d 100%)";
+  if (!archetype) return fallback;
+  const theme = THEME_CONFIGS[archetype as IndustryArchetype];
+  return theme?.coverGradient ?? fallback;
 }

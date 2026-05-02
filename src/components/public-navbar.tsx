@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
@@ -8,9 +8,26 @@ import { track } from "@/lib/track";
 
 export function PublicNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    let last = window.scrollY > 60;
+    setScrolled(last);
+
+    const handleScroll = () => {
+      const next = window.scrollY > 60;
+      if (next !== last) {
+        last = next;
+        setScrolled(next);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
+    <header className={`sticky top-0 z-50 bg-white/95 backdrop-blur border-b transition-colors ${scrolled ? "border-border-warm" : "border-transparent"}`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         <Link href="/" className="flex-shrink-0">
           <Image
@@ -31,7 +48,7 @@ export function PublicNavbar() {
             Browse Stores
           </Link>
           <Link
-            href="/pricing"
+            href="/#pricing"
             className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
           >
             Pricing
@@ -75,7 +92,7 @@ export function PublicNavbar() {
             Browse Stores
           </Link>
           <Link
-            href="/pricing"
+            href="/#pricing"
             onClick={() => setMobileOpen(false)}
             className="block px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
           >

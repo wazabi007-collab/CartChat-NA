@@ -17,7 +17,7 @@ export function CartDrawer({ slug }: { slug: string }) {
       {/* Floating cart button */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 bg-green-600 hover:bg-green-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-colors"
+        className="fixed bottom-5 right-5 z-40 bg-terracotta hover:opacity-90 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-colors"
         aria-label="Open cart"
       >
         <ShoppingCart className="w-6 h-6" />
@@ -88,7 +88,7 @@ export function CartDrawer({ slug }: { slug: string }) {
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {item.name}
                     </p>
-                    <p className="text-sm text-green-600 font-bold">
+                    <p className="text-sm text-terracotta font-bold">
                       {formatPrice(item.price)}
                     </p>
 
@@ -140,14 +140,14 @@ export function CartDrawer({ slug }: { slug: string }) {
           <div className="border-t p-4 space-y-3">
             <div className="flex justify-between text-base font-bold">
               <span>Subtotal</span>
-              <span className="text-green-600">{formatPrice(getTotal())}</span>
+              <span className="text-terracotta">{formatPrice(getTotal())}</span>
             </div>
             <button
               onClick={() => {
                 setOpen(false);
                 router.push(`/checkout/${slug}`);
               }}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-md transition-colors"
+              className="w-full bg-terracotta hover:opacity-90 text-white font-semibold py-3 rounded-md transition-colors"
             >
               Checkout
             </button>

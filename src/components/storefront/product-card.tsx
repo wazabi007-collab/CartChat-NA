@@ -46,7 +46,7 @@ export function ProductCard({
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg border border-border-warm overflow-hidden flex flex-col hover:shadow-md hover:-translate-y-0.5 transition">
       <Link href={`/s/${slug}/${id}`} className="block relative">
         {imageUrl ? (
           <div className="relative aspect-square bg-gray-100">
@@ -86,7 +86,7 @@ export function ProductCard({
             {name}
           </h3>
         </Link>
-        <p className={`font-bold text-base mt-1 ${accentColor ? '' : 'text-green-600'}`} style={accentColor ? { color: accentColor } : undefined}>
+        <p className={`font-bold text-base mt-1 ${accentColor ? '' : 'text-terracotta'}`} style={accentColor ? { color: accentColor } : undefined}>
           {isQuoteOnly ? "Request a Quote" : isService && price > 0 ? `From ${formatPrice(price)}` : price === 0 && !isService ? "Price on request" : formatPrice(price)}
         </p>
         <div className="mt-auto pt-2">
@@ -110,7 +110,7 @@ export function ProductCard({
               onClick={() =>
                 addItem({ productId: id, name, price, imageUrl })
               }
-              className={`w-full text-white text-sm font-medium py-2 px-3 rounded-md transition-colors ${accentColor ? '' : 'bg-green-600 hover:bg-green-700'}`}
+              className={`w-full text-white text-sm font-medium py-2 px-3 rounded-md transition-colors ${accentColor ? '' : 'bg-terracotta hover:opacity-90'}`}
               style={accentColor ? { backgroundColor: accentColor } : undefined}
               onMouseEnter={accentHover ? (e) => { e.currentTarget.style.backgroundColor = accentHover; } : undefined}
               onMouseLeave={accentColor ? (e) => { e.currentTarget.style.backgroundColor = accentColor; } : undefined}

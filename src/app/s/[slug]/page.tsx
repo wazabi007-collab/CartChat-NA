@@ -14,6 +14,7 @@ import { OrderTracker } from "@/components/storefront/order-tracker";
 import { StoreCover } from "@/components/storefront/store-cover";
 import { StoreHeaderCard } from "@/components/storefront/store-header-card";
 import { StorePaymentStrip } from "@/components/storefront/store-payment-strip";
+import { StoreCategoryGrid } from "@/components/storefront/store-category-grid";
 import { JsonLd } from "@/components/json-ld";
 
 const PRODUCTS_PER_PAGE = 100;
@@ -286,37 +287,14 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
               <Grid3X3 size={18} className="text-gray-400" />
               <h2 className="text-lg font-bold text-gray-900">Browse by Category</h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {activeCategories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/s/${slug}?cat=${cat.id}`}
-                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-gray-300 transition-all group"
-                >
-                  <div className="aspect-[4/3] relative bg-gray-100">
-                    {cat.image_url ? (
-                      <img
-                        src={cat.image_url}
-                        alt={cat.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center" style={theme ? { backgroundColor: theme.bgTint } : undefined}>
-                        <Grid3X3 size={32} className="text-gray-300" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <h3 className="font-semibold text-sm text-gray-900 truncate group-hover:text-green-600 transition-colors" style={theme ? { color: undefined } : undefined}>
-                      {cat.name}
-                    </h3>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {catCountMap.get(cat.id) || 0} product{(catCountMap.get(cat.id) || 0) !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <StoreCategoryGrid
+              storeSlug={slug}
+              categories={activeCategories.map((c) => ({
+                slug: c.id,
+                name: c.name,
+                productCount: catCountMap.get(c.id) ?? 0,
+              }))}
+            />
           </div>
         ) : allProducts.length === 0 && !categoryFilter ? (
           <p className="text-center text-gray-500 py-12">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
@@ -25,8 +25,9 @@ export default function ResetPasswordPage() {
 }
 
 function ResetPasswordForm() {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const searchParams = useSearchParams();
+  const code = searchParams.get("code");
   const nextParam = searchParams.get("next");
   const nextPath =
     nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
@@ -39,9 +40,63 @@ function ResetPasswordForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  const [sessionReady, setSessionReady] = useState(false);
+  const [sessionLoading, setSessionLoading] = useState(true);
+  const [sessionError, setSessionError] = useState("");
 
   // Check if there's an error in the URL (e.g., expired link)
   const urlError = searchParams.get("error_description");
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function prepareRecoverySession() {
+      if (urlError) {
+        setSessionLoading(false);
+        return;
+      }
+
+      if (code) {
+        const { error: exchangeError } =
+          await supabase.auth.exchangeCodeForSession(code);
+
+        if (!mounted) return;
+
+        if (exchangeError) {
+          setSessionError("This reset link is invalid or has expired. Please request a new password reset link.");
+          setSessionReady(false);
+        } else {
+          setSessionReady(true);
+          const cleanUrl = new URL(window.location.href);
+          cleanUrl.searchParams.delete("code");
+          window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
+        }
+        setSessionLoading(false);
+        return;
+      }
+
+      if (!mounted) return;
+      setSessionError("Open the reset link from your email before setting a new password.");
+      setSessionLoading(false);
+    }
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setSessionReady(true);
+        setSessionLoading(false);
+        setSessionError("");
+      }
+    });
+
+    prepareRecoverySession();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [code, supabase, urlError]);
 
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();
@@ -59,6 +114,11 @@ function ResetPasswordForm() {
     }
 
     setLoading(true);
+
+    if (!sessionReady) {
+      setError("Open the reset link from your email before setting a new password.");
+      return;
+    }
 
     const { error } = await supabase.auth.updateUser({ password });
 
@@ -81,12 +141,16 @@ function ResetPasswordForm() {
           </div>
 
           <div className={card}>
-            {urlError && (
+            {(urlError || sessionError) && (
               <div className={`${alertError} mb-4`}>
                 <AlertCircle className={alertIcon} />
                 <div>
-                  <p className="font-medium">Reset link expired</p>
-                  <p className="mt-1">Please request a new password reset from the login page.</p>
+                  <p className="font-medium">Reset link problem</p>
+                  <p className="mt-1">
+                    {urlError
+                      ? "Please request a new password reset from the login page."
+                      : sessionError}
+                  </p>
                 </div>
               </div>
             )}
@@ -107,7 +171,11 @@ function ResetPasswordForm() {
                   Go to Sign In
                 </Link>
               </div>
-            ) : !urlError ? (
+            ) : sessionLoading ? (
+              <div className="py-6 text-center text-sm text-gray-500">
+                Checking reset link...
+              </div>
+            ) : sessionReady ? (
               <form onSubmit={handleResetPassword} className="space-y-4">
                 <div>
                   <label htmlFor="new-password" className={label}>

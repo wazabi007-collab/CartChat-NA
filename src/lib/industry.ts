@@ -94,14 +94,14 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     coverGradient: "linear-gradient(135deg, #15803d 0%, #65a30d 100%)",
   },
   retail: {
-    accent: "#16a34a",
-    accentHover: "#15803d",
-    bgTint: "#f0fdf4",
-    borderColor: "#bbf7d0",
+    accent: "#2b5ea7",
+    accentHover: "#1f4f8d",
+    bgTint: "#f8fafc",
+    borderColor: "#dbe3ee",
     ctaText: "Add to Cart",
     sectionLabel: "Products",
     layout: "product-grid",
-    coverGradient: "linear-gradient(135deg, #b45309 0%, #15803d 100%)",
+    coverGradient: "linear-gradient(135deg, #0b1220 0%, #2b5ea7 48%, #16a34a 100%)",
   },
   beauty: {
     accent: "#475569",
@@ -294,7 +294,7 @@ export function getOrderMessage(
 }
 
 export function getCoverGradient(archetype: IndustryArchetype | string | null | undefined): string {
-  const fallback = "linear-gradient(135deg, #b45309 0%, #15803d 100%)";
+  const fallback = "linear-gradient(135deg, #0b1220 0%, #2b5ea7 48%, #16a34a 100%)";
   if (!archetype) return fallback;
   const theme = THEME_CONFIGS[archetype as IndustryArchetype];
   return theme?.coverGradient ?? fallback;

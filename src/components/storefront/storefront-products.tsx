@@ -89,7 +89,7 @@ export function StorefrontProducts({
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:border-transparent appearance-none cursor-pointer"
+            className="px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white shadow-sm shadow-slate-900/5 focus:outline-none focus:ring-2 focus:border-transparent appearance-none cursor-pointer"
             style={theme ? { "--tw-ring-color": theme.accent } as React.CSSProperties : undefined}
           >
             <option value="default">Sort</option>
@@ -104,7 +104,7 @@ export function StorefrontProducts({
       {/* Search results */}
       {filteredProducts !== null ? (
         filteredProducts.length === 0 ? (
-          <p className="text-center text-gray-500 py-8">
+          <p className="text-center text-slate-500 py-8">
             No products found for &ldquo;{search}&rdquo;
           </p>
         ) : (
@@ -153,7 +153,7 @@ export function StorefrontProducts({
         <div className="space-y-8">
           {sortedSections.map((section) => (
             <section key={section.name}>
-              <h2 className="text-lg font-bold text-gray-900 mb-3">
+              <h2 className="text-lg font-bold text-slate-950 mb-3">
                 {section.name}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">

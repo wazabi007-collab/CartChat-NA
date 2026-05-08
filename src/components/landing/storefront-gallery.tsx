@@ -1,14 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowRight,
-  BriefcaseBusiness,
-  Package,
-  Scissors,
-  ShoppingBag,
-  Sparkles,
-  Watch,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 type StorePreview = {
@@ -19,7 +11,7 @@ type StorePreview = {
   description: string | null;
   logoUrl: string | null;
   productCount: number;
-  productImages: string[];
+  showcaseImageUrl: string;
   visualType: "promo" | "beauty" | "leather";
 };
 
@@ -28,6 +20,12 @@ const FEATURED_SLUGS = [
   "apatchy-beard-company",
   "krotoa-leather-goods",
 ];
+
+const SHOWCASE_IMAGES: Record<string, string> = {
+  "octovia-nexus": "/landing/featured-octovia-nexus.webp",
+  "apatchy-beard-company": "/landing/featured-apatchy-beard-company.webp",
+  "krotoa-leather-goods": "/landing/featured-krotoa-leather-goods.webp",
+};
 
 const INDUSTRY_LABELS: Record<string, string> = {
   restaurant: "Food",
@@ -57,7 +55,7 @@ const FALLBACK_STORES: StorePreview[] = [
     description: "Promo items and business products with a clean online catalog.",
     logoUrl: null,
     productCount: 1976,
-    productImages: [],
+    showcaseImageUrl: SHOWCASE_IMAGES["octovia-nexus"],
     visualType: "promo",
   },
   {
@@ -68,7 +66,7 @@ const FALLBACK_STORES: StorePreview[] = [
     description: "Natural beard care products with WhatsApp ordering.",
     logoUrl: null,
     productCount: 3,
-    productImages: [],
+    showcaseImageUrl: SHOWCASE_IMAGES["apatchy-beard-company"],
     visualType: "beauty",
   },
   {
@@ -79,7 +77,7 @@ const FALLBACK_STORES: StorePreview[] = [
     description: "Handcrafted leather goods from Namibia.",
     logoUrl: null,
     productCount: 10,
-    productImages: [],
+    showcaseImageUrl: SHOWCASE_IMAGES["krotoa-leather-goods"],
     visualType: "leather",
   },
 ];
@@ -118,22 +116,26 @@ export async function StorefrontGallery() {
               href={`/s/${store.slug}`}
               className="group overflow-hidden rounded-2xl border border-border-warm bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
             >
-              <div className="grid aspect-[4/3] grid-cols-2 grid-rows-2 gap-px bg-sand-2">
-                {store.productImages.length > 0 ? (
-                  store.productImages.slice(0, 4).map((src, index) => (
-                    <div key={`${src}-${index}`} className="relative bg-sand-2">
-                      <Image
-                        src={src}
-                        alt=""
-                        fill
-                        sizes="(min-width:1024px) 30vw, (min-width:640px) 45vw, 90vw"
-                        className="object-cover"
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <StoreArtwork type={store.visualType} storeName={store.name} />
-                )}
+              <div className="relative aspect-[4/3] overflow-hidden bg-sand-2">
+                <Image
+                  src={store.showcaseImageUrl}
+                  alt={`${store.name} featured store preview`}
+                  fill
+                  sizes="(min-width:1024px) 30vw, (min-width:640px) 45vw, 90vw"
+                  className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-walnut/70 to-transparent" />
+                <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-terracotta shadow-sm backdrop-blur">
+                  {INDUSTRY_LABELS[store.industry || ""] || "Local store"}
+                </div>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <p className="text-base font-black text-white drop-shadow">
+                    {store.name}
+                  </p>
+                  <p className="mt-0.5 text-xs font-bold text-white/85">
+                    {store.productCount} products ready to order
+                  </p>
+                </div>
               </div>
 
               <div className="p-5">
@@ -158,7 +160,7 @@ export async function StorefrontGallery() {
                       {store.name}
                     </p>
                     <p className="text-xs font-bold text-acacia">
-                      {INDUSTRY_LABELS[store.industry || ""] || "Local store"} ·{" "}
+                      {INDUSTRY_LABELS[store.industry || ""] || "Local store"} -{" "}
                       {store.productCount} products
                     </p>
                   </div>
@@ -211,16 +213,6 @@ async function getFeaturedStoresFromDatabase(): Promise<StorePreview[]> {
         .eq("is_available", true)
         .is("deleted_at", null);
 
-      const { data: products } = await supabase
-        .from("products")
-        .select("image_url")
-        .eq("merchant_id", merchant.id)
-        .eq("is_available", true)
-        .is("deleted_at", null)
-        .not("image_url", "is", null)
-        .order("created_at", { ascending: false })
-        .limit(4);
-
       return {
         id: merchant.id,
         name: merchant.store_name,
@@ -229,8 +221,10 @@ async function getFeaturedStoresFromDatabase(): Promise<StorePreview[]> {
         description: merchant.description,
         logoUrl: merchant.logo_url,
         productCount: count || fallback?.productCount || 0,
-        productImages:
-          products?.map((product) => product.image_url).filter(Boolean) || [],
+        showcaseImageUrl:
+          SHOWCASE_IMAGES[merchant.store_slug] ||
+          fallback?.showcaseImageUrl ||
+          SHOWCASE_IMAGES["octovia-nexus"],
         visualType: fallback?.visualType || "promo",
       };
     })
@@ -241,84 +235,4 @@ async function getFeaturedStoresFromDatabase(): Promise<StorePreview[]> {
   );
 
   return activeStores.length > 0 ? activeStores : FALLBACK_STORES;
-}
-
-function StoreArtwork({
-  type,
-  storeName,
-}: {
-  type: StorePreview["visualType"];
-  storeName: string;
-}) {
-  if (type === "beauty") {
-    return (
-      <div className="col-span-2 row-span-2 overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-blue-100 p-4">
-        <div className="flex h-full flex-col justify-between rounded-2xl border border-white/70 bg-white/55 p-4 shadow-sm backdrop-blur">
-          <div className="flex items-center justify-between">
-            <span className="rounded-full bg-acacia px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
-              Natural care
-            </span>
-            <Sparkles size={22} className="text-acacia" />
-          </div>
-          <div className="grid grid-cols-3 items-end gap-3">
-            <div className="h-16 rounded-t-2xl bg-[#111827] shadow-md" />
-            <div className="h-24 rounded-t-2xl bg-[#1f2937] shadow-md" />
-            <div className="h-20 rounded-t-2xl bg-[#374151] shadow-md" />
-          </div>
-          <p className="text-sm font-black text-walnut">{storeName}</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (type === "leather") {
-    return (
-      <div className="col-span-2 row-span-2 overflow-hidden bg-gradient-to-br from-amber-100 via-orange-50 to-white p-4">
-        <div className="grid h-full grid-cols-[1.1fr_0.9fr] gap-3">
-          <div className="rounded-2xl bg-[#7c3f16] p-4 text-white shadow-md">
-            <ShoppingBag className="mb-8" size={30} />
-            <p className="text-xs font-bold uppercase tracking-wide text-white/70">
-              Handcrafted
-            </p>
-            <p className="mt-1 text-lg font-black leading-tight">
-              Leather goods
-            </p>
-          </div>
-          <div className="space-y-3">
-            <div className="flex h-20 items-center justify-center rounded-2xl bg-[#a16207] text-white shadow-sm">
-              <Watch size={30} />
-            </div>
-            <div className="flex h-20 items-center justify-center rounded-2xl bg-white text-[#7c3f16] shadow-sm">
-              <Scissors size={30} />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="col-span-2 row-span-2 overflow-hidden bg-gradient-to-br from-blue-100 via-white to-slate-100 p-4">
-      <div className="flex h-full flex-col justify-between rounded-2xl border border-white/70 bg-white/60 p-4 shadow-sm backdrop-blur">
-        <div className="flex items-center justify-between">
-          <span className="rounded-full bg-terracotta px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
-            Business catalog
-          </span>
-          <BriefcaseBusiness size={24} className="text-terracotta" />
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          <div className="flex aspect-square items-center justify-center rounded-2xl bg-white text-terracotta shadow-sm">
-            <Package size={28} />
-          </div>
-          <div className="flex aspect-square items-center justify-center rounded-2xl bg-acacia-soft text-acacia shadow-sm">
-            <ShoppingBag size={28} />
-          </div>
-          <div className="flex aspect-square items-center justify-center rounded-2xl bg-terracotta-soft text-terracotta shadow-sm">
-            <BriefcaseBusiness size={28} />
-          </div>
-        </div>
-        <p className="text-sm font-black text-walnut">{storeName}</p>
-      </div>
-    </div>
-  );
 }

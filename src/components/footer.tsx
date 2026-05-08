@@ -12,11 +12,11 @@ export function Footer() {
           {/* Brand */}
           <div>
             <Image
-              src="/logo.svg"
+              src="/logo-light.svg"
               alt="OshiCart"
-              width={130}
-              height={35}
-              className="brightness-0 invert"
+              width={170}
+              height={44}
+              style={{ width: 170, height: "auto" }}
             />
             <p className="mt-3 text-sm text-slate-400">
               Online stores for Namibia&apos;s shops, vendors, services, and

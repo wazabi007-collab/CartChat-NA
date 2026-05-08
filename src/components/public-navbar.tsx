@@ -32,10 +32,10 @@ export function PublicNavbar() {
           <Image
             src="/logo.svg"
             alt="OshiCart"
-            width={150}
-            height={40}
+            width={170}
+            height={44}
             priority
-            style={{ width: 150, height: "auto" }}
+            style={{ width: 170, height: "auto" }}
           />
         </Link>
 

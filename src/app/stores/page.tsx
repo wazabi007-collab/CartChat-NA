@@ -304,13 +304,13 @@ export default async function StoresPage({
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
           <div className="flex items-center gap-3">
             <Image
-              src="/logo.svg"
+              src="/logo-light.svg"
               alt={SITE_NAME}
-              width={100}
-              height={27}
-              className="brightness-0 invert"
+              width={130}
+              height={34}
+              style={{ width: 130, height: "auto" }}
             />
-            <span className="text-gray-500">— Made in Namibia</span>
+            <span className="text-gray-500">- Made in Namibia</span>
           </div>
           <div className="flex gap-6">
             <Link href="/terms" className="hover:text-white transition-colors">

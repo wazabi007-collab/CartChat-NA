@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 108" fill="none" role="img" aria-label="OshiCart">
+  <defs>
+    <linearGradient id="badgeGradientLight" x1="15" y1="13" x2="96" y2="94" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="0.58" stop-color="#22C55E"/>
+      <stop offset="1" stop-color="#FBBF24"/>
+    </linearGradient>
+    <linearGradient id="cartGradientLight" x1="333" y1="28" x2="399" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#93C5FD"/>
+    </linearGradient>
+    <filter id="badgeShadowLight" x="3" y="4" width="102" height="104" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000000" flood-opacity="0.24"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#badgeShadowLight)">
+    <rect x="16" y="14" width="76" height="76" rx="24" fill="url(#badgeGradientLight)"/>
+    <path d="M35 38h8l5.3 27h28.4l6.2-19H52.5" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="m58 34 8 8 15-16" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="53" cy="74" r="4.8" fill="white"/>
+    <circle cx="74" cy="74" r="4.8" fill="white"/>
+  </g>
+
+  <text x="116" y="71" font-family="Arial Rounded MT Bold, Nunito, Inter, Segoe UI, Arial, sans-serif" font-size="56" font-weight="900" letter-spacing="-1">
+    <tspan fill="#F8FAFC">Oshi</tspan><tspan fill="#34D777">Cart</tspan>
+  </text>
+
+  <path d="M119 82h138" stroke="#60A5FA" stroke-width="5" stroke-linecap="round"/>
+  <path d="M266 82h68" stroke="#34D777" stroke-width="5" stroke-linecap="round"/>
+
+  <g stroke="url(#cartGradientLight)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M334 34h15l8 38h42l7-26h-45"/>
+    <path d="M363 58h33"/>
+    <path d="M359 72h38"/>
+  </g>
+  <circle cx="369" cy="88" r="6" fill="#60A5FA"/>
+  <circle cx="398" cy="88" r="6" fill="#60A5FA"/>
+</svg>

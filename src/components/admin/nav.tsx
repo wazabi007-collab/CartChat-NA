@@ -57,12 +57,11 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
         <div className="flex flex-col flex-1 overflow-y-auto">
           <div className="border-b border-white/10 p-5">
             <Image
-              src="/logo.svg"
+              src="/logo-light.svg"
               alt="OshiCart"
-              width={132}
-              height={34}
-              className="brightness-0 invert"
-              style={{ width: 132, height: "auto" }}
+              width={150}
+              height={39}
+              style={{ width: 150, height: "auto" }}
             />
             <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-3">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">
@@ -118,12 +117,11 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
       <div className="md:hidden sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-slate-950 px-4 py-3">
         <div className="flex items-center gap-2">
           <Image
-            src="/logo.svg"
+            src="/logo-light.svg"
             alt="OshiCart"
-            width={110}
-            height={28}
-            className="brightness-0 invert"
-            style={{ width: 110, height: "auto" }}
+            width={128}
+            height={33}
+            style={{ width: 128, height: "auto" }}
           />
           <span className="rounded-full bg-emerald-400/10 px-2 py-1 text-xs font-black text-emerald-300">
             Admin

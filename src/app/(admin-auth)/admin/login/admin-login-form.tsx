@@ -50,13 +50,12 @@ export function AdminLoginForm({ initialError }: { initialError?: string }) {
         <section className="hidden lg:block">
           <Link href="/" className="inline-flex">
             <Image
-              src="/logo.svg"
+              src="/logo-light.svg"
               alt="OshiCart"
-              width={150}
-              height={40}
+              width={170}
+              height={44}
               priority
-              style={{ width: 150, height: "auto" }}
-              className="brightness-0 invert"
+              style={{ width: 170, height: "auto" }}
             />
           </Link>
           <p className="mt-8 text-xs font-black uppercase tracking-[0.28em] text-emerald-300">

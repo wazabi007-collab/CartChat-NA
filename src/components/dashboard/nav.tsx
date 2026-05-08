@@ -66,10 +66,10 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
               <Image
                 src="/logo.svg"
                 alt="OshiCart"
-                width={132}
-                height={34}
+                width={150}
+                height={39}
                 priority
-                style={{ width: 132, height: "auto" }}
+                style={{ width: 150, height: "auto" }}
               />
             </Link>
             {merchant && (
@@ -134,10 +134,10 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
           <Image
             src="/logo.svg"
             alt="OshiCart"
-            width={110}
-            height={28}
+            width={128}
+            height={33}
             priority
-            style={{ width: 110, height: "auto" }}
+            style={{ width: 128, height: "auto" }}
           />
         </Link>
       </div>

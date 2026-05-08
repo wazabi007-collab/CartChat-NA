@@ -60,6 +60,7 @@ export function DashboardCommandPanel({
     today: {
       title: "Work queue",
       eyebrow: "Daily operations",
+      image: "/landing/featured-krotoa-leather-goods.webp",
       description:
         pendingOrders > 0
           ? "Start with pending orders, then check payment confirmations and stock."
@@ -76,6 +77,7 @@ export function DashboardCommandPanel({
     growth: {
       title: "Share and sell",
       eyebrow: "Store growth",
+      image: "/landing/featured-octovia-nexus.webp",
       description:
         "Your store link, QR code, and WhatsApp sharing are the fastest path to more customer orders.",
       primaryHref: storeUrl,
@@ -90,6 +92,7 @@ export function DashboardCommandPanel({
     automation: {
       title: "WhatsApp-ready workflow",
       eyebrow: "Automation",
+      image: "/landing/featured-apatchy-beard-company.webp",
       description:
         "Order updates are designed around WhatsApp so customers stay informed without manual back-and-forth.",
       primaryHref: "/dashboard/settings",
@@ -104,6 +107,7 @@ export function DashboardCommandPanel({
   } satisfies Record<TabKey, {
     title: string;
     eyebrow: string;
+    image: string;
     description: string;
     primaryHref: string;
     primaryLabel: string;
@@ -117,8 +121,15 @@ export function DashboardCommandPanel({
   return (
     <section className="mb-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm shadow-slate-900/5">
       <div className="grid lg:grid-cols-[0.92fr_1.08fr]">
-        <div className="relative bg-slate-950 p-5 text-white md:p-6">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(43,94,167,0.5),transparent_30%),radial-gradient(circle_at_85%_12%,rgba(20,153,71,0.32),transparent_28%)]" />
+        <div className="relative overflow-hidden bg-slate-900 p-5 text-white md:p-6">
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-45"
+            style={{ backgroundImage: `url(${current.image})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-slate-900/78 to-emerald-950/72" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_20%,rgba(43,94,167,0.45),transparent_34%),radial-gradient(circle_at_86%_18%,rgba(20,153,71,0.38),transparent_30%)]" />
+          <div className="absolute -right-12 bottom-5 hidden h-36 w-36 rounded-full border border-white/15 bg-white/5 backdrop-blur-sm sm:block" />
+          <div className="absolute -right-5 bottom-16 hidden h-20 w-20 rounded-3xl border border-white/20 bg-white/10 backdrop-blur-sm sm:block" />
           <div className="relative">
             <div className="mb-5 flex flex-wrap gap-2">
               {tabs.map((tab) => {

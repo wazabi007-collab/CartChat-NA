@@ -2,19 +2,25 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Package, ShoppingCart, Eye, ArrowRight, AlertTriangle, ShieldAlert, Clock } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  Clock,
+  Eye,
+  Package,
+  Plus,
+  ShieldAlert,
+  ShoppingCart,
+  Store,
+  TrendingUp,
+} from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { SITE_URL } from "@/lib/constants";
 import { getServiceLabels } from "@/lib/service-labels";
 import { GettingStarted } from "@/components/dashboard/getting-started";
 import { ShareStoreCard } from "@/components/dashboard/share-store-card";
-import {
-  card,
-  alertError,
-  alertWarning,
-  alertInfo,
-  alertIcon,
-} from "@/lib/ui";
+import { DashboardCommandPanel } from "@/components/dashboard/dashboard-command-panel";
+import { alertError, alertWarning, alertInfo, alertIcon } from "@/lib/ui";
 
 export default async function DashboardPage({
   searchParams,
@@ -43,17 +49,13 @@ export default async function DashboardPage({
   }
 
   const labels = getServiceLabels(merchant.industry);
-
-  // Cast to access runtime columns not yet in generated types
   const merchantExt = merchant as typeof merchant & {
     store_link_shared?: boolean;
     getting_started_dismissed?: boolean;
   };
 
-  // Fetch subscription status
   const service = createServiceClient();
 
-  // Handle resume_checklist: reset dismissed flag and redirect to clean URL
   if (resumeChecklist) {
     await service
       .from("merchants")
@@ -68,7 +70,6 @@ export default async function DashboardPage({
     .eq("merchant_id", merchant.id)
     .single();
 
-  // Fetch stats
   const [productsResult, ordersResult, pendingResult, lowStockResult, totalOrdersResult] =
     await Promise.all([
       supabase
@@ -106,7 +107,7 @@ export default async function DashboardPage({
   const completedOrders = ordersResult.count || 0;
   const pendingOrders = pendingResult.count || 0;
   const totalRevenue = (ordersResult.data || []).reduce(
-    (sum, o) => sum + o.subtotal_nad,
+    (sum, order) => sum + order.subtotal_nad,
     0
   );
   const totalOrders = totalOrdersResult.count || 0;
@@ -115,7 +116,6 @@ export default async function DashboardPage({
   const storeAbsoluteUrl = `${SITE_URL}/s/${merchant.store_slug}`;
   const now = new Date().getTime();
 
-  // Dashboard state
   const allChecklistComplete =
     productCount > 0 &&
     (merchantExt.store_link_shared ?? false) &&
@@ -125,14 +125,40 @@ export default async function DashboardPage({
   const isNewMerchant = productCount === 0;
 
   return (
-    <div className="md:ml-56">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          {isWelcome ? "🎉 Your store is live!" : `Welcome, ${merchant.store_name}`}
-        </h1>
-      </div>
+    <div className="md:ml-64">
+      <section className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 md:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-acacia">
+              Store overview
+            </p>
+            <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+              {isWelcome ? "Your store is live" : `Welcome, ${merchant.store_name}`}
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              Manage products, orders, store sharing, and payment checks from one clean workspace.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={storeUrl}
+              target="_blank"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
+            >
+              <Store size={16} />
+              Preview store
+            </Link>
+            <Link
+              href="/dashboard/products/new"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-acacia px-4 py-2.5 text-sm font-bold text-white shadow-sm shadow-emerald-900/15 transition hover:bg-emerald-700"
+            >
+              <Plus size={16} />
+              {labels.addItem}
+            </Link>
+          </div>
+        </div>
+      </section>
 
-      {/* Getting Started Checklist — for new/incomplete merchants */}
       {showChecklist && (
         <GettingStarted
           merchantId={merchant.id}
@@ -147,7 +173,6 @@ export default async function DashboardPage({
         />
       )}
 
-      {/* Share Store Card */}
       <ShareStoreCard
         storeUrl={storeAbsoluteUrl}
         storeName={merchant.store_name}
@@ -156,9 +181,21 @@ export default async function DashboardPage({
         compact={!isNewMerchant}
       />
 
-      {/* Store status banner */}
+      <DashboardCommandPanel
+        productCount={productCount}
+        pendingOrders={pendingOrders}
+        completedOrders={completedOrders}
+        totalOrders={totalOrders}
+        totalRevenue={totalRevenue}
+        storeUrl={storeUrl}
+        itemPlural={labels.itemPlural}
+        addItemLabel={labels.addItem}
+        setupComplete={allChecklistComplete}
+        storeLinkShared={merchantExt.store_link_shared ?? false}
+      />
+
       {merchant.store_status === "suspended" && (
-        <div className={`${alertError} mb-6`}>
+        <div className={`${alertError} mb-6 rounded-2xl p-4`}>
           <ShieldAlert size={20} className={alertIcon} />
           <div>
             <h3 className="font-medium text-red-900">Store Suspended</h3>
@@ -170,9 +207,8 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {/* Subscription warning banners */}
       {subscription?.status === "grace" && (
-        <div className={`${alertWarning} mb-6`}>
+        <div className={`${alertWarning} mb-6 rounded-2xl p-4`}>
           <AlertTriangle size={20} className={alertIcon} />
           <div>
             <h3 className="font-medium text-amber-900">Subscription Expired</h3>
@@ -186,11 +222,12 @@ export default async function DashboardPage({
           </div>
         </div>
       )}
+
       {subscription?.status === "soft_suspended" && (
-        <div className={`${alertError} mb-6`}>
+        <div className={`${alertError} mb-6 rounded-2xl p-4`}>
           <ShieldAlert size={20} className={alertIcon} />
           <div>
-            <h3 className="font-medium text-red-900">Store Paused — Subscription Expired</h3>
+            <h3 className="font-medium text-red-900">Store Paused - Subscription Expired</h3>
             <p className="text-sm text-red-800 mt-1">
               Your subscription has expired and your store is no longer accepting orders. Renew to continue.
               Contact support@oshicart.com for payment details.
@@ -198,13 +235,14 @@ export default async function DashboardPage({
           </div>
         </div>
       )}
+
       {subscription && ["trial", "active"].includes(subscription.status) && (() => {
         const endDate = subscription.current_period_end || subscription.trial_ends_at;
         if (!endDate) return null;
         const daysLeft = Math.ceil((new Date(endDate).getTime() - now) / 86400000);
         if (daysLeft > 7) return null;
         return (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 flex items-start gap-3">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
             <Clock size={20} className="text-yellow-600 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-medium text-yellow-900">
@@ -220,11 +258,10 @@ export default async function DashboardPage({
         );
       })()}
 
-      {/* POP Education Banner (TRUST-08) */}
-      <div className={`${alertInfo} mb-6`}>
+      <div className={`${alertInfo} mb-6 rounded-2xl border-blue-200 bg-blue-50 p-4 shadow-sm shadow-blue-900/5`}>
         <ShieldAlert size={20} className={alertIcon} />
         <div>
-          <h3 className="font-medium text-blue-900">Payment Safety Reminder</h3>
+          <h3 className="font-semibold text-blue-900">Payment Safety Reminder</h3>
           <p className="text-sm text-blue-800 mt-1">
             Always verify payments by checking your <strong>actual bank balance</strong> or transaction
             history before confirming an order. Screenshots of proof of payment can be faked.
@@ -233,12 +270,11 @@ export default async function DashboardPage({
         </div>
       </div>
 
-      {/* Stats grid — hidden for new merchants (all zeros are discouraging) */}
       {productCount > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard
             icon={<Package size={20} className="text-blue-600" />}
-            label="Products"
+            label={labels.itemPlural}
             value={productCount.toString()}
             href="/dashboard/products"
           />
@@ -255,7 +291,7 @@ export default async function DashboardPage({
             href="/dashboard/orders"
           />
           <StatCard
-            icon={<span className="text-green-600 font-bold text-lg">N$</span>}
+            icon={<span className="text-green-600 font-black text-lg">N$</span>}
             label="Revenue"
             value={formatPrice(totalRevenue)}
             href="/dashboard/analytics"
@@ -263,73 +299,97 @@ export default async function DashboardPage({
         </div>
       )}
 
-      {/* Low stock warning */}
       {lowStockProducts.length > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-8">
+        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-8 shadow-sm shadow-orange-900/5">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle size={18} className="text-orange-600" />
             <h3 className="font-semibold text-orange-900">
-              {lowStockProducts.length} product{lowStockProducts.length > 1 ? "s" : ""} low on stock
+              {lowStockProducts.length} {labels.itemPlural.toLowerCase()} low on stock
             </h3>
           </div>
           <ul className="space-y-1">
-            {lowStockProducts.map((p) => (
-              <li key={p.id} className="text-sm text-orange-800 flex justify-between">
-                <span>{p.name}</span>
-                <span className={`font-medium ${p.stock_quantity === 0 ? "text-red-600" : "text-orange-600"}`}>
-                  {p.stock_quantity === 0 ? "Out of stock" : `${p.stock_quantity} left`}
+            {lowStockProducts.map((product) => (
+              <li key={product.id} className="text-sm text-orange-800 flex justify-between gap-3">
+                <span>{product.name}</span>
+                <span className={`font-medium ${product.stock_quantity === 0 ? "text-red-600" : "text-orange-600"}`}>
+                  {product.stock_quantity === 0 ? "Out of stock" : `${product.stock_quantity} left`}
                 </span>
               </li>
             ))}
           </ul>
           <Link
             href="/dashboard/products"
-            className="inline-block mt-2 text-sm text-orange-700 hover:text-orange-900 font-medium"
+            className="inline-flex items-center gap-1 mt-2 text-sm text-orange-700 hover:text-orange-900 font-medium"
           >
-            Update stock levels →
+            Update stock levels
+            <ArrowRight size={14} />
           </Link>
         </div>
       )}
 
-      {/* Quick actions */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {pendingOrders > 0 && (
-          <QuickAction
-            href="/dashboard/orders"
-            title={`${pendingOrders} pending order${pendingOrders > 1 ? "s" : ""}`}
-            description="Review and confirm customer orders"
-            variant="warning"
-          />
-        )}
-        {productCount === 0 && (
-          <QuickAction
-            href="/dashboard/products"
-            title={labels.firstItem}
-            description={`Get started by adding ${labels.itemPlural.toLowerCase()} to your catalog`}
-            variant="primary"
-          />
-        )}
-        {merchantExt.getting_started_dismissed && !allChecklistComplete && (
-          <QuickAction
-            href="/dashboard?resume_checklist=true"
-            title="Resume Getting Started"
-            description="Complete your store setup checklist"
-            variant="primary"
-          />
-        )}
-        <QuickAction
-          href={storeUrl}
-          title="View your store"
-          description="See what your customers see"
-          variant="default"
-          external
-        />
-        <QuickAction
-          href="/dashboard/settings"
-          title="Store settings"
-          description="Update bank details, WhatsApp number, and more"
-          variant="default"
-        />
+      <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
+                Priority actions
+              </p>
+              <h2 className="mt-1 text-lg font-black text-slate-950">Keep the store moving</h2>
+            </div>
+            <TrendingUp size={20} className="text-acacia" />
+          </div>
+          <div className="grid gap-3">
+            {pendingOrders > 0 && (
+              <QuickAction
+                href="/dashboard/orders"
+                title={`${pendingOrders} pending order${pendingOrders > 1 ? "s" : ""}`}
+                description="Review and confirm customer orders"
+                variant="warning"
+              />
+            )}
+            {productCount === 0 && (
+              <QuickAction
+                href="/dashboard/products"
+                title={labels.firstItem}
+                description={`Add ${labels.itemPlural.toLowerCase()} so customers can start ordering.`}
+                variant="primary"
+              />
+            )}
+            {merchantExt.getting_started_dismissed && !allChecklistComplete && (
+              <QuickAction
+                href="/dashboard?resume_checklist=true"
+                title="Resume Getting Started"
+                description="Complete your store setup checklist"
+                variant="primary"
+              />
+            )}
+            <QuickAction
+              href={storeUrl}
+              title="View your store"
+              description="See what customers see before you share it."
+              variant="default"
+              external
+            />
+            <QuickAction
+              href="/dashboard/settings"
+              title="Store settings"
+              description="Update bank details, WhatsApp number, and payment details."
+              variant="default"
+            />
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
+            Store health
+          </p>
+          <h2 className="mt-1 text-lg font-black text-slate-950">Operational snapshot</h2>
+          <div className="mt-5 space-y-4">
+            <HealthRow label={`${labels.itemPlural} listed`} value={productCount} total={Math.max(productCount, 10)} />
+            <HealthRow label="Orders completed" value={completedOrders} total={Math.max(totalOrders, 3)} />
+            <HealthRow label="Setup complete" value={allChecklistComplete ? 4 : productCount > 0 ? 3 : 1} total={4} />
+          </div>
+        </section>
       </div>
     </div>
   );
@@ -347,14 +407,17 @@ function StatCard({
   href?: string;
 }) {
   const content = (
-    <div className={`bg-white rounded-xl border border-gray-200 p-4 ${href ? "hover:shadow-sm hover:border-gray-300 transition-all cursor-pointer" : ""}`}>
-      <div className="flex items-center gap-2 mb-2">
-        {icon}
-        <span className="text-xs text-gray-500 font-medium">{label}</span>
+    <div className={`bg-white rounded-2xl border border-slate-200 p-5 shadow-sm shadow-slate-900/5 ${href ? "hover:-translate-y-0.5 hover:shadow-md hover:border-slate-300 transition-all cursor-pointer" : ""}`}>
+      <div className="flex items-center gap-2 mb-3">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-50">
+          {icon}
+        </span>
+        <span className="text-xs text-slate-500 font-bold">{label}</span>
       </div>
-      <p className="text-lg sm:text-2xl font-bold text-gray-900 truncate" title={value}>{value}</p>
+      <p className="text-xl sm:text-2xl font-black text-slate-950 truncate" title={value}>{value}</p>
     </div>
   );
+
   if (href) return <Link href={href}>{content}</Link>;
   return content;
 }
@@ -373,22 +436,49 @@ function QuickAction({
   external?: boolean;
 }) {
   const colors = {
-    primary: "border-green-200 bg-green-50",
+    primary: "border-emerald-200 bg-emerald-50",
     warning: "border-orange-200 bg-orange-50",
-    default: "border-gray-200 bg-white",
+    default: "border-slate-200 bg-white",
   };
 
   return (
     <Link
       href={href}
       target={external ? "_blank" : undefined}
-      className={`flex items-center justify-between p-4 rounded-xl border ${colors[variant]} hover:shadow-sm transition-shadow`}
+      className={`flex items-center justify-between gap-4 p-4 rounded-2xl border ${colors[variant]} hover:shadow-sm transition-shadow`}
     >
       <div>
-        <p className="font-medium text-gray-900">{title}</p>
-        <p className="text-sm text-gray-500">{description}</p>
+        <p className="font-bold text-slate-950">{title}</p>
+        <p className="text-sm text-slate-500">{description}</p>
       </div>
-      <ArrowRight size={18} className="text-gray-400" />
+      <ArrowRight size={18} className="text-slate-400 shrink-0" />
     </Link>
+  );
+}
+
+function HealthRow({
+  label,
+  value,
+  total,
+}: {
+  label: string;
+  value: number;
+  total: number;
+}) {
+  const percentage = Math.min(100, Math.round((value / Math.max(total, 1)) * 100));
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+        <span className="font-semibold text-slate-700">{label}</span>
+        <span className="font-black text-slate-950">{value}</span>
+      </div>
+      <div className="h-2 rounded-full bg-slate-100">
+        <div
+          className="h-2 rounded-full bg-gradient-to-r from-terracotta to-acacia"
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
   );
 }

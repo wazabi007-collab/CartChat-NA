@@ -1,9 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MessageCircle, AlertTriangle, ArrowLeft, Grid3X3, Home, Store } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Grid3X3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { whatsappLink } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { getThemeConfig } from "@/lib/industry";
@@ -12,6 +11,10 @@ import { ReportButton } from "@/components/storefront/report-button";
 import { StorefrontProducts } from "@/components/storefront/storefront-products";
 import { StorefrontTabs } from "@/components/storefront/storefront-tabs";
 import { OrderTracker } from "@/components/storefront/order-tracker";
+import { StoreCover } from "@/components/storefront/store-cover";
+import { StoreHeaderCard } from "@/components/storefront/store-header-card";
+import { StorePaymentStrip } from "@/components/storefront/store-payment-strip";
+import { StoreCategoryGrid } from "@/components/storefront/store-category-grid";
 import { JsonLd } from "@/components/json-ld";
 
 const PRODUCTS_PER_PAGE = 100;
@@ -50,6 +53,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function StorefrontPage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const normalizedSlug = slug.toLowerCase();
+  if (slug !== normalizedSlug) {
+    redirect(`/s/${normalizedSlug}`);
+  }
   const { page: pageParam, cat: categoryFilter, tab, search: searchParam, sort: sortParam } = await searchParams;
   // Build extra params string for pagination links
   const extraParams = [
@@ -171,11 +178,6 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     sections.push({ name: fallbackName, products: uncategorized });
   }
 
-  const waLink = whatsappLink(
-    merchant.whatsapp_number,
-    `Hi ${merchant.store_name}, I'm browsing your store on OshiCart!`
-  );
-
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -198,69 +200,43 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <JsonLd data={breadcrumbSchema} />
       <JsonLd data={localBusinessSchema} />
       <TrackView merchantId={merchant.id} />
       {/* Site Navigation — slim transparent bar */}
-      <nav className="bg-white border-b border-gray-100">
+      <nav className="bg-white/90 border-b border-slate-200/70 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between text-xs">
-          <Link href="/" className="flex items-center gap-1 text-gray-400 hover:text-gray-600 transition-colors">
+          <Link href="/" className="flex items-center gap-1 text-slate-500 hover:text-slate-900 transition-colors">
             <ArrowLeft size={12} />
             OshiCart
           </Link>
-          <Link href="/stores" className="text-gray-400 hover:text-gray-600 transition-colors">
+          <Link href="/stores" className="text-slate-500 hover:text-slate-900 transition-colors">
             Browse Stores
           </Link>
         </div>
       </nav>
-      {/* Store Header */}
-      <header className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-4 py-5">
-          <div className="flex items-start gap-4">
-            {merchant.logo_url ? (
-              <img
-                src={merchant.logo_url}
-                alt={merchant.store_name}
-                className="w-14 h-14 rounded-full object-cover border shrink-0"
-              />
-            ) : (
-              <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                <span className="text-green-700 font-bold text-xl">
-                  {merchant.store_name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-gray-900">
-                {merchant.store_name}
-              </h1>
-              {merchant.description && (
-                <p className="text-sm text-gray-500 mt-1 hidden sm:block sm:line-clamp-2">
-                  {merchant.description}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Description — full text on mobile, below the header row */}
-          {merchant.description && (
-            <p className="text-sm text-gray-500 mt-3 sm:hidden">
-              {merchant.description}
-            </p>
-          )}
-
-          <a
-            href={waLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 mt-4 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
-          >
-            <MessageCircle className="w-4 h-4" />
-            WhatsApp Us
-          </a>
-        </div>
+      {/* Store Header — revamped */}
+      <header>
+        <StoreCover archetype={merchant.industry} />
+        <StoreHeaderCard
+          store={{
+            storeName: merchant.store_name,
+            description: merchant.description,
+            logoUrl: merchant.logo_url,
+            location: null,
+            phone: null,
+            whatsappNumber: merchant.whatsapp_number,
+            openingHours: null,
+            rating: null,
+            orderCount: null,
+            slug: merchant.store_slug,
+          }}
+          storeUrl={`${SITE_URL}/s/${slug}`}
+          qrUrl={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`${SITE_URL}/s/${slug}`)}&margin=10`}
+        />
       </header>
+      <StorePaymentStrip />
 
       {/* Soft-suspend banner */}
       {isSoftSuspended && (
@@ -273,7 +249,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
       )}
 
       {/* Tabs */}
-      <div className="bg-white border-b">
+      <div className="bg-white/95 border-y border-slate-200/70 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4">
           <StorefrontTabs slug={slug} activeTab={activeTab} />
         </div>
@@ -281,13 +257,13 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
 
       {/* Content */}
       <main
-        className="max-w-4xl mx-auto px-4 py-6"
+        className="max-w-4xl mx-auto px-4 py-7 md:py-8"
         style={theme ? { backgroundColor: theme.bgTint } : undefined}
       >
         {activeTab === "orders" ? (
           <div className="max-w-lg mx-auto py-4">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Track Your Order</h2>
-            <p className="text-sm text-gray-500 mb-4">
+            <h2 className="text-lg font-bold text-slate-950 mb-1">Track Your Order</h2>
+            <p className="text-sm text-slate-500 mb-4">
               Enter the WhatsApp number you used when placing your order to see its status.
             </p>
             <OrderTracker merchantId={merchant.id} />
@@ -299,14 +275,14 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
           <div className="flex items-center gap-2 mb-4">
             <Link
               href={`/s/${slug}`}
-              className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-950 transition-colors"
             >
               <ArrowLeft size={14} />
               All Categories
             </Link>
-            <span className="text-gray-300">/</span>
-            <span className="text-sm font-medium text-gray-900">{selectedCategory.name}</span>
-            <span className="text-xs text-gray-400">({totalCount})</span>
+            <span className="text-slate-300">/</span>
+            <span className="text-sm font-medium text-slate-950">{selectedCategory.name}</span>
+            <span className="text-xs text-slate-400">({totalCount})</span>
           </div>
         )}
 
@@ -314,40 +290,17 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
         {showFolders ? (
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Grid3X3 size={18} className="text-gray-400" />
-              <h2 className="text-lg font-bold text-gray-900">Browse by Category</h2>
+              <Grid3X3 size={18} className="text-slate-400" />
+              <h2 className="text-lg font-bold text-slate-950">Browse by Category</h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {activeCategories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/s/${slug}?cat=${cat.id}`}
-                  className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md hover:border-gray-300 transition-all group"
-                >
-                  <div className="aspect-[4/3] relative bg-gray-100">
-                    {cat.image_url ? (
-                      <img
-                        src={cat.image_url}
-                        alt={cat.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center" style={theme ? { backgroundColor: theme.bgTint } : undefined}>
-                        <Grid3X3 size={32} className="text-gray-300" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <h3 className="font-semibold text-sm text-gray-900 truncate group-hover:text-green-600 transition-colors" style={theme ? { color: undefined } : undefined}>
-                      {cat.name}
-                    </h3>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {catCountMap.get(cat.id) || 0} product{(catCountMap.get(cat.id) || 0) !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <StoreCategoryGrid
+              storeSlug={slug}
+              categories={activeCategories.map((c) => ({
+                slug: c.id,
+                name: c.name,
+                productCount: catCountMap.get(c.id) ?? 0,
+              }))}
+            />
           </div>
         ) : allProducts.length === 0 && !categoryFilter ? (
           <p className="text-center text-gray-500 py-12">
@@ -374,11 +327,11 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-8 pt-6 border-t">
+            <div className="flex items-center justify-center gap-2 mt-8 pt-6 border-t border-slate-200">
               {currentPage > 1 && (
                 <a
                   href={`/s/${slug}?page=${currentPage - 1}${extraParams ? `&${extraParams}` : ""}`}
-                  className="px-4 py-2 text-sm border rounded-lg hover:bg-white transition-colors"
+                  className="px-4 py-2 text-sm border border-slate-200 rounded-lg hover:bg-white transition-colors"
                 >
                   Previous
                 </a>
@@ -401,7 +354,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
                     className={`w-10 h-10 flex items-center justify-center text-sm rounded-lg transition-colors ${
                       pageNum === currentPage
                         ? "bg-gray-900 text-white"
-                        : "border hover:bg-white"
+                        : "border border-slate-200 hover:bg-white"
                     }`}
                     style={pageNum === currentPage && theme ? { backgroundColor: theme.accent } : undefined}
                   >
@@ -412,7 +365,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
               {currentPage < totalPages && (
                 <a
                   href={`/s/${slug}?page=${currentPage + 1}${extraParams ? `&${extraParams}` : ""}`}
-                  className="px-4 py-2 text-sm border rounded-lg hover:bg-white transition-colors"
+                  className="px-4 py-2 text-sm border border-slate-200 rounded-lg hover:bg-white transition-colors"
                 >
                   Next
                 </a>
@@ -429,7 +382,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
       </main>
 
       {/* Footer */}
-      <footer className="border-t bg-white mt-8">
+      <footer className="border-t border-slate-200 bg-white mt-8">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between text-xs text-gray-400">
           {hasBranding ? (
             <a href={SITE_URL} className="hover:text-gray-600 transition-colors">

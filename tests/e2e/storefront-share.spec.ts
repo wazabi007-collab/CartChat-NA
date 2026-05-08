@@ -9,7 +9,7 @@
 import { test, expect } from "@playwright/test";
 import { loginAsMerchant, hasAuthCredentials } from "./helpers/auth";
 
-const TEST_SLUG = process.env.TEST_STORE_SLUG || "test-store";
+const TEST_SLUG = process.env.TEST_STORE_SLUG || "octovia-nexus";
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000";
 
 test.describe("Storefront share link", () => {
@@ -46,7 +46,8 @@ test.describe("Storefront share link", () => {
     page,
   }) => {
     // URL-encoded, uppercase, and trailing slash variations
-    await page.goto(`${BASE_URL}/s/TEST-STORE`);
+    await page.goto(`${BASE_URL}/s/${TEST_SLUG.toUpperCase()}`);
+    await page.waitForLoadState("networkidle");
     // Should either load correctly (if store exists in lowercase) or show not-found
     // Must NOT crash with a 500 or blank page
     const bodyText = await page.locator("body").innerText();

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Trash2, Pencil, Package, CheckSquare, Square, Search, ArrowUpDown } from "lucide-react";
+import { Trash2, Pencil, CheckSquare, Square, Search, ArrowUpDown, ImagePlus } from "lucide-react";
 import { formatPrice, cn } from "@/lib/utils";
 
 interface Product {
@@ -79,26 +79,53 @@ export function ProductGrid({ products }: { products: Product[] }) {
     }
   }
 
+  function fallbackVisual(product: Product) {
+    const category = (product.category_name || "").toLowerCase();
+    if (category.includes("electronics")) {
+      return {
+        image: "/landing/featured-octovia-nexus.webp",
+        tone: "from-blue-950/80 via-blue-800/35 to-cyan-500/20",
+      };
+    }
+    if (category.includes("clothing")) {
+      return {
+        image: "/landing/featured-apatchy-beard-company.webp",
+        tone: "from-slate-950/75 via-slate-800/30 to-orange-500/20",
+      };
+    }
+    if (category.includes("groceries")) {
+      return {
+        image: "/landing/store-thumb-3.png",
+        tone: "from-emerald-950/70 via-emerald-800/25 to-lime-400/20",
+      };
+    }
+    return {
+      image: "/landing/store-thumb-1.png",
+      tone: "from-slate-950/70 via-slate-800/25 to-acacia/20",
+    };
+  }
+
   return (
     <>
       {/* Search + Sort */}
-      <div className="flex gap-2 mb-4">
+      <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm shadow-slate-900/5">
+        <div className="flex flex-col gap-3 lg:flex-row">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             placeholder="Search products by name or SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="min-h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-acacia focus:bg-white focus:ring-4 focus:ring-emerald-100"
           />
         </div>
         <div className="relative">
-          <ArrowUpDown size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <ArrowUpDown size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="pl-8 pr-3 py-2 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none cursor-pointer"
+            className="min-h-11 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-8 text-sm font-bold text-slate-700 outline-none transition focus:border-acacia focus:ring-4 focus:ring-emerald-100 lg:w-48"
           >
             <option value="newest">Newest</option>
             <option value="name_asc">Name A-Z</option>
@@ -108,6 +135,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
             <option value="stock_asc">Stock: Low to High</option>
             <option value="stock_desc">Stock: High to Low</option>
           </select>
+        </div>
         </div>
       </div>
 
@@ -162,7 +190,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
           <div
             key={product.id}
             className={cn(
-              "bg-white rounded-lg border overflow-hidden hover:shadow-sm transition-shadow relative",
+              "group relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-900/5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/10",
               selectMode && selected.has(product.id) && "ring-2 ring-green-500"
             )}
           >
@@ -180,7 +208,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
             )}
 
             <Link href={`/dashboard/products/${product.id}/edit`} className="block">
-              <div className="aspect-square relative bg-gray-100">
+              <div className="aspect-[4/3] relative overflow-hidden bg-slate-100">
                 {product.images && product.images.length > 0 ? (
                   <Image
                     src={product.images[0]}
@@ -190,34 +218,41 @@ export function ProductGrid({ products }: { products: Product[] }) {
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Package size={48} className="text-gray-300" />
+                  <div
+                    className="h-full w-full bg-cover bg-center transition duration-500 group-hover:scale-105"
+                    style={{ backgroundImage: `url(${fallbackVisual(product).image})` }}
+                  >
+                    <div className={cn("flex h-full w-full items-center justify-center bg-gradient-to-br", fallbackVisual(product).tone)}>
+                      <div className="rounded-2xl border border-white/30 bg-white/20 p-3 text-white shadow-lg backdrop-blur">
+                        <ImagePlus size={28} />
+                      </div>
+                    </div>
                   </div>
                 )}
                 <span
                   className={cn(
-                    "absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium",
+                    "absolute top-3 right-3 rounded-full px-2.5 py-1 text-xs font-black shadow-sm",
                     product.is_available
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-500"
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-slate-100 text-slate-500"
                   )}
                 >
                   {product.is_available ? "Available" : "Unavailable"}
                 </span>
               </div>
             </Link>
-            <div className="p-3">
+            <div className="p-4">
               <Link href={`/dashboard/products/${product.id}/edit`}>
-                <h3 className="font-medium text-gray-900 truncate hover:text-green-600 transition-colors">
+                <h3 className="truncate text-base font-black text-slate-950 transition-colors hover:text-acacia">
                   {product.name}
                 </h3>
               </Link>
               {product.category_name && (
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="mt-1 text-xs font-bold uppercase tracking-wide text-slate-400">
                   {product.category_name}
                 </p>
               )}
-              <p className="text-green-600 font-semibold mt-1">
+              <p className="mt-2 text-lg font-black text-acacia">
                 {formatPrice(product.price_nad)}
               </p>
               {product.track_inventory && (
@@ -236,7 +271,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
                     : `Stock: ${product.stock_quantity}`}
                 </p>
               )}
-              <div className="flex items-center gap-2 mt-3 pt-3 border-t">
+              <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">
                 <Link
                   href={`/dashboard/products/${product.id}/edit`}
                   className="flex items-center gap-1 text-xs text-gray-500 hover:text-green-600 transition-colors"

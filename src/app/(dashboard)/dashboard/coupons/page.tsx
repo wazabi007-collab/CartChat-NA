@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
-import { Plus, Trash2, Pencil, X } from "lucide-react";
+import { Plus, Trash2, Pencil, X, BadgePercent, Megaphone, TimerReset } from "lucide-react";
 
 interface Coupon {
   id: string;
@@ -206,6 +206,9 @@ export default function CouponsPage() {
     return !!coupon.expires_at && new Date(coupon.expires_at) < new Date();
   }
 
+  const activeCoupons = coupons.filter((coupon) => coupon.is_active && !isExpired(coupon)).length;
+  const totalUses = coupons.reduce((sum, coupon) => sum + coupon.current_uses, 0);
+
   if (loading) {
     return (
       <div className="md:ml-56">
@@ -216,20 +219,56 @@ export default function CouponsPage() {
 
   return (
     <div className="md:ml-56">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Coupons</h1>
-        <button
-          onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
-        >
-          <Plus size={16} />
-          Create Coupon
-        </button>
+      <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-6">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-acacia">
+              Promotions
+            </p>
+            <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+              Coupons
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              Create clean discount campaigns for launches, repeat customers,
+              slow stock, or seasonal offers.
+            </p>
+          </div>
+          <button
+            onClick={openCreate}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-acacia px-4 text-sm font-black text-white shadow-sm shadow-emerald-900/20 transition hover:bg-green-700"
+          >
+            <Plus size={16} />
+            Create Coupon
+          </button>
+        </div>
+        <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+              <BadgePercent size={14} />
+              Total
+            </div>
+            <p className="mt-2 text-2xl font-black text-slate-950">{coupons.length}</p>
+          </div>
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-700">
+              <Megaphone size={14} />
+              Active
+            </div>
+            <p className="mt-2 text-2xl font-black text-emerald-700">{activeCoupons}</p>
+          </div>
+          <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-blue-700">
+              <TimerReset size={14} />
+              Uses
+            </div>
+            <p className="mt-2 text-2xl font-black text-blue-700">{totalUses}</p>
+          </div>
+        </div>
       </div>
 
       {/* Create/Edit Form Modal */}
       {showForm && (
-        <div className="bg-white rounded-lg border p-6 mb-6">
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-gray-900">
               {editingId ? "Edit Coupon" : "New Coupon"}
@@ -364,11 +403,21 @@ export default function CouponsPage() {
 
       {/* Coupons List */}
       {coupons.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-lg border">
-          <p className="text-gray-500">No coupons yet</p>
-          <p className="text-sm text-gray-400 mt-1">
+        <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm shadow-slate-900/5">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-acacia">
+            <BadgePercent size={30} />
+          </div>
+          <p className="text-lg font-black text-slate-950">No coupons yet</p>
+          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500">
             Create a coupon code to offer discounts to your customers
           </p>
+          <button
+            onClick={openCreate}
+            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-acacia px-5 text-sm font-black text-white transition hover:bg-green-700"
+          >
+            <Plus size={16} />
+            Create first coupon
+          </button>
         </div>
       ) : (
         <div className="space-y-3">
@@ -377,7 +426,7 @@ export default function CouponsPage() {
             return (
               <div
                 key={coupon.id}
-                className={`bg-white rounded-lg border p-4 ${expired || !coupon.is_active ? "opacity-60" : ""}`}
+                className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 ${expired || !coupon.is_active ? "opacity-60" : ""}`}
               >
                 <div className="flex items-start justify-between">
                   <div>

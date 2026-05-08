@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Plus, Package } from "lucide-react";
+import { Plus, Package, Layers3, Image as ImageIcon, Sparkles } from "lucide-react";
 import { ProductGrid } from "./product-actions";
 import { getServiceLabels } from "@/lib/service-labels";
 
@@ -32,30 +32,63 @@ export default async function ProductsPage() {
     .order("created_at", { ascending: false });
 
   const productList = products || [];
+  const availableCount = productList.filter((p) => p.is_available).length;
+  const imageCount = productList.filter((p) => Array.isArray(p.images) && p.images.length > 0).length;
 
   return (
     <div className="md:ml-56">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{labels.itemPlural}</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {productList.length} {labels.item.toLowerCase()}{productList.length !== 1 ? "s" : ""}
-          </p>
+      <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-acacia">
+              Catalog
+            </p>
+            <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+              {labels.itemPlural}
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              Keep your storefront polished with clear pricing, attractive photos,
+              and availability that is easy for customers to trust.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/dashboard/products/categories"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+            >
+              Categories
+            </Link>
+            <Link
+              href="/dashboard/products/new"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-acacia px-4 text-sm font-black text-white shadow-sm shadow-emerald-900/20 transition hover:bg-green-700"
+            >
+              <Plus size={18} />
+              {labels.addItem}
+            </Link>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard/products/categories"
-            className="text-sm text-gray-600 hover:text-gray-900 px-3 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Categories
-          </Link>
-          <Link
-            href="/dashboard/products/new"
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-          >
-            <Plus size={18} />
-            {labels.addItem}
-          </Link>
+        <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+              <Layers3 size={14} />
+              Listed
+            </div>
+            <p className="mt-2 text-2xl font-black text-slate-950">{productList.length}</p>
+          </div>
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-700">
+              <Sparkles size={14} />
+              Available
+            </div>
+            <p className="mt-2 text-2xl font-black text-emerald-700">{availableCount}</p>
+          </div>
+          <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-blue-700">
+              <ImageIcon size={14} />
+              With photos
+            </div>
+            <p className="mt-2 text-2xl font-black text-blue-700">{imageCount}</p>
+          </div>
         </div>
       </div>
 
@@ -108,4 +141,3 @@ export default async function ProductsPage() {
     </div>
   );
 }
-

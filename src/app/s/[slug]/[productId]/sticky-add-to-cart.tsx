@@ -44,19 +44,19 @@ export function StickyAddToCart({ productId, name, price, imageUrl, isOutOfStock
 
   return (
     <div
-      className={`fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 px-4 py-3 transition-transform duration-300 md:hidden ${
+      className={`fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 px-4 py-3 shadow-2xl shadow-slate-900/10 transition-transform duration-300 md:hidden ${
         visible ? "translate-y-0" : "translate-y-full"
       }`}
       style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}
     >
       <div className="flex items-center justify-between gap-3 max-w-4xl mx-auto">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">{name}</p>
-          <p className="text-lg font-bold text-green-600">{formatPrice(price)}</p>
+          <p className="text-sm font-medium text-slate-950 truncate">{name}</p>
+          <p className="text-lg font-bold text-acacia">{formatPrice(price)}</p>
         </div>
         <button
           onClick={handleAdd}
-          className="shrink-0 bg-green-600 hover:bg-green-700 active:scale-95 text-white font-semibold py-3 px-6 rounded-lg transition-all flex items-center gap-2"
+          className="shrink-0 bg-acacia hover:bg-emerald-700 active:scale-95 text-white font-semibold py-3 px-6 rounded-xl transition-all flex items-center gap-2"
         >
           {added ? (
             <>

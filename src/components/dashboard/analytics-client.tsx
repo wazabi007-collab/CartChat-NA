@@ -153,15 +153,15 @@ export function AnalyticsClient({ allData, topProducts }: AnalyticsClientProps) 
   return (
     <div>
       {/* Date Range Picker */}
-      <div className="flex flex-wrap items-center gap-2 mb-6">
+      <div className="mb-6 flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm shadow-slate-900/5">
         {ranges.map((r) => (
           <button
             key={r.key}
             onClick={() => setRangeKey(r.key)}
             className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
               rangeKey === r.key
-                ? "bg-green-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-acacia text-white shadow-sm"
+                : "bg-slate-50 text-slate-600 hover:bg-slate-100"
             }`}
           >
             {r.label}
@@ -186,7 +186,7 @@ export function AnalyticsClient({ allData, topProducts }: AnalyticsClientProps) 
         )}
         <button
           onClick={downloadCSV}
-          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-sm border rounded-md text-gray-600 hover:bg-gray-50 transition-colors"
+          className="ml-auto flex min-h-9 items-center gap-1.5 rounded-xl border border-slate-200 px-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50"
         >
           <Download size={14} />
           Export CSV
@@ -206,8 +206,8 @@ export function AnalyticsClient({ allData, topProducts }: AnalyticsClientProps) 
       {/* Charts */}
       <div className="grid lg:grid-cols-2 gap-6 mb-8">
         {/* Views & Orders Line Chart */}
-        <div className="bg-white rounded-lg border p-4">
-          <h2 className="font-medium text-gray-900 mb-3">Daily Views & Orders</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
+          <h2 className="mb-3 font-black text-slate-950">Daily Views & Orders</h2>
           {chartData.length === 0 ? (
             <p className="text-sm text-gray-400 py-8 text-center">No data for this period.</p>
           ) : (
@@ -226,8 +226,8 @@ export function AnalyticsClient({ allData, topProducts }: AnalyticsClientProps) 
         </div>
 
         {/* Revenue Bar Chart */}
-        <div className="bg-white rounded-lg border p-4">
-          <h2 className="font-medium text-gray-900 mb-3">Daily Revenue (NAD)</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
+          <h2 className="mb-3 font-black text-slate-950">Daily Revenue (NAD)</h2>
           {chartData.length === 0 ? (
             <p className="text-sm text-gray-400 py-8 text-center">No data for this period.</p>
           ) : (
@@ -247,8 +247,8 @@ export function AnalyticsClient({ allData, topProducts }: AnalyticsClientProps) 
       {/* Product Performance */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Top Products Table */}
-        <div className="bg-white rounded-lg border p-4">
-          <h2 className="font-medium text-gray-900 mb-3">Top Selling Products</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
+          <h2 className="mb-3 font-black text-slate-950">Top Selling Products</h2>
           {topProducts.length === 0 ? (
             <p className="text-sm text-gray-400">Complete some orders to see your top products.</p>
           ) : (
@@ -270,8 +270,8 @@ export function AnalyticsClient({ allData, topProducts }: AnalyticsClientProps) 
         </div>
 
         {/* Top Products Bar Chart */}
-        <div className="bg-white rounded-lg border p-4">
-          <h2 className="font-medium text-gray-900 mb-3">Product Revenue</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
+          <h2 className="mb-3 font-black text-slate-950">Product Revenue</h2>
           {topProducts.length === 0 ? (
             <p className="text-sm text-gray-400">No product data yet.</p>
           ) : (
@@ -313,7 +313,7 @@ function StatBox({
   highlight?: boolean;
 }) {
   return (
-    <div className="bg-white rounded-lg border p-4">
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-900/5">
       <p className="text-xs text-gray-500">{label}</p>
       <p className={`text-lg sm:text-2xl font-bold mt-1 truncate ${highlight ? "text-green-600" : "text-gray-900"}`} title={value}>{value}</p>
       <div className="flex items-center gap-1 mt-1">

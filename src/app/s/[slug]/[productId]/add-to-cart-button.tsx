@@ -24,7 +24,7 @@ export function AddToCartButton({ productId, name, price, imageUrl }: Props) {
   return (
     <button
       onClick={handleAdd}
-      className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-md transition-colors inline-flex items-center justify-center gap-2"
+      className="w-full sm:w-auto bg-acacia hover:bg-emerald-700 text-white font-semibold py-3 px-8 rounded-xl shadow-sm shadow-emerald-900/10 transition-colors inline-flex items-center justify-center gap-2"
     >
       {added ? (
         <>

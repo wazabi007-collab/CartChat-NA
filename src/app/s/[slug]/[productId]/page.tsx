@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Home, Store } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
@@ -115,27 +116,27 @@ export default async function ProductDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <JsonLd data={productSchema} />
       <JsonLd data={breadcrumbSchema} />
       {/* Site Navigation — slim transparent bar */}
-      <nav className="bg-white border-b border-gray-100">
+      <nav className="bg-white/90 border-b border-slate-200/70 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between text-xs">
-          <Link href="/" className="flex items-center gap-1 text-gray-400 hover:text-gray-600 transition-colors">
+          <Link href="/" className="flex items-center gap-1 text-slate-500 hover:text-slate-900 transition-colors">
             <ArrowLeft size={12} />
             OshiCart
           </Link>
-          <Link href="/stores" className="text-gray-400 hover:text-gray-600 transition-colors">
+          <Link href="/stores" className="text-slate-500 hover:text-slate-900 transition-colors">
             Browse Stores
           </Link>
         </div>
       </nav>
       {/* Back link */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b border-slate-200/70">
         <div className="max-w-4xl mx-auto px-4 py-3">
           <Link
             href={`/s/${slug}`}
-            className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-slate-600 hover:text-slate-950 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to {merchant.store_name}
@@ -143,17 +144,20 @@ export default async function ProductDetailPage({ params }: Props) {
         </div>
       </div>
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
-        <div className="bg-white rounded-lg border overflow-hidden">
+      <main className="max-w-4xl mx-auto px-4 py-7 md:py-8">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm shadow-slate-900/5 overflow-hidden">
           {/* Image section */}
           {images.length > 0 ? (
             <div className="relative">
               {images.length === 1 ? (
-                <div className="aspect-square sm:aspect-[4/3] relative bg-gray-100">
-                  <img
+                <div className="aspect-square sm:aspect-[4/3] relative bg-slate-100">
+                  <Image
                     src={images[0]}
                     alt={product.name}
-                    className="w-full h-full object-contain"
+                    fill
+                    sizes="(max-width: 768px) 100vw, 896px"
+                    priority
+                    className="object-contain"
                   />
                 </div>
               ) : (
@@ -161,12 +165,15 @@ export default async function ProductDetailPage({ params }: Props) {
                   {images.map((img: string, idx: number) => (
                     <div
                       key={idx}
-                      className="aspect-square sm:aspect-[4/3] flex-shrink-0 w-full snap-center relative bg-gray-100"
+                      className="aspect-square sm:aspect-[4/3] flex-shrink-0 w-full snap-center relative bg-slate-100"
                     >
-                      <img
+                      <Image
                         src={img}
                         alt={`${product.name} - Image ${idx + 1}`}
-                        className="w-full h-full object-contain"
+                        fill
+                        sizes="(max-width: 768px) 100vw, 896px"
+                        priority={idx === 0}
+                        className="object-contain"
                       />
                     </div>
                   ))}
@@ -177,15 +184,15 @@ export default async function ProductDetailPage({ params }: Props) {
                   {images.map((_: string, idx: number) => (
                     <div
                       key={idx}
-                      className="w-2 h-2 rounded-full bg-gray-300"
+                      className="w-2 h-2 rounded-full bg-slate-300"
                     />
                   ))}
                 </div>
               )}
             </div>
           ) : (
-            <div className="aspect-square sm:aspect-[4/3] bg-gray-100 flex items-center justify-center">
-              <span className="text-gray-300 text-6xl">
+            <div className="aspect-square sm:aspect-[4/3] bg-gradient-to-br from-blue-50 via-white to-emerald-50 flex items-center justify-center">
+              <span className="text-slate-300 text-6xl">
                 {product.name.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -193,16 +200,16 @@ export default async function ProductDetailPage({ params }: Props) {
 
           {/* Product info */}
           <div className="p-4 sm:p-6">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-950">
               {product.name}
             </h1>
-            <p className="text-2xl font-bold text-green-600 mt-2">
+            <p className="text-2xl font-bold text-acacia mt-2">
               {formatPrice(product.price_nad)}
             </p>
 
             {product.description && (
               <div className="mt-4">
-                <p className="text-gray-700 text-sm sm:text-base whitespace-pre-line">
+                <p className="text-slate-700 text-sm sm:text-base whitespace-pre-line">
                   {product.description}
                 </p>
               </div>
@@ -231,7 +238,7 @@ export default async function ProductDetailPage({ params }: Props) {
               {product.track_inventory && product.stock_quantity === 0 && !product.allow_backorder ? (
                 <button
                   disabled
-                  className="w-full sm:w-auto bg-gray-300 text-gray-500 font-semibold py-3 px-8 rounded-md cursor-not-allowed"
+                  className="w-full sm:w-auto bg-slate-200 text-slate-500 font-semibold py-3 px-8 rounded-xl cursor-not-allowed"
                 >
                   Out of Stock
                 </button>
@@ -249,8 +256,8 @@ export default async function ProductDetailPage({ params }: Props) {
       </main>
 
       {/* Footer */}
-      <footer className="border-t bg-white mt-8">
-        <div className="max-w-4xl mx-auto px-4 py-4 text-center text-xs text-gray-400">
+      <footer className="border-t border-slate-200 bg-white mt-8">
+        <div className="max-w-4xl mx-auto px-4 py-4 text-center text-xs text-slate-400">
           Powered by {SITE_NAME}
         </div>
       </footer>

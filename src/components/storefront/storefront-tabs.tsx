@@ -14,10 +14,10 @@ export function StorefrontTabs({
     <div className="flex gap-6">
       <Link
         href={`/s/${slug}`}
-        className={`flex items-center gap-1.5 py-3 text-sm font-medium border-b-2 transition-colors ${
+        className={`flex items-center gap-1.5 py-3 text-sm font-semibold border-b-2 transition-colors ${
           activeTab === "products"
-            ? "border-gray-900 text-gray-900"
-            : "border-transparent text-gray-500 hover:text-gray-700"
+            ? "border-terracotta text-slate-950"
+            : "border-transparent text-slate-500 hover:text-slate-800"
         }`}
       >
         <ShoppingCart size={15} />
@@ -25,10 +25,10 @@ export function StorefrontTabs({
       </Link>
       <Link
         href={`/s/${slug}?tab=orders`}
-        className={`flex items-center gap-1.5 py-3 text-sm font-medium border-b-2 transition-colors ${
+        className={`flex items-center gap-1.5 py-3 text-sm font-semibold border-b-2 transition-colors ${
           activeTab === "orders"
-            ? "border-gray-900 text-gray-900"
-            : "border-transparent text-gray-500 hover:text-gray-700"
+            ? "border-terracotta text-slate-950"
+            : "border-transparent text-slate-500 hover:text-slate-800"
         }`}
       >
         <ClipboardList size={15} />

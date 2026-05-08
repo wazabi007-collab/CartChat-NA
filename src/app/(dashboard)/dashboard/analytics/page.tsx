@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AnalyticsClient } from "@/components/dashboard/analytics-client";
+import { BarChart3, MousePointerClick, ShoppingBag } from "lucide-react";
 
 export default async function AnalyticsPage() {
   const supabase = await createClient();
@@ -71,9 +72,53 @@ export default async function AnalyticsPage() {
     revenue_nad: d.revenue_nad,
   }));
 
+  const last30 = allData.filter((day) => {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+    return day.date >= cutoff.toISOString().split("T")[0];
+  });
+  const views30 = last30.reduce((sum, day) => sum + day.page_views, 0);
+  const orders30 = last30.reduce((sum, day) => sum + day.orders_placed, 0);
+
   return (
     <div className="md:ml-56">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Analytics</h1>
+      <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-6">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-acacia">
+            Store performance
+          </p>
+          <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+            Analytics
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+            See what customers view, which products convert, and where your
+            next marketing push should focus.
+          </p>
+        </div>
+        <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+              <BarChart3 size={14} />
+              Data rows
+            </div>
+            <p className="mt-2 text-2xl font-black text-slate-950">{allData.length}</p>
+          </div>
+          <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-blue-700">
+              <MousePointerClick size={14} />
+              30d views
+            </div>
+            <p className="mt-2 text-2xl font-black text-blue-700">{views30}</p>
+          </div>
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-700">
+              <ShoppingBag size={14} />
+              30d orders
+            </div>
+            <p className="mt-2 text-2xl font-black text-emerald-700">{orders30}</p>
+          </div>
+        </div>
+      </div>
       <AnalyticsClient allData={allData} topProducts={topProducts} />
     </div>
   );

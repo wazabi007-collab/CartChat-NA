@@ -193,12 +193,23 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="md:ml-56 max-w-lg">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Store Settings</h1>
+    <div className="md:ml-56">
+      <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-acacia">
+          Store controls
+        </p>
+        <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+          Store Settings
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          Keep your storefront identity, payment details, tax information, and
+          delivery rules ready for checkout.
+        </p>
+      </div>
 
-      <form onSubmit={handleSave} className="space-y-5">
+      <form onSubmit={handleSave} className="grid gap-5 xl:grid-cols-2">
         {/* Store Details */}
-        <div className={`${card} space-y-4`}>
+        <div className={`${card} space-y-4 shadow-sm shadow-slate-900/5`}>
           <h2 className={sectionHeading}>Store Details</h2>
 
           {/* Logo upload */}
@@ -329,7 +340,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Bank Details */}
-        <div className={`${card} space-y-4`}>
+        <div className={`${card} space-y-4 shadow-sm shadow-slate-900/5`}>
           <h2 className={sectionHeading}>Bank Details</h2>
           <p className={helperText + " !mt-0"}>
             Shown to customers at checkout for EFT payment
@@ -404,7 +415,7 @@ export default function SettingsPage() {
         </div>
 
         {/* VAT */}
-        <div className={`${card} space-y-4`}>
+        <div className={`${card} space-y-4 shadow-sm shadow-slate-900/5`}>
           <h2 className={sectionHeading}>VAT Registration</h2>
           <p className={helperText + " !mt-0"}>
             Only fill this in if your business is VAT-registered with NamRA. Namibia VAT rate is 15%.
@@ -451,7 +462,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Payment Methods */}
-        <div className={`${card} space-y-4`}>
+        <div className={`${card} space-y-4 shadow-sm shadow-slate-900/5`}>
           <h2 className={sectionHeading}>Payment Methods</h2>
           <p className={helperText + " !mt-0"}>
             Choose which payment methods customers can use at checkout
@@ -554,7 +565,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Delivery Fee */}
-        <div className={`${card} space-y-4`}>
+        <div className={`${card} space-y-4 shadow-sm shadow-slate-900/5`}>
           <h2 className={sectionHeading}>Delivery Fee</h2>
           <p className={helperText + " !mt-0"}>
             Flat rate charged when customers choose delivery. Set to 0 for free delivery.
@@ -578,7 +589,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Delivery Scheduling */}
-        <div className={`${card} space-y-4`}>
+        <div className={`${card} space-y-4 shadow-sm shadow-slate-900/5`}>
           <div className="flex items-center justify-between">
             <div>
               <h2 className={sectionHeading}>Delivery Scheduling</h2>
@@ -680,6 +691,7 @@ export default function SettingsPage() {
           )}
         </div>
 
+        <div className="xl:col-span-2">
         {error && (
           <div className={alertError}>
             <AlertCircle className={alertIcon} />
@@ -701,6 +713,7 @@ export default function SettingsPage() {
           <Save size={16} />
           {saving ? "Saving..." : "Save Settings"}
         </button>
+        </div>
       </form>
     </div>
   );

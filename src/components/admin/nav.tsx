@@ -44,20 +44,35 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push("/admin/login");
     router.refresh();
   }
 
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex md:w-56 md:flex-col md:fixed md:inset-y-0 bg-gray-900 text-white">
+      <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-slate-950 text-white">
         <div className="flex flex-col flex-1 overflow-y-auto">
-          <div className="p-4 border-b border-gray-700">
-            <Image src="/logo.svg" alt="OshiCart" width={120} height={32} className="invert" />
-            <p className="text-xs text-red-400 font-medium mt-1">Admin Panel</p>
+          <div className="border-b border-white/10 p-5">
+            <Image
+              src="/logo.svg"
+              alt="OshiCart"
+              width={132}
+              height={34}
+              className="brightness-0 invert"
+              style={{ width: 132, height: "auto" }}
+            />
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-3">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">
+                Control Center
+              </p>
+              <p className="mt-2 truncate text-sm font-bold text-white">{userEmail}</p>
+              <p className="mt-1 text-xs capitalize text-slate-400">
+                {adminRole.replace("_", " ")}
+              </p>
+            </div>
           </div>
-          <nav className="flex-1 p-2 space-y-1">
+          <nav className="flex-1 space-y-1.5 p-3">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
@@ -66,30 +81,29 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-md text-sm",
+                    "flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm transition",
                     active
-                      ? "bg-gray-700 text-white font-medium"
-                      : "text-gray-300 hover:bg-gray-800"
+                      ? "bg-white text-slate-950 font-black shadow-sm"
+                      : "text-slate-300 hover:bg-white/10 hover:text-white"
                   )}
                 >
-                  <Icon size={18} />
-                  {item.label}
+                  <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+                  <span className="truncate">{item.label}</span>
                 </Link>
               );
             })}
           </nav>
-          <div className="p-4 border-t border-gray-700 space-y-3">
+          <div className="space-y-3 border-t border-white/10 p-4">
             <Link
               href="/dashboard"
-              className="flex items-center gap-2 text-sm text-gray-400 hover:text-white"
+              className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/10 hover:text-white"
             >
               <ArrowLeft size={16} />
-              Back to Dashboard
+              Merchant app
             </Link>
-            <p className="text-xs text-gray-500 truncate">{userEmail}</p>
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-2 text-sm text-gray-400 hover:text-red-400"
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-red-500/10 hover:text-red-300"
             >
               <LogOut size={16} />
               Sign out
@@ -99,14 +113,23 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
       </aside>
 
       {/* Mobile header */}
-      <div className="md:hidden bg-gray-900 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+      <div className="md:hidden sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-slate-950 px-4 py-3">
         <div className="flex items-center gap-2">
-          <Image src="/logo.svg" alt="OshiCart" width={100} height={26} className="invert" />
-          <span className="text-xs text-red-400 font-medium">Admin</span>
+          <Image
+            src="/logo.svg"
+            alt="OshiCart"
+            width={110}
+            height={28}
+            className="brightness-0 invert"
+            style={{ width: 110, height: "auto" }}
+          />
+          <span className="rounded-full bg-emerald-400/10 px-2 py-1 text-xs font-black text-emerald-300">
+            Admin
+          </span>
         </div>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="text-gray-300"
+          className="text-slate-300"
         >
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -114,12 +137,12 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
 
       {/* Mobile menu overlay */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 z-30 bg-black/30" onClick={() => setMobileOpen(false)}>
+        <div className="md:hidden fixed inset-0 z-30 bg-black/40" onClick={() => setMobileOpen(false)}>
           <div
-            className="absolute top-[52px] left-0 right-0 bg-gray-900 border-b border-gray-700 shadow-lg"
+            className="absolute left-0 right-0 top-[52px] border-b border-white/10 bg-slate-950 shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
-            <nav className="p-2 space-y-1">
+            <nav className="space-y-1 p-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
@@ -129,10 +152,10 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md text-sm",
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm",
                       active
-                        ? "bg-gray-700 text-white font-medium"
-                        : "text-gray-300 hover:bg-gray-800"
+                        ? "bg-white text-slate-950 font-black"
+                        : "text-slate-300 hover:bg-white/10"
                     )}
                   >
                     <Icon size={18} />
@@ -141,18 +164,18 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
                 );
               })}
             </nav>
-            <div className="p-4 border-t border-gray-700 space-y-2">
+            <div className="space-y-2 border-t border-white/10 p-4">
               <Link
                 href="/dashboard"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2 text-sm text-gray-400 hover:text-white"
+                className="flex items-center gap-2 text-sm text-slate-400 hover:text-white"
               >
                 <ArrowLeft size={16} />
-                Back to Dashboard
+                Merchant app
               </Link>
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-2 text-sm text-gray-400 hover:text-red-400"
+                className="flex items-center gap-2 text-sm text-slate-400 hover:text-red-300"
               >
                 <LogOut size={16} />
                 Sign out
@@ -163,7 +186,7 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
       )}
 
       {/* Spacer for desktop sidebar */}
-      <div className="hidden md:block md:w-56" />
+      <div className="hidden md:block md:w-64" />
     </>
   );
 }

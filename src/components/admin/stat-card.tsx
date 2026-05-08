@@ -12,19 +12,19 @@ interface StatCardProps {
 
 export function StatCard({ label, value, icon: Icon, trend, highlight, href }: StatCardProps) {
   const content = (
-    <div className={`bg-white rounded-lg border p-6 ${highlight ? "ring-2 ring-orange-400" : ""} ${href ? "hover:shadow-sm hover:border-gray-300 transition-all cursor-pointer" : ""}`}>
+    <div className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 ${highlight ? "ring-2 ring-amber-400" : ""} ${href ? "cursor-pointer transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/10" : ""}`}>
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-gray-500">{label}</p>
-          <p className="text-lg sm:text-2xl font-bold text-gray-900 mt-1 truncate" title={String(value)}>{value}</p>
+          <p className="text-xs font-black uppercase tracking-wide text-slate-500">{label}</p>
+          <p className="mt-2 truncate text-xl font-black text-slate-950 sm:text-2xl" title={String(value)}>{value}</p>
           {trend && (
             <p className={`text-sm mt-1 ${trend.positive ? "text-green-600" : "text-red-600"}`}>
               {trend.value}
             </p>
           )}
         </div>
-        <div className="p-3 bg-gray-50 rounded-lg">
-          <Icon className="h-6 w-6 text-gray-600" />
+        <div className="rounded-xl bg-slate-50 p-3">
+          <Icon className="h-6 w-6 text-slate-600" />
         </div>
       </div>
     </div>

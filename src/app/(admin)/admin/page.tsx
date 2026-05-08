@@ -6,6 +6,10 @@ import {
   UserPlus,
   AlertTriangle,
   Flag,
+  Activity,
+  ArrowRight,
+  ShieldCheck,
+  WalletCards,
 } from "lucide-react";
 import Link from "next/link";
 import { TIER_LABELS, STATUS_LABELS, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
@@ -72,10 +76,36 @@ export default async function AdminOverviewPage() {
   );
   const mrr = activeSubs.reduce((sum, s) => sum + (TIER_PRICES[s.tier] || 0), 0);
   const activeMerchants = activeSubs.length;
+  const newSignups = newSignupsResult.count || 0;
+  const overdueCount = overdueResult.count || 0;
+  const openReports = reportsResult.count || 0;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
+      <section className="mb-6 overflow-hidden rounded-3xl border border-slate-800 bg-slate-950 text-white shadow-sm shadow-slate-900/10">
+        <div className="relative p-6 sm:p-7">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(43,94,167,0.4),transparent_30%),radial-gradient(circle_at_88%_18%,rgba(20,153,71,0.28),transparent_28%)]" />
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+                Platform command center
+              </p>
+              <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+                Admin Dashboard
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
+                Monitor OshiCart growth, merchant health, billing risk, support
+                reports, and admin activity from one secure workspace.
+              </p>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <MiniMetric label="Risk" value={overdueCount + openReports} />
+              <MiniMetric label="New" value={newSignups} />
+              <MiniMetric label="Active" value={activeMerchants} />
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
@@ -93,34 +123,61 @@ export default async function AdminOverviewPage() {
         />
         <StatCard
           label="New This Week"
-          value={newSignupsResult.count || 0}
+          value={newSignups}
           icon={UserPlus}
           href="/admin/merchants"
         />
         <StatCard
           label="Overdue"
-          value={overdueResult.count || 0}
+          value={overdueCount}
           icon={AlertTriangle}
-          highlight={(overdueResult.count || 0) > 0}
+          highlight={overdueCount > 0}
           href="/admin/billing"
         />
         <StatCard
           label="Open Reports"
-          value={reportsResult.count || 0}
+          value={openReports}
           icon={Flag}
-          highlight={(reportsResult.count || 0) > 0}
+          highlight={openReports > 0}
           href="/admin/reports"
+        />
+      </div>
+
+      <div className="mb-8 grid gap-4 lg:grid-cols-4">
+        <ControlLink
+          href="/admin/merchants"
+          icon={Users}
+          title="Merchant control"
+          text="Search, review, suspend, and inspect store accounts."
+        />
+        <ControlLink
+          href="/admin/billing"
+          icon={WalletCards}
+          title="Billing operations"
+          text="Track trials, overdue stores, and manual payment actions."
+        />
+        <ControlLink
+          href="/admin/reports"
+          icon={Flag}
+          title="Trust and reports"
+          text="Resolve open reports and identify platform risk."
+        />
+        <ControlLink
+          href="/admin/audit"
+          icon={ShieldCheck}
+          title="Audit trail"
+          text="Review every sensitive admin action."
         />
       </div>
 
       {/* Revenue + Signups trends */}
       <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-lg border p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Revenue (Last 6 Months)</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-900/5">
+          <h2 className="mb-4 text-lg font-black text-slate-950">Revenue (Last 6 Months)</h2>
           <MonthlyTable data={paymentsResult.data || []} type="revenue" />
         </div>
-        <div className="bg-white rounded-lg border p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Signups (Last 6 Months)</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-900/5">
+          <h2 className="mb-4 text-lg font-black text-slate-950">Signups (Last 6 Months)</h2>
           <MonthlyTable data={signupsResult.data || []} type="signups" />
         </div>
       </div>
@@ -128,8 +185,8 @@ export default async function AdminOverviewPage() {
       {/* Bottom lists */}
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Expiring trials */}
-        <div className="bg-white rounded-lg border p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Expiring Trials</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-900/5">
+          <h2 className="mb-4 text-lg font-black text-slate-950">Expiring Trials</h2>
           {(expiringResult.data || []).length === 0 ? (
             <p className="text-sm text-gray-500">No trials expiring soon</p>
           ) : (
@@ -155,8 +212,8 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Overdue subscriptions */}
-        <div className="bg-white rounded-lg border p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Overdue</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-900/5">
+          <h2 className="mb-4 text-lg font-black text-slate-950">Overdue</h2>
           {(overdueListResult.data || []).length === 0 ? (
             <p className="text-sm text-gray-500">No overdue subscriptions</p>
           ) : (
@@ -185,8 +242,11 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Recent activity */}
-        <div className="bg-white rounded-lg border p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-900/5">
+          <div className="mb-4 flex items-center gap-2">
+            <Activity size={18} className="text-slate-500" />
+            <h2 className="text-lg font-black text-slate-950">Recent Activity</h2>
+          </div>
           {(activityResult.data || []).length === 0 ? (
             <p className="text-sm text-gray-500">No recent activity</p>
           ) : (
@@ -208,6 +268,43 @@ export default async function AdminOverviewPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function MiniMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="min-w-20 rounded-2xl border border-white/10 bg-white/10 p-4 text-center backdrop-blur">
+      <p className="text-2xl font-black">{value}</p>
+      <p className="mt-1 text-xs font-bold uppercase tracking-wide text-slate-300">{label}</p>
+    </div>
+  );
+}
+
+function ControlLink({
+  href,
+  icon: Icon,
+  title,
+  text,
+}: {
+  href: string;
+  icon: typeof Users;
+  title: string;
+  text: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-900/10"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-950 text-white">
+          <Icon size={20} />
+        </span>
+        <ArrowRight size={18} className="text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-slate-700" />
+      </div>
+      <h3 className="mt-4 font-black text-slate-950">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-slate-500">{text}</p>
+    </Link>
   );
 }
 

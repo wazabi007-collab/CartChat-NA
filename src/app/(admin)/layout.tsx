@@ -9,8 +9,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
-  if (!user.email) redirect("/dashboard");
+  if (!user) redirect("/admin/login");
+  if (!user.email) redirect("/admin/login?error=not_authorized");
 
   // Check admin_users table first
   const service = createServiceClient();
@@ -25,13 +25,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (adminUser) {
     role = adminUser.role as AdminRole;
   } else if (!ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    redirect("/dashboard");
+    redirect("/admin/login?error=not_authorized");
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-slate-100">
       <AdminNav userEmail={user.email} adminRole={role} />
-      <main className="md:ml-56 max-w-7xl mx-auto px-4 py-6">{children}</main>
+      <main className="mx-auto max-w-7xl px-4 py-6 pb-24 md:ml-64 md:px-6 md:py-8">{children}</main>
     </div>
   );
 }

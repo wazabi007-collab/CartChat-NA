@@ -125,6 +125,8 @@ export default async function ProductsPage() {
             low_stock_threshold: p.low_stock_threshold ?? 5,
             allow_backorder: p.allow_backorder ?? false,
             sku: p.sku ?? null,
+            moderation_status: p.moderation_status ?? "approved",
+            moderation_reasons: p.moderation_reasons ?? [],
             category_name: (p.categories as { name: string } | null)?.name ?? null,
           }))}
         />

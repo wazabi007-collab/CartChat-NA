@@ -19,6 +19,8 @@ interface Product {
   allow_backorder: boolean;
   category_name: string | null;
   sku: string | null;
+  moderation_status: "approved" | "review_required" | "blocked";
+  moderation_reasons: string[];
 }
 
 export function ProductGrid({ products }: { products: Product[] }) {
@@ -232,12 +234,18 @@ export function ProductGrid({ products }: { products: Product[] }) {
                 <span
                   className={cn(
                     "absolute top-3 right-3 rounded-full px-2.5 py-1 text-xs font-black shadow-sm",
-                    product.is_available
+                    product.moderation_status !== "approved"
+                      ? "bg-amber-100 text-amber-800"
+                      : product.is_available
                       ? "bg-emerald-100 text-emerald-800"
                       : "bg-slate-100 text-slate-500"
                   )}
                 >
-                  {product.is_available ? "Available" : "Unavailable"}
+                  {product.moderation_status !== "approved"
+                    ? "In review"
+                    : product.is_available
+                    ? "Available"
+                    : "Unavailable"}
                 </span>
               </div>
             </Link>
@@ -269,6 +277,11 @@ export function ProductGrid({ products }: { products: Product[] }) {
                     : product.stock_quantity <= (product.low_stock_threshold ?? 5)
                     ? `Low stock: ${product.stock_quantity} left`
                     : `Stock: ${product.stock_quantity}`}
+                </p>
+              )}
+              {product.moderation_status !== "approved" && (
+                <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+                  Hidden while OshiCart reviews this listing.
                 </p>
               )}
               <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">

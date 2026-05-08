@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { DashboardNav } from "@/components/dashboard/nav";
 import { BottomNav } from "@/components/dashboard/bottom-nav";
+import { PolicyAcceptanceGate } from "@/components/dashboard/policy-acceptance-gate";
 
 export default async function DashboardLayout({
   children,
@@ -21,7 +22,7 @@ export default async function DashboardLayout({
   // Check if merchant has completed store setup
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("id, store_name, store_slug, industry")
+    .select("id, store_name, store_slug, industry, prohibited_policy_accepted_at, prohibited_policy_version")
     .eq("user_id", user.id)
     .single();
 
@@ -74,6 +75,13 @@ export default async function DashboardLayout({
         {children}
       </main>
       {merchant && <BottomNav pendingOrders={pendingCount} industry={merchant.industry} />}
+      {merchant && (
+        <PolicyAcceptanceGate
+          merchantId={merchant.id}
+          acceptedAt={merchant.prohibited_policy_accepted_at}
+          acceptedVersion={merchant.prohibited_policy_version}
+        />
+      )}
     </div>
   );
 }

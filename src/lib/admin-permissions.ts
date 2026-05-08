@@ -18,6 +18,8 @@ type Permission =
   | "view_analytics"
   | "view_reports"
   | "manage_reports"         // resolve reports
+  | "view_safety"
+  | "manage_safety"          // resolve safety reviews
   | "view_team"
   | "manage_team"            // invite, remove, change role
   | "view_audit";
@@ -27,12 +29,14 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     "view_overview", "view_merchants", "view_merchant_detail", "manage_merchants",
     "view_billing", "manage_billing", "view_analytics",
     "view_reports", "manage_reports",
+    "view_safety", "manage_safety",
     "view_team", "manage_team", "view_audit",
   ],
   support: [
     "view_overview", "view_merchants", "view_merchant_detail",
     "view_billing", "view_analytics",
     "view_reports", "manage_reports",
+    "view_safety", "manage_safety",
   ],
   finance: [
     "view_overview",
@@ -52,6 +56,7 @@ export function getVisibleNavItems(role: AdminRole) {
     { label: "Billing", href: "/admin/billing", permission: "view_billing" as Permission },
     { label: "Analytics", href: "/admin/analytics", permission: "view_analytics" as Permission },
     { label: "Reports", href: "/admin/reports", permission: "view_reports" as Permission },
+    { label: "Safety", href: "/admin/safety", permission: "view_safety" as Permission },
     { label: "Admin Team", href: "/admin/team", permission: "view_team" as Permission },
     { label: "Audit Log", href: "/admin/audit", permission: "view_audit" as Permission },
   ];

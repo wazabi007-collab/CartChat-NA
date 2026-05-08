@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { productSchema } from "@/lib/validations";
+import { safetyMessage, scanTextForProhibitedContent } from "@/lib/safety/prohibited-content";
 import { toCents, formatPrice, cn } from "@/lib/utils";
 import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
 import { ArrowLeft, Upload, X, Loader2, Lock } from "lucide-react";
@@ -202,6 +203,12 @@ export default function EditProductPage() {
       return;
     }
 
+    const safetyScan = scanTextForProhibitedContent([name, description]);
+    if (safetyScan.severity === "block") {
+      setGlobalError(safetyMessage(safetyScan));
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -246,6 +253,11 @@ export default function EditProductPage() {
           price_nad: validation.data.price_nad,
           category_id: validation.data.category_id || null,
           is_available: validation.data.is_available ?? true,
+          moderation_status: safetyScan.severity === "review" ? "review_required" : "approved",
+          moderation_reasons: safetyScan.reasons,
+          moderation_categories: safetyScan.categories,
+          moderation_checked_at: new Date().toISOString(),
+          moderation_source: "client_rules_v1",
           images: allImages,
           track_inventory: hasInventory ? trackInventory : false,
           stock_quantity: hasInventory && trackInventory ? stockQuantity : 0,

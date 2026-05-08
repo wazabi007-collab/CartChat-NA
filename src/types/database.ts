@@ -14,6 +14,7 @@ export type PaymentMethod = "eft" | "cod" | "momo" | "ewallet" | "pay2cell" | "d
 export type DiscountType = "percentage" | "fixed";
 export type EwalletProvider = "fnb_ewallet" | "paypulse" | "easywallet" | "paytoday";
 export type ReportStatus = "open" | "reviewed" | "dismissed";
+export type ModerationStatus = "approved" | "review_required" | "blocked";
 
 export interface Database {
   public: {
@@ -36,6 +37,10 @@ export interface Database {
           is_active: boolean;
           store_status: StoreStatus;
           tos_accepted_at: string | null;
+          prohibited_policy_accepted_at: string | null;
+          prohibited_policy_version: string | null;
+          prohibited_policy_accepted_ip: string | null;
+          safety_notes: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -56,6 +61,10 @@ export interface Database {
           is_active?: boolean;
           store_status?: StoreStatus;
           tos_accepted_at?: string | null;
+          prohibited_policy_accepted_at?: string | null;
+          prohibited_policy_version?: string | null;
+          prohibited_policy_accepted_ip?: string | null;
+          safety_notes?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -76,6 +85,10 @@ export interface Database {
           is_active?: boolean;
           store_status?: StoreStatus;
           tos_accepted_at?: string | null;
+          prohibited_policy_accepted_at?: string | null;
+          prohibited_policy_version?: string | null;
+          prohibited_policy_accepted_ip?: string | null;
+          safety_notes?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -114,6 +127,11 @@ export interface Database {
           price_nad: number;
           images: string[];
           is_available: boolean;
+          moderation_status: ModerationStatus;
+          moderation_reasons: string[];
+          moderation_categories: string[];
+          moderation_checked_at: string | null;
+          moderation_source: string;
           sort_order: number;
           created_at: string;
           updated_at: string;
@@ -128,6 +146,11 @@ export interface Database {
           price_nad: number;
           images?: string[];
           is_available?: boolean;
+          moderation_status?: ModerationStatus;
+          moderation_reasons?: string[];
+          moderation_categories?: string[];
+          moderation_checked_at?: string | null;
+          moderation_source?: string;
           sort_order?: number;
           created_at?: string;
           updated_at?: string;
@@ -142,6 +165,11 @@ export interface Database {
           price_nad?: number;
           images?: string[];
           is_available?: boolean;
+          moderation_status?: ModerationStatus;
+          moderation_reasons?: string[];
+          moderation_categories?: string[];
+          moderation_checked_at?: string | null;
+          moderation_source?: string;
           sort_order?: number;
           created_at?: string;
           updated_at?: string;
@@ -297,6 +325,53 @@ export interface Database {
           admin_notes?: string | null;
           created_at?: string;
           updated_at?: string;
+        };
+      };
+      safety_reviews: {
+        Row: {
+          id: string;
+          merchant_id: string;
+          product_id: string | null;
+          review_type: string;
+          severity: "review" | "block";
+          status: ReportStatus;
+          categories: string[];
+          reasons: string[];
+          content_excerpt: string | null;
+          admin_notes: string | null;
+          created_at: string;
+          updated_at: string;
+          resolved_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          merchant_id: string;
+          product_id?: string | null;
+          review_type: string;
+          severity: "review" | "block";
+          status?: ReportStatus;
+          categories?: string[];
+          reasons?: string[];
+          content_excerpt?: string | null;
+          admin_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          resolved_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          merchant_id?: string;
+          product_id?: string | null;
+          review_type?: string;
+          severity?: "review" | "block";
+          status?: ReportStatus;
+          categories?: string[];
+          reasons?: string[];
+          content_excerpt?: string | null;
+          admin_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          resolved_at?: string | null;
         };
       };
     };

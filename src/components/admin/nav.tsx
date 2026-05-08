@@ -11,6 +11,7 @@ import {
   BarChart3,
   Flag,
   Shield,
+  Siren,
   FileText,
   LogOut,
   Menu,
@@ -27,6 +28,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   "/admin/billing": CreditCard,
   "/admin/analytics": BarChart3,
   "/admin/reports": Flag,
+  "/admin/safety": Siren,
   "/admin/team": Shield,
   "/admin/audit": FileText,
 };

@@ -6,9 +6,11 @@ import { createClient } from "@/lib/supabase/client";
 import { slugify, normalizeNamibianPhone } from "@/lib/utils";
 import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, PAYMENT_METHODS } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
+import { SAFETY_POLICY_VERSION, safetyMessage, scanTextForProhibitedContent } from "@/lib/safety/prohibited-content";
 import { track } from "@/lib/track";
 import { Store, ArrowRight, Check, AlertCircle } from "lucide-react";
 import { PhoneInput } from "@/components/phone-input";
+import Link from "next/link";
 import {
   inputBase,
   textareaBase,
@@ -99,6 +101,7 @@ function StoreSetupForm() {
   const [offersPickup, setOffersPickup] = useState(true);
   const [offersDelivery, setOffersDelivery] = useState(false);
   const [whatsappStatus, setWhatsappStatus] = useState<"idle" | "checking" | "blocked" | "warning" | "clear">("idle");
+  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
 
   function update(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -143,6 +146,19 @@ function StoreSetupForm() {
     const result = storeSetupSchema.safeParse(form);
     if (!result.success) {
       setError(result.error.issues[0].message);
+      setLoading(false);
+      return;
+    }
+
+    const safetyScan = scanTextForProhibitedContent([form.store_name, form.description, form.industry]);
+    if (safetyScan.severity === "block") {
+      setError(safetyMessage(safetyScan));
+      setLoading(false);
+      return;
+    }
+
+    if (!acceptedPolicy) {
+      setError("Please accept the OshiCart selling rules before creating your store.");
       setLoading(false);
       return;
     }
@@ -202,6 +218,8 @@ function StoreSetupForm() {
         pickup_address: form.pickup_address || null,
         delivery_fee_nad: offersDelivery ? Math.round((parseFloat(form.delivery_fee_display) || 0) * 100) : 0,
         store_status: "active",
+        prohibited_policy_accepted_at: new Date().toISOString(),
+        prohibited_policy_version: SAFETY_POLICY_VERSION,
       })
       .select("id")
       .single();
@@ -593,6 +611,22 @@ function StoreSetupForm() {
                 </div>
               )}
 
+              <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={acceptedPolicy}
+                  onChange={(e) => setAcceptedPolicy(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
+                />
+                <span>
+                  I accept the OshiCart selling rules and confirm this store will not sell adult content,
+                  sexual services, illegal drugs, counterfeit goods, fraud, or restricted dangerous items.
+                  <Link href="/prohibited-products" target="_blank" className="ml-1 font-semibold text-[#2B5EA7] hover:underline">
+                    View policy
+                  </Link>
+                </span>
+              </label>
+
               {error && (
                 <div className={alertError}>
                   <AlertCircle className={alertIcon} />
@@ -610,7 +644,7 @@ function StoreSetupForm() {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading || selectedMethods.length === 0}
+                  disabled={loading || selectedMethods.length === 0 || !acceptedPolicy}
                   className={`flex-1 ${btnPrimaryGreen} flex items-center justify-center gap-2`}
                 >
                   {loading ? (

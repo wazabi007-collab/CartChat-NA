@@ -78,27 +78,6 @@ export default function PricingPage() {
             ))}
           </div>
 
-          <div className="mx-auto mt-10 max-w-5xl rounded-2xl border border-border-warm bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-black text-walnut">
-              Pricing rationale
-            </h2>
-            <div className="mt-4 grid gap-4 text-sm leading-6 text-walnut-2 md:grid-cols-3">
-              <p>
-                OshiCart should be easy to understand: one plan for a clean
-                online store, one plan for sellers who want automation.
-              </p>
-              <p>
-                Oshi-Storefront at N$149 keeps entry affordable for local
-                vendors and small shops that need cleaner ordering, not a full
-                automation suite.
-              </p>
-              <p>
-                Oshi-Automate at N$399 prices the value of automated customer
-                updates while staying accessible for growing Namibian sellers.
-              </p>
-            </div>
-          </div>
-
           <div className="mx-auto mt-12 max-w-3xl rounded-2xl border border-border-warm bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-black text-walnut">
               Frequently asked questions
@@ -109,12 +88,12 @@ export default function PricingPage() {
                 a="Yes on Oshi-Automate. Customers can receive order confirmed, ready, and completed WhatsApp messages automatically."
               />
               <FAQ
-                q="Why not keep four plans?"
-                a="Two plans are easier to sell: one for getting online, one for automation. You can add enterprise pricing later for large catalogs, staff, custom domains, or very high WhatsApp volume."
+                q="Can I start with Storefront and upgrade later?"
+                a="Yes. You can start with Storefront and move to Automate when you want automated customer updates, inventory tracking, and coupon tools."
               />
               <FAQ
-                q="Can we charge extra for WhatsApp messages?"
-                a="Yes, but start with included usage until you have real message volume. Then add a fair overage once merchant behavior is clear."
+                q="Is there a free trial?"
+                a="Yes. New sellers can start with a free trial before choosing the plan that fits their store."
               />
             </div>
           </div>

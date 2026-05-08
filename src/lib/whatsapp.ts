@@ -115,9 +115,10 @@ export async function sendWhatsAppTemplate(
     const data = await res.json();
 
     if (!res.ok) {
-      const errMsg =
-        data?.error?.message || `Meta API error: ${res.status}`;
-      return { success: false, error: errMsg };
+      return {
+        success: false,
+        error: `WhatsApp automation error: ${res.status}`,
+      };
     }
 
     const messageId = data?.messages?.[0]?.id;

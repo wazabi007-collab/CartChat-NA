@@ -46,7 +46,7 @@ export function Pricing() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-terracotta">
-            Suggested pricing
+            Simple pricing
           </p>
           <h2 className="mt-3 text-3xl font-black tracking-tight text-walnut sm:text-4xl">
             Two clear plans: launch your store or automate your WhatsApp.
@@ -120,12 +120,6 @@ export function Pricing() {
             );
           })}
         </div>
-
-        <p className="mx-auto mt-5 max-w-3xl text-center text-xs leading-5 text-walnut-2">
-          Suggested positioning: keep a 30-day free trial, then move active
-          sellers into one of these two plans. Extra automated WhatsApp usage
-          can be priced later once monthly message volume is known.
-        </p>
       </div>
     </section>
   );

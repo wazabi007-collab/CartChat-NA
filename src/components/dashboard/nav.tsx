@@ -13,6 +13,7 @@ import {
   LogOut,
   Ticket,
   User,
+  Store,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
@@ -58,19 +59,31 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex md:w-56 md:flex-col md:fixed md:inset-y-0 bg-white border-r">
+      <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-white border-r border-slate-200 shadow-sm shadow-slate-900/5">
         <div className="flex flex-col flex-1 overflow-y-auto">
-          <div className="p-4 border-b">
-            <Link href="/dashboard">
-              <Image src="/logo.svg" alt="OshiCart" width={120} height={32} />
+          <div className="p-5 border-b border-slate-100">
+            <Link href="/dashboard" className="inline-flex">
+              <Image src="/logo.svg" alt="OshiCart" width={132} height={34} />
             </Link>
             {merchant && (
-              <p className="text-xs text-gray-500 truncate">
-                {merchant.store_name}
-              </p>
+              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-terracotta-soft text-terracotta">
+                    <Store size={16} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-slate-950">
+                      {merchant.store_name}
+                    </p>
+                    <p className="truncate text-xs text-slate-500">
+                      /s/{merchant.store_slug}
+                    </p>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
-          <nav className="flex-1 p-2 space-y-1">
+          <nav className="flex-1 p-3 space-y-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
@@ -81,23 +94,25 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-md text-sm",
+                    "flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm transition-colors",
                     active
-                      ? "bg-green-50 text-green-700 font-medium"
-                      : "text-gray-600 hover:bg-gray-50"
+                      ? "bg-acacia-soft text-acacia font-bold shadow-sm shadow-emerald-900/5"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
                   )}
                 >
-                  <Icon size={18} />
-                  {displayLabel}
+                  <Icon size={18} strokeWidth={active ? 2.4 : 2} />
+                  <span className="truncate">{displayLabel}</span>
                 </Link>
               );
             })}
           </nav>
-          <div className="p-4 border-t">
-            <p className="text-xs text-gray-400 truncate mb-2">{userPhone}</p>
+          <div className="p-4 border-t border-slate-100">
+            {userPhone && (
+              <p className="text-xs text-slate-400 truncate mb-2">{userPhone}</p>
+            )}
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-2 text-sm text-gray-500 hover:text-red-600"
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
             >
               <LogOut size={16} />
               Sign out
@@ -107,14 +122,14 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
       </aside>
 
       {/* Mobile header — logo only, BottomNav handles navigation */}
-      <div className="md:hidden bg-white border-b px-4 py-3 flex items-center justify-center sticky top-0 z-30">
+      <div className="md:hidden bg-white/95 border-b border-slate-200 px-4 py-3 flex items-center justify-center sticky top-0 z-30 backdrop-blur">
         <Link href="/dashboard">
-          <Image src="/logo.svg" alt="OshiCart" width={100} height={26} />
+          <Image src="/logo.svg" alt="OshiCart" width={110} height={28} />
         </Link>
       </div>
 
       {/* Spacer for desktop sidebar */}
-      <div className="hidden md:block md:w-56" />
+      <div className="hidden md:block md:w-64" />
     </>
   );
 }

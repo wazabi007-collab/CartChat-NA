@@ -54,6 +54,12 @@ export function PublicNavbar() {
             Pricing
           </Link>
           <Link
+            href="/prohibited-products"
+            className="text-sm font-semibold text-walnut-2 hover:text-walnut transition-colors"
+          >
+            Safety
+          </Link>
+          <Link
             href="/login"
             className="text-sm font-semibold text-walnut-2 hover:text-walnut transition-colors"
           >
@@ -98,6 +104,13 @@ export function PublicNavbar() {
             className="block px-3 py-2 text-sm font-semibold text-walnut-2 hover:text-walnut hover:bg-sand rounded-md transition-colors"
           >
             Pricing
+          </Link>
+          <Link
+            href="/prohibited-products"
+            onClick={() => setMobileOpen(false)}
+            className="block px-3 py-2 text-sm font-semibold text-walnut-2 hover:text-walnut hover:bg-sand rounded-md transition-colors"
+          >
+            Safety
           </Link>
           <Link
             href="/login"

@@ -17,7 +17,7 @@ const PLANS = [
     price: "N$149",
     period: "/month",
     audience: "For vendors, home businesses, and small shops",
-    href: "/signup?tier=oshi_storefront",
+    href: "/signup?tier=oshi_basic",
     cta: "Start Storefront",
     icon: Store,
     features: [
@@ -35,7 +35,7 @@ const PLANS = [
     price: "N$399",
     period: "/month",
     audience: "For sellers who want WhatsApp updates sent automatically",
-    href: "/signup?tier=oshi_automate",
+    href: "/signup?tier=oshi_grow",
     cta: "Start Automate",
     highlighted: true,
     icon: BotMessageSquare,

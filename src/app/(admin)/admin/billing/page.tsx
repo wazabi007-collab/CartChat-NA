@@ -1,7 +1,7 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import { StatCard } from "@/components/admin/stat-card";
 import { DollarSign, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
-import { TIER_LABELS, STATUS_LABELS, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
+import { TIER_LABELS, STATUS_LABELS, TIER_LIMITS, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
 import Link from "next/link";
 import { RecordPaymentModal } from "./record-payment-modal";
 
@@ -35,10 +35,7 @@ export default async function BillingPage() {
     service.from("merchants").select("id, store_name").eq("store_status", "active").order("store_name"),
   ]);
 
-  const TIER_PRICES: Record<string, number> = {
-    oshi_start: 0, oshi_basic: 19900, oshi_grow: 49900, oshi_pro: 120000,
-  };
-  const mrr = (subsRes.data || []).reduce((sum, s) => sum + (TIER_PRICES[s.tier] || 0), 0);
+  const mrr = (subsRes.data || []).reduce((sum, s) => sum + (TIER_LIMITS[s.tier as SubscriptionTier]?.price_nad || 0), 0);
   const totalRevenue = (paymentsRes.data || []).reduce((sum, p) => sum + (p.amount_nad || 0), 0);
   const collectedThisMonth = (thisMonthRes.data || []).reduce((sum, p) => sum + (p.amount_nad || 0), 0);
   const overdueCount = overdueRes.data?.length || 0;

@@ -8,7 +8,7 @@ import { isDpoEnabled } from "@/lib/dpo";
 import { Check, ArrowLeft } from "lucide-react";
 import { PaymentSection } from "./payment-section";
 
-const VALID_TIERS: SubscriptionTier[] = ["oshi_basic", "oshi_grow", "oshi_pro"];
+const VALID_TIERS: SubscriptionTier[] = ["oshi_basic", "oshi_grow"];
 
 const OSHICART_BANK = {
   bank: "Nedbank Namibia",
@@ -22,8 +22,8 @@ const OSHICART_WHATSAPP = "+264816274823";
 
 const TIER_FEATURES: Record<string, string[]> = {
   oshi_basic: [
-    "30 products",
-    "200 orders/month",
+    "50 products",
+    "300 orders/month",
     "No OshiCart branding on your store",
     "Sales analytics",
     "WhatsApp order notifications",
@@ -31,17 +31,12 @@ const TIER_FEATURES: Record<string, string[]> = {
   ],
   oshi_grow: [
     "200 products",
-    "500 orders/month",
+    "1,000 orders/month",
+    "Automated WhatsApp order updates",
+    "Automated confirmed, ready, completed messages",
     "Inventory tracking",
     "Coupon & discount codes",
-    "Everything in Basic",
-  ],
-  oshi_pro: [
-    "Unlimited products",
-    "Unlimited orders",
-    "Priority support",
-    "All features included",
-    "Everything in Grow",
+    "Everything in Storefront",
   ],
 };
 

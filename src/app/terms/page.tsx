@@ -76,19 +76,14 @@ export default function TermsPage() {
               20 orders per month for 30 days.
             </li>
             <li>
-              <strong>Oshi-Basic (N$99/month):</strong> Up to 30 products and
-              200 orders per month. Includes sales analytics and no OshiCart
+              <strong>Oshi-Storefront (N$149/month):</strong> Up to 50 products and
+              300 orders per month. Includes sales analytics and no OshiCart
               branding.
             </li>
             <li>
-              <strong>Oshi-Grow (N$299/month):</strong> Up to 200 products and
-              500 orders per month. Includes inventory tracking and coupon
-              codes.
-            </li>
-            <li>
-              <strong>Oshi-Pro (N$499/month):</strong> Unlimited products and
-              orders. Includes product import via API, Excel &amp; CSV, and
-              priority support.
+              <strong>Oshi-Automate (N$399/month):</strong> Up to 200 products and
+              1,000 orders per month. Includes automated WhatsApp order updates,
+              inventory tracking, and coupon codes.
             </li>
           </ul>
           <p>
@@ -117,6 +112,13 @@ export default function TermsPage() {
             <li>Items that violate Namibian law</li>
             <li>Products with misleading descriptions or fake images</li>
           </ul>
+          <p className="mt-2">
+            See the full{" "}
+            <Link href="/prohibited-products" className="text-[#2B5EA7] hover:underline">
+              prohibited products policy
+            </Link>
+            .
+          </p>
           <p className="mt-2">Merchants must not engage in:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>Accepting payment without intent to deliver</li>

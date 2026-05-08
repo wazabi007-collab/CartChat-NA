@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MessageCircle, Trash2 } from "lucide-react";
+import { MessageCircle, ShieldAlert, Trash2 } from "lucide-react";
 import { normalizeNamibianPhone } from "@/lib/utils";
 import { TIER_LABELS, TIER_LIMITS, STATUS_LABELS, formatTierPrice, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
 
-const TABS = ["Overview", "Subscription", "Performance", "Products", "Orders", "Activity", "Danger Zone"] as const;
+const TABS = ["Overview", "Subscription", "Performance", "Products", "Orders", "Safety & Compliance", "Activity", "Danger Zone"] as const;
 
 function fmtDate(d: string) {
   const date = new Date(d);
@@ -26,9 +26,11 @@ interface MerchantTabsProps {
   products: Record<string, unknown>[];
   orders: Record<string, unknown>[];
   actions: Record<string, unknown>[];
+  safetyReviews: Record<string, unknown>[];
+  reports: Record<string, unknown>[];
 }
 
-export function MerchantTabs({ merchant, subscription, payments, products, orders, actions }: MerchantTabsProps) {
+export function MerchantTabs({ merchant, subscription, payments, products, orders, actions, safetyReviews, reports }: MerchantTabsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<(typeof TABS)[number]>("Overview");
   const [saving, setSaving] = useState(false);
@@ -67,11 +69,12 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
         <div className="grid md:grid-cols-2 gap-6">
           <InfoCard title="Store Info">
             <InfoRow label="Name" value={merchant.store_name as string} />
-            <InfoRow label="Slug" value={merchant.slug as string} />
+            <InfoRow label="Slug" value={merchant.store_slug as string} />
             <InfoRow label="Industry" value={merchant.industry as string || "—"} />
             <InfoRow label="WhatsApp" value={merchant.whatsapp_number as string || "—"} />
             <InfoRow label="Bank" value={merchant.bank_name as string || "—"} />
-            <InfoRow label="Account" value={merchant.bank_account as string || "—"} />
+            <InfoRow label="Account" value={merchant.bank_account_number as string || "—"} />
+            <InfoRow label="Policy accepted" value={merchant.prohibited_policy_accepted_at ? fmtDate(merchant.prohibited_policy_accepted_at as string) : "Not accepted"} />
             <InfoRow label="Joined" value={fmtDate(merchant.created_at as string)} />
           </InfoCard>
           <InfoCard title="Quick Stats">
@@ -373,6 +376,56 @@ export function MerchantTabs({ merchant, subscription, payments, products, order
         </div>
       )}
 
+      {activeTab === "Safety & Compliance" && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <InfoCard title="Policy acceptance">
+            <InfoRow label="Accepted at" value={merchant.prohibited_policy_accepted_at ? fmtDateTime(merchant.prohibited_policy_accepted_at as string) : "Not accepted"} />
+            <InfoRow label="Policy version" value={(merchant.prohibited_policy_version as string) || "none"} />
+            <InfoRow label="Store status" value={(merchant.store_status as string) || "unknown"} />
+            <InfoRow label="Safety notes" value={(merchant.safety_notes as string) || "none"} />
+          </InfoCard>
+
+          <InfoCard title="Open risk">
+            <InfoRow label="Safety reviews" value={safetyReviews.filter((r) => r.status === "open").length.toString()} />
+            <InfoRow label="Customer reports" value={reports.filter((r) => r.status === "open").length.toString()} />
+            <InfoRow label="Flagged products" value={products.filter((p) => p.moderation_status && p.moderation_status !== "approved").length.toString()} />
+          </InfoCard>
+
+          <div className="rounded-lg border bg-white p-6 lg:col-span-2">
+            <div className="mb-4 flex items-center gap-2">
+              <ShieldAlert size={18} className="text-red-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Safety reviews</h3>
+            </div>
+            {safetyReviews.length === 0 ? (
+              <p className="text-sm text-gray-500">No safety reviews recorded.</p>
+            ) : (
+              <div className="space-y-3">
+                {safetyReviews.map((review) => (
+                  <div key={review.id as string} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-black ${
+                        review.status === "open" ? "bg-red-100 text-red-800" : "bg-slate-100 text-slate-600"
+                      }`}>
+                        {review.status as string}
+                      </span>
+                      <span className="text-xs font-bold uppercase tracking-wide text-slate-400">
+                        {String(review.review_type).replace("_", " ")}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-slate-700">
+                      {Array.isArray(review.reasons) && review.reasons.length > 0 ? review.reasons.join(" ") : "Safety review created."}
+                    </p>
+                    {review.content_excerpt ? (
+                      <p className="mt-2 rounded-lg bg-white px-3 py-2 text-xs text-slate-500">{review.content_excerpt as string}</p>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {activeTab === "Danger Zone" && (
         <DangerZone
           merchantId={merchant.id as string}
@@ -454,7 +507,29 @@ function DangerZone({
   router: ReturnType<typeof useRouter>;
 }) {
   const [confirmText, setConfirmText] = useState("");
+  const [reason, setReason] = useState("");
   const canDelete = confirmText === storeName;
+
+  async function handleStatus(status: "active" | "suspended" | "banned") {
+    setSaving(true);
+    setActionError("");
+    try {
+      const res = await fetch(`/api/admin/merchants/${merchantId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "change_status", status, reason }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to update store status");
+      }
+      router.refresh();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function handleDelete() {
     if (!canDelete) return;
@@ -480,6 +555,35 @@ function DangerZone({
   }
 
   return (
+    <div className="space-y-6">
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-6">
+        <h3 className="mb-2 text-lg font-semibold text-amber-950">Store restriction controls</h3>
+        <p className="mb-4 text-sm text-amber-900">
+          Use these controls for safety, fraud, or compliance issues. Notes are written to the admin audit log.
+        </p>
+        {actionError && (
+          <div className="mb-4 rounded border border-red-300 bg-red-100 px-3 py-2 text-sm text-red-700">{actionError}</div>
+        )}
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Reason for status change..."
+          rows={2}
+          className="mb-4 w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400"
+        />
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => handleStatus("active")} disabled={saving} className="rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 disabled:opacity-50">
+            Reactivate
+          </button>
+          <button onClick={() => handleStatus("suspended")} disabled={saving} className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-bold text-white hover:bg-amber-700 disabled:opacity-50">
+            Suspend
+          </button>
+          <button onClick={() => handleStatus("banned")} disabled={saving} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50">
+            Ban
+          </button>
+        </div>
+      </div>
+
     <div className="bg-red-50 border-2 border-red-200 rounded-lg p-6">
       <div className="flex items-center gap-2 mb-4">
         <Trash2 size={20} className="text-red-600" />
@@ -514,6 +618,7 @@ function DangerZone({
       >
         {saving ? "Deleting..." : "Permanently Delete Store"}
       </button>
+    </div>
     </div>
   );
 }

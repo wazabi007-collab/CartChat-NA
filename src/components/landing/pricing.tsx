@@ -8,7 +8,7 @@ const TIERS = [
     cadence: "/ month",
     audience: "For vendors, home businesses, and small shops",
     cta: "Start Storefront",
-    href: "/signup?tier=oshi_storefront",
+    href: "/signup?tier=oshi_basic",
     highlighted: false,
     icon: Store,
     features: [
@@ -26,7 +26,7 @@ const TIERS = [
     cadence: "/ month",
     audience: "For growing sellers who want automated customer updates",
     cta: "Start Automate",
-    href: "/signup?tier=oshi_automate",
+    href: "/signup?tier=oshi_grow",
     highlighted: true,
     icon: BotMessageSquare,
     features: [

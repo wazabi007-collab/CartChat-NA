@@ -13,15 +13,15 @@ export interface TierLimit {
 // Static fallback — must match tier_limits DB table
 export const TIER_LIMITS: Record<SubscriptionTier, TierLimit> = {
   oshi_start: { products: 10,  orders_per_month: 20,  inventory: false, coupons: false, branding: true,  price_nad: 0 },
-  oshi_basic: { products: 30,  orders_per_month: 200, inventory: false, coupons: false, branding: false, price_nad: 9900 },
-  oshi_grow:  { products: 200, orders_per_month: 500, inventory: true,  coupons: true,  branding: false, price_nad: 29900 },
+  oshi_basic: { products: 50,  orders_per_month: 300, inventory: false, coupons: false, branding: false, price_nad: 14900 },
+  oshi_grow:  { products: 200, orders_per_month: 1000, inventory: true,  coupons: true,  branding: false, price_nad: 39900 },
   oshi_pro:   { products: -1,  orders_per_month: -1,  inventory: true,  coupons: true,  branding: false, price_nad: 49900 },
 };
 
 export const TIER_LABELS: Record<SubscriptionTier, string> = {
   oshi_start: "Oshi-Start",
-  oshi_basic: "Oshi-Basic",
-  oshi_grow: "Oshi-Grow",
+  oshi_basic: "Oshi-Storefront",
+  oshi_grow: "Oshi-Automate",
   oshi_pro: "Oshi-Pro",
 };
 

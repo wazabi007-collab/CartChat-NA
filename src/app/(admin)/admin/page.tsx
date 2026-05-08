@@ -12,7 +12,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import Link from "next/link";
-import { TIER_LABELS, STATUS_LABELS, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
+import { TIER_LABELS, STATUS_LABELS, TIER_LIMITS, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
 
 export default async function AdminOverviewPage() {
   const service = createServiceClient();
@@ -34,6 +34,8 @@ export default async function AdminOverviewPage() {
     expiringResult,
     overdueListResult,
     activityResult,
+    safetyResult,
+    suspendedResult,
   ] = await Promise.all([
     // Active subscriptions + tier for MRR
     service.from("subscriptions").select("tier, status"),
@@ -65,20 +67,22 @@ export default async function AdminOverviewPage() {
     // Recent activity
     service.from("admin_actions").select("*, admin_users(email)")
       .order("created_at", { ascending: false }).limit(20),
+    service.from("safety_reviews").select("id", { count: "exact", head: true }).eq("status", "open"),
+    service.from("merchants").select("id", { count: "exact", head: true }).in("store_status", ["suspended", "banned"]),
   ]);
 
   // Calculate MRR from tier prices
-  const TIER_PRICES: Record<string, number> = {
-    oshi_start: 0, oshi_basic: 19900, oshi_grow: 49900, oshi_pro: 120000,
-  };
   const activeSubs = (subsResult.data || []).filter(
     (s) => s.status === "trial" || s.status === "active" || s.status === "grace"
   );
-  const mrr = activeSubs.reduce((sum, s) => sum + (TIER_PRICES[s.tier] || 0), 0);
+  const mrr = activeSubs.reduce((sum, s) => sum + (TIER_LIMITS[s.tier as SubscriptionTier]?.price_nad || 0), 0);
   const activeMerchants = activeSubs.length;
   const newSignups = newSignupsResult.count || 0;
   const overdueCount = overdueResult.count || 0;
   const openReports = reportsResult.count || 0;
+  const openSafety = safetyResult.count || 0;
+  const suspendedStores = suspendedResult.count || 0;
+  const riskTotal = overdueCount + openReports + openSafety + suspendedStores;
 
   return (
     <div>
@@ -99,7 +103,7 @@ export default async function AdminOverviewPage() {
               </p>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              <MiniMetric label="Risk" value={overdueCount + openReports} />
+              <MiniMetric label="Risk" value={riskTotal} />
               <MiniMetric label="New" value={newSignups} />
               <MiniMetric label="Active" value={activeMerchants} />
             </div>
@@ -108,7 +112,7 @@ export default async function AdminOverviewPage() {
       </section>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
         <StatCard
           label="MRR"
           value={`N$${(mrr / 100).toLocaleString()}`}
@@ -141,6 +145,32 @@ export default async function AdminOverviewPage() {
           highlight={openReports > 0}
           href="/admin/reports"
         />
+        <StatCard
+          label="Safety Reviews"
+          value={openSafety}
+          icon={ShieldCheck}
+          highlight={openSafety > 0}
+          href="/admin/safety"
+        />
+      </div>
+
+      <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-red-600">
+              Risk command
+            </p>
+            <h2 className="mt-2 text-xl font-black text-slate-950">
+              Items needing attention
+            </h2>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-4">
+            <RiskLink href="/admin/safety" label="Safety" value={openSafety} />
+            <RiskLink href="/admin/reports" label="Reports" value={openReports} />
+            <RiskLink href="/admin/billing" label="Overdue" value={overdueCount} />
+            <RiskLink href="/admin/merchants?status=suspended" label="Restricted" value={suspendedStores} />
+          </div>
+        </div>
       </div>
 
       <div className="mb-8 grid gap-4 lg:grid-cols-4">
@@ -161,6 +191,12 @@ export default async function AdminOverviewPage() {
           icon={Flag}
           title="Trust and reports"
           text="Resolve open reports and identify platform risk."
+        />
+        <ControlLink
+          href="/admin/safety"
+          icon={ShieldCheck}
+          title="Safety reviews"
+          text="Review flagged stores and prohibited listings."
         />
         <ControlLink
           href="/admin/audit"
@@ -268,6 +304,22 @@ export default async function AdminOverviewPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function RiskLink({ href, label, value }: { href: string; label: string; value: number }) {
+  return (
+    <Link
+      href={href}
+      className={`min-w-32 rounded-2xl border px-4 py-3 text-center transition hover:-translate-y-0.5 ${
+        value > 0
+          ? "border-red-200 bg-red-50 text-red-700"
+          : "border-emerald-200 bg-emerald-50 text-emerald-700"
+      }`}
+    >
+      <p className="text-2xl font-black">{value}</p>
+      <p className="mt-1 text-xs font-black uppercase tracking-wide">{label}</p>
+    </Link>
   );
 }
 

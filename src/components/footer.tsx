@@ -5,10 +5,10 @@ export function Footer() {
   return (
     <footer
       id="contact"
-      className="bg-walnut text-[color:#d4c2a0] py-12 px-4 sm:px-6"
+      className="bg-walnut px-4 py-12 text-slate-300 sm:px-6"
     >
       <div className="max-w-6xl mx-auto">
-        <div className="grid md:grid-cols-4 gap-8 items-start">
+        <div className="grid gap-8 md:grid-cols-4 md:items-start">
           {/* Brand */}
           <div>
             <Image
@@ -18,36 +18,37 @@ export function Footer() {
               height={35}
               className="brightness-0 invert"
             />
-            <p className="mt-3 text-sm text-[color:#a89270]">
-              Empowering Local Commerce in Namibia
+            <p className="mt-3 text-sm text-slate-400">
+              Online stores for Namibia&apos;s shops, vendors, services, and
+              WhatsApp sellers.
             </p>
           </div>
 
           {/* About Us */}
           <div id="about" className="md:col-span-2">
-            <h4 className="text-white font-semibold mb-3">About Us</h4>
-            <div className="text-sm text-[color:#d4c2a0] leading-relaxed space-y-3">
+            <h4 className="mb-3 font-bold text-white">About OshiCart</h4>
+            <div className="space-y-3 text-sm leading-relaxed text-slate-300">
               <p>
-                OshiCart is a proudly Namibian platform born from a single mission: to empower the local entrepreneur.
-                We know that in Namibia, business happens in the DMs and on WhatsApp Status. We built OshiCart to bridge
-                that gap&mdash;turning your casual chats into a professional, automated storefront.
+                OshiCart is a proudly Namibian commerce platform for sellers who
+                already run their business through WhatsApp, Facebook,
+                Instagram, markets, and local communities.
               </p>
               <p>
-                From the side-zula artisan and the local boutique to busy restaurants and professional service providers,
-                we provide the tools to simplify your life. With our &ldquo;Order with Me&rdquo; personalized links, your
-                customers can browse your menu or catalog and pay instantly via PayToday or EFT without the back-and-forth.
+                We help merchants publish a clean store link, receive structured
+                orders, accept local payments, and manage products without
+                needing a custom website.
               </p>
               <p>
-                Whether you&apos;re serving the best Kapana in Windhoek, booking professional consultations, or shipping
-                handmade crafts from the Coast, OshiCart takes the &ldquo;Oshi&rdquo; out of the hustle. We handle the
-                tech; you secure the bag.
+                From local vendors and restaurants to boutiques, salons,
+                electronics shops, and service providers, OshiCart is built for
+                the way Namibia sells.
               </p>
             </div>
           </div>
 
           {/* Contact & Links */}
           <div>
-            <h4 className="text-white font-semibold mb-3">Contact & Support</h4>
+            <h4 className="mb-3 font-bold text-white">Contact & Support</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <a
@@ -95,9 +96,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-[color:#3a2b14] flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
+        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-sm md:flex-row">
           <p>&copy; {new Date().getFullYear()} OshiCart. Made in Namibia.</p>
-          <p className="text-[color:#a89270]">
+          <p className="text-slate-500">
             OshiCart is a product of Octovia Nexus Investments CC
           </p>
         </div>

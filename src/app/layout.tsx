@@ -19,11 +19,11 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://oshicart.com";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "OshiCart — The Simplest Way to Sell Online in Namibia",
+    default: "OshiCart - Your Namibian Business, Online in Minutes",
     template: "%s | OshiCart",
   },
   description:
-    "Create your WhatsApp store in 5 minutes. Free product catalog, order management, and local payments — built for Namibia. Zero transaction fees.",
+    "Create a clean online store for your Namibian shop, vendor table, food business, salon, service, or WhatsApp side hustle. Local payments, WhatsApp orders, zero commission.",
   keywords: [
     "OshiCart",
     "online store Namibia",
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
     apple: "/icon.svg",
   },
   openGraph: {
-    title: "OshiCart — The Simplest Way to Sell Online in Namibia",
-    description: "Create your WhatsApp store in 5 minutes. Zero transaction fees. Keep 100% of your profits. Built for Namibian businesses.",
+    title: "OshiCart - Your Namibian Business, Online in Minutes",
+    description: "Create a clean online store for shops, local vendors, food sellers, services, and WhatsApp businesses. Zero commission. Built for Namibia.",
     url: siteUrl,
     siteName: "OshiCart",
     locale: "en_NA",
@@ -55,8 +55,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "OshiCart — Sell Online in Namibia",
-    description: "Create your WhatsApp store in 5 minutes. Zero transaction fees. Built for Namibia.",
+    title: "OshiCart - Sell Online in Namibia",
+    description: "Create a clean online store in minutes. Local payments, WhatsApp orders, zero commission.",
   },
   robots: {
     index: true,

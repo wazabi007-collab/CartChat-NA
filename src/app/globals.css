@@ -2,18 +2,20 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0b1220;
 
-  /* Warm Local palette */
-  --sand: #fdf6ec;
-  --sand-2: #f7ead2;
-  --terracotta: #b45309;
-  --terracotta-soft: #fef3e2;
-  --acacia: #15803d;
-  --acacia-soft: #dcfce7;
-  --walnut: #1c1408;
-  --walnut-2: #5b4630;
-  --border-warm: #e7dcc7;
+  /* OshiCart public brand palette */
+  --sand: #f8fafc;
+  --sand-2: #edf5ff;
+  --terracotta: #2b5ea7;
+  --terracotta-soft: #eaf2ff;
+  --acacia: #159947;
+  --acacia-soft: #e7f8ee;
+  --walnut: #0b1220;
+  --walnut-2: #526174;
+  --border-warm: #dbe3ee;
+  --sun: #f2b705;
+  --coral: #f97316;
 }
 
 @theme inline {
@@ -32,10 +34,18 @@
   --color-walnut: var(--walnut);
   --color-walnut-2: var(--walnut-2);
   --color-border-warm: var(--border-warm);
+  --color-sun: var(--sun);
+  --color-coral: var(--coral);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--acacia);
+  color: white;
 }

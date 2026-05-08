@@ -1,52 +1,48 @@
 const FAQS = [
   {
+    q: "Is OshiCart only for shops?",
+    a: "No. It works for shops, vendors, food sellers, salons, services, farms, home businesses, and anyone selling through WhatsApp or social media.",
+  },
+  {
     q: "Do you charge commission on sales?",
-    a: "No. You keep 100% of every order. We charge a flat monthly subscription on Pro/Business; Free has no fees.",
+    a: "No. OshiCart does not take a percentage of your orders. Customers pay you directly through the payment methods you enable.",
   },
   {
-    q: "Can I cancel anytime?",
-    a: "Yes — cancel from your dashboard. No lock-in, no cancellation fees.",
+    q: "Which payment methods can I offer?",
+    a: "EFT, PayToday, FNB Pay2Cell, eWallet, MoMo, and Cash on Delivery can be presented to customers depending on your store settings.",
   },
   {
-    q: "Which payment methods do my customers see?",
-    a: "PayToday, EFT, eWallet, and Cash on Delivery. All Namibian — no international gateways or forex charges needed.",
+    q: "Do customers need to install an app?",
+    a: "No. Customers open your store link in the browser, place an order, and can continue the conversation on WhatsApp.",
   },
   {
-    q: "How fast do I get paid?",
-    a: "Customers pay you directly via PayToday/EFT/eWallet — Oshicart never holds your money. You see funds in your bank as fast as the payment method allows.",
-  },
-  {
-    q: "Can I use my own domain?",
-    a: "Yes — connect a domain you already own (Pro and above), or stick with your free oshicart.com/s/your-store link.",
-  },
-  {
-    q: "Do you handle VAT?",
-    a: "Yes. Inclusive or exclusive VAT, Namibia's 15% rate, automatic invoice generation per order.",
+    q: "Can I market my store on Facebook, Instagram, and TikTok?",
+    a: "Yes. Your OshiCart link can be shared in bios, posts, stories, reels, WhatsApp Status, printed flyers, and QR codes.",
   },
 ];
 
 export function FAQ() {
   return (
-    <section className="py-20 bg-white">
-      <div className="mx-auto max-w-3xl px-6">
-        <div className="text-center mb-10">
-          <p className="text-[11px] tracking-[0.12em] font-bold text-terracotta mb-2">
+    <section className="bg-white py-16 lg:py-20">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6">
+        <div className="mb-10 text-center">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-terracotta">
             FAQ
           </p>
-          <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-walnut">
-            Questions, answered.
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-walnut sm:text-4xl">
+            Clear answers for serious sellers.
           </h2>
         </div>
-        <div className="divide-y divide-border-warm border-y border-border-warm">
-          {FAQS.map((f) => (
-            <details key={f.q} className="group py-4">
-              <summary className="cursor-pointer list-none flex items-center justify-between gap-4 text-walnut font-semibold">
-                <span>{f.q}</span>
-                <span className="text-terracotta text-xl group-open:rotate-45 transition-transform">
+        <div className="divide-y divide-border-warm rounded-xl border border-border-warm bg-white">
+          {FAQS.map((faq) => (
+            <details key={faq.q} className="group p-5">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-black text-walnut">
+                <span>{faq.q}</span>
+                <span className="text-2xl leading-none text-terracotta transition-transform group-open:rotate-45">
                   +
                 </span>
               </summary>
-              <p className="mt-3 text-sm text-walnut-2 leading-relaxed">{f.a}</p>
+              <p className="mt-3 text-sm leading-6 text-walnut-2">{faq.a}</p>
             </details>
           ))}
         </div>

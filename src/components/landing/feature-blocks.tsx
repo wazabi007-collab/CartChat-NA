@@ -1,61 +1,85 @@
-import Image from "next/image";
+import {
+  BarChart3,
+  BotMessageSquare,
+  Boxes,
+  FileText,
+  MessageSquareText,
+  Percent,
+} from "lucide-react";
 
 const FEATURES = [
   {
-    title: "Manage orders from anywhere",
-    body: "One-tap order confirmation, ready, completed. Run your shop from your phone.",
-    img: "/landing/feature-orders.png",
+    icon: MessageSquareText,
+    title: "Clean WhatsApp orders",
+    body: "Customers send complete orders with items, quantities, delivery choice, and payment proof.",
   },
   {
-    title: "Track stock automatically",
-    body: "Real-time inventory updates, low-stock alerts, and out-of-stock badges.",
-    img: "/landing/feature-stock.png",
+    icon: BotMessageSquare,
+    title: "Automated WhatsApp replies",
+    body: "Customers receive order confirmed, ready, and completed updates when merchants move an order forward.",
   },
   {
-    title: "Use your own domain",
-    body: "Connect a domain you already own or stick with your free oshicart.com link.",
-    img: "/landing/feature-domain.png",
+    icon: Boxes,
+    title: "Stock control",
+    body: "Track quantities, show out-of-stock badges, and reduce the 'is this available?' messages.",
   },
   {
-    title: "VAT invoices, automatic",
-    body: "Inclusive or exclusive VAT, Namibia's 15% rate, generated for every order.",
-    img: "/landing/feature-invoice.png",
+    icon: Percent,
+    title: "Coupons and promos",
+    body: "Run launch discounts, weekend specials, and customer offers without manual calculations.",
+  },
+  {
+    icon: FileText,
+    title: "Invoices and VAT",
+    body: "Create professional invoices with Namibia's 15% VAT support when your business needs it.",
+  },
+  {
+    icon: BarChart3,
+    title: "Sales visibility",
+    body: "See orders, revenue, products, and low-stock warnings from one mobile-friendly dashboard.",
   },
 ];
 
 export function FeatureBlocks() {
   return (
-    <section className="py-20 bg-white">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="text-center mb-12">
-          <p className="text-[11px] tracking-[0.12em] font-bold text-terracotta mb-2">
-            EVERYTHING YOU NEED TO RUN A SHOP
-          </p>
-          <h2 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-walnut">
-            Built for Namibian businesses.
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {FEATURES.map((f) => (
-            <div
-              key={f.title}
-              className="bg-sand rounded-2xl border border-border-warm p-6 grid grid-cols-[1fr_auto] gap-6 items-center"
-            >
-              <div>
-                <h3 className="text-lg font-bold text-walnut mb-2">{f.title}</h3>
-                <p className="text-sm text-walnut-2 leading-relaxed">{f.body}</p>
-              </div>
-              <div className="w-32 h-32 rounded-lg bg-white border border-border-warm overflow-hidden relative shrink-0">
-                <Image
-                  src={f.img}
-                  alt=""
-                  fill
-                  sizes="128px"
-                  className="object-cover"
-                />
-              </div>
-            </div>
-          ))}
+    <section className="bg-white py-16 lg:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:items-start">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-terracotta">
+              Platform features
+            </p>
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-walnut sm:text-4xl">
+              Built to replace messy DMs, notebooks, and manual totals.
+            </h2>
+            <p className="mt-4 text-base leading-7 text-walnut-2">
+              OshiCart is built around Namibia&apos;s real seller workflow: local
+              payments, mobile-first pages, simple order handling, automated
+              WhatsApp updates, and practical trust.
+            </p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {FEATURES.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  key={feature.title}
+                  className="rounded-xl border border-border-warm bg-sand p-5"
+                >
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white text-terracotta shadow-sm">
+                    <Icon size={21} />
+                  </span>
+                  <h3 className="mt-4 text-lg font-black text-walnut">
+                    {feature.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-walnut-2">
+                    {feature.body}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

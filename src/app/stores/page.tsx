@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { Store, Search, ArrowRight, MessageCircle } from "lucide-react";
+import { Store, Search, ArrowRight, MessageCircle, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SITE_NAME } from "@/lib/constants";
 import { PublicNavbar } from "@/components/public-navbar";
@@ -111,8 +111,20 @@ export default async function StoresPage({
     }
   }
 
+  const publicStoreList = storeList.filter((merchant) => {
+    const productCount = countMap.get(merchant.id) || 0;
+    const normalizedName = merchant.store_name.toLowerCase();
+    const normalizedDescription = (merchant.description || "").toLowerCase();
+    const isInternalDemo =
+      normalizedName.includes("test") ||
+      normalizedName.includes("demo") ||
+      normalizedDescription.includes("demonstration store");
+
+    return productCount > 0 && !isInternalDemo;
+  });
+
   // Fetch up to 4 product image URLs per merchant for thumbnail grids
-  const merchantIds = storeList.map((m) => m.id);
+  const merchantIds = publicStoreList.map((m) => m.id);
   const previewMap = new Map<string, string[]>();
   if (merchantIds.length > 0) {
     const { data: previews } = await supabase
@@ -137,14 +149,19 @@ export default async function StoresPage({
     <div className="min-h-screen bg-sand">
       <PublicNavbar />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {/* Page Title & Search */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-walnut">
-            Browse Namibian Stores
+        <div className="mx-auto mb-8 max-w-3xl text-center">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-acacia-soft px-3 py-1 text-xs font-black uppercase tracking-wide text-acacia">
+            <ShieldCheck size={15} />
+            Active stores with listed products
+          </span>
+          <h1 className="text-4xl font-black tracking-tight text-walnut sm:text-5xl">
+            Browse Namibian stores
           </h1>
-          <p className="text-walnut-2 mt-2">
-            Discover local businesses and shop directly via WhatsApp
+          <p className="mt-3 text-base leading-7 text-walnut-2">
+            Discover local businesses, compare active stores, and order
+            directly through WhatsApp.
           </p>
         </div>
 
@@ -160,7 +177,7 @@ export default async function StoresPage({
               name="q"
               defaultValue={q || ""}
               placeholder="Search stores by name..."
-              className="w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-walnut placeholder-walnut-2/70 focus:outline-none focus:ring-2 focus:ring-terracotta focus:border-transparent"
+            className="w-full rounded-xl border border-border-warm bg-white py-3 pl-10 pr-4 text-walnut shadow-sm placeholder-walnut-2/70 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-terracotta"
             />
           </div>
         </form>
@@ -191,12 +208,12 @@ export default async function StoresPage({
         {/* Results */}
         {q && (
           <p className="text-sm text-walnut-2 mb-4">
-            {storeList.length} result{storeList.length !== 1 ? "s" : ""} for
+            {publicStoreList.length} result{publicStoreList.length !== 1 ? "s" : ""} for
             &ldquo;{q}&rdquo;
           </p>
         )}
 
-        {storeList.length === 0 ? (
+        {publicStoreList.length === 0 ? (
           <div className="bg-white rounded-lg border border-border-warm p-12 text-center">
             <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
               <Store size={32} className="text-walnut-2/70" />
@@ -217,14 +234,14 @@ export default async function StoresPage({
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {storeList.map((merchant) => {
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {publicStoreList.map((merchant) => {
               const productCount = countMap.get(merchant.id) || 0;
               return (
                 <Link
                   key={merchant.id}
                   href={`/s/${merchant.store_slug}`}
-                  className="bg-white rounded-lg border border-border-warm hover:shadow-md transition-shadow overflow-hidden group"
+                  className="group overflow-hidden rounded-xl border border-border-warm bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
                 >
                   <div className="p-5">
                     <div className="flex items-center gap-3 mb-3">
@@ -233,27 +250,27 @@ export default async function StoresPage({
                         fallbackInitial={merchant.store_name.charAt(0).toUpperCase()}
                       />
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-semibold text-walnut truncate group-hover:text-terracotta transition-colors">
+                        <h3 className="truncate font-black text-walnut transition-colors group-hover:text-terracotta">
                           {merchant.store_name}
                         </h3>
-                        <p className="text-xs text-walnut-2/70">
+                        <p className="text-xs font-semibold text-walnut-2/70">
                           {INDUSTRY_LABELS[merchant.industry || "other"] || "General"} &middot; {productCount} product{productCount !== 1 ? "s" : ""}
                         </p>
                       </div>
                     </div>
 
                     {merchant.description && (
-                      <p className="text-sm text-walnut-2 line-clamp-2 mb-3">
+                      <p className="mb-3 line-clamp-2 text-sm leading-6 text-walnut-2">
                         {merchant.description}
                       </p>
                     )}
 
-                    <div className="flex items-center justify-between pt-3 border-t border-border-warm">
-                      <span className="inline-flex items-center gap-1 text-xs text-acacia">
+                    <div className="flex items-center justify-between border-t border-border-warm pt-3">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-acacia">
                         <MessageCircle size={14} />
                         WhatsApp Store
                       </span>
-                      <span className="text-xs text-walnut-2/70 group-hover:text-terracotta transition-colors flex items-center gap-1">
+                      <span className="flex items-center gap-1 text-xs font-bold text-walnut-2/70 transition-colors group-hover:text-terracotta">
                         Visit Store <ArrowRight size={14} />
                       </span>
                     </div>
@@ -265,8 +282,8 @@ export default async function StoresPage({
         )}
 
         {/* CTA for merchants */}
-        <div className="mt-12 text-center bg-white rounded-lg border border-border-warm p-8">
-          <h3 className="text-lg font-semibold text-walnut mb-2">
+        <div className="mt-12 rounded-xl border border-border-warm bg-white p-8 text-center shadow-sm">
+          <h3 className="mb-2 text-xl font-black text-walnut">
             Own a business in Namibia?
           </h3>
           <p className="text-walnut-2 text-sm mb-4">

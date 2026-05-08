@@ -19,6 +19,7 @@ import { SITE_URL } from "@/lib/constants";
 import { getServiceLabels } from "@/lib/service-labels";
 import { GettingStarted } from "@/components/dashboard/getting-started";
 import { ShareStoreCard } from "@/components/dashboard/share-store-card";
+import { DashboardCommandPanel } from "@/components/dashboard/dashboard-command-panel";
 import { alertError, alertWarning, alertInfo, alertIcon } from "@/lib/ui";
 
 export default async function DashboardPage({
@@ -178,6 +179,19 @@ export default async function DashboardPage({
         merchantId={merchant.id}
         storeLinkShared={merchantExt.store_link_shared ?? false}
         compact={!isNewMerchant}
+      />
+
+      <DashboardCommandPanel
+        productCount={productCount}
+        pendingOrders={pendingOrders}
+        completedOrders={completedOrders}
+        totalOrders={totalOrders}
+        totalRevenue={totalRevenue}
+        storeUrl={storeUrl}
+        itemPlural={labels.itemPlural}
+        addItemLabel={labels.addItem}
+        setupComplete={allChecklistComplete}
+        storeLinkShared={merchantExt.store_link_shared ?? false}
       />
 
       {merchant.store_status === "suspended" && (

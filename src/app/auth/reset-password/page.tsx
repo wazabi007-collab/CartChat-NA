@@ -28,6 +28,8 @@ function ResetPasswordForm() {
   const supabase = useMemo(() => createClient(), []);
   const searchParams = useSearchParams();
   const code = searchParams.get("code");
+  const tokenHash = searchParams.get("token_hash");
+  const type = searchParams.get("type");
   const nextParam = searchParams.get("next");
   const nextPath =
     nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
@@ -56,6 +58,54 @@ function ResetPasswordForm() {
         return;
       }
 
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const hashAccessToken = hashParams.get("access_token");
+      const hashRefreshToken = hashParams.get("refresh_token");
+      const hashType = hashParams.get("type");
+
+      if (hashAccessToken && hashRefreshToken && hashType === "recovery") {
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: hashAccessToken,
+          refresh_token: hashRefreshToken,
+        });
+
+        if (!mounted) return;
+
+        if (sessionError) {
+          setSessionError("This reset link is invalid or has expired. Please request a new password reset link.");
+          setSessionReady(false);
+        } else {
+          setSessionReady(true);
+          const cleanUrl = new URL(window.location.href);
+          cleanUrl.hash = "";
+          window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
+        }
+        setSessionLoading(false);
+        return;
+      }
+
+      if (tokenHash && type === "recovery") {
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: "recovery",
+        });
+
+        if (!mounted) return;
+
+        if (verifyError) {
+          setSessionError("This reset link is invalid or has expired. Please request a new password reset link.");
+          setSessionReady(false);
+        } else {
+          setSessionReady(true);
+          const cleanUrl = new URL(window.location.href);
+          cleanUrl.searchParams.delete("token_hash");
+          cleanUrl.searchParams.delete("type");
+          window.history.replaceState({}, "", cleanUrl.pathname + cleanUrl.search);
+        }
+        setSessionLoading(false);
+        return;
+      }
+
       if (code) {
         const { error: exchangeError } =
           await supabase.auth.exchangeCodeForSession(code);
@@ -76,8 +126,11 @@ function ResetPasswordForm() {
       }
 
       if (!mounted) return;
-      setSessionError("Open the reset link from your email before setting a new password.");
-      setSessionLoading(false);
+      window.setTimeout(() => {
+        if (!mounted || sessionReady) return;
+        setSessionError("Open the reset link from your email before setting a new password.");
+        setSessionLoading(false);
+      }, 900);
     }
 
     const {
@@ -96,7 +149,7 @@ function ResetPasswordForm() {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [code, supabase, urlError]);
+  }, [code, sessionReady, supabase, tokenHash, type, urlError]);
 
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();

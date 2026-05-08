@@ -13,6 +13,9 @@ export function AdminLoginForm({ initialError }: { initialError?: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const [resetError, setResetError] = useState("");
   const [error, setError] = useState(
     initialError === "not_authorized"
       ? "This account is not authorized for OshiCart Admin."
@@ -41,6 +44,38 @@ export function AdminLoginForm({ initialError }: { initialError?: string }) {
 
     router.push("/admin");
     router.refresh();
+  }
+
+  async function handleResetPassword() {
+    const normalizedEmail = email.trim();
+
+    setResetSent(false);
+    setResetError("");
+
+    if (!normalizedEmail) {
+      setResetError("Enter your admin email first, then request a reset link.");
+      return;
+    }
+
+    setResetLoading(true);
+
+    try {
+      const res = await fetch("/api/admin/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: normalizedEmail }),
+      });
+
+      if (!res.ok) {
+        setResetError("Unable to request a reset link right now. Please try again.");
+      } else {
+        setResetSent(true);
+      }
+    } catch {
+      setResetError("Network error. Please check your connection and try again.");
+    } finally {
+      setResetLoading(false);
+    }
   }
 
   return (
@@ -100,6 +135,19 @@ export function AdminLoginForm({ initialError }: { initialError?: string }) {
             </div>
           )}
 
+          {resetSent && (
+            <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+              If this email is an approved admin account, a reset link has been sent.
+            </div>
+          )}
+
+          {resetError && (
+            <div className="mb-4 flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              <p>{resetError}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="admin-email" className="mb-1.5 block text-sm font-bold text-slate-700">
@@ -118,9 +166,19 @@ export function AdminLoginForm({ initialError }: { initialError?: string }) {
             </div>
 
             <div>
-              <label htmlFor="admin-password" className="mb-1.5 block text-sm font-bold text-slate-700">
-                Password
-              </label>
+              <div className="mb-1.5 flex items-center justify-between gap-3">
+                <label htmlFor="admin-password" className="block text-sm font-bold text-slate-700">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={handleResetPassword}
+                  disabled={resetLoading}
+                  className="text-xs font-black text-acacia transition hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {resetLoading ? "Sending..." : "Reset password"}
+                </button>
+              </div>
               <input
                 id="admin-password"
                 type="password"

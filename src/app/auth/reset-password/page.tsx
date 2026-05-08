@@ -27,6 +27,11 @@ export default function ResetPasswordPage() {
 function ResetPasswordForm() {
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const nextParam = searchParams.get("next");
+  const nextPath =
+    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
+      ? nextParam
+      : "/login";
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -96,7 +101,7 @@ function ResetPasswordForm() {
                   </div>
                 </div>
                 <Link
-                  href="/login"
+                  href={nextPath}
                   className={btnPrimaryBrand + " block text-center"}
                 >
                   Go to Sign In
@@ -157,7 +162,7 @@ function ResetPasswordForm() {
               </form>
             ) : (
               <Link
-                href="/login"
+                href={nextPath}
                 className={btnPrimaryBrand + " block text-center"}
               >
                 Back to Sign In

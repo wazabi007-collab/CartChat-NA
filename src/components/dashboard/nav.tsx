@@ -63,7 +63,14 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
         <div className="flex flex-col flex-1 overflow-y-auto">
           <div className="p-5 border-b border-slate-100">
             <Link href="/dashboard" className="inline-flex">
-              <Image src="/logo.svg" alt="OshiCart" width={132} height={34} />
+              <Image
+                src="/logo.svg"
+                alt="OshiCart"
+                width={132}
+                height={34}
+                priority
+                style={{ width: 132, height: "auto" }}
+              />
             </Link>
             {merchant && (
               <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
@@ -124,7 +131,14 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
       {/* Mobile header — logo only, BottomNav handles navigation */}
       <div className="md:hidden bg-white/95 border-b border-slate-200 px-4 py-3 flex items-center justify-center sticky top-0 z-30 backdrop-blur">
         <Link href="/dashboard">
-          <Image src="/logo.svg" alt="OshiCart" width={110} height={28} />
+          <Image
+            src="/logo.svg"
+            alt="OshiCart"
+            width={110}
+            height={28}
+            priority
+            style={{ width: 110, height: "auto" }}
+          />
         </Link>
       </div>
 

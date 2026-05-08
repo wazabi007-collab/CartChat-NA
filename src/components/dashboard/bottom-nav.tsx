@@ -70,7 +70,7 @@ export function BottomNav({ pendingOrders, industry }: BottomNavProps) {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 md:hidden px-2 pt-2 pb-[max(8px,env(safe-area-inset-bottom))]">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 px-2 pt-2 pb-[max(10px,env(safe-area-inset-bottom))] shadow-2xl shadow-slate-950/10 backdrop-blur md:hidden">
         <div className="flex items-center">
           {navItems.map((item) => {
             const active = isActive(item.href, item.exact);
@@ -81,8 +81,8 @@ export function BottomNav({ pendingOrders, industry }: BottomNavProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 ${
-                  active ? "text-green-600" : "text-gray-400"
+                className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1 transition ${
+                  active ? "bg-emerald-50 text-acacia" : "text-slate-400"
                 }`}
               >
                 <span className="relative">
@@ -100,7 +100,7 @@ export function BottomNav({ pendingOrders, industry }: BottomNavProps) {
 
           <button
             onClick={() => setMoreOpen(true)}
-            className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-gray-400"
+            className="flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1 text-slate-400 transition active:bg-slate-100"
           >
             <MoreHorizontal size={20} />
             <span className="text-[10px] font-medium">More</span>
@@ -114,7 +114,7 @@ export function BottomNav({ pendingOrders, industry }: BottomNavProps) {
             className="fixed inset-0 bg-black/30 z-50"
             onClick={() => setMoreOpen(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50 pb-[env(safe-area-inset-bottom)]">
+          <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-2xl shadow-slate-950/20">
             <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
               <span className="text-base font-semibold text-gray-900">More</span>
               <button

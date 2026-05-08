@@ -35,6 +35,7 @@ export function PublicNavbar() {
             width={150}
             height={40}
             priority
+            style={{ width: 150, height: "auto" }}
           />
         </Link>
 

@@ -6,6 +6,7 @@ import { OrderActions } from "./order-actions";
 import { QuickStatus } from "@/components/dashboard/quick-status";
 import { OrderItemsToggle } from "@/components/dashboard/order-items-toggle";
 import { card, statusPill } from "@/lib/ui";
+import { Bot, Clock3, PackageCheck, ShieldCheck } from "lucide-react";
 
 export default async function OrdersPage({
   searchParams,
@@ -43,23 +44,76 @@ export default async function OrdersPage({
   }
 
   const { data: orders } = await query;
+  const orderList = orders || [];
+  const pendingCount = orderList.filter((order) => order.status === "pending").length;
+  const activeCount = orderList.filter((order) =>
+    ["pending", "confirmed", "ready"].includes(order.status)
+  ).length;
+  const completedCount = orderList.filter((order) => order.status === "completed").length;
 
   const statuses = ["all", "pending", "confirmed", "ready", "completed", "cancelled"];
 
   return (
     <div className="md:ml-56">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Orders</h1>
+      <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-acacia">
+              Order command center
+            </p>
+            <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+              Orders
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              Confirm payments, move orders through fulfilment, and keep customers
+              updated through automated WhatsApp messages.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+            <div className="flex items-center gap-2 font-black">
+              <Bot size={18} />
+              Customer updates are automated
+            </div>
+            <p className="mt-1 max-w-xs leading-5 text-emerald-800">
+              Status changes trigger the prepared WhatsApp order messages in the background.
+            </p>
+          </div>
+        </div>
+        <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-amber-700">
+              <Clock3 size={14} />
+              Pending
+            </div>
+            <p className="mt-2 text-2xl font-black text-amber-700">{pendingCount}</p>
+          </div>
+          <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-blue-700">
+              <PackageCheck size={14} />
+              Active
+            </div>
+            <p className="mt-2 text-2xl font-black text-blue-700">{activeCount}</p>
+          </div>
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-700">
+              <ShieldCheck size={14} />
+              Completed
+            </div>
+            <p className="mt-2 text-2xl font-black text-emerald-700">{completedCount}</p>
+          </div>
+        </div>
+      </div>
 
       {/* Status filter tabs */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+      <div className="mb-6 flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm shadow-slate-900/5">
         {statuses.map((s) => (
           <Link
             key={s}
             href={s === "all" ? "/dashboard/orders" : `/dashboard/orders?status=${s}`}
             className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               (s === "all" && !statusFilter) || s === statusFilter
-                ? "bg-green-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-acacia text-white shadow-sm"
+                : "bg-slate-50 text-slate-600 hover:bg-slate-100"
             }`}
           >
             {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -67,7 +121,7 @@ export default async function OrdersPage({
         ))}
       </div>
 
-      {!orders || orders.length === 0 ? (
+      {orderList.length === 0 ? (
         <div className={`${card} text-center py-16`}>
           <p className="text-gray-500">No orders yet</p>
           <p className="text-sm text-gray-400 mt-1.5">
@@ -76,10 +130,10 @@ export default async function OrdersPage({
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => (
+          {orderList.map((order) => (
             <div
               key={order.id}
-              className={card}
+              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5"
             >
               <div className="flex items-start justify-between mb-3">
                 <div>

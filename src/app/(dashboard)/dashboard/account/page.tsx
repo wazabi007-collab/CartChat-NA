@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
-import { AlertCircle, CheckCircle2, User as UserIcon } from "lucide-react";
+import { AlertCircle, CheckCircle2, ShieldCheck, User as UserIcon } from "lucide-react";
 import {
-  card,
   label,
   inputBase,
   focusGreen,
@@ -108,16 +107,28 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="p-6 max-w-xl">
-      <h1 className="text-xl font-semibold text-gray-900 mb-6">
-        Account Settings
-      </h1>
+    <div className="md:ml-56">
+      <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-acacia">
+          Profile and security
+        </p>
+        <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+          Account Settings
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          Manage the login details connected to this merchant workspace.
+        </p>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
 
       {/* Card 1 — Account Info */}
-      <div className={`${card} mb-4`}>
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
         <div className="flex items-center gap-2 mb-4">
-          <UserIcon size={16} className="text-gray-500" />
-          <h2 className="font-semibold text-gray-900 text-sm">Account Info</h2>
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-terracotta">
+            <UserIcon size={16} />
+          </span>
+          <h2 className="text-sm font-black text-slate-950">Account Info</h2>
         </div>
         <div className="space-y-3">
           <div>
@@ -136,10 +147,15 @@ export default function AccountPage() {
       </div>
 
       {/* Card 2 — Password */}
-      <div className={card}>
-        <h2 className="font-semibold text-gray-900 text-sm mb-4">
-          {hasPasswordIdentity ? "Change Password" : "Set Password"}
-        </h2>
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
+        <div className="mb-4 flex items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-acacia">
+            <ShieldCheck size={16} />
+          </span>
+          <h2 className="text-sm font-black text-slate-950">
+            {hasPasswordIdentity ? "Change Password" : "Set Password"}
+          </h2>
+        </div>
 
         {error && (
           <div className={`${alertError} mb-4`}>
@@ -214,6 +230,7 @@ export default function AccountPage() {
                 : "Set Password"}
           </button>
         </form>
+      </div>
       </div>
     </div>
   );

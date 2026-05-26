@@ -101,22 +101,43 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   const hasBranding = showBranding(tier);
   const theme = getThemeConfig(merchant.industry);
 
-  // Get accurate per-category product counts using exact count queries
+  // Get accurate per-category product counts and visual previews using available products.
   const catCountMap = new Map<string, number>();
+  const catImageMap = new Map<string, string[]>();
   if (categories && categories.length > 0) {
     const catCountPromises = categories.map(async (cat) => {
-      const { count } = await supabase
-        .from("products")
-        .select("id", { count: "exact", head: true })
-        .eq("merchant_id", merchant.id)
-        .eq("category_id", cat.id)
-        .eq("is_available", true)
-        .is("deleted_at", null);
-      return { id: cat.id, count: count || 0 };
+      const [countRes, imageRes] = await Promise.all([
+        supabase
+          .from("products")
+          .select("id", { count: "exact", head: true })
+          .eq("merchant_id", merchant.id)
+          .eq("category_id", cat.id)
+          .eq("is_available", true)
+          .is("deleted_at", null),
+        supabase
+          .from("products")
+          .select("images")
+          .eq("merchant_id", merchant.id)
+          .eq("category_id", cat.id)
+          .eq("is_available", true)
+          .is("deleted_at", null)
+          .not("images", "eq", "{}")
+          .order("sort_order", { ascending: true })
+          .limit(4),
+      ]);
+      return {
+        id: cat.id,
+        count: countRes.count || 0,
+        images: (imageRes.data || [])
+          .flatMap((product) => product.images || [])
+          .filter(Boolean)
+          .slice(0, 4),
+      };
     });
     const catCounts = await Promise.all(catCountPromises);
     for (const c of catCounts) {
       catCountMap.set(c.id, c.count);
+      catImageMap.set(c.id, c.images);
     }
   }
 
@@ -299,6 +320,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
                 slug: c.id,
                 name: c.name,
                 productCount: catCountMap.get(c.id) ?? 0,
+                imageUrls: catImageMap.get(c.id) ?? [],
               }))}
             />
           </div>

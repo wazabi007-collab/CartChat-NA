@@ -9,7 +9,7 @@ const WOO_API = `${SOURCE_BASE}/wp-json/wc/v3`;
 const STORE_NAME = "Octovia Nexus Promo";
 const STORE_SLUG = "octovia-nexus-promo";
 const STORE_OWNER_EMAIL = "promo@octovianexus.com";
-const STORE_WHATSAPP = "+264812384424";
+const STORE_WHATSAPP = "+264852384424";
 const SUPABASE_URL = "https://pcseqiaqeiiaiqxqtfmw.supabase.co";
 const STORAGE_BUCKET = "merchant-assets";
 

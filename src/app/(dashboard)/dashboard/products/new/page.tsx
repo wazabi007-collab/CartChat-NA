@@ -12,6 +12,11 @@ import { canAddProduct, hasTierFeature, TIER_LIMITS, TIER_LABELS, type Subscript
 import { ArrowLeft, Upload, X, Loader2, Lock } from "lucide-react";
 import { MAX_IMAGE_SIZE } from "@/lib/constants";
 import { track } from "@/lib/track";
+import {
+  ProductVariantsEditor,
+  parseVariantOptions,
+  type ProductVariantDraft,
+} from "@/components/dashboard/product-variants-editor";
 
 interface Category {
   id: string;
@@ -33,6 +38,7 @@ export default function NewProductPage() {
   const [stockQuantity, setStockQuantity] = useState(0);
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
   const [allowBackorder, setAllowBackorder] = useState(false);
+  const [variants, setVariants] = useState<ProductVariantDraft[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -229,8 +235,17 @@ export default function NewProductPage() {
         imageUrls.push(urlData.publicUrl);
       }
 
+      const variantsToSave = itemType === "product" ? variants : [];
+      for (const [index, variant] of variantsToSave.entries()) {
+        if (!variant.optionText.trim()) {
+          setGlobalError(`Variation ${index + 1} needs options, for example "Colour: Red, Size: Large".`);
+          setLoading(false);
+          return;
+        }
+      }
+
       // Insert product
-      const { error: insertError } = await supabase.from("products").insert({
+      const { data: newProduct, error: insertError } = await supabase.from("products").insert({
         merchant_id: merchantId,
         item_type: itemType,
         name: validation.data.name,
@@ -248,10 +263,32 @@ export default function NewProductPage() {
         stock_quantity: hasInventory && trackInventory ? stockQuantity : 0,
         low_stock_threshold: hasInventory ? lowStockThreshold : 5,
         allow_backorder: hasInventory ? allowBackorder : false,
-      });
+      }).select("id").single();
 
-      if (insertError) {
+      if (insertError || !newProduct) {
         throw new Error(`Save product: ${insertError.message}`);
+      }
+
+      if (variantsToSave.length > 0) {
+        const variantRows = variantsToSave.map((variant, index) => ({
+          product_id: newProduct.id,
+          source: "manual",
+          source_variation_id: `manual-${index + 1}`,
+          sku: variant.sku.trim() || `${validation.data.name.slice(0, 16).replace(/[^a-z0-9]+/gi, "-")}-${index + 1}`,
+          price_nad: variant.priceDisplay ? toCents(parseFloat(variant.priceDisplay) || 0) : validation.data.price_nad,
+          images: variant.imageUrl.trim() ? [variant.imageUrl.trim()] : [],
+          attributes: parseVariantOptions(variant.optionText),
+          is_available: variant.isAvailable,
+          track_inventory: hasInventory ? variant.trackInventory : false,
+          stock_quantity: hasInventory && variant.trackInventory ? variant.stockQuantity : 0,
+          allow_backorder: hasInventory ? variant.allowBackorder : false,
+          stock_status: variant.isAvailable ? "instock" : "outofstock",
+          sort_order: index,
+        }));
+        const { error: variantError } = await supabase.from("product_variants").insert(variantRows);
+        if (variantError) {
+          throw new Error(`Save variations: ${variantError.message}`);
+        }
       }
 
       track("product_created", { item_type: itemType, has_images: imageUrls.length > 0, category: categoryId || "none" });
@@ -487,6 +524,13 @@ export default function NewProductPage() {
             ))}
           </select>
         </div>
+
+        {itemType === "product" && (
+          <ProductVariantsEditor
+            variants={variants}
+            onChange={setVariants}
+          />
+        )}
 
         {/* Availability */}
         <div className="flex items-center gap-3">

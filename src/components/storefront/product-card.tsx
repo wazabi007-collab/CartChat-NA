@@ -23,6 +23,7 @@ interface ProductCardProps {
   itemType?: "product" | "service";
   whatsappNumber?: string;
   storeName?: string;
+  hasVariants?: boolean;
 }
 
 export function ProductCard({
@@ -30,6 +31,7 @@ export function ProductCard({
   trackInventory, stockQuantity, lowStockThreshold, allowBackorder,
   disabled, accentColor, accentHover, ctaText,
   itemType, whatsappNumber, storeName,
+  hasVariants,
 }: ProductCardProps) {
   const { addItem } = useCart();
 
@@ -105,6 +107,14 @@ export function ProductCard({
               <MessageCircle size={14} />
               Request Quote
             </button>
+          ) : hasVariants ? (
+            <Link
+              href={`/s/${slug}/${id}`}
+              className={`block w-full rounded-lg py-2.5 px-3 text-center text-sm font-medium text-white transition-colors ${accentColor ? "" : "bg-terracotta hover:opacity-90"}`}
+              style={accentColor ? { backgroundColor: accentColor } : undefined}
+            >
+              Select Options
+            </Link>
           ) : (
             <button
               onClick={() =>

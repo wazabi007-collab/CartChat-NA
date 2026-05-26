@@ -57,6 +57,14 @@ export function CompactGrid({ products, theme, slug, disabled }: LayoutProps) {
               <div className="mt-auto pt-1.5">
                 {isOutOfStock || disabled ? (
                   <span className="text-xs text-gray-400">Sold out</span>
+                ) : product.has_variants ? (
+                  <Link
+                    href={`/s/${slug}/${product.id}`}
+                    className="block w-full rounded-md py-1.5 px-2 text-center text-xs font-medium text-white transition-colors"
+                    style={{ backgroundColor: theme.accent }}
+                  >
+                    Select Options
+                  </Link>
                 ) : (
                   <button
                     onClick={() =>

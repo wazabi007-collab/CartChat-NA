@@ -32,7 +32,7 @@ export default async function OrdersPage({
   const statusFilter = params.status;
   let query = supabase
     .from("orders")
-    .select("*, order_items(id, product_name, product_price, quantity, line_total)")
+    .select("*, order_items(id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes)")
     .eq("merchant_id", merchant.id)
     .order("created_at", { ascending: false });
 

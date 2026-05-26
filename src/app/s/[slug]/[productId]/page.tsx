@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { JsonLd } from "@/components/json-ld";
-import { AddToCartButton } from "./add-to-cart-button";
+import { ProductPurchasePanel } from "./product-purchase-panel";
 import { StickyAddToCart } from "./sticky-add-to-cart";
 
 interface Props {
@@ -79,7 +79,19 @@ export default async function ProductDetailPage({ params }: Props) {
 
   if (!product) notFound();
 
+  const { data: variants } = await supabase
+    .from("product_variants")
+    .select("id, sku, price_nad, images, attributes, is_available, stock_quantity, track_inventory, allow_backorder, sort_order")
+    .eq("product_id", product.id)
+    .order("sort_order", { ascending: true })
+    .order("sku", { ascending: true });
+
   const images = product.images ?? [];
+  const productVariants = (variants || []).map((variant) => ({
+    ...variant,
+    attributes: (variant.attributes || {}) as Record<string, string>,
+    images: variant.images || [],
+  }));
 
   const isOutOfStock = product.track_inventory && product.stock_quantity === 0 && !product.allow_backorder;
 
@@ -243,11 +255,14 @@ export default async function ProductDetailPage({ params }: Props) {
                   Out of Stock
                 </button>
               ) : (
-                <AddToCartButton
-                  productId={product.id}
-                  name={product.name}
-                  price={product.price_nad}
-                  imageUrl={images[0] ?? null}
+                <ProductPurchasePanel
+                  product={{
+                    id: product.id,
+                    name: product.name,
+                    price_nad: product.price_nad,
+                    imageUrl: images[0] ?? null,
+                  }}
+                  variants={productVariants}
                 />
               )}
             </div>
@@ -268,7 +283,7 @@ export default async function ProductDetailPage({ params }: Props) {
         name={product.name}
         price={product.price_nad}
         imageUrl={images[0] ?? null}
-        isOutOfStock={isOutOfStock}
+        isOutOfStock={isOutOfStock || productVariants.length > 0}
       />
     </div>
   );

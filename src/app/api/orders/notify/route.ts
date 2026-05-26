@@ -61,13 +61,22 @@ export async function POST(req: NextRequest) {
 
     // Build item rows for HTML email
     const itemRows = (items || [])
-      .map((item: { name: string; quantity: number; price: number }) =>
+      .map((item: { name: string; quantity: number; price: number; variant_sku?: string | null; variant_attributes?: Record<string, string> }) => {
+        const variantText = item.variant_attributes && Object.keys(item.variant_attributes).length > 0
+          ? Object.entries(item.variant_attributes).map(([key, value]) => `${key}: ${value}`).join(" | ")
+          : "";
+        return (
         `<tr>
-          <td style="padding:8px 12px;border-bottom:1px solid #eee;">${item.name}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #eee;">
+            ${item.name}
+            ${variantText ? `<div style="margin-top:3px;color:#6b7280;font-size:12px;">${variantText}</div>` : ""}
+            ${item.variant_sku ? `<div style="margin-top:2px;color:#9ca3af;font-size:11px;">SKU ${item.variant_sku}</div>` : ""}
+          </td>
           <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:center;">${item.quantity}</td>
           <td style="padding:8px 12px;border-bottom:1px solid #eee;text-align:right;">${fmt(item.price * item.quantity)}</td>
         </tr>`
-      )
+        );
+      })
       .join("");
 
     const htmlEmail = `

@@ -219,7 +219,7 @@ async function ensureCategories(merchantId, categoryNames) {
 }
 
 async function uploadImage(ownerUserId, product) {
-  const sourceUrl = product.images?.[0]?.src;
+  const sourceUrl = product.images?.[0]?.src || product.image?.src;
   if (!sourceUrl || skipImages) return null;
 
   try {
@@ -246,6 +246,110 @@ async function uploadImage(ownerUserId, product) {
   }
 }
 
+function variationAttributes(variation) {
+  const result = {};
+  for (const attribute of variation.attributes || []) {
+    if (attribute.name && attribute.option) {
+      result[attribute.name] = attribute.option;
+    }
+  }
+  return result;
+}
+
+async function fetchProductVariations(sourceProductId) {
+  if (!useWooRest) return [];
+  const first = await fetchJson(`/products/${sourceProductId}/variations?per_page=100&page=1`);
+  const all = [...first.data];
+  for (let page = 2; page <= first.pages; page++) {
+    const next = await fetchJson(`/products/${sourceProductId}/variations?per_page=100&page=${page}`);
+    all.push(...next.data);
+  }
+  return all;
+}
+
+async function syncVariants({ ownerUserId, parentProduct, localProductId, existingParentImage }) {
+  if (!useWooRest || parentProduct.type !== "variable" || !localProductId) {
+    return { created: 0, updated: 0, skipped: 0, images: 0, errors: 0 };
+  }
+
+  const variations = await fetchProductVariations(parentProduct.id);
+  const { data: existingRows, error } = dryRun
+    ? { data: [], error: null }
+    : await supabase
+        .from("product_variants")
+        .select("id, source_variation_id, images")
+        .eq("product_id", localProductId);
+  if (error) throw error;
+
+  const existingBySourceId = new Map((existingRows || []).map((variant) => [variant.source_variation_id, variant]));
+  const seenSourceIds = new Set();
+  let created = 0;
+  let updated = 0;
+  let skipped = 0;
+  let images = 0;
+  let errors = 0;
+
+  for (const variation of variations) {
+    const price = productPrice(variation);
+    if (!price) {
+      skipped++;
+      continue;
+    }
+
+    const sourceVariationId = String(variation.id);
+    seenSourceIds.add(sourceVariationId);
+    const existing = existingBySourceId.get(sourceVariationId);
+    let imageUrl = existing?.images?.[0] || null;
+    const sourceVariantImage = variation.image?.src;
+    if (!imageUrl && sourceVariantImage && sourceVariantImage !== parentProduct.images?.[0]?.src) {
+      imageUrl = dryRun ? sourceVariantImage : await uploadImage(ownerUserId, variation);
+      if (imageUrl) images++;
+    }
+    if (!imageUrl) imageUrl = existingParentImage || parentProduct.images?.[0]?.src || null;
+
+    const payload = {
+      product_id: localProductId,
+      source: "woocommerce",
+      source_variation_id: sourceVariationId,
+      sku: variation.sku || `${parentProduct.sku || parentProduct.id}-${variation.id}`,
+      price_nad: price,
+      images: imageUrl ? [imageUrl] : [],
+      attributes: variationAttributes(variation),
+      is_available: productIsAvailable(variation),
+      stock_status: variation.stock_status || null,
+      track_inventory: Boolean(variation.manage_stock),
+      stock_quantity: productStockQuantity(variation),
+      allow_backorder: variation.backorders_allowed === true || !variation.manage_stock,
+      sort_order: variation.menu_order || 0,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (dryRun) {
+      existing ? updated++ : created++;
+    } else if (existing) {
+      const { error: updateError } = await supabase
+        .from("product_variants")
+        .update(payload)
+        .eq("id", existing.id);
+      updateError ? errors++ : updated++;
+    } else {
+      const { error: insertError } = await supabase.from("product_variants").insert(payload);
+      insertError ? errors++ : created++;
+    }
+  }
+
+  if (!dryRun && seenSourceIds.size > 0) {
+    await supabase
+      .from("product_variants")
+      .update({ is_available: false, updated_at: new Date().toISOString() })
+      .eq("product_id", localProductId)
+      .eq("source", "woocommerce")
+      .not("source_variation_id", "in", `(${[...seenSourceIds].join(",")})`);
+  }
+
+  return { created, updated, skipped, images, errors };
+}
+
 async function syncProducts(merchant, ownerUserId, products, categoryById) {
   const categoryNames = new Set(products.map((product) => topLevelCategory(product, categoryById)));
   const categoryMap = await ensureCategories(merchant.id, categoryNames);
@@ -265,6 +369,10 @@ async function syncProducts(merchant, ownerUserId, products, categoryById) {
   let skipped = 0;
   let images = 0;
   let errors = 0;
+  let variantsCreated = 0;
+  let variantsUpdated = 0;
+  let variantsSkipped = 0;
+  let variantErrors = 0;
 
   async function processProduct(product) {
     const sku = product.sku || `woo-${product.id}`;
@@ -302,15 +410,53 @@ async function syncProducts(merchant, ownerUserId, products, categoryById) {
 
     if (dryRun) {
       existingProduct ? updated++ : created++;
+      const variantResult = await syncVariants({
+        ownerUserId,
+        parentProduct: product,
+        localProductId: existingProduct?.id || `dry-run-product-${sku}`,
+        existingParentImage: imageUrl,
+      });
+      variantsCreated += variantResult.created;
+      variantsUpdated += variantResult.updated;
+      variantsSkipped += variantResult.skipped;
+      variantErrors += variantResult.errors;
     } else if (existingProduct) {
       const { error: updateError } = await supabase
         .from("products")
         .update(payload)
         .eq("id", existingProduct.id);
       updateError ? errors++ : updated++;
+      const variantResult = await syncVariants({
+        ownerUserId,
+        parentProduct: product,
+        localProductId: existingProduct.id,
+        existingParentImage: imageUrl,
+      });
+      variantsCreated += variantResult.created;
+      variantsUpdated += variantResult.updated;
+      variantsSkipped += variantResult.skipped;
+      variantErrors += variantResult.errors;
     } else {
-      const { error: insertError } = await supabase.from("products").insert(payload);
-      insertError ? errors++ : created++;
+      const { data: inserted, error: insertError } = await supabase
+        .from("products")
+        .insert(payload)
+        .select("id")
+        .single();
+      if (insertError || !inserted) {
+        errors++;
+      } else {
+        created++;
+        const variantResult = await syncVariants({
+          ownerUserId,
+          parentProduct: product,
+          localProductId: inserted.id,
+          existingParentImage: imageUrl,
+        });
+        variantsCreated += variantResult.created;
+        variantsUpdated += variantResult.updated;
+        variantsSkipped += variantResult.skipped;
+        variantErrors += variantResult.errors;
+      }
     }
   }
 
@@ -320,12 +466,23 @@ async function syncProducts(merchant, ownerUserId, products, categoryById) {
     const done = Math.min(index + concurrency, products.length);
     if (done % 100 === 0 || done === products.length) {
       console.log(
-        `  products ${done}/${products.length} | created ${created} | updated ${updated} | skipped ${skipped} | images ${images} | errors ${errors}`
+        `  products ${done}/${products.length} | created ${created} | updated ${updated} | skipped ${skipped} | images ${images} | variants +${variantsCreated}/${variantsUpdated} | errors ${errors + variantErrors}`
       );
     }
   }
 
-  return { created, updated, skipped, images, errors, categories: categoryNames.size };
+  return {
+    created,
+    updated,
+    skipped,
+    images,
+    errors,
+    variantsCreated,
+    variantsUpdated,
+    variantsSkipped,
+    variantErrors,
+    categories: categoryNames.size,
+  };
 }
 
 async function main() {

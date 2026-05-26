@@ -161,10 +161,25 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     .range(offset, offset + PRODUCTS_PER_PAGE - 1);
   if (categoryFilter) productQuery = productQuery.eq("category_id", categoryFilter);
   const { data: products } = await productQuery;
+  const productIds = (products || []).map((product) => product.id);
+  const variantProductIds = new Set<string>();
+  if (productIds.length > 0) {
+    const { data: variantRows } = await supabase
+      .from("product_variants")
+      .select("product_id")
+      .in("product_id", productIds);
+    for (const row of variantRows || []) {
+      variantProductIds.add(row.product_id);
+    }
+  }
+
+  const allProducts = (products ?? []).map((product) => ({
+    ...product,
+    has_variants: variantProductIds.has(product.id),
+  }));
 
   // Group products by category
-  const categoryMap = new Map<string | null, typeof products>();
-  const allProducts = products ?? [];
+  const categoryMap = new Map<string | null, typeof allProducts>();
 
   for (const product of allProducts) {
     const key = product.category_id;

@@ -23,7 +23,7 @@ export async function GET(
       payment_method, payment_reference, proof_of_payment_url,
       tracking_token,
       merchants!inner(store_name, store_slug, whatsapp_number),
-      order_items(id, product_name, product_price, quantity, line_total)
+      order_items(id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes)
     `)
     .eq("tracking_token", token)
     .single();

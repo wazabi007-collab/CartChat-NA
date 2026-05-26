@@ -11,6 +11,12 @@ import { toCents, formatPrice, cn } from "@/lib/utils";
 import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
 import { ArrowLeft, Upload, X, Loader2, Lock } from "lucide-react";
 import { MAX_IMAGE_SIZE } from "@/lib/constants";
+import {
+  ProductVariantsEditor,
+  formatVariantOptions,
+  parseVariantOptions,
+  type ProductVariantDraft,
+} from "@/components/dashboard/product-variants-editor";
 
 interface Category {
   id: string;
@@ -47,6 +53,8 @@ export default function EditProductPage() {
   const [stockQuantity, setStockQuantity] = useState(0);
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
   const [allowBackorder, setAllowBackorder] = useState(false);
+  const [variants, setVariants] = useState<ProductVariantDraft[]>([]);
+  const [loadedVariantIds, setLoadedVariantIds] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
 
   // Existing images (URLs) and new files
@@ -115,6 +123,31 @@ export default function EditProductPage() {
       setLowStockThreshold(prod.low_stock_threshold ?? 5);
       setAllowBackorder(prod.allow_backorder ?? false);
       setExistingImages(prod.images || []);
+
+      const { data: productVariants } = await supabase
+        .from("product_variants")
+        .select("id, source, source_variation_id, sku, price_nad, images, attributes, is_available, track_inventory, stock_quantity, allow_backorder, sort_order")
+        .eq("product_id", productId)
+        .order("sort_order", { ascending: true });
+
+      if (productVariants) {
+        setLoadedVariantIds(productVariants.map((variant) => variant.id));
+        setVariants(
+          productVariants.map((variant) => ({
+            id: variant.id,
+            source: variant.source || "manual",
+            sourceVariationId: variant.source_variation_id,
+            sku: variant.sku || "",
+            optionText: formatVariantOptions(variant.attributes as Record<string, string> | null),
+            priceDisplay: typeof variant.price_nad === "number" ? (variant.price_nad / 100).toFixed(2) : "",
+            isAvailable: variant.is_available ?? true,
+            trackInventory: variant.track_inventory ?? false,
+            stockQuantity: variant.stock_quantity ?? 0,
+            allowBackorder: variant.allow_backorder ?? false,
+            imageUrl: Array.isArray(variant.images) && variant.images.length > 0 ? String(variant.images[0]) : "",
+          }))
+        );
+      }
 
       // Load categories
       const { data: cats } = await supabase
@@ -244,6 +277,15 @@ export default function EditProductPage() {
 
       const allImages = [...existingImages, ...newImageUrls];
 
+      const variantsToSave = itemType === "product" ? variants : [];
+      for (const [index, variant] of variantsToSave.entries()) {
+        if (!variant.optionText.trim()) {
+          setGlobalError(`Variation ${index + 1} needs options, for example "Colour: Red, Size: Large".`);
+          setLoading(false);
+          return;
+        }
+      }
+
       const { error: updateError } = await supabase
         .from("products")
         .update({
@@ -270,6 +312,58 @@ export default function EditProductPage() {
 
       if (updateError) {
         throw new Error(`Save product: ${updateError.message}`);
+      }
+
+      const keptVariantIds = variantsToSave.map((variant) => variant.id).filter(Boolean) as string[];
+      const removedVariantIds = loadedVariantIds.filter((id) => !keptVariantIds.includes(id));
+      if (removedVariantIds.length > 0) {
+        const { error: deleteError } = await supabase
+          .from("product_variants")
+          .delete()
+          .eq("product_id", productId)
+          .in("id", removedVariantIds);
+
+        if (deleteError) {
+          throw new Error(`Delete variations: ${deleteError.message}`);
+        }
+      }
+
+      for (const [index, variant] of variantsToSave.entries()) {
+        const variantPayload = {
+          product_id: productId,
+          source: variant.source || "manual",
+          source_variation_id: variant.sourceVariationId || (variant.id ? variant.id : `manual-${Date.now()}-${index + 1}`),
+          sku: variant.sku.trim() || `${validation.data.name.slice(0, 16).replace(/[^a-z0-9]+/gi, "-")}-${index + 1}`,
+          price_nad: variant.priceDisplay ? toCents(parseFloat(variant.priceDisplay) || 0) : validation.data.price_nad,
+          images: variant.imageUrl.trim() ? [variant.imageUrl.trim()] : [],
+          attributes: parseVariantOptions(variant.optionText),
+          is_available: variant.isAvailable,
+          track_inventory: hasInventory ? variant.trackInventory : false,
+          stock_quantity: hasInventory && variant.trackInventory ? variant.stockQuantity : 0,
+          allow_backorder: hasInventory ? variant.allowBackorder : false,
+          stock_status: variant.isAvailable ? "instock" : "outofstock",
+          sort_order: index,
+        };
+
+        if (variant.id) {
+          const { error: variantUpdateError } = await supabase
+            .from("product_variants")
+            .update(variantPayload)
+            .eq("id", variant.id)
+            .eq("product_id", productId);
+
+          if (variantUpdateError) {
+            throw new Error(`Save variation ${index + 1}: ${variantUpdateError.message}`);
+          }
+        } else {
+          const { error: variantInsertError } = await supabase
+            .from("product_variants")
+            .insert(variantPayload);
+
+          if (variantInsertError) {
+            throw new Error(`Save variation ${index + 1}: ${variantInsertError.message}`);
+          }
+        }
       }
 
       router.push("/dashboard/products");
@@ -460,6 +554,13 @@ export default function EditProductPage() {
             ))}
           </select>
         </div>
+
+        {itemType === "product" && (
+          <ProductVariantsEditor
+            variants={variants}
+            onChange={setVariants}
+          />
+        )}
 
         {/* Availability */}
         <div className="flex items-center gap-3">

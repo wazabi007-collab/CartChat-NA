@@ -11,6 +11,9 @@ import {
 
 export interface CartItem {
   productId: string;
+  variantId?: string | null;
+  variantSku?: string | null;
+  variantAttributes?: Record<string, string>;
   name: string;
   price: number; // in cents
   quantity: number;
@@ -20,8 +23,8 @@ export interface CartItem {
 interface CartContextValue {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeItem: (cartKey: string) => void;
+  updateQuantity: (cartKey: string, quantity: number) => void;
   clearCart: () => void;
   getTotal: () => number;
   itemCount: number;
@@ -31,6 +34,10 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 function getStorageKey(slug: string) {
   return `oshicart-cart-${slug}`;
+}
+
+export function getCartItemKey(item: Pick<CartItem, "productId" | "variantId">) {
+  return item.variantId ? `${item.productId}:${item.variantId}` : item.productId;
 }
 
 export function CartProvider({
@@ -57,10 +64,11 @@ export function CartProvider({
   const addItem = useCallback(
     (item: Omit<CartItem, "quantity">) => {
       setItems((prev) => {
-        const existing = prev.find((i) => i.productId === item.productId);
+        const itemKey = getCartItemKey(item);
+        const existing = prev.find((i) => getCartItemKey(i) === itemKey);
         if (existing) {
           return prev.map((i) =>
-            i.productId === item.productId
+            getCartItemKey(i) === itemKey
               ? { ...i, quantity: i.quantity + 1 }
               : i
           );
@@ -71,19 +79,19 @@ export function CartProvider({
     []
   );
 
-  const removeItem = useCallback((productId: string) => {
-    setItems((prev) => prev.filter((i) => i.productId !== productId));
+  const removeItem = useCallback((cartKey: string) => {
+    setItems((prev) => prev.filter((i) => getCartItemKey(i) !== cartKey));
   }, []);
 
   const updateQuantity = useCallback(
-    (productId: string, quantity: number) => {
+    (cartKey: string, quantity: number) => {
       if (quantity < 1) {
-        setItems((prev) => prev.filter((i) => i.productId !== productId));
+        setItems((prev) => prev.filter((i) => getCartItemKey(i) !== cartKey));
         return;
       }
       setItems((prev) =>
         prev.map((i) =>
-          i.productId === productId ? { ...i, quantity } : i
+          getCartItemKey(i) === cartKey ? { ...i, quantity } : i
         )
       );
     },

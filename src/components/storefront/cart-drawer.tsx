@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart, X, Plus, Minus, Trash2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import { useCart } from "./cart-provider";
+import { getCartItemKey, useCart } from "./cart-provider";
 
 export function CartDrawer({ slug }: { slug: string }) {
   const [open, setOpen] = useState(false);
@@ -65,7 +65,7 @@ export function CartDrawer({ slug }: { slug: string }) {
           ) : (
             <ul className="space-y-4">
               {items.map((item) => (
-                <li key={item.productId} className="flex gap-3">
+                <li key={getCartItemKey(item)} className="flex gap-3">
                   {/* Image */}
                   <div className="w-16 h-16 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
                     {item.imageUrl ? (
@@ -88,6 +88,18 @@ export function CartDrawer({ slug }: { slug: string }) {
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {item.name}
                     </p>
+                    {item.variantAttributes && Object.keys(item.variantAttributes).length > 0 && (
+                      <p className="mt-0.5 text-[11px] leading-4 text-gray-500">
+                        {Object.entries(item.variantAttributes)
+                          .map(([key, value]) => `${key}: ${value}`)
+                          .join(" | ")}
+                      </p>
+                    )}
+                    {item.variantSku && (
+                      <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+                        SKU {item.variantSku}
+                      </p>
+                    )}
                     <p className="text-sm text-terracotta font-bold">
                       {formatPrice(item.price)}
                     </p>
@@ -96,7 +108,7 @@ export function CartDrawer({ slug }: { slug: string }) {
                     <div className="flex items-center gap-2 mt-1">
                       <button
                         onClick={() =>
-                          updateQuantity(item.productId, item.quantity - 1)
+                          updateQuantity(getCartItemKey(item), item.quantity - 1)
                         }
                         className="w-7 h-7 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                         aria-label="Decrease quantity"
@@ -108,7 +120,7 @@ export function CartDrawer({ slug }: { slug: string }) {
                       </span>
                       <button
                         onClick={() =>
-                          updateQuantity(item.productId, item.quantity + 1)
+                          updateQuantity(getCartItemKey(item), item.quantity + 1)
                         }
                         className="w-7 h-7 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50"
                         aria-label="Increase quantity"
@@ -116,7 +128,7 @@ export function CartDrawer({ slug }: { slug: string }) {
                         <Plus className="w-3 h-3" />
                       </button>
                       <button
-                        onClick={() => removeItem(item.productId)}
+                        onClick={() => removeItem(getCartItemKey(item))}
                         className="ml-auto p-1 text-red-400 hover:text-red-600"
                         aria-label="Remove item"
                       >

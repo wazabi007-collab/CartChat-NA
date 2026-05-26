@@ -11,6 +11,7 @@ export interface LayoutProduct {
   low_stock_threshold: number | null;
   allow_backorder: boolean;
   item_type?: string;
+  has_variants?: boolean;
 }
 
 /** Returns the correct CTA text based on item_type: products always show "Add to Cart" */

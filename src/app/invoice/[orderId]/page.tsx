@@ -67,7 +67,7 @@ export default async function InvoicePage({ params }: Props) {
 
   const { data: items } = await supabase
     .from("order_items")
-    .select("product_name, product_price, quantity, line_total")
+    .select("product_name, product_price, quantity, line_total, variant_sku, variant_attributes")
     .eq("order_id", orderId)
     .order("created_at");
 
@@ -248,7 +248,21 @@ export default async function InvoicePage({ params }: Props) {
                 <tbody>
                   {(items ?? []).map((item, i) => (
                     <tr key={i} className={`${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"} print:bg-white print:border-b print:border-gray-100`}>
-                      <td className="py-3 px-4 text-gray-900 font-medium">{item.product_name}</td>
+                      <td className="py-3 px-4 text-gray-900 font-medium">
+                        {item.product_name}
+                        {item.variant_attributes && Object.keys(item.variant_attributes as Record<string, string>).length > 0 && (
+                          <div className="mt-1 text-xs font-normal text-gray-500">
+                            {Object.entries(item.variant_attributes as Record<string, string>)
+                              .map(([key, value]) => `${key}: ${value}`)
+                              .join(" | ")}
+                          </div>
+                        )}
+                        {item.variant_sku && (
+                          <div className="mt-0.5 text-[10px] font-normal uppercase tracking-wide text-gray-400">
+                            SKU {item.variant_sku}
+                          </div>
+                        )}
+                      </td>
                       <td className="py-3 px-2 text-center text-gray-500">{item.quantity}</td>
                       <td className="py-3 px-4 text-right text-gray-500">{formatPrice(item.product_price)}</td>
                       <td className="py-3 px-4 text-right text-gray-900 font-medium">{formatPrice(item.line_total)}</td>

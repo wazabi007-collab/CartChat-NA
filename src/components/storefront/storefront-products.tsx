@@ -23,6 +23,7 @@ interface Product {
   low_stock_threshold: number | null;
   allow_backorder: boolean;
   item_type?: string;
+  has_variants?: boolean;
 }
 
 interface StorefrontProductsProps {
@@ -128,6 +129,7 @@ export function StorefrontProducts({
                 itemType={product.item_type as "product" | "service" | undefined}
                 whatsappNumber={whatsappNumber}
                 storeName={storeName}
+                hasVariants={product.has_variants}
               />
             ))}
           </div>
@@ -173,6 +175,7 @@ export function StorefrontProducts({
                     itemType={product.item_type as "product" | "service" | undefined}
                     whatsappNumber={whatsappNumber}
                     storeName={storeName}
+                    hasVariants={product.has_variants}
                   />
                 ))}
               </div>

@@ -62,6 +62,14 @@ export function VisualGallery({ products, theme, slug, disabled }: LayoutProps) 
               <div className="mt-auto pt-2">
                 {isOutOfStock || disabled ? (
                   <span className="text-xs text-gray-400">Unavailable</span>
+                ) : product.has_variants ? (
+                  <Link
+                    href={`/s/${slug}/${product.id}`}
+                    className="block w-full rounded-full py-2 px-3 text-center text-sm font-medium text-white transition-colors"
+                    style={{ backgroundColor: theme.accent }}
+                  >
+                    Select Options
+                  </Link>
                 ) : (
                   <button
                     onClick={() =>

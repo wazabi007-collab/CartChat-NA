@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatPrice, whatsappLink } from "@/lib/utils";
 import { track } from "@/lib/track";
 import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
-import type { CartItem } from "@/components/storefront/cart-provider";
+import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
 import type { DeliveryMethod, PaymentMethod } from "@/types/database";
 import { PhoneInput } from "@/components/phone-input";
 import {
@@ -105,6 +105,18 @@ function generatePaymentRef(storeName: string): string {
   const prefix = storeName.replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 4).padEnd(3, "X");
   const random = Math.random().toString(36).substring(2, 10).toUpperCase();
   return `${prefix}-${random}`;
+}
+
+function formatVariantAttributes(attributes?: Record<string, string>) {
+  if (!attributes || Object.keys(attributes).length === 0) return "";
+  return Object.entries(attributes)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(" | ");
+}
+
+function formatCartItemName(item: CartItem) {
+  const attrs = formatVariantAttributes(item.variantAttributes);
+  return attrs ? `${item.name} (${attrs})` : item.name;
 }
 
 type CheckoutStep = "form" | "success";
@@ -288,8 +300,9 @@ export function CheckoutForm({
     track("checkout_submitted", { merchant_id: merchantId, item_count: cartItems.length, total_nad: total, payment_method: paymentMethod });
 
     try {
-      // Re-validate prices before submitting
-      const productIds = cartItems.map((item) => item.productId);
+      // Re-validate prices and selected variants before submitting.
+      const productIds = [...new Set(cartItems.map((item) => item.productId))];
+      const variantIds = [...new Set(cartItems.map((item) => item.variantId).filter(Boolean))] as string[];
       const { data: currentProducts, error: priceError } = await supabase
         .from("products")
         .select("id, price_nad")
@@ -304,10 +317,37 @@ export function CheckoutForm({
       const priceMap = new Map(
         currentProducts.map((p: { id: string; price_nad: number }) => [p.id, p.price_nad])
       );
+      const variantPriceMap = new Map<string, number>();
+      if (variantIds.length > 0) {
+        const { data: currentVariants, error: variantPriceError } = await supabase
+          .from("product_variants")
+          .select("id, price_nad, is_available, stock_quantity, track_inventory, allow_backorder")
+          .in("id", variantIds);
+
+        if (variantPriceError || !currentVariants) {
+          setError("Unable to verify current product options. Please try again.");
+          setSubmitting(false);
+          return;
+        }
+
+        for (const variant of currentVariants) {
+          const unavailable =
+            !variant.is_available ||
+            (variant.track_inventory && variant.stock_quantity <= 0 && !variant.allow_backorder);
+          if (unavailable) {
+            setError("One of your selected product options is no longer available. Please review your cart.");
+            setSubmitting(false);
+            return;
+          }
+          variantPriceMap.set(variant.id, variant.price_nad);
+        }
+      }
 
       let pricesChanged = false;
       const updatedItems = cartItems.map((item) => {
-        const currentPrice = priceMap.get(item.productId);
+        const currentPrice = item.variantId
+          ? variantPriceMap.get(item.variantId)
+          : priceMap.get(item.productId);
         if (currentPrice !== undefined && currentPrice !== item.price) {
           pricesChanged = true;
           return { ...item, price: currentPrice };
@@ -366,6 +406,7 @@ export function CheckoutForm({
           p_proof_url: proofUrl,
           p_items: cartItems.map((item) => ({
             productId: item.productId,
+            variantId: item.variantId || null,
             name: item.name,
             price: item.price,
             quantity: item.quantity,
@@ -412,6 +453,8 @@ export function CheckoutForm({
           customer_whatsapp: customerWhatsapp.trim(),
           items: cartItems.map((item) => ({
             name: item.name,
+            variant_sku: item.variantSku,
+            variant_attributes: item.variantAttributes,
             quantity: item.quantity,
             price: item.price,
           })),
@@ -431,7 +474,7 @@ export function CheckoutForm({
 
       // WhatsApp Business API: notify merchant of new order
       const itemSummary = cartItems.length === 1
-        ? `${cartItems[0].name} x${cartItems[0].quantity}`
+        ? `${formatCartItemName(cartItems[0])} x${cartItems[0].quantity}`
         : `${cartItems.length} items`;
       fetch("/api/whatsapp/send", {
         method: "POST",
@@ -488,7 +531,7 @@ export function CheckoutForm({
   // Success state
   if (step === "success") {
     const itemLines = cartItems
-      .map((item) => `• ${item.name} x${item.quantity} — ${formatPrice(item.price * item.quantity)}`)
+      .map((item) => `- ${formatCartItemName(item)} x${item.quantity} - ${formatPrice(item.price * item.quantity)}`)
       .join("\n");
     const invoiceUrl = orderId
       ? `${window.location.origin}/invoice/${orderId}`
@@ -586,12 +629,22 @@ export function CheckoutForm({
             <ul className="divide-y divide-gray-100">
               {cartItems.map((item) => (
                 <li
-                  key={item.productId}
-                  className="py-2.5 flex justify-between text-sm"
+                  key={getCartItemKey(item)}
+                  className="py-2.5 flex justify-between gap-3 text-sm"
                 >
-                  <span className="text-gray-700">
-                    {item.name} x {item.quantity}
-                  </span>
+                  <div className="min-w-0 text-gray-700">
+                    <p className="font-medium">{item.name} x {item.quantity}</p>
+                    {formatVariantAttributes(item.variantAttributes) && (
+                      <p className="mt-0.5 text-xs text-gray-500">
+                        {formatVariantAttributes(item.variantAttributes)}
+                      </p>
+                    )}
+                    {item.variantSku && (
+                      <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+                        SKU {item.variantSku}
+                      </p>
+                    )}
+                  </div>
                   <span className="font-medium text-gray-900">
                     {formatPrice(item.price * item.quantity)}
                   </span>

@@ -53,6 +53,14 @@ export function ServiceList({ products, theme, slug, disabled }: LayoutProps) {
               </div>
               {isOutOfStock || disabled ? (
                 <span className="text-xs text-gray-400">Unavailable</span>
+              ) : product.has_variants ? (
+                <Link
+                  href={`/s/${slug}/${product.id}`}
+                  className="mt-1 inline-block rounded-full px-3 py-1 text-xs font-medium text-white transition-colors"
+                  style={{ backgroundColor: theme.accent }}
+                >
+                  Select Options
+                </Link>
               ) : (
                 <button
                   onClick={() =>

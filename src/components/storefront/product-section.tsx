@@ -63,6 +63,7 @@ export function ProductSection({
               itemType={(product as unknown as Record<string, unknown>).item_type as "product" | "service" | undefined}
               whatsappNumber={whatsappNumber}
               storeName={storeName}
+              hasVariants={(product as unknown as Record<string, unknown>).has_variants as boolean | undefined}
             />
           ))}
         </div>

@@ -8,21 +8,23 @@ interface StatusEntry {
   at: string;
 }
 
-interface OrderItem {
+export interface OrderItem {
   id: string;
   product_name: string;
   product_price: number;
   quantity: number;
   line_total: number;
+  variant_sku?: string | null;
+  variant_attributes?: Record<string, string> | null;
 }
 
-interface Merchant {
+export interface Merchant {
   store_name: string;
   store_slug: string;
   whatsapp_number: string;
 }
 
-interface Order {
+export interface Order {
   id: string;
   order_number: number;
   status: string;
@@ -95,8 +97,6 @@ export function TrackerClient({
 
   // Auto-poll every 60 seconds
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-
     function poll() {
       if (document.hidden) return;
       fetch(`/api/orders/track/${token}`)
@@ -107,7 +107,7 @@ export function TrackerClient({
         .catch(() => {});
     }
 
-    interval = setInterval(poll, 60000);
+    const interval = setInterval(poll, 60000);
 
     function onVisibility() {
       if (!document.hidden) poll();
@@ -327,6 +327,16 @@ export function TrackerClient({
                 <div>
                   <span className="text-gray-900">{item.product_name}</span>
                   <span className="text-gray-400 ml-1">x{item.quantity}</span>
+                  {item.variant_attributes && Object.keys(item.variant_attributes).length > 0 && (
+                    <p className="mt-0.5 text-xs text-gray-500">
+                      {Object.entries(item.variant_attributes).map(([key, value]) => `${key}: ${value}`).join(" | ")}
+                    </p>
+                  )}
+                  {item.variant_sku && (
+                    <p className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
+                      SKU {item.variant_sku}
+                    </p>
+                  )}
                 </div>
                 <span className="text-gray-700 font-medium">{formatPrice(item.line_total)}</span>
               </div>

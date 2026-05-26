@@ -1,5 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
-import { TrackerClient } from "./tracker-client";
+import { TrackerClient, type Order } from "./tracker-client";
 import Link from "next/link";
 
 export default async function TrackPage({
@@ -20,7 +20,7 @@ export default async function TrackPage({
       payment_method, payment_reference, proof_of_payment_url,
       tracking_token,
       merchants!inner(store_name, store_slug, whatsapp_number),
-      order_items(id, product_name, product_price, quantity, line_total)
+      order_items(id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes)
     `)
     .eq("tracking_token", token)
     .single();
@@ -53,5 +53,5 @@ export default async function TrackPage({
     merchants: Array.isArray(order.merchants) ? order.merchants[0] : order.merchants,
   };
 
-  return <TrackerClient initialOrder={normalized as any} token={token} />;
+  return <TrackerClient initialOrder={normalized as Order} token={token} />;
 }

@@ -10,6 +10,8 @@ interface OrderItem {
   product_price: number;
   quantity: number;
   line_total: number;
+  variant_sku?: string | null;
+  variant_attributes?: Record<string, string> | null;
 }
 
 interface OrderItemsToggleProps {
@@ -38,7 +40,19 @@ export function OrderItemsToggle({ items }: OrderItemsToggleProps) {
             <div key={item.id} className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="text-gray-400 shrink-0">{item.quantity}x</span>
-                <span className="text-gray-700 truncate">{item.product_name}</span>
+                <span className="min-w-0 text-gray-700">
+                  <span className="block truncate">{item.product_name}</span>
+                  {item.variant_attributes && Object.keys(item.variant_attributes).length > 0 && (
+                    <span className="block truncate text-[10px] text-gray-500">
+                      {Object.entries(item.variant_attributes).map(([key, value]) => `${key}: ${value}`).join(" | ")}
+                    </span>
+                  )}
+                  {item.variant_sku && (
+                    <span className="block text-[10px] uppercase tracking-wide text-gray-400">
+                      SKU {item.variant_sku}
+                    </span>
+                  )}
+                </span>
               </div>
               <span className="text-gray-600 font-medium shrink-0 ml-2">
                 {formatPrice(item.line_total)}

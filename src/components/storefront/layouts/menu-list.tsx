@@ -53,6 +53,14 @@ export function MenuList({ products, theme, slug, disabled }: LayoutProps) {
               </span>
               {isOutOfStock || disabled ? (
                 <span className="text-xs text-gray-400">Sold out</span>
+              ) : product.has_variants ? (
+                <Link
+                  href={`/s/${slug}/${product.id}`}
+                  className="rounded-full px-3 py-1.5 text-xs font-medium text-white transition-colors"
+                  style={{ backgroundColor: theme.accent }}
+                >
+                  Select Options
+                </Link>
               ) : (
                 <button
                   onClick={() =>

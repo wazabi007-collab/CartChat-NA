@@ -14,6 +14,7 @@ interface Section {
 interface Product {
   id: string;
   name: string;
+  sku?: string | null;
   description: string | null;
   price_nad: number;
   images: string[] | null;
@@ -34,6 +35,7 @@ interface StorefrontProductsProps {
   disabled: boolean;
   whatsappNumber?: string;
   storeName?: string;
+  searchQuery?: string;
 }
 
 export function StorefrontProducts({
@@ -44,8 +46,8 @@ export function StorefrontProducts({
   disabled,
   whatsappNumber,
   storeName,
+  searchQuery = "",
 }: StorefrontProductsProps) {
-  const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("default");
 
   function sortProducts(list: Product[]): Product[] {
@@ -61,15 +63,7 @@ export function StorefrontProducts({
     });
   }
 
-  const filteredProducts = search
-    ? sortProducts(allProducts.filter((p) => {
-        const q = search.toLowerCase();
-        return (
-          p.name.toLowerCase().includes(q) ||
-          (p.description || "").toLowerCase().includes(q)
-        );
-      }))
-    : null;
+  const searchResults = searchQuery ? sortProducts(allProducts) : null;
 
   // Sort sections when not searching
   const sortedSections = sortBy !== "default"
@@ -83,8 +77,8 @@ export function StorefrontProducts({
         <div className="flex gap-2 mb-6">
           <div className="flex-1">
             <StorefrontSearch
-              onSearch={setSearch}
               accentColor={theme?.accent}
+              initialQuery={searchQuery}
             />
           </div>
           <select
@@ -103,36 +97,41 @@ export function StorefrontProducts({
       )}
 
       {/* Search results */}
-      {filteredProducts !== null ? (
-        filteredProducts.length === 0 ? (
+      {searchResults !== null ? (
+        searchResults.length === 0 ? (
           <p className="text-center text-slate-500 py-8">
-            No products found for &ldquo;{search}&rdquo;
+            No products found for &ldquo;{searchQuery}&rdquo;
           </p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                id={product.id}
-                name={product.name}
-                price={product.price_nad}
-                imageUrl={product.images?.[0] ?? null}
-                slug={slug}
-                trackInventory={product.track_inventory}
-                stockQuantity={product.stock_quantity ?? undefined}
-                lowStockThreshold={product.low_stock_threshold ?? undefined}
-                allowBackorder={product.allow_backorder}
-                disabled={disabled}
-                accentColor={theme?.accent}
-                accentHover={theme?.accentHover}
-                ctaText={theme?.ctaText}
-                itemType={product.item_type as "product" | "service" | undefined}
-                whatsappNumber={whatsappNumber}
-                storeName={storeName}
-                hasVariants={product.has_variants}
-              />
-            ))}
-          </div>
+          <>
+            <p className="mb-3 text-sm font-semibold text-slate-500">
+              {searchResults.length} result{searchResults.length === 1 ? "" : "s"} for &ldquo;{searchQuery}&rdquo;
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {searchResults.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  id={product.id}
+                  name={product.name}
+                  price={product.price_nad}
+                  imageUrl={product.images?.[0] ?? null}
+                  slug={slug}
+                  trackInventory={product.track_inventory}
+                  stockQuantity={product.stock_quantity ?? undefined}
+                  lowStockThreshold={product.low_stock_threshold ?? undefined}
+                  allowBackorder={product.allow_backorder}
+                  disabled={disabled}
+                  accentColor={theme?.accent}
+                  accentHover={theme?.accentHover}
+                  ctaText={theme?.ctaText}
+                  itemType={product.item_type as "product" | "service" | undefined}
+                  whatsappNumber={whatsappNumber}
+                  storeName={storeName}
+                  hasVariants={product.has_variants}
+                />
+              ))}
+            </div>
+          </>
         )
       ) : theme ? (
         /* Themed sections */

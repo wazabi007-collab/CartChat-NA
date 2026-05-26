@@ -1,20 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, X } from "lucide-react";
 
 export function StorefrontSearch({
-  onSearch,
   accentColor,
+  initialQuery = "",
 }: {
-  onSearch: (query: string) => void;
   accentColor?: string;
+  initialQuery?: string;
 }) {
-  const [query, setQuery] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(initialQuery);
+  const [, startTransition] = useTransition();
+
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
+
+  function updateUrl(value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
+    if (value.trim()) {
+      params.set("search", value.trim());
+    } else {
+      params.delete("search");
+    }
+    const next = params.toString();
+    startTransition(() => {
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    });
+  }
 
   function handleChange(value: string) {
     setQuery(value);
-    onSearch(value);
+    updateUrl(value);
   }
 
   return (
@@ -22,7 +45,7 @@ export function StorefrontSearch({
       <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
       <input
         type="text"
-        placeholder="Search products..."
+        placeholder="Search name or SKU..."
         value={query}
         onChange={(e) => handleChange(e.target.value)}
         className="w-full pl-9 pr-9 py-2.5 border border-slate-200 rounded-xl text-sm bg-white shadow-sm shadow-slate-900/5 focus:outline-none focus:ring-2 focus:border-transparent transition-all"

@@ -18,6 +18,7 @@ import { StoreCategoryGrid } from "@/components/storefront/store-category-grid";
 import { JsonLd } from "@/components/json-ld";
 
 const PRODUCTS_PER_PAGE = 100;
+const MAX_SEARCH_PRODUCT_IDS = 300;
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -58,6 +59,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     redirect(`/s/${normalizedSlug}`);
   }
   const { page: pageParam, cat: categoryFilter, tab, search: searchParam, sort: sortParam } = await searchParams;
+  const searchTerm = (searchParam || "").trim().replace(/[(),]/g, " ").replace(/\s+/g, " ").slice(0, 80);
   // Build extra params string for pagination links
   const extraParams = [
     categoryFilter ? `cat=${categoryFilter}` : "",
@@ -79,6 +81,30 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
 
   if (!merchant) notFound();
 
+  const variantSearchProductIds: string[] = [];
+  if (searchTerm) {
+    const { data: matchingVariants } = await supabase
+      .from("product_variants")
+      .select("product_id")
+      .ilike("sku", `%${searchTerm}%`)
+      .limit(MAX_SEARCH_PRODUCT_IDS);
+
+    for (const row of matchingVariants || []) {
+      if (row.product_id && !variantSearchProductIds.includes(row.product_id)) {
+        variantSearchProductIds.push(row.product_id);
+      }
+    }
+  }
+
+  const searchFilterParts = searchTerm
+    ? [
+        `name.ilike.%${searchTerm}%`,
+        `description.ilike.%${searchTerm}%`,
+        `sku.ilike.%${searchTerm}%`,
+        ...(variantSearchProductIds.length > 0 ? [`id.in.(${variantSearchProductIds.join(",")})`] : []),
+      ]
+    : [];
+
   // Parallel fetch: subscription, categories, category counts, product count
   const countQuery = supabase
     .from("products")
@@ -87,6 +113,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     .eq("is_available", true)
     .is("deleted_at", null);
   if (categoryFilter) countQuery.eq("category_id", categoryFilter);
+  if (searchFilterParts.length > 0) countQuery.or(searchFilterParts.join(","));
 
   const [subRes, catRes, countRes] = await Promise.all([
     supabase.from("subscriptions").select("tier, status").eq("merchant_id", merchant.id).single(),
@@ -147,7 +174,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
 
   const totalCount = totalProducts || 0;
   const totalPages = Math.max(1, Math.ceil(totalCount / PRODUCTS_PER_PAGE));
-  const showFolders = !categoryFilter && activeCategories.length >= 3 && totalCount > 20;
+  const showFolders = !searchTerm && !categoryFilter && activeCategories.length >= 3 && totalCount > 20;
   const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
 
   // Fetch available products (paginated, filtered by category if set)
@@ -160,6 +187,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     .order("sort_order", { ascending: true })
     .range(offset, offset + PRODUCTS_PER_PAGE - 1);
   if (categoryFilter) productQuery = productQuery.eq("category_id", categoryFilter);
+  if (searchFilterParts.length > 0) productQuery = productQuery.or(searchFilterParts.join(","));
   const { data: products } = await productQuery;
   const productIds = (products || []).map((product) => product.id);
   const variantProductIds = new Set<string>();
@@ -360,6 +388,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
             disabled={isSoftSuspended}
             whatsappNumber={merchant.whatsapp_number}
             storeName={merchant.store_name}
+            searchQuery={searchTerm}
           />
 
           {/* Pagination */}

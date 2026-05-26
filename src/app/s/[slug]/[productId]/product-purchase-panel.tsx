@@ -34,6 +34,50 @@ function attributesMatch(variant: Variant, selected: Record<string, string>) {
   return Object.entries(selected).every(([name, value]) => !value || variant.attributes?.[name] === value);
 }
 
+function normalizeAttributeName(name: string) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function optionSuggestsFit(options: string[]) {
+  return options.some((option) => /^(men|mens|male|ladies|lady|women|womens|female|unisex)$/i.test(option.trim()));
+}
+
+function displayAttributeName(name: string, options: string[]) {
+  const normalized = normalizeAttributeName(name);
+  if (normalized.includes("gender") || normalized.includes("fit") || normalized.includes("sex") || optionSuggestsFit(options)) {
+    return "Fit";
+  }
+  if (normalized.includes("colour") || normalized.includes("color")) return "Colour";
+  if (normalized.includes("size")) return "Size";
+  return name;
+}
+
+function attributePriority(name: string, options: string[]) {
+  const label = displayAttributeName(name, options);
+  if (label === "Fit") return 0;
+  if (label === "Colour") return 1;
+  if (label === "Size") return 2;
+  return 10;
+}
+
+const FIT_ORDER = ["mens", "men", "male", "ladies", "lady", "women", "womens", "female", "unisex"];
+const SIZE_ORDER = ["xxs", "xs", "s", "small", "m", "medium", "l", "large", "xl", "1xl", "2xl", "xxl", "3xl", "xxxl", "4xl", "5xl"];
+
+function sortOptions(name: string, options: string[]) {
+  const label = displayAttributeName(name, options);
+  const order = label === "Fit" ? FIT_ORDER : label === "Size" ? SIZE_ORDER : [];
+  return [...options].sort((a, b) => {
+    const aKey = a.trim().toLowerCase();
+    const bKey = b.trim().toLowerCase();
+    const aIndex = order.indexOf(aKey);
+    const bIndex = order.indexOf(bKey);
+    if (aIndex >= 0 || bIndex >= 0) {
+      return (aIndex >= 0 ? aIndex : 999) - (bIndex >= 0 ? bIndex : 999);
+    }
+    return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
+  });
+}
+
 export function ProductPurchasePanel({
   product,
   variants,
@@ -51,7 +95,11 @@ export function ProductPurchasePanel({
     variants.forEach((variant) => {
       Object.keys(variant.attributes || {}).forEach((name) => names.add(name));
     });
-    return [...names];
+    return [...names].sort((a, b) => {
+      const aOptions = variants.map((variant) => variant.attributes?.[a]).filter(Boolean) as string[];
+      const bOptions = variants.map((variant) => variant.attributes?.[b]).filter(Boolean) as string[];
+      return attributePriority(a, aOptions) - attributePriority(b, bOptions);
+    });
   }, [variants]);
 
   const selectedVariant = useMemo(() => {
@@ -64,6 +112,9 @@ export function ProductPurchasePanel({
   const activePrice = selectedVariant?.price_nad ?? product.price_nad;
   const activeImage = selectedVariant?.images?.[0] || product.imageUrl;
   const canAdd = !hasVariants || (selectedVariant && variantIsBuyable(selectedVariant));
+  const selectedSummary = attributeNames
+    .filter((name) => selected[name])
+    .map((name) => `${displayAttributeName(name, [selected[name]])}: ${selected[name]}`);
 
   function optionIsAvailable(attributeName: string, option: string) {
     const nextSelected = { ...selected, [attributeName]: option };
@@ -106,7 +157,7 @@ export function ProductPurchasePanel({
             <div>
               <p className="text-sm font-black text-slate-950">Choose product options</p>
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                Select the exact colour, size, or product option before adding to cart.
+                Choose the fit, colour, size, or product option before adding to cart.
               </p>
             </div>
             {selectedVariant?.sku && (
@@ -117,11 +168,22 @@ export function ProductPurchasePanel({
           </div>
 
           <div className="mt-4 space-y-4">
-            {attributeNames.map((name) => {
-              const options = [...new Set(variants.map((variant) => variant.attributes?.[name]).filter(Boolean))];
+            {attributeNames.map((name, index) => {
+              const options = sortOptions(
+                name,
+                [...new Set(variants.map((variant) => variant.attributes?.[name]).filter(Boolean))] as string[]
+              );
+              const displayName = displayAttributeName(name, options);
               return (
                 <div key={name}>
-                  <p className="mb-2 text-xs font-black uppercase tracking-[0.14em] text-slate-500">{name}</p>
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{displayName}</p>
+                    {attributeNames.length > 1 && (
+                      <span className="text-[10px] font-black uppercase tracking-wide text-slate-400">
+                        Step {index + 1} of {attributeNames.length}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {options.map((option) => {
                       const selectedOption = selected[name] === option;
@@ -134,7 +196,7 @@ export function ProductPurchasePanel({
                           onClick={() => handleSelect(name, option)}
                           className={`rounded-xl border px-3 py-2 text-sm font-bold transition ${
                             selectedOption
-                              ? "border-acacia bg-acacia text-white"
+                              ? "border-acacia bg-acacia text-white shadow-sm shadow-emerald-900/10"
                               : available
                                 ? "border-slate-200 bg-white text-slate-700 hover:border-acacia hover:text-acacia"
                                 : "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-300 line-through"
@@ -149,6 +211,13 @@ export function ProductPurchasePanel({
               );
             })}
           </div>
+
+          {selectedSummary.length > 0 && (
+            <div className="mt-4 rounded-xl border border-emerald-100 bg-white px-3 py-2">
+              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">Selected</p>
+              <p className="mt-1 text-sm font-bold text-slate-800">{selectedSummary.join(" | ")}</p>
+            </div>
+          )}
 
           {selectedVariant && !variantIsBuyable(selectedVariant) && (
             <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm font-bold text-red-700">

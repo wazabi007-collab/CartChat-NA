@@ -238,7 +238,7 @@ export default function NewProductPage() {
       const variantsToSave = itemType === "product" ? variants : [];
       for (const [index, variant] of variantsToSave.entries()) {
         if (!variant.optionText.trim()) {
-          setGlobalError(`Variation ${index + 1} needs options, for example "Colour: Red, Size: Large".`);
+          setGlobalError(`Variation ${index + 1} needs options, for example "Fit: Ladies, Colour: Red, Size: Large".`);
           setLoading(false);
           return;
         }

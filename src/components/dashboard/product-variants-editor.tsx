@@ -41,7 +41,7 @@ export function formatVariantOptions(attributes: Record<string, string> | null |
 export function createEmptyVariantDraft(index: number): ProductVariantDraft {
   return {
     sku: "",
-    optionText: index === 0 ? "Colour: Black, Size: Medium" : "",
+    optionText: index === 0 ? "Fit: Mens, Colour: Black, Size: Medium" : "",
     priceDisplay: "",
     isAvailable: true,
     trackInventory: false,
@@ -72,7 +72,7 @@ export function ProductVariantsEditor({
         <div>
           <p className="text-sm font-black text-slate-950">Product variations</p>
           <p className="mt-1 text-xs leading-5 text-slate-500">
-            Add options like colour, size, material, or pack type. Customers must choose one option before checkout.
+            Add options like fit, colour, size, material, or pack type. Customers must choose the right combination before checkout.
           </p>
         </div>
         <button
@@ -113,7 +113,7 @@ export function ProductVariantsEditor({
                   <input
                     value={variant.optionText}
                     onChange={(e) => updateVariant(index, { optionText: e.target.value })}
-                    placeholder="Colour: Red, Size: Large"
+                    placeholder="Fit: Ladies, Colour: Red, Size: Large"
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
                   />
                 </label>

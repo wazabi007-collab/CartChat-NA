@@ -9,6 +9,7 @@ import { getThemeConfig } from "@/lib/industry";
 import { TrackView } from "@/components/storefront/track-view";
 import { ReportButton } from "@/components/storefront/report-button";
 import { StorefrontProducts } from "@/components/storefront/storefront-products";
+import { StorefrontSearch } from "@/components/storefront/search-bar";
 import { StorefrontTabs } from "@/components/storefront/storefront-tabs";
 import { OrderTracker } from "@/components/storefront/order-tracker";
 import { StoreCover } from "@/components/storefront/store-cover";
@@ -353,6 +354,12 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
         {/* Category folder grid */}
         {showFolders ? (
           <div>
+            <div className="mb-6">
+              <StorefrontSearch
+                accentColor={theme?.accent}
+                initialQuery={searchTerm}
+              />
+            </div>
             <div className="flex items-center gap-2 mb-4">
               <Grid3X3 size={18} className="text-slate-400" />
               <h2 className="text-lg font-bold text-slate-950">Browse by Category</h2>

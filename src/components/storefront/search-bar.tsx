@@ -37,8 +37,17 @@ export function StorefrontSearch({
 
   function handleChange(value: string) {
     setQuery(value);
-    updateUrl(value);
   }
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (query.trim() !== initialQuery.trim()) {
+        updateUrl(query);
+      }
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [query, initialQuery]);
 
   return (
     <div className="relative">

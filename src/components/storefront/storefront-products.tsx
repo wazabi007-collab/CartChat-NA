@@ -73,7 +73,7 @@ export function StorefrontProducts({
   return (
     <>
       {/* Search + Sort bar */}
-      {allProducts.length > 5 && (
+      {(allProducts.length > 5 || searchQuery) && (
         <div className="flex gap-2 mb-6">
           <div className="flex-1">
             <StorefrontSearch

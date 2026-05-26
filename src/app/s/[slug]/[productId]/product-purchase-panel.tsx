@@ -78,6 +78,13 @@ function sortOptions(name: string, options: string[]) {
   });
 }
 
+function stockLabel(variant: Variant) {
+  if (!variant.track_inventory) return null;
+  if (variant.stock_quantity <= 0 && !variant.allow_backorder) return "Out of stock";
+  if (variant.stock_quantity <= 0 && variant.allow_backorder) return "Available on backorder";
+  return `${variant.stock_quantity.toLocaleString("en-NA")} in stock`;
+}
+
 export function ProductPurchasePanel({
   product,
   variants,
@@ -216,6 +223,9 @@ export function ProductPurchasePanel({
             <div className="mt-4 rounded-xl border border-emerald-100 bg-white px-3 py-2">
               <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">Selected</p>
               <p className="mt-1 text-sm font-bold text-slate-800">{selectedSummary.join(" | ")}</p>
+              {selectedVariant && stockLabel(selectedVariant) && (
+                <p className="mt-1 text-xs font-bold text-emerald-700">{stockLabel(selectedVariant)}</p>
+              )}
             </div>
           )}
 

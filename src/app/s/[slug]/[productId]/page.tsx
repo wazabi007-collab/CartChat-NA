@@ -240,7 +240,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   </span>
                 ) : (
                   <span className="inline-block bg-green-100 text-green-700 text-sm font-medium px-3 py-1 rounded-full">
-                    In Stock
+                    {Number(product.stock_quantity).toLocaleString("en-NA")} in stock
                   </span>
                 )}
               </div>

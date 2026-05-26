@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "../cart-provider";
-import { getCtaText, getDisplayPrice, type LayoutProps } from "./types";
+import { getCtaText, getDisplayPrice, getStockLabel, type LayoutProps } from "./types";
 
 export function ServiceList({ products, theme, slug, disabled }: LayoutProps) {
   const { addItem } = useCart();
@@ -17,6 +17,7 @@ export function ServiceList({ products, theme, slug, disabled }: LayoutProps) {
           product.track_inventory &&
           (product.stock_quantity ?? 0) === 0 &&
           !product.allow_backorder;
+        const stockLabel = getStockLabel(product);
 
         return (
           <div
@@ -51,6 +52,9 @@ export function ServiceList({ products, theme, slug, disabled }: LayoutProps) {
               <div className="font-bold text-sm" style={{ color: theme.accent }}>
                 {getDisplayPrice(product, formatPrice)}
               </div>
+              {stockLabel && !isOutOfStock && (
+                <div className="text-[11px] font-semibold text-emerald-700">{stockLabel}</div>
+              )}
               {isOutOfStock || disabled ? (
                 <span className="text-xs text-gray-400">Unavailable</span>
               ) : product.has_variants ? (

@@ -39,6 +39,13 @@ export function ProductCard({
   const isQuoteOnly = isService && price === 0;
   const isOutOfStock = !isService && trackInventory && (stockQuantity ?? 0) === 0 && !allowBackorder;
   const isLowStock = !isService && trackInventory && !isOutOfStock && (stockQuantity ?? 0) > 0 && (stockQuantity ?? 0) <= (lowStockThreshold ?? 5);
+  const stockLabel = !isService && trackInventory
+    ? isOutOfStock
+      ? "Out of stock"
+      : (stockQuantity ?? 0) <= 0 && allowBackorder
+        ? "Available on backorder"
+        : `${(stockQuantity ?? 0).toLocaleString("en-NA")} in stock`
+    : null;
 
   function handleQuoteClick() {
     if (!whatsappNumber) return;
@@ -91,6 +98,9 @@ export function ProductCard({
         <p className={`font-bold text-base mt-1.5 ${accentColor ? "" : "text-terracotta"}`} style={accentColor ? { color: accentColor } : undefined}>
           {isQuoteOnly ? "Request a Quote" : isService && price > 0 ? `From ${formatPrice(price)}` : price === 0 && !isService ? "Price on request" : formatPrice(price)}
         </p>
+        {stockLabel && !isOutOfStock && (
+          <p className="mt-1 text-xs font-semibold text-emerald-700">{stockLabel}</p>
+        )}
         <div className="mt-auto pt-2">
           {isOutOfStock || disabled ? (
             <button

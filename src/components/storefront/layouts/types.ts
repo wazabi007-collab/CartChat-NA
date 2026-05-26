@@ -27,6 +27,14 @@ export function getDisplayPrice(product: LayoutProduct, formatPrice: (n: number)
   return formatPrice(product.price_nad);
 }
 
+export function getStockLabel(product: LayoutProduct): string | null {
+  if (product.item_type === "service" || !product.track_inventory) return null;
+  const quantity = product.stock_quantity ?? 0;
+  if (quantity <= 0 && !product.allow_backorder) return "Out of stock";
+  if (quantity <= 0 && product.allow_backorder) return "Available on backorder";
+  return `${quantity.toLocaleString("en-NA")} in stock`;
+}
+
 export interface LayoutProps {
   products: LayoutProduct[];
   theme: ThemeConfig;

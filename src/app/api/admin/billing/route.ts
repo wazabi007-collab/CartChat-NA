@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 import { hasPermission } from "@/lib/admin-permissions";
+import { TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
+import { formatDateForWhatsApp, notifyAdmins, sendWhatsAppEvent } from "@/lib/whatsapp-events";
 import { z } from "zod";
 
 const paymentSchema = z.object({
@@ -116,6 +118,44 @@ export async function POST(request: NextRequest) {
     target_id: merchant_id,
     details: { amount_nad, payment_method, reference, tier: newTier, previous_status: sub.status },
   });
+
+  const { data: merchant } = await service
+    .from("merchants")
+    .select("store_name, whatsapp_number")
+    .eq("id", merchant_id)
+    .single();
+
+  const tierLabel = TIER_LABELS[newTier as SubscriptionTier] || String(newTier);
+  if (merchant) {
+    await sendWhatsAppEvent({
+      supabase: service,
+      merchantId: merchant_id,
+      eventKey: `subscription_activated:${merchant_id}:${periodEnd.slice(0, 10)}:${reference || "admin"}`,
+      templateName: "subscription_activated",
+      recipientPhone: merchant.whatsapp_number,
+      variables: [
+        merchant.store_name,
+        tierLabel,
+        `NAD ${(amount_nad / 100).toFixed(2)}`,
+        formatDateForWhatsApp(periodEnd),
+        reference || "Admin payment",
+      ],
+    });
+
+    await notifyAdmins({
+      supabase: service,
+      merchantId: merchant_id,
+      eventKeyPrefix: `admin_subscription_payment_received:${merchant_id}:${reference || Date.now()}`,
+      templateName: "admin_subscription_payment_received",
+      variables: [
+        merchant.store_name,
+        tierLabel,
+        `NAD ${(amount_nad / 100).toFixed(2)}`,
+        "1",
+        reference || "Admin payment",
+      ],
+    });
+  }
 
   return NextResponse.json({ success: true });
 }

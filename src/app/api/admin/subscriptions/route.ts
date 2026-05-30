@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 import { hasPermission } from "@/lib/admin-permissions";
+import { TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
+import { formatDateForWhatsApp, sendWhatsAppEvent } from "@/lib/whatsapp-events";
 import { z } from "zod";
 
 const subscriptionUpdateSchema = z.object({
@@ -89,6 +91,44 @@ export async function PATCH(request: NextRequest) {
     target_id: merchant_id,
     details: { before, after: updates },
   });
+
+  const { data: merchant } = await service
+    .from("merchants")
+    .select("store_name, whatsapp_number")
+    .eq("id", merchant_id)
+    .single();
+
+  if (merchant && (updates.status === "active" || updates.status === "hard_suspended")) {
+    const tierForLabel = (tier || before.tier) as SubscriptionTier;
+    if (updates.status === "active") {
+      await sendWhatsAppEvent({
+        supabase: service,
+        merchantId: merchant_id,
+        eventKey: `subscription_activated:${merchant_id}:${String(updates.current_period_end || new Date().toISOString()).slice(0, 10)}:admin-status`,
+        templateName: "subscription_activated",
+        recipientPhone: merchant.whatsapp_number,
+        variables: [
+          merchant.store_name,
+          TIER_LABELS[tierForLabel] || tierForLabel,
+          "Admin activation",
+          formatDateForWhatsApp(updates.current_period_end as string | undefined),
+          "Admin activation",
+        ],
+      });
+    } else {
+      await sendWhatsAppEvent({
+        supabase: service,
+        merchantId: merchant_id,
+        eventKey: `subscription_suspended:${merchant_id}:admin-hard`,
+        templateName: "subscription_suspended",
+        recipientPhone: merchant.whatsapp_number,
+        variables: [
+          merchant.store_name,
+          TIER_LABELS[tierForLabel] || tierForLabel,
+        ],
+      });
+    }
+  }
 
   return NextResponse.json({ success: true });
 }

@@ -13,6 +13,7 @@ import {
   Shield,
   Siren,
   FileText,
+  Megaphone,
   LogOut,
   Menu,
   X,
@@ -29,6 +30,7 @@ const ICON_MAP: Record<string, React.ElementType> = {
   "/admin/analytics": BarChart3,
   "/admin/reports": Flag,
   "/admin/safety": Siren,
+  "/admin/announcements": Megaphone,
   "/admin/team": Shield,
   "/admin/audit": FileText,
 };

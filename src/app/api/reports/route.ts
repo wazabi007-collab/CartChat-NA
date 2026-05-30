@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { notifyAdmins } from "@/lib/whatsapp-events";
 import { z } from "zod";
 
 const reportSchema = z.object({
@@ -20,17 +21,35 @@ export async function POST(request: NextRequest) {
   const { merchantId, reason, details, reporterName, reporterContact } = parsed.data;
   const supabase = createServiceClient();
 
-  const { error } = await supabase.from("reports").insert({
+  const { data: report, error } = await supabase.from("reports").insert({
     merchant_id: merchantId,
     reason,
     details: details || null,
     reporter_name: reporterName || null,
     reporter_contact: reporterContact || null,
-  });
+  }).select("id").single();
 
   if (error) {
     return NextResponse.json({ error: "Failed to submit report" }, { status: 500 });
   }
+
+  const { data: merchant } = await supabase
+    .from("merchants")
+    .select("store_name")
+    .eq("id", merchantId)
+    .single();
+
+  await notifyAdmins({
+    supabase,
+    merchantId,
+    eventKeyPrefix: `admin_safety_review_alert:report:${report?.id || merchantId}`,
+    templateName: "admin_safety_review_alert",
+    variables: [
+      merchant?.store_name || "Unknown store",
+      "customer report",
+      reason,
+    ],
+  });
 
   return NextResponse.json({ success: true });
 }

@@ -4,6 +4,11 @@ import { useMemo, useState } from "react";
 import { Check, ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/storefront/cart-provider";
 import { formatPrice } from "@/lib/utils";
+import {
+  displayVariantAttributeName,
+  getVariantAttributePriority,
+  sortVariantOptionValues,
+} from "@/lib/industry-variant-presets";
 
 type Variant = {
   id: string;
@@ -34,50 +39,6 @@ function attributesMatch(variant: Variant, selected: Record<string, string>) {
   return Object.entries(selected).every(([name, value]) => !value || variant.attributes?.[name] === value);
 }
 
-function normalizeAttributeName(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "");
-}
-
-function optionSuggestsFit(options: string[]) {
-  return options.some((option) => /^(men|mens|male|ladies|lady|women|womens|female|unisex)$/i.test(option.trim()));
-}
-
-function displayAttributeName(name: string, options: string[]) {
-  const normalized = normalizeAttributeName(name);
-  if (normalized.includes("gender") || normalized.includes("fit") || normalized.includes("sex") || optionSuggestsFit(options)) {
-    return "Fit";
-  }
-  if (normalized.includes("colour") || normalized.includes("color")) return "Colour";
-  if (normalized.includes("size")) return "Size";
-  return name;
-}
-
-function attributePriority(name: string, options: string[]) {
-  const label = displayAttributeName(name, options);
-  if (label === "Fit") return 0;
-  if (label === "Colour") return 1;
-  if (label === "Size") return 2;
-  return 10;
-}
-
-const FIT_ORDER = ["mens", "men", "male", "ladies", "lady", "women", "womens", "female", "unisex"];
-const SIZE_ORDER = ["xxs", "xs", "s", "small", "m", "medium", "l", "large", "xl", "1xl", "2xl", "xxl", "3xl", "xxxl", "4xl", "5xl"];
-
-function sortOptions(name: string, options: string[]) {
-  const label = displayAttributeName(name, options);
-  const order = label === "Fit" ? FIT_ORDER : label === "Size" ? SIZE_ORDER : [];
-  return [...options].sort((a, b) => {
-    const aKey = a.trim().toLowerCase();
-    const bKey = b.trim().toLowerCase();
-    const aIndex = order.indexOf(aKey);
-    const bIndex = order.indexOf(bKey);
-    if (aIndex >= 0 || bIndex >= 0) {
-      return (aIndex >= 0 ? aIndex : 999) - (bIndex >= 0 ? bIndex : 999);
-    }
-    return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
-  });
-}
-
 function stockLabel(variant: Variant) {
   if (!variant.track_inventory) return null;
   if (variant.stock_quantity <= 0 && !variant.allow_backorder) return "Out of stock";
@@ -88,9 +49,11 @@ function stockLabel(variant: Variant) {
 export function ProductPurchasePanel({
   product,
   variants,
+  industry,
 }: {
   product: Product;
   variants: Variant[];
+  industry?: string | null;
 }) {
   const { addItem } = useCart();
   const [selected, setSelected] = useState<Record<string, string>>({});
@@ -105,9 +68,10 @@ export function ProductPurchasePanel({
     return [...names].sort((a, b) => {
       const aOptions = variants.map((variant) => variant.attributes?.[a]).filter(Boolean) as string[];
       const bOptions = variants.map((variant) => variant.attributes?.[b]).filter(Boolean) as string[];
-      return attributePriority(a, aOptions) - attributePriority(b, bOptions);
+      const priorityDelta = getVariantAttributePriority(industry, a, aOptions) - getVariantAttributePriority(industry, b, bOptions);
+      return priorityDelta || a.localeCompare(b, undefined, { sensitivity: "base" });
     });
-  }, [variants]);
+  }, [industry, variants]);
 
   const selectedVariant = useMemo(() => {
     if (!hasVariants || attributeNames.some((name) => !selected[name])) return null;
@@ -121,7 +85,7 @@ export function ProductPurchasePanel({
   const canAdd = !hasVariants || (selectedVariant && variantIsBuyable(selectedVariant));
   const selectedSummary = attributeNames
     .filter((name) => selected[name])
-    .map((name) => `${displayAttributeName(name, [selected[name]])}: ${selected[name]}`);
+    .map((name) => `${displayVariantAttributeName(name, [selected[name]])}: ${selected[name]}`);
 
   function optionIsAvailable(attributeName: string, option: string) {
     const nextSelected = { ...selected, [attributeName]: option };
@@ -176,11 +140,11 @@ export function ProductPurchasePanel({
 
           <div className="mt-4 space-y-4">
             {attributeNames.map((name, index) => {
-              const options = sortOptions(
+              const options = sortVariantOptionValues(
                 name,
                 [...new Set(variants.map((variant) => variant.attributes?.[name]).filter(Boolean))] as string[]
               );
-              const displayName = displayAttributeName(name, options);
+              const displayName = displayVariantAttributeName(name, options);
               return (
                 <div key={name}>
                   <div className="mb-2 flex items-center justify-between gap-3">

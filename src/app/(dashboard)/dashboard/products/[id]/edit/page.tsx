@@ -67,6 +67,7 @@ export default function EditProductPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [globalError, setGlobalError] = useState("");
   const [tier, setTier] = useState<SubscriptionTier>("oshi_start");
+  const [merchantIndustry, setMerchantIndustry] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -80,7 +81,7 @@ export default function EditProductPage() {
 
       const { data: merchant } = await supabase
         .from("merchants")
-        .select("id")
+        .select("id, industry")
         .eq("user_id", user.id)
         .single();
 
@@ -88,6 +89,7 @@ export default function EditProductPage() {
         router.push("/dashboard/setup");
         return;
       }
+      setMerchantIndustry(merchant.industry);
 
       // Load subscription tier
       const { data: sub } = await supabase
@@ -559,6 +561,7 @@ export default function EditProductPage() {
           <ProductVariantsEditor
             variants={variants}
             onChange={setVariants}
+            industry={merchantIndustry}
           />
         )}
 

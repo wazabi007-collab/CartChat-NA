@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
+import { getDefaultVariantOptionText, getVariantPresets, type VariantPreset } from "@/lib/industry-variant-presets";
 
 export type ProductVariantDraft = {
   id?: string;
@@ -38,10 +39,10 @@ export function formatVariantOptions(attributes: Record<string, string> | null |
     .join(", ");
 }
 
-export function createEmptyVariantDraft(index: number): ProductVariantDraft {
+export function createEmptyVariantDraft(index: number, industry?: string | null): ProductVariantDraft {
   return {
     sku: "",
-    optionText: index === 0 ? "Fit: Mens, Colour: Black, Size: Medium" : "",
+    optionText: index === 0 ? getDefaultVariantOptionText(industry) : "",
     priceDisplay: "",
     isAvailable: true,
     trackInventory: false,
@@ -54,10 +55,14 @@ export function createEmptyVariantDraft(index: number): ProductVariantDraft {
 export function ProductVariantsEditor({
   variants,
   onChange,
+  industry,
 }: {
   variants: ProductVariantDraft[];
   onChange: (variants: ProductVariantDraft[]) => void;
+  industry?: string | null;
 }) {
+  const presets = getVariantPresets(industry);
+
   function updateVariant(index: number, patch: Partial<ProductVariantDraft>) {
     onChange(variants.map((variant, i) => (i === index ? { ...variant, ...patch } : variant)));
   }
@@ -66,24 +71,65 @@ export function ProductVariantsEditor({
     onChange(variants.filter((_, i) => i !== index));
   }
 
+  function addVariant() {
+    onChange([...variants, createEmptyVariantDraft(variants.length, industry)]);
+  }
+
+  function applyPreset(preset: VariantPreset) {
+    const nextVariants = preset.optionTextExamples.map((optionText, index) => ({
+      ...createEmptyVariantDraft(index, industry),
+      optionText,
+    }));
+    onChange(variants.length === 0 ? nextVariants : [...variants, ...nextVariants]);
+  }
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-sm font-black text-slate-950">Product variations</p>
           <p className="mt-1 text-xs leading-5 text-slate-500">
-            Add options like fit, colour, size, material, or pack type. Customers must choose the right combination before checkout.
+            Add the combinations that change price, stock, SKU, or availability. For takeaway add-ons, keep the core meal as a variation and use order notes until modifier support is added.
           </p>
         </div>
         <button
           type="button"
-          onClick={() => onChange([...variants, createEmptyVariantDraft(variants.length)])}
+          onClick={addVariant}
           className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-950 px-3 py-2 text-xs font-black text-white hover:bg-slate-800"
         >
           <Plus size={14} />
           Add variation
         </button>
       </div>
+
+      {presets.length > 0 && (
+        <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Industry presets</p>
+              <p className="mt-1 text-xs leading-5 text-slate-500">
+                Start from common option sets for this type of business, then edit the rows below.
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {presets.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => applyPreset(preset)}
+                className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:border-green-300 hover:bg-green-50"
+              >
+                <span className="block text-xs font-black text-slate-900">{preset.label}</span>
+                <span className="mt-1 block text-xs leading-5 text-slate-500">{preset.description}</span>
+                <span className="mt-2 block text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                  {preset.recommendedAttributes.join(" / ")}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {variants.length === 0 ? (
         <div className="mt-4 rounded-xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
@@ -113,7 +159,7 @@ export function ProductVariantsEditor({
                   <input
                     value={variant.optionText}
                     onChange={(e) => updateVariant(index, { optionText: e.target.value })}
-                    placeholder="Fit: Ladies, Colour: Red, Size: Large"
+                    placeholder={getDefaultVariantOptionText(industry)}
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100"
                   />
                 </label>

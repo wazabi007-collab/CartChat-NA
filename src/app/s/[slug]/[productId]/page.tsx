@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("id, store_name")
+    .select("id, store_name, industry")
     .eq("store_slug", slug)
     .eq("is_active", true)
     .eq("store_status", "active")
@@ -59,7 +59,7 @@ export default async function ProductDetailPage({ params }: Props) {
   // Fetch merchant — must be active and approved
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("id, store_name")
+    .select("id, store_name, industry")
     .eq("store_slug", slug)
     .eq("is_active", true)
     .eq("store_status", "active")
@@ -263,6 +263,7 @@ export default async function ProductDetailPage({ params }: Props) {
                     imageUrl: images[0] ?? null,
                   }}
                   variants={productVariants}
+                  industry={merchant.industry}
                 />
               )}
             </div>

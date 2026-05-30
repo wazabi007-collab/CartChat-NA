@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify, normalizeNamibianPhone } from "@/lib/utils";
-import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, PAYMENT_METHODS } from "@/lib/constants";
+import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, INDUSTRY_GROUP_ORDER, PAYMENT_METHODS } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { SAFETY_POLICY_VERSION, safetyMessage, scanTextForProhibitedContent } from "@/lib/safety/prohibited-content";
 import { track } from "@/lib/track";
@@ -362,10 +362,14 @@ function StoreSetupForm() {
                   className={`${selectBase} ${focusGreen}`}
                 >
                   <option value="">What do you sell?</option>
-                  {INDUSTRIES_NAMIBIA.map((ind) => (
-                    <option key={ind.value} value={ind.value}>
-                      {ind.label}
-                    </option>
+                  {INDUSTRY_GROUP_ORDER.map((group) => (
+                    <optgroup key={group} label={group}>
+                      {INDUSTRIES_NAMIBIA.filter((ind) => ind.group === group).map((ind) => (
+                        <option key={ind.value} value={ind.value}>
+                          {ind.label}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                 </select>
                 <p className={helperText}>

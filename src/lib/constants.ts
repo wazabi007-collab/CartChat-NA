@@ -45,36 +45,65 @@ export const EWALLET_PROVIDERS = [
   { value: "paytoday", label: "PayToday (Nedbank)" },
 ] as const;
 
+// Industry options shown at store setup. `group` drives the optgroup rendering
+// in the setup dropdown; `value` is stored on merchants.industry (free text, no
+// DB enum) and mapped to a storefront archetype in lib/industry.ts.
+// Display order follows GROUP order, then list order within each group.
+export const INDUSTRY_GROUP_ORDER = [
+  "Food & Drink",
+  "Groceries & Fresh",
+  "Fashion & Apparel",
+  "Beauty & Health",
+  "Electronics & Tech",
+  "Home, Hardware & Auto",
+  "General Retail & Gifts",
+  "Services",
+  "Other",
+] as const;
+
 export const INDUSTRIES_NAMIBIA = [
-  { value: "grocery", label: "Grocery & Supermarket" },
-  { value: "butchery", label: "Butchery & Meat" },
-  { value: "bakery", label: "Bakery & Confectionery" },
-  { value: "restaurant", label: "Restaurant & Dining" },
-  { value: "takeaway", label: "Takeaway & Fast Food" },
-  { value: "cafe", label: "Coffee Shop & Cafe" },
-  { value: "liquor", label: "Liquor & Beverages" },
-  { value: "pharmacy", label: "Pharmacy & Health" },
-  { value: "fashion", label: "Fashion & Clothing" },
-  { value: "salon", label: "Salon & Beauty" },
-  { value: "cosmetics", label: "Cosmetics & Skincare" },
-  { value: "electronics", label: "Electronics & Phones" },
-  { value: "hardware", label: "Hardware & Building" },
-  { value: "auto_parts", label: "Auto Parts & Accessories" },
-  { value: "agriculture", label: "Agriculture & Farming" },
-  { value: "crafts", label: "Arts, Crafts & Curios" },
-  { value: "furniture", label: "Furniture & Home" },
-  { value: "stationery", label: "Stationery & Office" },
-  { value: "pet", label: "Pet Supplies" },
-  { value: "sports", label: "Sports & Outdoor" },
-  { value: "toys", label: "Toys & Kids" },
-  { value: "catering", label: "Catering & Events" },
-  { value: "cleaning", label: "Cleaning & Laundry" },
-  { value: "printing", label: "Printing & Signage" },
-  { value: "gas_water", label: "Gas & Water" },
-  { value: "flowers", label: "Florist & Gifts" },
-  { value: "general_dealer", label: "General Dealer & Wholesale" },
-  { value: "services", label: "Services & Repairs" },
-  { value: "other", label: "Other" },
+  // Food & Drink
+  { value: "restaurant", label: "Restaurant & Dining", group: "Food & Drink" },
+  { value: "takeaway", label: "Takeaway & Fast Food", group: "Food & Drink" },
+  { value: "street_food", label: "Kapana & Street Food", group: "Food & Drink" },
+  { value: "cafe", label: "Coffee Shop & Cafe", group: "Food & Drink" },
+  { value: "bakery", label: "Bakery & Confectionery", group: "Food & Drink" },
+  { value: "catering", label: "Catering & Events", group: "Food & Drink" },
+  // Groceries & Fresh
+  { value: "grocery", label: "Grocery & Supermarket", group: "Groceries & Fresh" },
+  { value: "butchery", label: "Butchery & Meat", group: "Groceries & Fresh" },
+  { value: "liquor", label: "Liquor & Beverages", group: "Groceries & Fresh" },
+  { value: "agriculture", label: "Agriculture & Farming", group: "Groceries & Fresh" },
+  { value: "gas_water", label: "Gas & Water", group: "Groceries & Fresh" },
+  // Fashion & Apparel
+  { value: "fashion", label: "Fashion & Clothing", group: "Fashion & Apparel" },
+  { value: "second_hand", label: "Second-hand & Thrift", group: "Fashion & Apparel" },
+  // Beauty & Health
+  { value: "salon", label: "Salon & Beauty", group: "Beauty & Health" },
+  { value: "cosmetics", label: "Cosmetics & Skincare", group: "Beauty & Health" },
+  { value: "pharmacy", label: "Pharmacy & Health", group: "Beauty & Health" },
+  // Electronics & Tech
+  { value: "electronics", label: "Electronics & Phones", group: "Electronics & Tech" },
+  { value: "airtime", label: "Airtime, Data & Tokens", group: "Electronics & Tech" },
+  // Home, Hardware & Auto
+  { value: "hardware", label: "Hardware & Building", group: "Home, Hardware & Auto" },
+  { value: "furniture", label: "Furniture & Home", group: "Home, Hardware & Auto" },
+  { value: "auto_parts", label: "Auto Parts & Accessories", group: "Home, Hardware & Auto" },
+  // General Retail & Gifts
+  { value: "stationery", label: "Stationery & Office", group: "General Retail & Gifts" },
+  { value: "sports", label: "Sports & Outdoor", group: "General Retail & Gifts" },
+  { value: "toys", label: "Toys & Kids", group: "General Retail & Gifts" },
+  { value: "crafts", label: "Arts, Crafts & Curios", group: "General Retail & Gifts" },
+  { value: "pet", label: "Pet Supplies", group: "General Retail & Gifts" },
+  { value: "flowers", label: "Florist & Gifts", group: "General Retail & Gifts" },
+  { value: "general_dealer", label: "General Dealer & Wholesale", group: "General Retail & Gifts" },
+  // Services
+  { value: "cleaning", label: "Cleaning & Laundry", group: "Services" },
+  { value: "printing", label: "Printing & Signage", group: "Services" },
+  { value: "repairs", label: "Repairs (Phone, Auto, Appliance)", group: "Services" },
+  { value: "services", label: "Other Services", group: "Services" },
+  // Other
+  { value: "other", label: "Other", group: "Other" },
 ] as const;
 
 export const REPORT_REASONS = [

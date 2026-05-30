@@ -38,6 +38,7 @@ const ARCHETYPE_MAP: Record<string, IndustryArchetype> = {
   // food_prepared
   restaurant: "food_prepared",
   takeaway: "food_prepared",
+  street_food: "food_prepared",
   cafe: "food_prepared",
   bakery: "food_prepared",
   catering: "food_prepared",
@@ -46,30 +47,33 @@ const ARCHETYPE_MAP: Record<string, IndustryArchetype> = {
   butchery: "food_fresh",
   liquor: "food_fresh",
   agriculture: "food_fresh",
-  // retail
+  // retail (product sellers)
   fashion: "retail",
+  second_hand: "retail",
+  cosmetics: "retail", // sells products, not appointments — was incorrectly "beauty"
+  pharmacy: "retail", // health/medical products — was incorrectly "beauty"
   electronics: "retail",
+  airtime: "retail",
   hardware: "retail",
   auto_parts: "retail",
   furniture: "retail",
   stationery: "retail",
   sports: "retail",
   toys: "retail",
+  pet: "retail", // pet supplies are products — was incorrectly "gifting"
+  gas_water: "retail", // gas/water refills are products — was "services"
   general_dealer: "retail",
   crafts: "retail",
   other: "retail",
-  // beauty
+  // beauty (appointment / treatment services)
   salon: "beauty",
-  cosmetics: "beauty",
-  pharmacy: "beauty",
   // services
   cleaning: "services",
   printing: "services",
+  repairs: "services",
   services: "services",
-  gas_water: "services",
   // gifting
   flowers: "gifting",
-  pet: "gifting",
 };
 
 const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {

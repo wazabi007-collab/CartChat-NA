@@ -54,7 +54,10 @@ test.describe("C5 — /api/orders/lookup requires a possession code", () => {
     expect(res.status()).toBe(400);
   });
 
-  test("POST with an invalid code does not return orders", async ({ request }) => {
+  test("an unknown merchant_id is rejected (404) before the OTP is touched", async ({ request }) => {
+    // The merchant check runs first, so a wrong/inactive merchant_id can never
+    // consume a valid code. A bogus merchant therefore returns 404 (not 401),
+    // and never order data.
     const res = await request.post(`${BASE_URL}/api/orders/lookup`, {
       data: {
         merchant_id: "00000000-0000-0000-0000-000000000000",
@@ -62,8 +65,7 @@ test.describe("C5 — /api/orders/lookup requires a possession code", () => {
         code: "000000",
       },
     });
-    // No valid code on file → unauthorized, never a 200 with order data.
-    expect([400, 401]).toContain(res.status());
+    expect(res.status()).toBe(404);
     const body = await res.json().catch(() => ({}));
     expect(body.orders).toBeUndefined();
   });

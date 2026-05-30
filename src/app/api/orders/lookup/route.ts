@@ -42,7 +42,22 @@ export async function POST(req: NextRequest) {
   const cleanPhone = normalizeNamibianPhone(whatsapp).replace(/\D/g, "");
   const supabase = createServiceClient();
 
-  // Find the latest unverified, unexpired code for this phone.
+  // ── 1. Verify the merchant FIRST, before touching the OTP ──────────────────
+  // A wrong/inactive merchant_id must never consume a valid code: previously the
+  // code was marked verified before this check, so a 404 here burned the code
+  // and the retry (with the right merchant_id) failed with 401 invalid/expired.
+  const { data: merchant } = await supabase
+    .from("merchants")
+    .select("id")
+    .eq("id", merchantId)
+    .eq("store_status", "active")
+    .single();
+
+  if (!merchant) {
+    return NextResponse.json({ error: "Merchant not found" }, { status: 404 });
+  }
+
+  // ── 2. Find the latest unverified, unexpired code for this phone ───────────
   const { data: otp } = await supabase
     .from("phone_otp_codes")
     .select("id, code_hash, attempts, expires_at")
@@ -57,12 +72,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid or expired code" }, { status: 401 });
   }
 
+  // Too many wrong guesses → burn the code (intentional anti-brute-force).
   if ((otp.attempts ?? 0) >= MAX_ATTEMPTS) {
-    // Burn the code after too many tries.
     await supabase.from("phone_otp_codes").update({ verified: true }).eq("id", otp.id);
     return NextResponse.json({ error: "Too many attempts. Request a new code." }, { status: 429 });
   }
 
+  // Wrong code → count the failed attempt but do NOT consume the code.
   if (otp.code_hash !== hashOtp(code)) {
     await supabase
       .from("phone_otp_codes")
@@ -71,23 +87,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid or expired code" }, { status: 401 });
   }
 
-  // Code is valid — consume it.
-  await supabase.from("phone_otp_codes").update({ verified: true }).eq("id", otp.id);
-
-  // Verify merchant is active.
-  const { data: merchant } = await supabase
-    .from("merchants")
-    .select("id")
-    .eq("id", merchantId)
-    .eq("store_status", "active")
-    .single();
-
-  if (!merchant) {
-    return NextResponse.json({ error: "Merchant not found" }, { status: 404 });
-  }
-
-  // Match orders against both the raw entered digits and the normalized form,
-  // since historical orders may be stored in either format.
+  // ── 3. Code + merchant are valid → fetch the orders ───────────────────────
+  // Done BEFORE consuming the code so a DB error here doesn't burn a valid code.
+  // Match against both the raw entered digits and the normalized form, since
+  // historical orders may be stored in either format.
   const { data: orders, error } = await supabase
     .from("orders")
     .select(
@@ -101,6 +104,9 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
   }
+
+  // ── 4. Everything succeeded → consume the code as the final step ──────────
+  await supabase.from("phone_otp_codes").update({ verified: true }).eq("id", otp.id);
 
   return NextResponse.json({ orders: orders || [] });
 }

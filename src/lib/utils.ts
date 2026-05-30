@@ -34,7 +34,7 @@ export function slugify(text: string): string {
  * Foreign numbers with a valid country code (e.g. +27...) are left as-is.
  */
 export function normalizeNamibianPhone(phone: string): string {
-  let digits = phone.replace(/\D/g, "");
+  const digits = phone.replace(/\D/g, "");
   // Already has +264 country code — return as-is
   if (digits.startsWith("264") && digits.length >= 11) {
     return "+" + digits;

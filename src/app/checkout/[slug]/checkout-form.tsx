@@ -472,44 +472,16 @@ export function CheckoutForm({
         }),
       }).catch(() => {});
 
-      // WhatsApp Business API: notify merchant of new order
-      const itemSummary = cartItems.length === 1
-        ? `${formatCartItemName(cartItems[0])} x${cartItems[0].quantity}`
-        : `${cartItems.length} items`;
-      fetch("/api/whatsapp/send", {
+      // WhatsApp Business API: notify merchant + customer. Recipients and
+      // content are derived server-side from the order; this call is gated by
+      // the order's tracking_token (returned by place_order) so it cannot be
+      // abused to send arbitrary messages.
+      fetch("/api/orders/announce", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          merchant_id: merchantId,
           order_id: order.order_id,
-          template_name: "new_order_merchant",
-          recipient_phone: whatsappNumber,
-          variables: [
-            String(order.order_number),
-            customerName.trim(),
-            itemSummary,
-            formatPrice(total),
-            paymentMethod === "cod" ? "Cash on Delivery" : paymentMethod.toUpperCase(),
-          ],
-        }),
-      }).catch(() => {});
-
-      // WhatsApp Business API: notify customer order is placed
-      fetch("/api/whatsapp/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          merchant_id: merchantId,
-          order_id: order.order_id,
-          template_name: "order_placed",
-          recipient_phone: customerWhatsapp.trim(),
-          variables: [
-            customerName.trim(),
-            String(order.order_number),
-            storeName,
-            formatPrice(total),
-          ],
-          button_params: [order.tracking_token],
+          tracking_token: order.tracking_token,
         }),
       }).catch(() => {});
 

@@ -3,6 +3,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { verifyToken } from "@/lib/dpo";
 import { SITE_URL } from "@/lib/constants";
 import { TIER_LABELS } from "@/lib/tier-limits";
+import { formatDateForWhatsApp, notifyAdmins, sendWhatsAppEvent } from "@/lib/whatsapp-events";
 
 /**
  * GET /api/payments/dpo/callback
@@ -42,11 +43,40 @@ export async function GET(req: NextRequest) {
     if (result.isPaid) {
       const { data: sub } = await supabase
         .from("subscriptions")
-        .select("id, merchant_id, pending_tier, pending_months")
+        .select("id, merchant_id, pending_tier, pending_months, pending_amount_cents")
         .eq("dpo_transaction_token", transactionToken)
         .single();
 
-      if (sub && sub.pending_tier) {
+      // Verify the PAID amount and currency match the amount this token was
+      // priced for. Without this, a cheaper payment (or a tampered/forged
+      // amount) could unlock a more expensive tier. transactionAmount is a
+      // decimal NAD string (e.g. "499.00"); compare in cents with a 1-cent
+      // rounding tolerance and require payment >= expected.
+      const expectedCents = sub?.pending_amount_cents ?? null;
+      const paidCents = Math.round(parseFloat(result.transactionAmount || "0") * 100);
+      const currency = (result.transactionCurrency || "").toUpperCase();
+      const amountVerified =
+        expectedCents !== null &&
+        Number.isFinite(paidCents) &&
+        (currency === "" || currency === "NAD") &&
+        paidCents + 1 >= expectedCents;
+
+      if (sub && sub.pending_tier && !amountVerified) {
+        console.error("[DPO Callback] Amount/currency mismatch — NOT activating:", {
+          merchant_id: sub.merchant_id,
+          pending_tier: sub.pending_tier,
+          expectedCents,
+          paidCents,
+          currency,
+          approval: result.transactionApproval,
+          transactionToken,
+        });
+        return NextResponse.redirect(
+          `${SITE_URL}/pricing/checkout/payment-result?status=error&reason=amount_mismatch`
+        );
+      }
+
+      if (sub && sub.pending_tier && amountVerified) {
         const months = sub.pending_months || 1;
         const periodStart = new Date();
         const periodEnd = new Date();
@@ -57,9 +87,11 @@ export async function GET(req: NextRequest) {
           .update({
             tier: sub.pending_tier,
             status: "active",
+            current_period_start: periodStart.toISOString(),
             current_period_end: periodEnd.toISOString(),
             pending_tier: null,
             pending_months: null,
+            pending_amount_cents: null,
             payment_reference: companyRef || result.transactionApproval,
             dpo_transaction_token: null,
           })
@@ -85,6 +117,44 @@ export async function GET(req: NextRequest) {
           periodEnd,
           reference: companyRef || result.transactionApproval,
         }).catch((err) => console.error("[DPO Receipt Email] Error:", err));
+
+        const { data: merchant } = await supabase
+          .from("merchants")
+          .select("store_name, whatsapp_number")
+          .eq("id", sub.merchant_id)
+          .single();
+
+        const tierLabel = TIER_LABELS[sub.pending_tier as keyof typeof TIER_LABELS] || sub.pending_tier;
+        if (merchant) {
+          await sendWhatsAppEvent({
+            supabase,
+            merchantId: sub.merchant_id,
+            eventKey: `subscription_activated:${sub.merchant_id}:${periodEnd.toISOString().slice(0, 10)}:${result.transactionApproval || companyRef || "dpo"}`,
+            templateName: "subscription_activated",
+            recipientPhone: merchant.whatsapp_number,
+            variables: [
+              merchant.store_name,
+              tierLabel,
+              `${result.transactionCurrency || "NAD"} ${result.transactionAmount}`,
+              formatDateForWhatsApp(periodEnd),
+              companyRef || result.transactionApproval || "DPO",
+            ],
+          });
+
+          await notifyAdmins({
+            supabase,
+            merchantId: sub.merchant_id,
+            eventKeyPrefix: `admin_subscription_payment_received:${sub.merchant_id}:${result.transactionApproval || companyRef || "dpo"}`,
+            templateName: "admin_subscription_payment_received",
+            variables: [
+              merchant.store_name,
+              tierLabel,
+              `${result.transactionCurrency || "NAD"} ${result.transactionAmount}`,
+              String(months),
+              companyRef || result.transactionApproval || "DPO",
+            ],
+          });
+        }
       }
 
       return NextResponse.redirect(

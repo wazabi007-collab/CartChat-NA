@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { createClient } from "@/lib/supabase/server";
+import { formatPrice } from "@/lib/utils";
+import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
   const normalized = whatsapp.replace(/\D/g, "");
   const { data: order } = await service
     .from("orders")
-    .select("id, merchant_id, proof_of_payment_url")
+    .select("id, merchant_id, order_number, customer_name, subtotal_nad, delivery_fee_nad, discount_nad, proof_of_payment_url, merchants!inner(store_name, whatsapp_number)")
     .eq("id", orderId)
     .eq("customer_whatsapp", normalized)
     .single();
@@ -43,12 +44,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
-  // Upload the file to storage
-  const supabase = await createClient();
+  // Upload the file to storage via the service client. order-proofs is a
+  // private bucket whose RLS now scopes reads to the owning merchant, so
+  // uploads (by anonymous /track customers) must go through the service role.
   const fileName = `${order.merchant_id}/${orderId}-pop.${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  const { data: uploadData, error: uploadError } = await supabase.storage
+  const { data: uploadData, error: uploadError } = await service.storage
     .from("order-proofs")
     .upload(fileName, buffer, {
       contentType: mimeMap[ext],
@@ -60,7 +62,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
   }
 
-  const { data: urlData } = await supabase.storage
+  const { data: urlData } = await service.storage
     .from("order-proofs")
     .createSignedUrl(uploadData.path, 604800); // 7-day expiry
 
@@ -71,6 +73,24 @@ export async function POST(req: NextRequest) {
     .from("orders")
     .update({ proof_of_payment_url: uploadData.path })
     .eq("id", orderId);
+
+  const merchant = order.merchants as unknown as { store_name: string; whatsapp_number: string | null };
+  await sendWhatsAppEvent({
+    supabase: service,
+    merchantId: order.merchant_id,
+    orderId,
+    eventKey: `proof_uploaded_merchant:${orderId}:${uploadData.path}`,
+    templateName: "proof_uploaded_merchant",
+    recipientPhone: merchant.whatsapp_number,
+    variables: [
+      merchant.store_name,
+      String(order.order_number),
+      order.customer_name || "Customer",
+      formatPrice(
+        (order.subtotal_nad || 0) + (order.delivery_fee_nad || 0) - (order.discount_nad || 0)
+      ),
+    ],
+  });
 
   return NextResponse.json({ success: true, url: signedUrl });
 }

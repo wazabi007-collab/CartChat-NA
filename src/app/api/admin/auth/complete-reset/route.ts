@@ -78,6 +78,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Revoke all existing sessions/refresh tokens for this admin. A password
+    // reset is the exact moment an account may be compromised, so any session
+    // an attacker already established must be terminated — admin.updateUserById
+    // does NOT do this on its own, and admin.signOut only accepts a JWT.
+    const { error: revokeError } = await service.rpc("admin_revoke_user_sessions", {
+      p_user_id: userId,
+    });
+    if (revokeError) {
+      console.error("[AdminCompleteReset] session revoke error:", revokeError);
+      // Non-fatal: the password is already changed. Log for follow-up.
+    }
+
     await service
       .from("admin_password_reset_tokens")
       .update({ used_at: new Date().toISOString() })

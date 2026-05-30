@@ -1,8 +1,10 @@
 import { createServiceClient } from "@/lib/supabase/service";
 import { TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
 import { INDUSTRIES_NAMIBIA } from "@/lib/constants";
+import { requireAdminPermission } from "@/lib/admin-auth";
 
 export default async function AnalyticsPage() {
+  await requireAdminPermission("view_analytics");
   const service = createServiceClient();
 
   const [subsRes, merchantsRes, ordersRes, paymentsRes] = await Promise.all([

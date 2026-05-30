@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, CheckCircle2, ShieldAlert } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/service";
+import { requireAdminPermission } from "@/lib/admin-auth";
 import { SafetyActions } from "./safety-actions";
 
 interface SafetyReview {
@@ -20,6 +21,7 @@ interface SafetyReview {
 }
 
 export default async function AdminSafetyPage() {
+  await requireAdminPermission("view_safety");
   const supabase = createServiceClient();
 
   const { data: reviews } = await supabase

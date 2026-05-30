@@ -1,7 +1,8 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { ADMIN_EMAILS } from "@/lib/constants";
-import type { AdminRole } from "@/lib/admin-permissions";
+import { hasPermission, type AdminRole, type Permission } from "@/lib/admin-permissions";
 
 export interface AuthenticatedAdmin {
   userId: string;
@@ -47,4 +48,17 @@ export async function getAuthenticatedAdmin(): Promise<AuthenticatedAdmin | null
   }
 
   return null;
+}
+
+/**
+ * Server-side guard for admin pages/routes. Redirects unauthenticated users to
+ * the admin login and anyone lacking the required permission back to the admin
+ * overview. Use at the top of every admin Server Component page so access is
+ * enforced server-side, not just by hiding nav links.
+ */
+export async function requireAdminPermission(permission: Permission): Promise<AuthenticatedAdmin> {
+  const admin = await getAuthenticatedAdmin();
+  if (!admin) redirect("/admin/login?error=not_authorized");
+  if (!hasPermission(admin.role, permission)) redirect("/admin?error=forbidden");
+  return admin;
 }

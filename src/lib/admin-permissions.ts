@@ -8,7 +8,7 @@ export interface AdminUser {
   created_at: string;
 }
 
-type Permission =
+export type Permission =
   | "view_overview"
   | "view_merchants"
   | "view_merchant_detail"
@@ -20,6 +20,8 @@ type Permission =
   | "manage_reports"         // resolve reports
   | "view_safety"
   | "manage_safety"          // resolve safety reviews
+  | "view_announcements"
+  | "manage_announcements"   // send merchant platform messages
   | "view_team"
   | "manage_team"            // invite, remove, change role
   | "view_audit";
@@ -30,6 +32,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     "view_billing", "manage_billing", "view_analytics",
     "view_reports", "manage_reports",
     "view_safety", "manage_safety",
+    "view_announcements", "manage_announcements",
     "view_team", "manage_team", "view_audit",
   ],
   support: [
@@ -37,6 +40,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     "view_billing", "view_analytics",
     "view_reports", "manage_reports",
     "view_safety", "manage_safety",
+    "view_announcements",
   ],
   finance: [
     "view_overview",
@@ -57,6 +61,7 @@ export function getVisibleNavItems(role: AdminRole) {
     { label: "Analytics", href: "/admin/analytics", permission: "view_analytics" as Permission },
     { label: "Reports", href: "/admin/reports", permission: "view_reports" as Permission },
     { label: "Safety", href: "/admin/safety", permission: "view_safety" as Permission },
+    { label: "Announcements", href: "/admin/announcements", permission: "view_announcements" as Permission },
     { label: "Admin Team", href: "/admin/team", permission: "view_team" as Permission },
     { label: "Audit Log", href: "/admin/audit", permission: "view_audit" as Permission },
   ];

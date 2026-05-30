@@ -77,10 +77,15 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
     ? `OSHI-${refSuffix}-${merchantId.slice(0, 8).toUpperCase()}`
     : `OSHI-${refSuffix}`;
 
+  // Persist only the payment reference (used for manual-EFT reconciliation).
+  // pending_tier is intentionally NOT written here: it is set token-bound by
+  // /api/payments/dpo/create so re-opening checkout for a different tier
+  // cannot change what a paid DPO transaction activates. The tier is also
+  // recoverable from the reference (OSHI-<TIER>-<id>).
   if (merchantId) {
     await supabase
       .from("subscriptions")
-      .update({ pending_tier: tier, payment_reference: reference })
+      .update({ payment_reference: reference })
       .eq("merchant_id", merchantId);
   }
 

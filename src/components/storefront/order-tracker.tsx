@@ -33,6 +33,9 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof
 
 export function OrderTracker({ merchantId }: { merchantId: string }) {
   const [whatsapp, setWhatsapp] = useState("");
+  const [code, setCode] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -41,10 +44,43 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadOrderIdRef = useRef<string | null>(null);
 
-  async function handleLookup(e: React.FormEvent) {
+  // Step 1: send a one-time code to the customer's WhatsApp number. We require
+  // possession of the number before showing any order data (prevents anyone
+  // from enumerating customers' order history by phone number).
+  async function handleSendCode(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = whatsapp.trim();
     if (!trimmed) return;
+
+    setSendingCode(true);
+    setError("");
+    setOrders(null);
+    setUploadSuccess(null);
+
+    try {
+      const res = await fetch("/api/orders/lookup/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ whatsapp: trimmed }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Could not send code. Please try again.");
+        return;
+      }
+      setCodeSent(true);
+    } catch {
+      setError("Could not send code. Please try again.");
+    } finally {
+      setSendingCode(false);
+    }
+  }
+
+  // Step 2: verify the code and return the matching orders.
+  async function handleLookup(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = whatsapp.trim();
+    if (!trimmed || code.trim().length < 6) return;
 
     setLoading(true);
     setError("");
@@ -52,9 +88,11 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
     setUploadSuccess(null);
 
     try {
-      const res = await fetch(
-        `/api/orders/lookup?merchant_id=${encodeURIComponent(merchantId)}&whatsapp=${encodeURIComponent(trimmed)}`
-      );
+      const res = await fetch("/api/orders/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ merchant_id: merchantId, whatsapp: trimmed, code: code.trim() }),
+      });
       const data = await res.json();
 
       if (!res.ok) {
@@ -129,23 +167,57 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
 
   return (
     <div>
-      <form onSubmit={handleLookup} className="flex gap-2">
-        <input
-          type="tel"
-          value={whatsapp}
-          onChange={(e) => setWhatsapp(e.target.value)}
-          placeholder="Enter your WhatsApp number (e.g. +264811234567)"
-          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-        />
-        <button
-          type="submit"
-          disabled={loading || !whatsapp.trim()}
-          className="px-4 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
-        >
-          {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
-          Track
-        </button>
-      </form>
+      {!codeSent ? (
+        <form onSubmit={handleSendCode} className="flex gap-2">
+          <input
+            type="tel"
+            value={whatsapp}
+            onChange={(e) => setWhatsapp(e.target.value)}
+            placeholder="Enter your WhatsApp number (e.g. +264811234567)"
+            className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+          />
+          <button
+            type="submit"
+            disabled={sendingCode || !whatsapp.trim()}
+            className="px-4 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+          >
+            {sendingCode ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+            Send code
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleLookup} className="space-y-2">
+          <p className="text-sm text-gray-600">
+            We sent a 6-digit code to <span className="font-medium">{whatsapp.trim()}</span> on WhatsApp. Enter it below to view your orders.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+              placeholder="6-digit code"
+              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-sm tracking-widest focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+            />
+            <button
+              type="submit"
+              disabled={loading || code.trim().length < 6}
+              className="px-4 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+            >
+              {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+              Track
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setCodeSent(false); setCode(""); setError(""); }}
+            className="text-xs text-gray-500 hover:text-gray-700 underline"
+          >
+            Use a different number
+          </button>
+        </form>
+      )}
 
       {/* Hidden file input for POP upload */}
       <input

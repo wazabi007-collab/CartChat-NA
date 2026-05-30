@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, Ban, Search, ShieldAlert, Store, Users } from "lucide-react";
 import { createServiceClient } from "@/lib/supabase/service";
+import { requireAdminPermission } from "@/lib/admin-auth";
 import { STORE_STATUS_LABELS } from "@/lib/constants";
 import {
   STATUS_LABELS,
@@ -15,6 +16,7 @@ export default async function MerchantsPage({
 }: {
   searchParams: Promise<{ status?: string; tier?: string; q?: string }>;
 }) {
+  await requireAdminPermission("view_merchants");
   const { status, tier, q } = await searchParams;
   const service = createServiceClient();
 

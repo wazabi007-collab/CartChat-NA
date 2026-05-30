@@ -1,103 +1,40 @@
--- Product variants for synced WooCommerce catalogues.
-
--- Soft-delete column relied on by place_order and the variant RLS policy
--- below. Added idempotently so a clean deploy can apply this migration
--- (the column was previously created out-of-band in the live DB).
-ALTER TABLE public.products ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
-
-CREATE TABLE IF NOT EXISTS public.product_variants (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  product_id uuid NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
-  source text NOT NULL DEFAULT 'woocommerce',
-  source_variation_id text,
-  sku text NOT NULL,
-  price_nad integer NOT NULL CHECK (price_nad >= 0),
-  images text[] NOT NULL DEFAULT '{}',
-  attributes jsonb NOT NULL DEFAULT '{}'::jsonb,
-  is_available boolean NOT NULL DEFAULT true,
-  stock_status text,
-  track_inventory boolean NOT NULL DEFAULT false,
-  stock_quantity integer NOT NULL DEFAULT 0,
-  allow_backorder boolean NOT NULL DEFAULT false,
-  sort_order integer NOT NULL DEFAULT 0,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT product_variants_source_unique UNIQUE (product_id, source, source_variation_id),
-  CONSTRAINT product_variants_sku_unique UNIQUE (product_id, sku),
-  CONSTRAINT product_variants_stock_non_negative CHECK (allow_backorder = true OR stock_quantity >= 0)
-);
-
-CREATE INDEX IF NOT EXISTS idx_product_variants_product ON public.product_variants(product_id);
-CREATE INDEX IF NOT EXISTS idx_product_variants_available ON public.product_variants(product_id, is_available);
-CREATE INDEX IF NOT EXISTS idx_product_variants_sku ON public.product_variants(sku);
-
-DROP TRIGGER IF EXISTS product_variants_updated_at ON public.product_variants;
-CREATE TRIGGER product_variants_updated_at
-  BEFORE UPDATE ON public.product_variants
-  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at();
-
-ALTER TABLE public.product_variants ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Product variants: public read available" ON public.product_variants;
-CREATE POLICY "Product variants: public read available"
-  ON public.product_variants FOR SELECT
-  USING (
-    product_id IN (
-      SELECT id FROM public.products
-      WHERE is_available = true
-        AND deleted_at IS NULL
-        AND merchant_id IN (
-          SELECT id FROM public.merchants
-          WHERE is_active = true AND store_status = 'active'
-        )
-    )
-  );
-
-DROP POLICY IF EXISTS "Product variants: owner full access" ON public.product_variants;
-CREATE POLICY "Product variants: owner full access"
-  ON public.product_variants FOR ALL
-  USING (
-    product_id IN (
-      SELECT p.id
-      FROM public.products p
-      JOIN public.merchants m ON m.id = p.merchant_id
-      WHERE m.user_id = auth.uid()
-    )
-  )
-  WITH CHECK (
-    product_id IN (
-      SELECT p.id
-      FROM public.products p
-      JOIN public.merchants m ON m.id = p.merchant_id
-      WHERE m.user_id = auth.uid()
-    )
-  );
-
-ALTER TABLE public.order_items
-  ADD COLUMN IF NOT EXISTS product_variant_id uuid REFERENCES public.product_variants(id) ON DELETE SET NULL,
-  ADD COLUMN IF NOT EXISTS variant_sku text,
-  ADD COLUMN IF NOT EXISTS variant_attributes jsonb NOT NULL DEFAULT '{}'::jsonb;
-
-CREATE INDEX IF NOT EXISTS idx_order_items_product_variant_id ON public.order_items(product_variant_id);
-
-DROP FUNCTION IF EXISTS public.place_order(uuid, text, text, text, integer, text, date, text, text, text, jsonb, integer, text, text, integer, text);
+-- ============================================================
+-- 034 — place_order v6: authoritative server-side money values (H1)
+--
+-- v5 (031) recomputed per-line prices from the DB but still stored
+-- orders.subtotal_nad and delivery_fee_nad verbatim from the anon
+-- client, and used the client subtotal for the coupon min-order gate,
+-- the percentage-discount base, and the new-store value cap. Since the
+-- RPC is callable directly with the public anon key, a buyer could
+-- submit an arbitrary (even negative) subtotal/fee — underpayment fraud
+-- on every manual-payment merchant.
+--
+-- v6 ignores p_subtotal_nad / p_delivery_fee for storage and instead:
+--   * accumulates the subtotal from server-computed line totals,
+--   * derives the delivery fee from the merchant's configured
+--     delivery_fee_nad (0 for non-delivery methods),
+--   * uses the server subtotal for the coupon gate, discount base,
+--     and new-store value cap.
+-- The parameter signature is unchanged so existing callers keep working;
+-- the client-supplied money params are simply no longer trusted.
+-- ============================================================
 
 CREATE OR REPLACE FUNCTION public.place_order(
   p_merchant_id       uuid,
   p_customer_name     text,
   p_customer_whatsapp text,
   p_delivery_method   text,
-  p_subtotal_nad      integer,
+  p_subtotal_nad      integer,   -- ignored: computed server-side
   p_delivery_address  text    DEFAULT NULL,
   p_delivery_date     date    DEFAULT NULL,
   p_delivery_time     text    DEFAULT NULL,
   p_notes             text    DEFAULT NULL,
   p_proof_url         text    DEFAULT NULL,
   p_items             jsonb   DEFAULT '[]',
-  p_delivery_fee      integer DEFAULT 0,
+  p_delivery_fee      integer DEFAULT 0,   -- ignored: derived server-side
   p_payment_method    text    DEFAULT 'eft',
   p_coupon_code       text    DEFAULT NULL,
-  p_discount_nad      integer DEFAULT 0,
+  p_discount_nad      integer DEFAULT 0,   -- ignored: calculated server-side
   p_payment_ref       text    DEFAULT NULL
 )
 RETURNS TABLE(order_id uuid, order_number integer, payment_reference text, tracking_token text)
@@ -106,28 +43,30 @@ SECURITY DEFINER
 SET search_path = public
 AS $func$
 DECLARE
-  v_order_id       uuid;
-  v_order_num      integer;
-  v_payment_ref    text;
-  v_tracking_token text;
-  v_item           jsonb;
-  v_product        record;
-  v_variant        record;
-  v_prev_qty       integer;
-  v_coupon         record;
-  v_coupon_id      uuid    := NULL;
-  v_discount       integer := 0;
-  v_merchant       record;
-  v_monthly_count  integer;
-  v_monthly_value  integer;
-  v_store_prefix   text;
-  v_token_attempts integer := 0;
-  v_line_price     integer;
-  v_variant_id     uuid;
-  v_variant_attrs  jsonb;
-  v_variant_sku    text;
+  v_order_id          uuid;
+  v_order_num         integer;
+  v_payment_ref       text;
+  v_tracking_token    text;
+  v_item              jsonb;
+  v_product           record;
+  v_variant           record;
+  v_prev_qty          integer;
+  v_coupon            record;
+  v_coupon_id         uuid    := NULL;
+  v_discount          integer := 0;
+  v_merchant          record;
+  v_monthly_count     integer;
+  v_monthly_value     integer;
+  v_store_prefix      text;
+  v_token_attempts    integer := 0;
+  v_line_price        integer;
+  v_variant_id        uuid;
+  v_variant_attrs     jsonb;
+  v_variant_sku       text;
+  v_computed_subtotal integer := 0;   -- authoritative subtotal (sum of server line totals)
+  v_delivery_fee      integer := 0;   -- authoritative delivery fee (from merchant config)
 BEGIN
-  SELECT m.store_status, m.created_at, m.store_name INTO v_merchant
+  SELECT m.store_status, m.created_at, m.store_name, m.delivery_fee_nad INTO v_merchant
   FROM merchants m WHERE m.id = p_merchant_id;
 
   IF v_merchant IS NULL THEN
@@ -138,6 +77,16 @@ BEGIN
     RAISE EXCEPTION 'This store is not currently accepting orders';
   END IF;
 
+  -- Authoritative delivery fee: charged only for delivery, taken from
+  -- the merchant's configured flat rate (never trusted from the client).
+  IF p_delivery_method = 'delivery' THEN
+    v_delivery_fee := COALESCE(v_merchant.delivery_fee_nad, 0);
+  ELSE
+    v_delivery_fee := 0;
+  END IF;
+
+  -- New-store order COUNT cap (value cap is enforced after the subtotal
+  -- is computed from server-side line totals, below).
   IF v_merchant.created_at > (now() - interval '30 days') THEN
     SELECT COUNT(*), COALESCE(SUM(subtotal_nad + delivery_fee_nad - discount_nad), 0)
     INTO v_monthly_count, v_monthly_value
@@ -148,10 +97,6 @@ BEGIN
 
     IF v_monthly_count >= 10 THEN
       RAISE EXCEPTION 'New store order limit reached (10 orders per month). Contact support to increase your limit.';
-    END IF;
-
-    IF v_monthly_value + p_subtotal_nad + p_delivery_fee > 1000000 THEN
-      RAISE EXCEPTION 'New store monthly value limit reached (N$10,000). Contact support to increase your limit.';
     END IF;
   END IF;
 
@@ -164,45 +109,8 @@ BEGIN
     END IF;
   END LOOP;
 
-  IF p_coupon_code IS NOT NULL AND p_coupon_code <> '' THEN
-    SELECT * INTO v_coupon
-    FROM coupons
-    WHERE merchant_id = p_merchant_id
-      AND code = UPPER(TRIM(p_coupon_code))
-      AND is_active = true
-    FOR UPDATE;
-
-    IF v_coupon IS NULL THEN
-      RAISE EXCEPTION 'Invalid or inactive coupon code: %', p_coupon_code;
-    END IF;
-
-    IF v_coupon.expires_at IS NOT NULL AND v_coupon.expires_at < now() THEN
-      RAISE EXCEPTION 'Coupon "%" has expired', v_coupon.code;
-    END IF;
-
-    IF v_coupon.starts_at IS NOT NULL AND v_coupon.starts_at > now() THEN
-      RAISE EXCEPTION 'Coupon "%" is not yet active', v_coupon.code;
-    END IF;
-
-    IF v_coupon.max_uses IS NOT NULL AND v_coupon.current_uses >= v_coupon.max_uses THEN
-      RAISE EXCEPTION 'Coupon "%" has reached its usage limit', v_coupon.code;
-    END IF;
-
-    IF v_coupon.min_order_nad > 0 AND p_subtotal_nad < v_coupon.min_order_nad THEN
-      RAISE EXCEPTION 'Order subtotal does not meet the minimum for coupon "%"', v_coupon.code;
-    END IF;
-
-    IF v_coupon.discount_type = 'percentage' THEN
-      v_discount := LEAST(p_subtotal_nad, (p_subtotal_nad * v_coupon.discount_value) / 100);
-    ELSE
-      v_discount := LEAST(p_subtotal_nad, v_coupon.discount_value);
-    END IF;
-
-    v_coupon_id := v_coupon.id;
-
-    UPDATE coupons SET current_uses = current_uses + 1 WHERE id = v_coupon_id;
-  END IF;
-
+  -- Insert the order shell with placeholder money values; the
+  -- authoritative subtotal/fee/discount are written after the item loop.
   INSERT INTO orders (
     merchant_id, customer_name, customer_whatsapp,
     delivery_method, delivery_address, delivery_date, delivery_time,
@@ -213,10 +121,10 @@ BEGIN
     p_merchant_id, p_customer_name, p_customer_whatsapp,
     p_delivery_method::delivery_method,
     p_delivery_address, p_delivery_date, p_delivery_time,
-    p_subtotal_nad, p_delivery_fee, p_notes, p_proof_url,
+    0, v_delivery_fee, p_notes, p_proof_url,
     p_payment_method::payment_method,
-    v_coupon_id,
-    v_discount,
+    NULL,
+    0,
     v_tracking_token,
     jsonb_build_array(jsonb_build_object('status', 'pending', 'at', now()))
   )
@@ -315,6 +223,9 @@ BEGIN
       );
     END IF;
 
+    -- Accumulate the authoritative subtotal from server-side line totals.
+    v_computed_subtotal := v_computed_subtotal + (v_line_price * (v_item->>'quantity')::integer);
+
     INSERT INTO order_items (
       order_id, product_id, product_variant_id, product_name, product_price,
       quantity, line_total, variant_sku, variant_attributes
@@ -330,6 +241,60 @@ BEGIN
       v_variant_attrs
     );
   END LOOP;
+
+  -- New-store monthly VALUE cap, now using the authoritative subtotal.
+  IF v_merchant.created_at > (now() - interval '30 days') THEN
+    IF v_monthly_value + v_computed_subtotal + v_delivery_fee > 1000000 THEN
+      RAISE EXCEPTION 'New store monthly value limit reached (N$10,000). Contact support to increase your limit.';
+    END IF;
+  END IF;
+
+  -- Coupon validation/discount against the authoritative subtotal.
+  IF p_coupon_code IS NOT NULL AND p_coupon_code <> '' THEN
+    SELECT * INTO v_coupon
+    FROM coupons
+    WHERE merchant_id = p_merchant_id
+      AND code = UPPER(TRIM(p_coupon_code))
+      AND is_active = true
+    FOR UPDATE;
+
+    IF v_coupon IS NULL THEN
+      RAISE EXCEPTION 'Invalid or inactive coupon code: %', p_coupon_code;
+    END IF;
+
+    IF v_coupon.expires_at IS NOT NULL AND v_coupon.expires_at < now() THEN
+      RAISE EXCEPTION 'Coupon "%" has expired', v_coupon.code;
+    END IF;
+
+    IF v_coupon.starts_at IS NOT NULL AND v_coupon.starts_at > now() THEN
+      RAISE EXCEPTION 'Coupon "%" is not yet active', v_coupon.code;
+    END IF;
+
+    IF v_coupon.max_uses IS NOT NULL AND v_coupon.current_uses >= v_coupon.max_uses THEN
+      RAISE EXCEPTION 'Coupon "%" has reached its usage limit', v_coupon.code;
+    END IF;
+
+    IF v_coupon.min_order_nad > 0 AND v_computed_subtotal < v_coupon.min_order_nad THEN
+      RAISE EXCEPTION 'Order subtotal does not meet the minimum for coupon "%"', v_coupon.code;
+    END IF;
+
+    IF v_coupon.discount_type = 'percentage' THEN
+      v_discount := LEAST(v_computed_subtotal, (v_computed_subtotal * v_coupon.discount_value) / 100);
+    ELSE
+      v_discount := LEAST(v_computed_subtotal, v_coupon.discount_value);
+    END IF;
+
+    v_coupon_id := v_coupon.id;
+
+    UPDATE coupons SET current_uses = current_uses + 1 WHERE id = v_coupon_id;
+  END IF;
+
+  -- Persist the authoritative money values.
+  UPDATE orders
+  SET subtotal_nad = v_computed_subtotal,
+      discount_nad = v_discount,
+      coupon_id    = v_coupon_id
+  WHERE id = v_order_id;
 
   RETURN QUERY SELECT v_order_id, v_order_num, v_payment_ref, v_tracking_token;
 END;

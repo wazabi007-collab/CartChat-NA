@@ -4,8 +4,10 @@ import { DollarSign, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react
 import { TIER_LABELS, STATUS_LABELS, TIER_LIMITS, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
 import Link from "next/link";
 import { RecordPaymentModal } from "./record-payment-modal";
+import { requireAdminPermission } from "@/lib/admin-auth";
 
 export default async function BillingPage() {
+  await requireAdminPermission("view_billing");
   const service = createServiceClient();
 
   const now = new Date();

@@ -1,7 +1,9 @@
 import { createServiceClient } from "@/lib/supabase/service";
+import { requireAdminPermission } from "@/lib/admin-auth";
 import { TeamActions } from "./team-actions";
 
 export default async function TeamPage() {
+  await requireAdminPermission("view_team");
   const service = createServiceClient();
 
   const { data: admins } = await service

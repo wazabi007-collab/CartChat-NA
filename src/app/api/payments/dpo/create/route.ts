@@ -100,13 +100,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: result.error || "Failed to create payment" }, { status: 500 });
     }
 
-    // Store the DPO token + billing info on the subscription for verification later
+    // Bind the tier, billing months, expected amount, and DPO token together
+    // on the subscription. The callback activates strictly from these
+    // token-bound values and verifies the paid amount against
+    // pending_amount_cents — so re-opening checkout for a different tier
+    // cannot change what gets activated, and a cheaper payment cannot unlock
+    // a more expensive tier.
     const service = createServiceClient();
     await service
       .from("subscriptions")
       .update({
         dpo_transaction_token: result.transToken,
+        pending_tier: tierKey,
         pending_months: billingMonths,
+        pending_amount_cents: totalCents,
       })
       .eq("merchant_id", merchant_id);
 

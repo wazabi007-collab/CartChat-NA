@@ -1,7 +1,9 @@
 import { createServiceClient } from "@/lib/supabase/service";
+import { requireAdminPermission } from "@/lib/admin-auth";
 import { ReportActions } from "./report-actions";
 
 export default async function AdminReportsPage() {
+  await requireAdminPermission("view_reports");
   const supabase = createServiceClient();
 
   const { data: reports } = await supabase

@@ -124,7 +124,7 @@ export function OrderActions({
           variables = [];
       }
 
-      fetch("/api/whatsapp/send", {
+      fetch("/api/whatsapp/notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

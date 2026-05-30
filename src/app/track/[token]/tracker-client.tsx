@@ -81,6 +81,7 @@ export function TrackerClient({
   const [order, setOrder] = useState<Order>(initialOrder);
   const [showAllItems, setShowAllItems] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const merchant = order.merchants;
   const isCancelled = order.status === "cancelled";
@@ -125,12 +126,16 @@ export function TrackerClient({
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setUploadError(null);
 
     try {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("order_id", order.id);
-      formData.append("customer_whatsapp", order.customer_whatsapp);
+      // The upload-pop API expects the "whatsapp" field (used to verify
+      // order ownership). Previously this sent "customer_whatsapp", which the
+      // route ignored, so every upload from this page failed with a 400.
+      formData.append("whatsapp", order.customer_whatsapp);
 
       const res = await fetch("/api/orders/upload-pop", {
         method: "POST",
@@ -141,9 +146,12 @@ export function TrackerClient({
         // Re-fetch order to show updated POP status
         const data = await fetch(`/api/orders/track/${token}`).then((r) => r.json());
         if (data.order) setOrder(data.order);
+      } else {
+        const data = await res.json().catch(() => null);
+        setUploadError(data?.error || "Upload failed. Please try again.");
       }
     } catch {
-      // Silent fail
+      setUploadError("Upload failed. Please check your connection and try again.");
     } finally {
       setUploading(false);
     }
@@ -296,6 +304,9 @@ export function TrackerClient({
                 disabled={uploading}
               />
             </label>
+            {uploadError && (
+              <p className="mt-2 text-sm text-red-600">{uploadError}</p>
+            )}
           </div>
         )}
 

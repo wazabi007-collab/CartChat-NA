@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isWhatsAppEnabled } from "@/lib/whatsapp";
 import { formatPrice } from "@/lib/utils";
+import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
 
 /**
  * Cron job: Payment reminders + auto-cancel unpaid orders.
@@ -25,6 +26,8 @@ export async function GET(req: NextRequest) {
   const now = new Date();
   let remindersSent = 0;
   let ordersCancelled = 0;
+  let merchantOrderAlertsSent = 0;
+  let lowStockAlertsSent = 0;
 
   // ---- 1. Send payment reminders ----
 
@@ -35,7 +38,7 @@ export async function GET(req: NextRequest) {
     .from("orders")
     .select(`
       id, order_number, customer_name, customer_whatsapp,
-      created_at, reminder_count, total_nad, payment_method,
+      created_at, reminder_count, subtotal_nad, delivery_fee_nad, discount_nad, payment_method,
       merchant_id, tracking_token,
       merchants!inner(store_name, store_slug)
     `)
@@ -59,26 +62,27 @@ export async function GET(req: NextRequest) {
       else if (ageHours >= 48 && reminderCount === 2) shouldRemind = true;
 
       if (shouldRemind && order.customer_whatsapp) {
-        const total = formatPrice(order.total_nad || 0);
+        const total = formatPrice(
+          (order.subtotal_nad || 0) + (order.delivery_fee_nad || 0) - (order.discount_nad || 0)
+        );
 
-        // Fire-and-forget WhatsApp reminder
-        fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "https://oshicart.com"}/api/whatsapp/send`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            merchant_id: order.merchant_id,
-            order_id: order.id,
-            template_name: "payment_reminder",
-            recipient_phone: order.customer_whatsapp,
-            variables: [
-              order.customer_name || "Customer",
-              String(order.order_number),
-              merchant.store_name,
-              total,
-            ],
-            button_params: order.tracking_token ? [order.tracking_token] : undefined,
-          }),
-        }).catch(() => {});
+        // WhatsApp reminder — sent server-side via the shared library (no
+        // HTTP round-trip to the now server-only /api/whatsapp/send).
+        await sendWhatsAppEvent({
+          supabase,
+          merchantId: order.merchant_id,
+          orderId: order.id,
+          eventKey: `payment_reminder:${order.id}:${reminderCount + 1}`,
+          templateName: "payment_reminder",
+          recipientPhone: order.customer_whatsapp,
+          variables: [
+            order.customer_name || "Customer",
+            String(order.order_number),
+            merchant.store_name,
+            total,
+          ],
+          buttonParams: order.tracking_token ? [order.tracking_token] : undefined,
+        });
 
         // Update reminder count
         await supabase
@@ -92,6 +96,71 @@ export async function GET(req: NextRequest) {
         remindersSent++;
       }
     }
+  }
+
+  // ---- 1b. Alert merchants when orders stay pending too long ----
+
+  const stalePendingCutoff = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+  const { data: staleOrders } = await supabase
+    .from("orders")
+    .select(`
+      id, order_number, customer_name, created_at, subtotal_nad, delivery_fee_nad, discount_nad,
+      merchant_id,
+      merchants!inner(store_name, whatsapp_number)
+    `)
+    .eq("status", "pending")
+    .lte("created_at", stalePendingCutoff.toISOString())
+    .order("created_at", { ascending: true })
+    .limit(100);
+
+  for (const order of (staleOrders || [])) {
+    const merchant = order.merchants as unknown as { store_name: string; whatsapp_number: string | null };
+    const result = await sendWhatsAppEvent({
+      supabase,
+      merchantId: order.merchant_id,
+      orderId: order.id,
+      eventKey: `pending_order_reminder_merchant:${order.id}:2h`,
+      templateName: "pending_order_reminder_merchant",
+      recipientPhone: merchant.whatsapp_number,
+      variables: [
+        merchant.store_name,
+        String(order.order_number),
+        order.customer_name || "Customer",
+        formatPrice(
+          (order.subtotal_nad || 0) + (order.delivery_fee_nad || 0) - (order.discount_nad || 0)
+        ),
+      ],
+    });
+    if (result.ok && !result.skipped) merchantOrderAlertsSent++;
+  }
+
+  // ---- 1c. Alert merchants about low stock ----
+
+  const { data: lowStockProducts } = await supabase
+    .from("products")
+    .select("id, merchant_id, name, stock_quantity, merchants!inner(store_name, whatsapp_number)")
+    .eq("track_inventory", true)
+    .eq("is_available", true)
+    .lte("stock_quantity", 3)
+    .order("stock_quantity", { ascending: true })
+    .limit(100);
+
+  for (const product of (lowStockProducts || [])) {
+    const merchant = product.merchants as unknown as { store_name: string; whatsapp_number: string | null };
+    const qty = Number(product.stock_quantity || 0);
+    const result = await sendWhatsAppEvent({
+      supabase,
+      merchantId: product.merchant_id,
+      eventKey: `low_stock_alert:${product.id}:${qty}`,
+      templateName: "low_stock_alert",
+      recipientPhone: merchant.whatsapp_number,
+      variables: [
+        merchant.store_name,
+        product.name || "Product",
+        String(qty),
+      ],
+    });
+    if (result.ok && !result.skipped) lowStockAlertsSent++;
   }
 
   // ---- 2. Auto-cancel expired unpaid orders (3 days + 1 hour) ----
@@ -116,55 +185,32 @@ export async function GET(req: NextRequest) {
     for (const order of expiredOrders) {
       const merchant = order.merchants as unknown as { store_name: string };
 
-      // Cancel the order
+      // Cancel the order. This update fires the trg_restock_on_cancel
+      // database trigger (007), which restocks inventory exactly once,
+      // respects each product's track_inventory flag, and writes a
+      // stock_adjustments audit row. Do NOT also restock manually here —
+      // that previously double-counted inventory for tracked products and
+      // wrongly restocked non-tracking products.
       await supabase
         .from("orders")
         .update({ status: "cancelled" })
         .eq("id", order.id);
 
-      // Restock inventory
-      const { data: items } = await supabase
-        .from("order_items")
-        .select("product_id, quantity")
-        .eq("order_id", order.id);
-
-      if (items) {
-        for (const item of items) {
-          // Direct restock: increment stock_quantity
-          const { data: product } = await supabase
-            .from("products")
-            .select("stock_quantity")
-            .eq("id", item.product_id)
-            .single();
-
-          if (product) {
-            await supabase
-              .from("products")
-              .update({
-                stock_quantity: (product.stock_quantity || 0) + item.quantity,
-              })
-              .eq("id", item.product_id);
-          }
-        }
-      }
-
-      // Notify customer of cancellation
+      // Notify customer of cancellation — sent server-side via the library.
       if (order.customer_whatsapp) {
-        fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "https://oshicart.com"}/api/whatsapp/send`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            merchant_id: order.merchant_id,
-            order_id: order.id,
-            template_name: "order_cancelled",
-            recipient_phone: order.customer_whatsapp,
-            variables: [
-              order.customer_name || "Customer",
-              String(order.order_number),
-              merchant.store_name,
-            ],
-          }),
-        }).catch(() => {});
+        await sendWhatsAppEvent({
+          supabase,
+          merchantId: order.merchant_id,
+          orderId: order.id,
+          eventKey: `order_cancelled:${order.id}`,
+          templateName: "order_cancelled",
+          recipientPhone: order.customer_whatsapp,
+          variables: [
+            order.customer_name || "Customer",
+            String(order.order_number),
+            merchant.store_name,
+          ],
+        });
       }
 
       ordersCancelled++;
@@ -174,6 +220,8 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     remindersSent,
+    merchantOrderAlertsSent,
+    lowStockAlertsSent,
     ordersCancelled,
     timestamp: now.toISOString(),
   });

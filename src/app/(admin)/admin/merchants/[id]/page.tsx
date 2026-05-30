@@ -11,12 +11,14 @@ import {
   type SubscriptionTier,
 } from "@/lib/tier-limits";
 import { MerchantTabs } from "./merchant-tabs";
+import { requireAdminPermission } from "@/lib/admin-auth";
 
 export default async function MerchantDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdminPermission("view_merchant_detail");
   const { id } = await params;
   const service = createServiceClient();
 

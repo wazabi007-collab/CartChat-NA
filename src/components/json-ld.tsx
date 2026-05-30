@@ -1,17 +1,26 @@
 /**
  * Renders JSON-LD structured data for SEO.
- * Only accepts static data objects — no user input passes through.
- * This is the standard Next.js pattern for JSON-LD as recommended in the docs.
+ *
+ * NOTE: merchant-controlled, database-sourced strings (store name,
+ * description, product name/description) DO flow into this component on
+ * storefront/product pages. JSON.stringify does NOT escape "<" or "/", so a
+ * value containing "</script>" would break out of the <script> element and
+ * execute arbitrary JS (stored XSS). Escaping "<", ">" and "&" to their
+ * unicode escapes is valid inside a JSON string and makes a breakout
+ * impossible while leaving the parsed JSON-LD identical.
  */
+function escapeJsonForScript(json: string): string {
+  return json
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
+}
+
 export function JsonLd({ data }: { data: Record<string, unknown> }) {
-  const jsonString = JSON.stringify(data);
+  const jsonString = escapeJsonForScript(JSON.stringify(data));
   return (
     <script
       type="application/ld+json"
-      // SECURITY NOTE: This is safe because `data` is always a hardcoded
-      // static object defined at build time in page source files. No user
-      // input or database content ever flows into this component.
-      // JSON.stringify also escapes any special characters.
       dangerouslySetInnerHTML={{ __html: jsonString }}
     />
   );

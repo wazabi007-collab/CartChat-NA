@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { ADMIN_EMAILS } from "@/lib/constants";
+import { getAuthenticatedAdmin } from "@/lib/admin-auth";
+import { hasPermission } from "@/lib/admin-permissions";
 
 export async function PATCH(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user?.email || !ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+  // Use the admin_users role model (not ADMIN_EMAILS-only) so report
+  // moderation is gated by the manage_reports permission like every other
+  // admin mutation.
+  const admin = await getAuthenticatedAdmin();
+  if (!admin) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+  }
+  if (!hasPermission(admin.role, "manage_reports")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { reportId, status, adminNotes } = await request.json();

@@ -52,6 +52,12 @@ preview-*.png
 landing-*.png
 Hero page.png
 OshiCart Website look.png
+delivery-schedule-test.png
+login-page-google-oauth.png
+oshicart-homepage-ref.png
+
+# local dev output (server logs, scratch screenshots)
+/output/
 
 # playwright
 /playwright-report/

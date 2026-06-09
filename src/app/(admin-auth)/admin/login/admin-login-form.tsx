@@ -85,10 +85,10 @@ export function AdminLoginForm({ initialError }: { initialError?: string }) {
         <section className="hidden lg:block">
           <Link href="/" className="inline-flex">
             <Image
-              src="/logo-light.svg"
+              src="/oshicart-logo-original.webp"
               alt="OshiCart"
               width={170}
-              height={44}
+              height={24}
               priority
               style={{ width: 170, height: "auto" }}
             />

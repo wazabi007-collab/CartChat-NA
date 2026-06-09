@@ -304,10 +304,10 @@ export default async function StoresPage({
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
           <div className="flex items-center gap-3">
             <Image
-              src="/logo-light.svg"
+              src="/oshicart-logo-original.webp"
               alt={SITE_NAME}
               width={130}
-              height={34}
+              height={18}
               style={{ width: 130, height: "auto" }}
             />
             <span className="text-gray-500">- Made in Namibia</span>

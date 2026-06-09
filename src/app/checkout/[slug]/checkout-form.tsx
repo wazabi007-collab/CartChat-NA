@@ -10,7 +10,11 @@ import {
   Loader2,
   AlertCircle,
   Tag,
+  Truck,
+  Navigation,
+  Route,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice, whatsappLink } from "@/lib/utils";
@@ -108,21 +112,37 @@ const DELIVERY_PROVIDERS: Array<{
   value: DeliveryProvider;
   label: string;
   body: string;
+  tag: string;
+  Icon: LucideIcon;
+  iconClass: string;
+  tagClass: string;
 }> = [
   {
     value: "store",
     label: "Store delivery",
     body: "Merchant handles delivery and adds the store delivery fee.",
+    tag: "Store fee",
+    Icon: Truck,
+    iconClass: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    tagClass: "bg-emerald-100 text-emerald-800",
   },
   {
     value: "yango",
     label: "Yango",
     body: "Buyer arranges and pays the Yango courier directly.",
+    tag: "Buyer pays",
+    Icon: Navigation,
+    iconClass: "border-amber-200 bg-amber-50 text-amber-700",
+    tagClass: "bg-amber-100 text-amber-800",
   },
   {
     value: "indrive",
     label: "inDrive",
     body: "Buyer negotiates and pays the inDrive courier directly.",
+    tag: "Buyer pays",
+    Icon: Route,
+    iconClass: "border-lime-200 bg-lime-50 text-lime-700",
+    tagClass: "bg-lime-100 text-lime-800",
   },
 ];
 
@@ -871,9 +891,22 @@ export function CheckoutForm({
                       onChange={() => setDeliveryProvider(option.value)}
                       className="sr-only"
                     />
-                    <span className="block text-sm font-semibold">{option.label}</span>
-                    <span className="mt-1 block text-xs leading-4 text-gray-500">
-                      {option.body}
+                    <span className="flex h-full flex-col gap-2">
+                      <span className="flex items-center justify-between gap-2">
+                        <span
+                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${option.iconClass}`}
+                          aria-hidden="true"
+                        >
+                          <option.Icon size={18} strokeWidth={2.4} />
+                        </span>
+                        <span
+                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase leading-4 ${option.tagClass}`}
+                        >
+                          {option.tag}
+                        </span>
+                      </span>
+                      <span className="block text-sm font-semibold leading-5">{option.label}</span>
+                      <span className="block text-xs leading-4 text-gray-500">{option.body}</span>
                     </span>
                   </label>
                 ))}

@@ -11,8 +11,6 @@ import {
   AlertCircle,
   Tag,
   Truck,
-  Navigation,
-  Route,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -113,7 +111,10 @@ const DELIVERY_PROVIDERS: Array<{
   label: string;
   body: string;
   tag: string;
-  Icon: LucideIcon;
+  Icon?: LucideIcon;
+  logoSrc?: string;
+  logoAlt?: string;
+  logoClass?: string;
   iconClass: string;
   tagClass: string;
 }> = [
@@ -131,8 +132,10 @@ const DELIVERY_PROVIDERS: Array<{
     label: "Yango",
     body: "Buyer arranges and pays the Yango courier directly.",
     tag: "Buyer pays",
-    Icon: Navigation,
-    iconClass: "border-amber-200 bg-amber-50 text-amber-700",
+    logoSrc: "/delivery-providers/yango-logo.png",
+    logoAlt: "Yango",
+    logoClass: "h-6 w-auto",
+    iconClass: "border-red-100 bg-white",
     tagClass: "bg-amber-100 text-amber-800",
   },
   {
@@ -140,8 +143,10 @@ const DELIVERY_PROVIDERS: Array<{
     label: "inDrive",
     body: "Buyer negotiates and pays the inDrive courier directly.",
     tag: "Buyer pays",
-    Icon: Route,
-    iconClass: "border-lime-200 bg-lime-50 text-lime-700",
+    logoSrc: "/delivery-providers/indrive-logo.svg",
+    logoAlt: "inDrive",
+    logoClass: "h-7 w-auto",
+    iconClass: "border-lime-200 bg-white",
     tagClass: "bg-lime-100 text-lime-800",
   },
 ];
@@ -891,21 +896,26 @@ export function CheckoutForm({
                       onChange={() => setDeliveryProvider(option.value)}
                       className="sr-only"
                     />
-                    <span className="flex h-full flex-col gap-2">
-                      <span className="flex items-center justify-between gap-2">
-                        <span
-                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${option.iconClass}`}
-                          aria-hidden="true"
-                        >
-                          <option.Icon size={18} strokeWidth={2.4} />
-                        </span>
-                        <span
-                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase leading-4 ${option.tagClass}`}
-                        >
-                          {option.tag}
-                        </span>
+                    <span className="flex h-full flex-col items-center gap-2 text-center">
+                      <span
+                        className={`flex h-12 w-full items-center justify-center rounded-xl border px-3 ${option.iconClass}`}
+                      >
+                        {option.logoSrc ? (
+                          <img
+                            src={option.logoSrc}
+                            alt={option.logoAlt ?? option.label}
+                            className={option.logoClass ?? "h-7 w-auto"}
+                          />
+                        ) : option.Icon ? (
+                          <option.Icon size={20} strokeWidth={2.4} aria-hidden="true" />
+                        ) : null}
                       </span>
                       <span className="block text-sm font-semibold leading-5">{option.label}</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase leading-4 ${option.tagClass}`}
+                      >
+                        {option.tag}
+                      </span>
                       <span className="block text-xs leading-4 text-gray-500">{option.body}</span>
                     </span>
                   </label>

@@ -30,10 +30,10 @@ export function PublicNavbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         <Link href="/" className="flex-shrink-0">
           <Image
-            src="/logo.svg"
+            src="/oshicart-logo-original.webp"
             alt="OshiCart"
             width={170}
-            height={44}
+            height={24}
             priority
             style={{ width: 170, height: "auto" }}
           />

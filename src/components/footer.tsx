@@ -12,10 +12,10 @@ export function Footer() {
           {/* Brand */}
           <div>
             <Image
-              src="/logo-light.svg"
+              src="/oshicart-logo-original.webp"
               alt="OshiCart"
               width={170}
-              height={44}
+              height={24}
               style={{ width: 170, height: "auto" }}
             />
             <p className="mt-3 text-sm text-slate-400">

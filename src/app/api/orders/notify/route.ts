@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { merchant_id, order_number, customer_name, customer_whatsapp, items, subtotal, delivery_fee, discount, total, payment_method, payment_ref, delivery_method, delivery_address, delivery_date, delivery_time, notes } = body;
+    const { merchant_id, order_number, customer_name, customer_whatsapp, items, subtotal, delivery_fee, discount, vat, vat_inclusive, total, payment_method, payment_ref, delivery_method, delivery_address, delivery_date, delivery_time, notes } = body;
 
     if (!merchant_id || !order_number) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -114,8 +114,9 @@ export async function POST(req: NextRequest) {
             </div>
             ${discount > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#16a34a;">Discount</span><strong style="color:#16a34a;">-${fmt(discount)}</strong></div>` : ""}
             ${delivery_fee > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#6b7280;">Delivery Fee</span><strong>${fmt(delivery_fee)}</strong></div>` : ""}
+            ${vat > 0 ? `<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#6b7280;">VAT (15%)${vat_inclusive ? " included" : ""}</span><strong>${fmt(vat)}</strong></div>` : ""}
             <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid #e5e7eb;font-size:16px;">
-              <strong>Total</strong>
+              <strong>${vat > 0 ? "Total incl. VAT" : "Total"}</strong>
               <strong style="color:#16a34a;">${fmt(total)}</strong>
             </div>
           </div>

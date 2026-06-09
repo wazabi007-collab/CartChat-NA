@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { formatPrice, whatsappLink } from "@/lib/utils";
+import { getOrderPayableTotal } from "@/lib/vat";
 import Link from "next/link";
 import { OrderActions } from "./order-actions";
 import { QuickStatus } from "@/components/dashboard/quick-status";
@@ -130,7 +131,9 @@ export default async function OrdersPage({
         </div>
       ) : (
         <div className="space-y-4">
-          {orderList.map((order) => (
+          {orderList.map((order) => {
+            const orderTotal = getOrderPayableTotal(order);
+            return (
             <div
               key={order.id}
               className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5"
@@ -174,7 +177,7 @@ export default async function OrdersPage({
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-gray-900">
-                    {formatPrice(order.subtotal_nad - (order.discount_nad || 0) + (order.delivery_fee_nad || 0))}
+                    {formatPrice(orderTotal)}
                   </p>
                   {(order.discount_nad > 0 || order.delivery_fee_nad > 0) && (
                     <p className="text-xs text-gray-400">
@@ -236,7 +239,7 @@ export default async function OrdersPage({
                   customerName={order.customer_name}
                   customerWhatsapp={order.customer_whatsapp}
                   orderNumber={order.order_number}
-                  orderTotal={formatPrice(order.subtotal_nad - (order.discount_nad || 0) + (order.delivery_fee_nad || 0))}
+                  orderTotal={formatPrice(orderTotal)}
                   trackingToken={order.tracking_token || ""}
                   deliveryMethod={order.delivery_method || "pickup"}
                 />
@@ -261,7 +264,8 @@ export default async function OrdersPage({
                 </a>
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       )}
     </div>

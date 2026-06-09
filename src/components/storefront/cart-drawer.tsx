@@ -5,12 +5,19 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart, X, Plus, Minus, Trash2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { calculateVatBreakdown, VAT_RATE_LABEL } from "@/lib/vat";
 import { getCartItemKey, useCart } from "./cart-provider";
 
 export function CartDrawer({ slug }: { slug: string }) {
   const [open, setOpen] = useState(false);
-  const { items, updateQuantity, removeItem, getTotal, itemCount } = useCart();
+  const { items, vatSettings, updateQuantity, removeItem, getTotal, itemCount } = useCart();
   const router = useRouter();
+  const subtotal = getTotal();
+  const vatBreakdown = calculateVatBreakdown({
+    amountNad: subtotal,
+    vatNumber: vatSettings.vatNumber,
+    vatInclusive: vatSettings.vatInclusive,
+  });
 
   return (
     <>
@@ -150,9 +157,33 @@ export function CartDrawer({ slug }: { slug: string }) {
         {/* Footer */}
         {items.length > 0 && (
           <div className="border-t p-4 space-y-3">
-            <div className="flex justify-between text-base font-bold">
-              <span>Subtotal</span>
-              <span className="text-terracotta">{formatPrice(getTotal())}</span>
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">
+                  Subtotal{vatBreakdown.hasVat && vatBreakdown.vatInclusive ? " (incl. VAT)" : ""}
+                </span>
+                <span className="font-semibold text-gray-900">{formatPrice(subtotal)}</span>
+              </div>
+              {vatBreakdown.hasVat && (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">
+                      VAT ({VAT_RATE_LABEL}){vatBreakdown.vatInclusive ? " included" : ""}
+                    </span>
+                    <span className="font-semibold text-gray-900">{formatPrice(vatBreakdown.vatAmount)}</span>
+                  </div>
+                  <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-2">
+                    <span>Total incl. VAT</span>
+                    <span className="text-terracotta">{formatPrice(vatBreakdown.payableTotal)}</span>
+                  </div>
+                </>
+              )}
+              {!vatBreakdown.hasVat && (
+                <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-2">
+                  <span>Subtotal</span>
+                  <span className="text-terracotta">{formatPrice(subtotal)}</span>
+                </div>
+              )}
             </div>
             <button
               onClick={() => {

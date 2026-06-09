@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 import { hasPermission } from "@/lib/admin-permissions";
+import { getOrderPayableTotal } from "@/lib/vat";
 
 export async function GET(
   _request: NextRequest,
@@ -18,7 +19,7 @@ export async function GET(
     service.from("subscriptions").select("*").eq("merchant_id", id).single(),
     service.from("payments").select("*").eq("merchant_id", id).order("created_at", { ascending: false }),
     service.from("products").select("id", { count: "exact", head: true }).eq("merchant_id", id),
-    service.from("orders").select("id, subtotal_nad, created_at, status").eq("merchant_id", id).order("created_at", { ascending: false }),
+    service.from("orders").select("id, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, created_at, status").eq("merchant_id", id).order("created_at", { ascending: false }),
     service.from("admin_actions").select("*").eq("target_id", id).order("created_at", { ascending: false }).limit(50),
   ]);
 
@@ -33,7 +34,7 @@ export async function GET(
   ).length;
   const totalRevenue = (ordersRes.data || [])
     .filter((o) => o.status !== "cancelled")
-    .reduce((sum, o) => sum + (o.subtotal_nad || 0), 0);
+    .reduce((sum, o) => sum + getOrderPayableTotal(o), 0);
 
   return NextResponse.json({
     merchant: merchantRes.data,

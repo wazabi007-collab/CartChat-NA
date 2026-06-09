@@ -50,6 +50,8 @@ export default function NewProductPage() {
   const [productCount, setProductCount] = useState(0);
   const [merchantId, setMerchantId] = useState<string | null>(null);
   const [merchantIndustry, setMerchantIndustry] = useState<string | null>(null);
+  const [merchantVatNumber, setMerchantVatNumber] = useState<string | null>(null);
+  const [merchantVatInclusive, setMerchantVatInclusive] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -60,13 +62,15 @@ export default function NewProductPage() {
 
       const { data: merchant } = await supabase
         .from("merchants")
-        .select("id, industry")
+        .select("id, industry, vat_number, vat_inclusive")
         .eq("user_id", user.id)
         .single();
 
       if (!merchant) return;
       setMerchantId(merchant.id);
       setMerchantIndustry(merchant.industry);
+      setMerchantVatNumber(merchant.vat_number || null);
+      setMerchantVatInclusive(merchant.vat_inclusive ?? false);
 
       // Load subscription tier
       const { data: sub } = await supabase
@@ -479,6 +483,13 @@ export default function NewProductPage() {
           </div>
           {errors.price_nad && (
             <p className="text-red-500 text-xs mt-1">{errors.price_nad}</p>
+          )}
+          {merchantVatNumber && (
+            <div className="mt-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs leading-5 text-blue-800">
+              {merchantVatInclusive
+                ? "VAT registered: enter the shelf price customers should pay. VAT is treated as included and will be shown on checkout and invoices."
+                : "VAT registered: enter the product price excluding VAT. OshiCart adds 15% VAT at checkout and shows it on the invoice."}
+            </div>
           )}
         </div>
 

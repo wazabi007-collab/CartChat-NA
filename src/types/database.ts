@@ -41,6 +41,8 @@ export interface Database {
           prohibited_policy_version: string | null;
           prohibited_policy_accepted_ip: string | null;
           safety_notes: string | null;
+          vat_number: string | null;
+          vat_inclusive: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -65,6 +67,8 @@ export interface Database {
           prohibited_policy_version?: string | null;
           prohibited_policy_accepted_ip?: string | null;
           safety_notes?: string | null;
+          vat_number?: string | null;
+          vat_inclusive?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -89,6 +93,8 @@ export interface Database {
           prohibited_policy_version?: string | null;
           prohibited_policy_accepted_ip?: string | null;
           safety_notes?: string | null;
+          vat_number?: string | null;
+          vat_inclusive?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -186,6 +192,12 @@ export interface Database {
           delivery_address: string | null;
           status: OrderStatus;
           subtotal_nad: number;
+          delivery_fee_nad: number;
+          discount_nad: number;
+          vat_nad: number;
+          vat_rate_bps: number;
+          vat_inclusive: boolean;
+          vat_number: string | null;
           proof_of_payment_url: string | null;
           payment_reference: string | null;
           notes: string | null;
@@ -202,6 +214,12 @@ export interface Database {
           delivery_address?: string | null;
           status?: OrderStatus;
           subtotal_nad: number;
+          delivery_fee_nad?: number;
+          discount_nad?: number;
+          vat_nad?: number;
+          vat_rate_bps?: number;
+          vat_inclusive?: boolean;
+          vat_number?: string | null;
           proof_of_payment_url?: string | null;
           payment_reference?: string | null;
           notes?: string | null;
@@ -218,6 +236,12 @@ export interface Database {
           delivery_address?: string | null;
           status?: OrderStatus;
           subtotal_nad?: number;
+          delivery_fee_nad?: number;
+          discount_nad?: number;
+          vat_nad?: number;
+          vat_rate_bps?: number;
+          vat_inclusive?: boolean;
+          vat_number?: string | null;
           proof_of_payment_url?: string | null;
           payment_reference?: string | null;
           notes?: string | null;

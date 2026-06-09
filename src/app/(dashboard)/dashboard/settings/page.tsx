@@ -104,7 +104,7 @@ export default function SettingsPage() {
           ewallet_provider: merchant.ewallet_provider || "",
           pay2cell_number: merchant.pay2cell_number || "",
           vat_number: merchant.vat_number || "",
-          vat_inclusive: merchant.vat_inclusive ?? false,
+          vat_inclusive: false,
         });
         if (merchant.delivery_slots) {
           setDeliverySlots(merchant.delivery_slots as DeliverySlots);
@@ -148,7 +148,7 @@ export default function SettingsPage() {
         ewallet_provider: form.ewallet_provider || null,
         pay2cell_number: form.pay2cell_number || null,
         vat_number: form.vat_number || null,
-        vat_inclusive: form.vat_inclusive,
+        vat_inclusive: false,
       })
       .eq("id", merchantId);
 
@@ -435,27 +435,9 @@ export default function SettingsPage() {
             />
           </div>
           {form.vat_number && (
-            <div className="flex items-center gap-3">
-              <input
-                id="vat_inclusive"
-                type="checkbox"
-                checked={form.vat_inclusive}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, vat_inclusive: e.target.checked }))
-                }
-                className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-              />
-              <label htmlFor="vat_inclusive" className="text-sm text-gray-700">
-                My product prices already include VAT (VAT-inclusive)
-              </label>
-            </div>
-          )}
-          {form.vat_number && (
             <div className={alertInfo}>
               <p>
-                {form.vat_inclusive
-                  ? "Invoices will show VAT extracted from your prices (price ÷ 1.15). Customers pay the listed price."
-                  : "Invoices will show VAT added on top of your prices (price × 1.15). Customers pay price + 15% VAT."}
+                Enter product prices excluding VAT. OshiCart will add 15% VAT at checkout and show the VAT breakdown on customer invoices.
               </p>
             </div>
           )}

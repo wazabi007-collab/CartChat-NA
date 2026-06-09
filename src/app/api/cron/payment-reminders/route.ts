@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isWhatsAppEnabled } from "@/lib/whatsapp";
 import { formatPrice } from "@/lib/utils";
+import { getOrderPayableTotal } from "@/lib/vat";
 import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
 
 /**
@@ -38,7 +39,7 @@ export async function GET(req: NextRequest) {
     .from("orders")
     .select(`
       id, order_number, customer_name, customer_whatsapp,
-      created_at, reminder_count, subtotal_nad, delivery_fee_nad, discount_nad, payment_method,
+      created_at, reminder_count, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, payment_method,
       merchant_id, tracking_token,
       merchants!inner(store_name, store_slug)
     `)
@@ -62,9 +63,7 @@ export async function GET(req: NextRequest) {
       else if (ageHours >= 48 && reminderCount === 2) shouldRemind = true;
 
       if (shouldRemind && order.customer_whatsapp) {
-        const total = formatPrice(
-          (order.subtotal_nad || 0) + (order.delivery_fee_nad || 0) - (order.discount_nad || 0)
-        );
+        const total = formatPrice(getOrderPayableTotal(order));
 
         // WhatsApp reminder — sent server-side via the shared library (no
         // HTTP round-trip to the now server-only /api/whatsapp/send).
@@ -104,7 +103,7 @@ export async function GET(req: NextRequest) {
   const { data: staleOrders } = await supabase
     .from("orders")
     .select(`
-      id, order_number, customer_name, created_at, subtotal_nad, delivery_fee_nad, discount_nad,
+      id, order_number, customer_name, created_at, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive,
       merchant_id,
       merchants!inner(store_name, whatsapp_number)
     `)
@@ -126,9 +125,7 @@ export async function GET(req: NextRequest) {
         merchant.store_name,
         String(order.order_number),
         order.customer_name || "Customer",
-        formatPrice(
-          (order.subtotal_nad || 0) + (order.delivery_fee_nad || 0) - (order.discount_nad || 0)
-        ),
+        formatPrice(getOrderPayableTotal(order)),
       ],
     });
     if (result.ok && !result.skipped) merchantOrderAlertsSent++;

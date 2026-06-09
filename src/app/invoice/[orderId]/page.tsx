@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { createServiceClient } from "@/lib/supabase/service";
 import { formatPrice } from "@/lib/utils";
+import { calculateVatBreakdown, VAT_RATE_BPS, VAT_RATE_LABEL } from "@/lib/vat";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { PrintButton } from "./print-button";
 import type { Metadata } from "next";
@@ -33,7 +34,8 @@ export default async function InvoicePage({ params }: Props) {
     .select(`
       id, order_number, customer_name, customer_whatsapp, payment_reference,
       delivery_method, delivery_address, delivery_date, delivery_time,
-      subtotal_nad, delivery_fee_nad, discount_nad, payment_method, status, notes, created_at,
+      subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_rate_bps, vat_inclusive, vat_number,
+      payment_method, status, notes, created_at,
       merchants (
         store_name, whatsapp_number, logo_url, vat_number, vat_inclusive,
         bank_name, bank_account_number, bank_account_holder, bank_branch_code,
@@ -97,6 +99,22 @@ export default async function InvoicePage({ params }: Props) {
     }
   }
 
+  const hasVatSnapshot = Boolean(order.vat_number) || (order.vat_rate_bps || 0) > 0 || (order.vat_nad || 0) > 0;
+  const invoiceVatNumber = hasVatSnapshot ? order.vat_number : merchant.vat_number;
+  const invoiceVatInclusive = hasVatSnapshot ? order.vat_inclusive : merchant.vat_inclusive;
+  const calculatedVat = calculateVatBreakdown({
+    amountNad: preVatTotal,
+    vatNumber: invoiceVatNumber,
+    vatInclusive: invoiceVatInclusive,
+    vatRateBps: hasVatSnapshot ? order.vat_rate_bps : VAT_RATE_BPS,
+  });
+  const displayHasVat = calculatedVat.hasVat;
+  if (displayHasVat) {
+    vatAmount = hasVatSnapshot ? (order.vat_nad || 0) : calculatedVat.vatAmount;
+    totalExclVat = invoiceVatInclusive ? preVatTotal - vatAmount : preVatTotal;
+    total = preVatTotal + (!invoiceVatInclusive ? vatAmount : 0);
+  }
+
   const statusConfig: Record<string, { label: string; bg: string; text: string; dot: string }> = {
     pending: { label: "Awaiting Payment", bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-400" },
     confirmed: { label: "Confirmed", bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-400" },
@@ -153,8 +171,8 @@ export default async function InvoicePage({ params }: Props) {
                 <div>
                   <h1 className="text-white font-bold text-lg">{merchant.store_name}</h1>
                   <p className="text-gray-400 text-sm">{merchant.whatsapp_number}</p>
-                  {merchant.vat_number && (
-                    <p className="text-gray-500 text-xs mt-0.5">VAT: {merchant.vat_number}</p>
+                  {invoiceVatNumber && (
+                    <p className="text-gray-500 text-xs mt-0.5">VAT: {invoiceVatNumber}</p>
                   )}
                 </div>
               </div>
@@ -171,8 +189,8 @@ export default async function InvoicePage({ params }: Props) {
               <div>
                 <h1 className="text-xl font-bold text-gray-900">{merchant.store_name}</h1>
                 <p className="text-sm text-gray-600">{merchant.whatsapp_number}</p>
-                {merchant.vat_number && (
-                  <p className="text-xs text-gray-500 mt-0.5">VAT No: {merchant.vat_number}</p>
+                {invoiceVatNumber && (
+                  <p className="text-xs text-gray-500 mt-0.5">VAT No: {invoiceVatNumber}</p>
                 )}
               </div>
               <div className="text-right">
@@ -291,23 +309,23 @@ export default async function InvoicePage({ params }: Props) {
                     <span className="text-gray-900">{formatPrice(order.delivery_fee_nad)}</span>
                   </div>
                 )}
-                {hasVat && (
+                {displayHasVat && (
                   <>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">
-                        {merchant!.vat_inclusive ? "Excl. VAT" : "Subtotal"}
+                        {invoiceVatInclusive ? "Subtotal excl. VAT" : "Taxable subtotal"}
                       </span>
                       <span className="text-gray-900">{formatPrice(totalExclVat)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">VAT (15%)</span>
+                      <span className="text-gray-500">VAT ({VAT_RATE_LABEL}){invoiceVatInclusive ? " included" : ""}</span>
                       <span className="text-gray-900">{formatPrice(vatAmount)}</span>
                     </div>
                   </>
                 )}
                 <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between">
                   <span className="font-bold text-gray-900">
-                    Total{hasVat ? (merchant!.vat_inclusive ? " (incl. VAT)" : " (excl. VAT)") : ""}
+                    Total{displayHasVat ? " (incl. VAT)" : ""}
                   </span>
                   <span className="font-bold text-lg text-gray-900">{formatPrice(total)}</span>
                 </div>

@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
   const { data: orders, error } = await supabase
     .from("orders")
     .select(
-      "id, order_number, status, subtotal_nad, delivery_fee_nad, discount_nad, delivery_method, payment_method, created_at, order_items(product_name, quantity, line_total, variant_sku, variant_attributes)"
+      "id, order_number, status, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, delivery_method, payment_method, payment_reference, proof_of_payment_url, created_at, order_items(product_name, quantity, line_total, variant_sku, variant_attributes)"
     )
     .eq("merchant_id", merchantId)
     .in("customer_whatsapp", Array.from(new Set([inputDigits, cleanPhone])))

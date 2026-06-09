@@ -36,7 +36,7 @@ export default async function CheckoutPage({ params }: Props) {
   const { data: merchant } = await supabase
     .from("merchants")
     .select(
-      "id, store_name, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider, pay2cell_number"
+      "id, store_name, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider, pay2cell_number, vat_number, vat_inclusive"
     )
     .eq("store_slug", slug)
     .eq("is_active", true)
@@ -141,6 +141,8 @@ export default async function CheckoutPage({ params }: Props) {
           ewalletNumber={merchant.ewallet_number ?? null}
           ewalletProvider={merchant.ewallet_provider ?? null}
           pay2cellNumber={merchant.pay2cell_number ?? null}
+          vatNumber={merchant.vat_number ?? null}
+          vatInclusive={merchant.vat_inclusive ?? false}
         />
       </main>
 

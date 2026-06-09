@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice, whatsappLink } from "@/lib/utils";
+import { calculateVatBreakdown, VAT_RATE_LABEL } from "@/lib/vat";
 import { track } from "@/lib/track";
 import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
 import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
@@ -62,6 +63,8 @@ interface Props {
   ewalletNumber: string | null;
   ewalletProvider: string | null;
   pay2cellNumber: string | null;
+  vatNumber: string | null;
+  vatInclusive: boolean;
 }
 
 interface CouponApplied {
@@ -138,6 +141,8 @@ export function CheckoutForm({
   ewalletNumber,
   ewalletProvider,
   pay2cellNumber,
+  vatNumber,
+  vatInclusive,
 }: Props) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState("");
@@ -191,7 +196,13 @@ export function CheckoutForm({
 
   const discount = couponApplied ? calculateDiscount(couponApplied, subtotal) : 0;
   const deliveryFee = deliveryMethod === "delivery" ? deliveryFeeNad : 0;
-  const total = subtotal - discount + deliveryFee;
+  const preVatTotal = subtotal - discount + deliveryFee;
+  const vatBreakdown = calculateVatBreakdown({
+    amountNad: preVatTotal,
+    vatNumber,
+    vatInclusive,
+  });
+  const total = vatBreakdown.payableTotal;
 
   const hasBankDetails = bankName && bankAccountNumber;
   const needsProof = paymentMethod !== "cod";
@@ -461,6 +472,8 @@ export function CheckoutForm({
           subtotal,
           delivery_fee: deliveryFee,
           discount,
+          vat: vatBreakdown.vatAmount,
+          vat_inclusive: vatBreakdown.vatInclusive,
           total,
           payment_method: paymentMethod,
           payment_ref: order.payment_reference,
@@ -520,6 +533,7 @@ export function CheckoutForm({
       `*Subtotal:* ${formatPrice(subtotal)}`,
       ...(discount > 0 ? [`*Discount:* -${formatPrice(discount)}${couponApplied ? ` (${couponApplied.code})` : ""}`] : []),
       ...(deliveryFee > 0 ? [`*Delivery Fee:* ${formatPrice(deliveryFee)}`] : []),
+      ...(vatBreakdown.hasVat ? [`*VAT (${VAT_RATE_LABEL}):* ${formatPrice(vatBreakdown.vatAmount)}${vatBreakdown.vatInclusive ? " included" : ""}`] : []),
       `*Total:* ${formatPrice(total)}`,
       ...(paymentRef ? [`*Payment Ref:* ${paymentRef}`] : []),
       `*Payment:* ${getPaymentLabel(paymentMethod)}`,
@@ -642,8 +656,24 @@ export function CheckoutForm({
                   <span className="text-gray-900">{formatPrice(deliveryFee)}</span>
                 </div>
               )}
+              {vatBreakdown.hasVat && (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">
+                      {vatBreakdown.vatInclusive ? "Subtotal excl. VAT" : "Taxable subtotal"}
+                    </span>
+                    <span className="text-gray-900">{formatPrice(vatBreakdown.subtotalExclVat)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">
+                      VAT ({VAT_RATE_LABEL}){vatBreakdown.vatInclusive ? " included" : ""}
+                    </span>
+                    <span className="text-gray-900">{formatPrice(vatBreakdown.vatAmount)}</span>
+                  </div>
+                </>
+              )}
               <div className="flex justify-between font-bold pt-2 border-t border-gray-100">
-                <span>Total</span>
+                <span>{vatBreakdown.hasVat ? "Total incl. VAT" : "Total"}</span>
                 <span className="text-green-600">{formatPrice(total)}</span>
               </div>
             </div>

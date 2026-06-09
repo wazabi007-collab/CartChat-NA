@@ -2,6 +2,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
 import { INDUSTRIES_NAMIBIA } from "@/lib/constants";
 import { requireAdminPermission } from "@/lib/admin-auth";
+import { getOrderPayableTotal } from "@/lib/vat";
 
 export default async function AnalyticsPage() {
   await requireAdminPermission("view_analytics");
@@ -10,7 +11,7 @@ export default async function AnalyticsPage() {
   const [subsRes, merchantsRes, ordersRes, paymentsRes] = await Promise.all([
     service.from("subscriptions").select("tier, status"),
     service.from("merchants").select("id, store_name, industry, created_at").eq("store_status", "active"),
-    service.from("orders").select("merchant_id, subtotal_nad, delivery_fee_nad, discount_nad, payment_method, status, created_at")
+    service.from("orders").select("merchant_id, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, payment_method, status, created_at")
       .neq("status", "cancelled"),
     service.from("payments").select("amount_nad, created_at").is("voided_at", null),
   ]);
@@ -34,7 +35,7 @@ export default async function AnalyticsPage() {
   });
 
   // GMV
-  const gmv = orders.reduce((sum, o) => sum + (o.subtotal_nad || 0) + (o.delivery_fee_nad || 0) - (o.discount_nad || 0), 0);
+  const gmv = orders.reduce((sum, o) => sum + getOrderPayableTotal(o), 0);
 
   // Payment method breakdown
   const payMethodCounts: Record<string, number> = {};
@@ -48,7 +49,7 @@ export default async function AnalyticsPage() {
   const merchantRevenue: Record<string, number> = {};
   orders.forEach((o) => {
     merchantOrderCounts[o.merchant_id] = (merchantOrderCounts[o.merchant_id] || 0) + 1;
-    merchantRevenue[o.merchant_id] = (merchantRevenue[o.merchant_id] || 0) + (o.subtotal_nad || 0);
+    merchantRevenue[o.merchant_id] = (merchantRevenue[o.merchant_id] || 0) + getOrderPayableTotal(o);
   });
   const merchantMap = new Map(merchants.map((m) => [m.id, m.store_name]));
 

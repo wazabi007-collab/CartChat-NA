@@ -12,6 +12,7 @@ import {
 } from "@/lib/tier-limits";
 import { MerchantTabs } from "./merchant-tabs";
 import { requireAdminPermission } from "@/lib/admin-auth";
+import { getOrderPayableTotal } from "@/lib/vat";
 
 export default async function MerchantDetailPage({
   params,
@@ -33,7 +34,7 @@ export default async function MerchantDetailPage({
         .eq("merchant_id", id),
       service
         .from("orders")
-        .select("id, order_number, customer_name, subtotal_nad, delivery_fee_nad, discount_nad, status, payment_method, created_at")
+        .select("id, order_number, customer_name, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, status, payment_method, created_at")
         .eq("merchant_id", id)
         .order("created_at", { ascending: false }),
       service.from("admin_actions").select("*, admin_users(email)").eq("target_id", id).order("created_at", { ascending: false }).limit(50),
@@ -60,7 +61,7 @@ export default async function MerchantDetailPage({
   const openReports = reports.filter((report) => report.status === "open").length;
   const totalRevenue = orders
     .filter((order) => order.status !== "cancelled")
-    .reduce((sum, order) => sum + (order.subtotal_nad || 0), 0);
+    .reduce((sum, order) => sum + getOrderPayableTotal(order), 0);
 
   return (
     <div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { formatPrice } from "@/lib/utils";
+import { getOrderPayableTotal } from "@/lib/vat";
 import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
 
 /**
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
     .from("orders")
     .select(`
       id, order_number, customer_name, customer_whatsapp,
-      subtotal_nad, delivery_fee_nad, discount_nad, payment_method,
+      subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, payment_method,
       merchant_id, tracking_token,
       merchants!inner(store_name, whatsapp_number),
       order_items(product_name, quantity, variant_attributes)
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
   const merchant = order.merchants as unknown as { store_name: string; whatsapp_number: string | null };
   const items = (order.order_items || []) as Array<{ product_name: string; quantity: number; variant_attributes: Record<string, string> | null }>;
 
-  const total = (order.subtotal_nad || 0) + (order.delivery_fee_nad || 0) - (order.discount_nad || 0);
+  const total = getOrderPayableTotal(order);
   const itemSummary =
     items.length === 1
       ? `${items[0].product_name} x${items[0].quantity}`

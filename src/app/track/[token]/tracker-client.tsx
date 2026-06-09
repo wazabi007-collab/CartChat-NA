@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { formatPrice } from "@/lib/utils";
+import { getOrderPayableTotal, VAT_RATE_LABEL } from "@/lib/vat";
 
 interface StatusEntry {
   status: string;
@@ -40,6 +41,8 @@ export interface Order {
   subtotal_nad: number;
   delivery_fee_nad: number;
   discount_nad: number;
+  vat_nad: number;
+  vat_inclusive: boolean;
   payment_method: string;
   payment_reference: string | null;
   proof_of_payment_url: string | null;
@@ -86,7 +89,7 @@ export function TrackerClient({
   const merchant = order.merchants;
   const isCancelled = order.status === "cancelled";
   const currentStep = getStepIndex(order.status);
-  const total = order.subtotal_nad - (order.discount_nad || 0) + (order.delivery_fee_nad || 0);
+  const total = getOrderPayableTotal(order);
 
   const statusTimestamp = useCallback(
     (status: string): string | null => {
@@ -382,8 +385,14 @@ export function TrackerClient({
                 <span>-{formatPrice(order.discount_nad)}</span>
               </div>
             )}
+            {order.vat_nad > 0 && (
+              <div className="flex justify-between text-gray-600">
+                <span>VAT ({VAT_RATE_LABEL}){order.vat_inclusive ? " included" : ""}</span>
+                <span>{formatPrice(order.vat_nad)}</span>
+              </div>
+            )}
             <div className="flex justify-between font-bold text-gray-900 pt-1.5 border-t">
-              <span>Total</span>
+              <span>{order.vat_nad > 0 ? "Total incl. VAT" : "Total"}</span>
               <span>{formatPrice(total)}</span>
             </div>
           </div>

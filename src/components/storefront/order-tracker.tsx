@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Search, Package, Clock, CheckCircle2, XCircle, Loader2, Upload, ImageIcon } from "lucide-react";
+import { getOrderPayableTotal } from "@/lib/vat";
 
 interface OrderItem {
   product_name: string;
@@ -16,6 +17,8 @@ interface Order {
   subtotal_nad: number;
   delivery_fee_nad: number;
   discount_nad: number;
+  vat_nad: number;
+  vat_inclusive: boolean;
   delivery_method: string;
   payment_method: string;
   payment_reference: string | null;
@@ -243,7 +246,7 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
           {orders.map((order) => {
             const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
             const StatusIcon = config.icon;
-            const total = order.subtotal_nad + order.delivery_fee_nad - order.discount_nad;
+            const total = getOrderPayableTotal(order);
             const needsProof = order.payment_method !== "cod" && !order.proof_of_payment_url;
             const isUploading = uploadingId === order.id;
             const justUploaded = uploadSuccess === order.id;

@@ -20,8 +20,14 @@ export interface CartItem {
   imageUrl: string | null;
 }
 
+export interface CartVatSettings {
+  vatNumber: string | null;
+  vatInclusive: boolean;
+}
+
 interface CartContextValue {
   items: CartItem[];
+  vatSettings: CartVatSettings;
   addItem: (item: Omit<CartItem, "quantity">) => void;
   removeItem: (cartKey: string) => void;
   updateQuantity: (cartKey: string, quantity: number) => void;
@@ -42,24 +48,32 @@ export function getCartItemKey(item: Pick<CartItem, "productId" | "variantId">) 
 
 export function CartProvider({
   slug,
+  vatSettings,
   children,
 }: {
   slug: string;
+  vatSettings?: CartVatSettings;
   children: ReactNode;
 }) {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    if (typeof window === "undefined") return [];
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [cartLoaded, setCartLoaded] = useState(false);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem(getStorageKey(slug));
-      return stored ? JSON.parse(stored) : [];
+      setItems(stored ? JSON.parse(stored) : []);
     } catch {
-      return [];
+      setItems([]);
+    } finally {
+      setCartLoaded(true);
     }
-  });
+  }, [slug]);
+
   // Persist cart to localStorage on change
   useEffect(() => {
+    if (!cartLoaded) return;
     localStorage.setItem(getStorageKey(slug), JSON.stringify(items));
-  }, [items, slug]);
+  }, [cartLoaded, items, slug]);
 
   const addItem = useCallback(
     (item: Omit<CartItem, "quantity">) => {
@@ -110,7 +124,16 @@ export function CartProvider({
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, getTotal, itemCount }}
+      value={{
+        items,
+        vatSettings: vatSettings || { vatNumber: null, vatInclusive: false },
+        addItem,
+        removeItem,
+        updateQuantity,
+        clearCart,
+        getTotal,
+        itemCount,
+      }}
     >
       {children}
     </CartContext.Provider>

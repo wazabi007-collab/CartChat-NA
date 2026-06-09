@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getOrderPayableTotal } from "@/lib/vat";
 
 /**
  * POST /api/analytics/sync — sync orders & revenue into store_analytics
@@ -51,14 +52,14 @@ export async function POST(request: NextRequest) {
     // Sum today's revenue (from confirmed/completed orders)
     const { data: revenueRows } = await supabase
       .from("orders")
-      .select("subtotal_nad, delivery_fee_nad, discount_nad")
+      .select("subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive")
       .eq("merchant_id", merchant_id)
       .in("status", ["confirmed", "completed"])
       .gte("created_at", `${today}T00:00:00`)
       .lt("created_at", `${today}T23:59:59.999`);
 
     const revenue = (revenueRows || []).reduce(
-      (sum, o) => sum + (o.subtotal_nad || 0) + (o.delivery_fee_nad || 0) - (o.discount_nad || 0),
+      (sum, o) => sum + getOrderPayableTotal(o),
       0
     );
 

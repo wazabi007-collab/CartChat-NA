@@ -16,7 +16,7 @@ export default async function TrackPage({
       id, order_number, status, status_history, created_at,
       customer_name, customer_whatsapp, delivery_method,
       delivery_address, delivery_date, delivery_time, notes,
-      subtotal_nad, delivery_fee_nad, discount_nad,
+      subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive,
       payment_method, payment_reference, proof_of_payment_url,
       tracking_token,
       merchants!inner(store_name, store_slug, whatsapp_number),

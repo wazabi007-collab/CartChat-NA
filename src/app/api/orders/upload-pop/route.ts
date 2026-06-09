@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { formatPrice } from "@/lib/utils";
+import { getOrderPayableTotal } from "@/lib/vat";
 import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
 
 export async function POST(req: NextRequest) {
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
   const normalized = whatsapp.replace(/\D/g, "");
   const { data: order } = await service
     .from("orders")
-    .select("id, merchant_id, order_number, customer_name, subtotal_nad, delivery_fee_nad, discount_nad, proof_of_payment_url, merchants!inner(store_name, whatsapp_number)")
+    .select("id, merchant_id, order_number, customer_name, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, proof_of_payment_url, merchants!inner(store_name, whatsapp_number)")
     .eq("id", orderId)
     .eq("customer_whatsapp", normalized)
     .single();
@@ -86,9 +87,7 @@ export async function POST(req: NextRequest) {
       merchant.store_name,
       String(order.order_number),
       order.customer_name || "Customer",
-      formatPrice(
-        (order.subtotal_nad || 0) + (order.delivery_fee_nad || 0) - (order.discount_nad || 0)
-      ),
+      formatPrice(getOrderPayableTotal(order)),
     ],
   });
 

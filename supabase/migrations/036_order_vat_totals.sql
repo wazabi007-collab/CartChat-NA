@@ -330,7 +330,11 @@ BEGIN
   END IF;
 
   IF v_merchant.created_at > (now() - interval '30 days') THEN
-    IF v_monthly_value + v_taxable_total + CASE WHEN v_merchant.vat_inclusive THEN 0 ELSE v_vat_nad END > 1000000 THEN
+    IF (
+      v_monthly_value
+      + v_taxable_total
+      + CASE WHEN v_merchant.vat_inclusive THEN 0 ELSE v_vat_nad END
+    ) > 1000000 THEN
       RAISE EXCEPTION 'New store monthly value limit reached (N$10,000). Contact support to increase your limit.';
     END IF;
   END IF;

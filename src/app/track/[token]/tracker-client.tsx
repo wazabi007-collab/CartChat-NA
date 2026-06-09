@@ -34,6 +34,7 @@ export interface Order {
   customer_name: string;
   customer_whatsapp: string;
   delivery_method: string;
+  delivery_provider: string | null;
   delivery_address: string | null;
   delivery_date: string | null;
   delivery_time: string | null;
@@ -90,6 +91,16 @@ export function TrackerClient({
   const isCancelled = order.status === "cancelled";
   const currentStep = getStepIndex(order.status);
   const total = getOrderPayableTotal(order);
+  const deliveryProviderLabel: Record<string, string> = {
+    store: "Store delivery",
+    yango: "Yango courier",
+    indrive: "inDrive courier",
+  };
+  const buyerPaidCourier =
+    order.delivery_method === "delivery" &&
+    ["yango", "indrive"].includes(order.delivery_provider ?? "");
+  const cashPaymentLabel =
+    order.delivery_method === "delivery" ? "Cash on Delivery" : "Cash on Collection";
 
   const statusTimestamp = useCallback(
     (status: string): string | null => {
@@ -327,7 +338,7 @@ export function TrackerClient({
         {order.payment_method === "cod" && !isCancelled && order.status !== "completed" && (
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
             <p className="text-blue-800 text-sm font-medium">
-              Cash on Delivery — {formatPrice(total)} due
+              {cashPaymentLabel} - {formatPrice(total)} due
             </p>
           </div>
         )}
@@ -406,6 +417,12 @@ export function TrackerClient({
           <div className="text-sm text-gray-600 space-y-1">
             <p className="capitalize">{order.delivery_method}</p>
             {order.delivery_address && <p>{order.delivery_address}</p>}
+            {order.delivery_method === "delivery" && (
+              <p className="text-xs text-gray-500">
+                {deliveryProviderLabel[order.delivery_provider ?? "store"] ?? "Store delivery"}
+                {buyerPaidCourier ? " - courier fee paid directly by buyer" : ""}
+              </p>
+            )}
             {order.delivery_date && (
               <p>
                 {formatDate(order.delivery_date)}

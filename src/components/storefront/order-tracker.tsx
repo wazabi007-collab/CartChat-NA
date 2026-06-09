@@ -20,6 +20,7 @@ interface Order {
   vat_nad: number;
   vat_inclusive: boolean;
   delivery_method: string;
+  delivery_provider?: string | null;
   payment_method: string;
   payment_reference: string | null;
   proof_of_payment_url: string | null;
@@ -168,6 +169,16 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
     return `N$${(cents / 100).toFixed(2)}`;
   }
 
+  function formatDeliveryLabel(order: Order) {
+    if (order.delivery_method !== "delivery") return "Pickup";
+    const providerLabels: Record<string, string> = {
+      store: "Store delivery",
+      yango: "Yango courier",
+      indrive: "inDrive courier",
+    };
+    return providerLabels[order.delivery_provider ?? "store"] ?? "Delivery";
+  }
+
   return (
     <div>
       {!codeSent ? (
@@ -286,7 +297,7 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
                 <div className="flex items-center justify-between pt-2 border-t text-sm">
                   <div className="flex items-center gap-3 text-gray-400 text-xs">
                     <span>{new Date(order.created_at).toLocaleDateString()}</span>
-                    <span className="capitalize">{order.delivery_method}</span>
+                    <span>{formatDeliveryLabel(order)}</span>
                   </div>
                   <span className="font-semibold text-gray-900">
                     {formatPrice(total)}

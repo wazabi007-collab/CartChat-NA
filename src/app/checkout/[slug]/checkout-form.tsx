@@ -18,7 +18,7 @@ import { calculateVatBreakdown, VAT_RATE_LABEL } from "@/lib/vat";
 import { track } from "@/lib/track";
 import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
 import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
-import type { DeliveryMethod, PaymentMethod } from "@/types/database";
+import type { DeliveryMethod, DeliveryProvider, PaymentMethod } from "@/types/database";
 import { PhoneInput } from "@/components/phone-input";
 import {
   inputBase,
@@ -104,6 +104,32 @@ function getEwalletLabel(provider: string | null): string {
   return EWALLET_PROVIDERS.find((p) => p.value === provider)?.label ?? "eWallet";
 }
 
+const DELIVERY_PROVIDERS: Array<{
+  value: DeliveryProvider;
+  label: string;
+  body: string;
+}> = [
+  {
+    value: "store",
+    label: "Store delivery",
+    body: "Merchant handles delivery and adds the store delivery fee.",
+  },
+  {
+    value: "yango",
+    label: "Yango",
+    body: "Buyer arranges and pays the Yango courier directly.",
+  },
+  {
+    value: "indrive",
+    label: "inDrive",
+    body: "Buyer negotiates and pays the inDrive courier directly.",
+  },
+];
+
+function getDeliveryProviderLabel(provider: DeliveryProvider) {
+  return DELIVERY_PROVIDERS.find((option) => option.value === provider)?.label ?? "Store delivery";
+}
+
 function generatePaymentRef(storeName: string): string {
   const prefix = storeName.replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 4).padEnd(3, "X");
   const random = Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -148,6 +174,7 @@ export function CheckoutForm({
   const [customerName, setCustomerName] = useState("");
   const [customerWhatsapp, setCustomerWhatsapp] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
+  const [deliveryProvider, setDeliveryProvider] = useState<DeliveryProvider>("store");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
@@ -195,7 +222,10 @@ export function CheckoutForm({
   );
 
   const discount = couponApplied ? calculateDiscount(couponApplied, subtotal) : 0;
-  const deliveryFee = deliveryMethod === "delivery" ? deliveryFeeNad : 0;
+  const buyerPaidCourier =
+    deliveryMethod === "delivery" && (deliveryProvider === "yango" || deliveryProvider === "indrive");
+  const deliveryFee =
+    deliveryMethod === "delivery" && deliveryProvider === "store" ? deliveryFeeNad : 0;
   const preVatTotal = subtotal - discount + deliveryFee;
   const vatBreakdown = calculateVatBreakdown({
     amountNad: preVatTotal,
@@ -206,6 +236,13 @@ export function CheckoutForm({
 
   const hasBankDetails = bankName && bankAccountNumber;
   const needsProof = paymentMethod !== "cod";
+  const effectiveDeliveryProvider: DeliveryProvider =
+    deliveryMethod === "delivery" ? deliveryProvider : "store";
+  const deliveryProviderLabel = getDeliveryProviderLabel(effectiveDeliveryProvider);
+  const courierNote = buyerPaidCourier
+    ? `${deliveryProviderLabel} selected: buyer arranges and pays the courier directly. Courier fee is not included in this OshiCart order.`
+    : null;
+  const orderNotes = [courierNote, notes.trim()].filter(Boolean).join("\n\n") || null;
 
   const handleProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -413,7 +450,7 @@ export function CheckoutForm({
             deliveryMethod === "delivery" ? deliveryAddress.trim() : null,
           p_delivery_date: deliveryDate || null,
           p_delivery_time: deliveryTime || null,
-          p_notes: notes.trim() || null,
+          p_notes: orderNotes,
           p_proof_url: proofUrl,
           p_items: cartItems.map((item) => ({
             productId: item.productId,
@@ -423,6 +460,7 @@ export function CheckoutForm({
             quantity: item.quantity,
           })),
           p_delivery_fee: deliveryFee,
+          p_delivery_provider: effectiveDeliveryProvider,
           p_payment_method: paymentMethod,
           p_coupon_code: couponApplied?.code || null,
           p_discount_nad: 0, // server calculates
@@ -478,10 +516,11 @@ export function CheckoutForm({
           payment_method: paymentMethod,
           payment_ref: order.payment_reference,
           delivery_method: deliveryMethod,
+          delivery_provider: effectiveDeliveryProvider,
           delivery_address: deliveryMethod === "delivery" ? deliveryAddress.trim() : null,
           delivery_date: deliveryDate || null,
           delivery_time: deliveryTime || null,
-          notes: notes.trim() || null,
+          notes: orderNotes,
         }),
       }).catch(() => {});
 
@@ -539,11 +578,13 @@ export function CheckoutForm({
       `*Payment:* ${getPaymentLabel(paymentMethod)}`,
       `*Delivery:* ${
         deliveryMethod === "delivery"
-          ? `Delivery to: ${deliveryAddress}`
+          ? buyerPaidCourier
+            ? `${deliveryProviderLabel} courier arranged and paid by buyer to: ${deliveryAddress}`
+            : `Store delivery to: ${deliveryAddress}`
           : "Pickup"
       }`,
       ...(deliveryDate ? [`*Scheduled:* ${deliveryDate}${deliveryTime ? ` — ${deliveryTime}` : ""}`] : []),
-      ...(notes ? [`*Notes:* ${notes}`] : []),
+      ...(orderNotes ? [`*Notes:* ${orderNotes}`] : []),
       ...(invoiceUrl ? [``, `*Invoice:* ${invoiceUrl}`] : []),
     ].join("\n");
     const waUrl = whatsappLink(whatsappNumber, waMessage);
@@ -569,7 +610,9 @@ export function CheckoutForm({
         )}
         <p className="text-sm text-gray-500 mt-3">
           {paymentMethod === "cod"
-            ? "Please have cash ready for payment on delivery/pickup."
+            ? deliveryMethod === "delivery"
+              ? "Please have cash ready for the order amount. Any buyer-arranged courier fee is paid separately."
+              : "Please pay when collecting your order."
             : "Please contact the merchant on WhatsApp to confirm your order."}
         </p>
 
@@ -654,6 +697,12 @@ export function CheckoutForm({
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Delivery Fee</span>
                   <span className="text-gray-900">{formatPrice(deliveryFee)}</span>
+                </div>
+              )}
+              {buyerPaidCourier && (
+                <div className="flex justify-between gap-3 text-sm">
+                  <span className="text-gray-600">{deliveryProviderLabel} courier</span>
+                  <span className="text-right text-gray-900">Paid by buyer</span>
                 </div>
               )}
               {vatBreakdown.hasVat && (
@@ -775,7 +824,10 @@ export function CheckoutForm({
               name="deliveryMethod"
               value="pickup"
               checked={deliveryMethod === "pickup"}
-              onChange={() => setDeliveryMethod("pickup")}
+              onChange={() => {
+                setDeliveryMethod("pickup");
+                setDeliveryProvider("store");
+              }}
               className="sr-only"
             />
             Pickup
@@ -798,20 +850,56 @@ export function CheckoutForm({
         </div>
 
         {deliveryMethod === "delivery" && (
-          <div>
-            <label className={label}>
-              Delivery Address<span className="text-red-500 ml-0.5">*</span>
-            </label>
-            <textarea
-              value={deliveryAddress}
-              onChange={(e) => setDeliveryAddress(e.target.value)}
-              required
-              maxLength={500}
-              rows={3}
-              className={`${textareaBase} ${focusGreen}`}
-              placeholder="Enter your full delivery address"
-            />
-          </div>
+          <>
+            <div>
+              <label className={label}>
+                Delivery Handling<span className="text-red-500 ml-0.5">*</span>
+              </label>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {DELIVERY_PROVIDERS.map((option) => (
+                  <label
+                    key={option.value}
+                    className={`${radioCardBase} text-left ${
+                      deliveryProvider === option.value ? radioCardSelected : radioCardUnselected
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="deliveryProvider"
+                      value={option.value}
+                      checked={deliveryProvider === option.value}
+                      onChange={() => setDeliveryProvider(option.value)}
+                      className="sr-only"
+                    />
+                    <span className="block text-sm font-semibold">{option.label}</span>
+                    <span className="mt-1 block text-xs leading-4 text-gray-500">
+                      {option.body}
+                    </span>
+                  </label>
+                ))}
+              </div>
+              {buyerPaidCourier && (
+                <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
+                  {deliveryProviderLabel} delivery is not charged by OshiCart. The buyer books and pays the courier directly, and the merchant prepares the parcel for pickup.
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className={label}>
+                Delivery Address<span className="text-red-500 ml-0.5">*</span>
+              </label>
+              <textarea
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                required
+                maxLength={500}
+                rows={3}
+                className={`${textareaBase} ${focusGreen}`}
+                placeholder="Enter your full delivery address"
+              />
+            </div>
+          </>
         )}
 
         {/* Delivery scheduling */}
@@ -965,6 +1053,11 @@ export function CheckoutForm({
                 Pay <span className="font-bold">{formatPrice(total)}</span> in cash when your order is{" "}
                 {deliveryMethod === "delivery" ? "delivered" : "picked up"}.
               </p>
+              {buyerPaidCourier && (
+                <p className="mt-1 text-xs">
+                  This excludes the {deliveryProviderLabel} courier fee, which the buyer pays directly to the courier service.
+                </p>
+              )}
             </div>
           </div>
         )}

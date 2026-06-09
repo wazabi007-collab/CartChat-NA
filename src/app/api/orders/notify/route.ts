@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { merchant_id, order_number, customer_name, customer_whatsapp, items, subtotal, delivery_fee, discount, vat, vat_inclusive, total, payment_method, payment_ref, delivery_method, delivery_address, delivery_date, delivery_time, notes } = body;
+    const { merchant_id, order_number, customer_name, customer_whatsapp, items, subtotal, delivery_fee, discount, vat, vat_inclusive, total, payment_method, payment_ref, delivery_method, delivery_provider, delivery_address, delivery_date, delivery_time, notes } = body;
 
     if (!merchant_id || !order_number) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -58,6 +58,15 @@ export async function POST(req: NextRequest) {
 
     // Format currency
     const fmt = (cents: number) => `N$${(cents / 100).toFixed(2)}`;
+    const deliveryProviderLabel: Record<string, string> = {
+      store: "Store delivery",
+      yango: "Yango - buyer pays courier directly",
+      indrive: "inDrive - buyer pays courier directly",
+    };
+    const deliveryLine =
+      delivery_method === "delivery"
+        ? `${deliveryProviderLabel[delivery_provider] ?? "Store delivery"} to ${delivery_address || "N/A"}`
+        : "Pickup";
 
     // Build item rows for HTML email
     const itemRows = (items || [])
@@ -124,7 +133,7 @@ export async function POST(req: NextRequest) {
           <div style="margin-top:20px;background:#f9fafb;border-radius:8px;padding:16px;font-size:13px;color:#4b5563;">
             ${payment_ref ? `<p style="margin:0 0 4px;"><strong>Payment Ref:</strong> ${payment_ref}</p>` : ""}
             <p style="margin:0 0 4px;"><strong>Payment:</strong> ${payment_method}</p>
-            <p style="margin:0 0 4px;"><strong>Delivery:</strong> ${delivery_method === "delivery" ? `Delivery to ${delivery_address || "N/A"}` : "Pickup"}</p>
+            <p style="margin:0 0 4px;"><strong>Delivery:</strong> ${deliveryLine}</p>
             ${delivery_date ? `<p style="margin:0 0 4px;"><strong>Scheduled:</strong> ${delivery_date}${delivery_time ? ` — ${delivery_time}` : ""}</p>` : ""}
             ${notes ? `<p style="margin:0;"><strong>Notes:</strong> ${notes}</p>` : ""}
           </div>

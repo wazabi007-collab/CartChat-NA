@@ -33,7 +33,7 @@ export default async function InvoicePage({ params }: Props) {
     .from("orders")
     .select(`
       id, order_number, customer_name, customer_whatsapp, payment_reference,
-      delivery_method, delivery_address, delivery_date, delivery_time,
+      delivery_method, delivery_provider, delivery_address, delivery_date, delivery_time,
       subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_rate_bps, vat_inclusive, vat_number,
       payment_method, status, notes, created_at,
       merchants (
@@ -136,6 +136,20 @@ export default async function InvoicePage({ params }: Props) {
     easywallet: "EasyWallet",
     paytoday: "PayToday",
   };
+  const deliveryProviderLabel: Record<string, string> = {
+    store: "Store delivery",
+    yango: "Yango courier",
+    indrive: "inDrive courier",
+  };
+  const buyerPaidCourier =
+    order.delivery_method === "delivery" &&
+    ["yango", "indrive"].includes(order.delivery_provider ?? "");
+  const paymentDisplayLabel =
+    order.payment_method === "cod"
+      ? order.delivery_method === "delivery"
+        ? "Cash on Delivery"
+        : "Cash on Collection"
+      : paymentMethodLabel[order.payment_method] ?? "Bank Transfer";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 print:bg-white">
@@ -238,7 +252,13 @@ export default async function InvoicePage({ params }: Props) {
                   {order.delivery_method === "delivery" ? "Delivery" : "Collection"}
                 </p>
                 {order.delivery_method === "delivery" && order.delivery_address && (
-                  <p className="text-sm text-gray-700">{order.delivery_address}</p>
+                  <>
+                    <p className="text-sm text-gray-700">{order.delivery_address}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {deliveryProviderLabel[order.delivery_provider ?? "store"] ?? "Store delivery"}
+                      {buyerPaidCourier ? " - paid by buyer directly" : ""}
+                    </p>
+                  </>
                 )}
                 {order.delivery_date && (
                   <p className="text-sm text-gray-500">
@@ -343,7 +363,7 @@ export default async function InvoicePage({ params }: Props) {
             {/* Payment details card */}
             <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-5 print:bg-white print:border-gray-300 print:rounded-none print:p-4">
               <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-3">
-                Payment — {paymentMethodLabel[order.payment_method] ?? "Bank Transfer"}
+                Payment — {paymentDisplayLabel}
               </p>
 
               {/* EFT */}
@@ -361,7 +381,13 @@ export default async function InvoicePage({ params }: Props) {
               {/* COD */}
               {order.payment_method === "cod" && (
                 <div className="space-y-2">
-                  <p className="text-sm text-gray-600 mb-2">Please have exact cash ready at delivery.</p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {buyerPaidCourier
+                      ? `Please pay the order amount to the merchant. The ${deliveryProviderLabel[order.delivery_provider ?? "store"] ?? "courier"} fee is paid directly by the buyer.`
+                      : order.delivery_method === "delivery"
+                      ? "Please have exact cash ready when your order is delivered."
+                      : "Please pay when you collect your order from the store."}
+                  </p>
                   <PaymentRow label="Amount Due" value={formatPrice(total)} highlight />
                 </div>
               )}

@@ -53,6 +53,11 @@ export default async function OrdersPage({
   const completedCount = orderList.filter((order) => order.status === "completed").length;
 
   const statuses = ["all", "pending", "confirmed", "ready", "completed", "cancelled"];
+  const deliveryProviderLabel: Record<string, string> = {
+    store: "Store delivery",
+    yango: "Yango courier - buyer pays",
+    indrive: "inDrive courier - buyer pays",
+  };
 
   return (
     <div className="md:ml-56">
@@ -192,7 +197,7 @@ export default async function OrdersPage({
               <div className="flex items-center gap-2 text-sm flex-wrap">
                 <span className="text-gray-500">
                   {order.delivery_method === "delivery"
-                    ? "Delivery"
+                    ? deliveryProviderLabel[order.delivery_provider ?? "store"] ?? "Delivery"
                     : "Pickup"}
                 </span>
                 {order.delivery_date && (

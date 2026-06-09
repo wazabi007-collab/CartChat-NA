@@ -10,6 +10,7 @@ export type MerchantTier = "free" | "pro" | "business";
 export type StoreStatus = "pending" | "active" | "suspended" | "banned";
 export type OrderStatus = "pending" | "confirmed" | "completed" | "cancelled";
 export type DeliveryMethod = "pickup" | "delivery";
+export type DeliveryProvider = "store" | "yango" | "indrive";
 export type PaymentMethod = "eft" | "cod" | "momo" | "ewallet" | "pay2cell" | "dpo";
 export type DiscountType = "percentage" | "fixed";
 export type EwalletProvider = "fnb_ewallet" | "paypulse" | "easywallet" | "paytoday";
@@ -189,6 +190,7 @@ export interface Database {
           customer_name: string;
           customer_whatsapp: string;
           delivery_method: DeliveryMethod;
+          delivery_provider: DeliveryProvider;
           delivery_address: string | null;
           status: OrderStatus;
           subtotal_nad: number;
@@ -211,6 +213,7 @@ export interface Database {
           customer_name: string;
           customer_whatsapp: string;
           delivery_method: DeliveryMethod;
+          delivery_provider?: DeliveryProvider;
           delivery_address?: string | null;
           status?: OrderStatus;
           subtotal_nad: number;
@@ -233,6 +236,7 @@ export interface Database {
           customer_name?: string;
           customer_whatsapp?: string;
           delivery_method?: DeliveryMethod;
+          delivery_provider?: DeliveryProvider;
           delivery_address?: string | null;
           status?: OrderStatus;
           subtotal_nad?: number;

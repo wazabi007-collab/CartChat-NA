@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { SITE_URL } from "@/lib/constants";
+import { TIER_LIMITS, TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
 import { getServiceLabels } from "@/lib/service-labels";
 import { GettingStarted } from "@/components/dashboard/getting-started";
 import { ShareStoreCard } from "@/components/dashboard/share-store-card";
@@ -102,6 +103,26 @@ export default async function DashboardPage({
   const lowStockProducts = (lowStockResult.data || []).filter(
     (p) => p.stock_quantity <= (p.low_stock_threshold ?? 5)
   );
+
+  const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
+  const tierLimits = TIER_LIMITS[tier];
+  const monthlyOrderLimit = tierLimits.orders_per_month;
+
+  // Mirrors the monthly order limit check in checkout
+  let monthlyOrderCount = 0;
+  if (monthlyOrderLimit !== -1) {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const { count } = await supabase
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("merchant_id", merchant.id)
+      .gte("created_at", startOfMonth.toISOString());
+
+    monthlyOrderCount = count || 0;
+  }
 
   const productCount = productsResult.count || 0;
   const completedOrders = ordersResult.count || 0;
@@ -255,6 +276,41 @@ export default async function DashboardPage({
               </p>
             </div>
           </div>
+        );
+      })()}
+
+      {(() => {
+        const renewalDate = subscription?.current_period_end || subscription?.trial_ends_at;
+        return (
+          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
+                  Your plan
+                </p>
+                <h2 className="mt-1 text-lg font-black text-slate-950">{TIER_LABELS[tier]}</h2>
+                {renewalDate && (
+                  <p className="mt-1 text-xs text-slate-500">
+                    {subscription?.status === "trial" ? "Trial ends" : "Renews"}{" "}
+                    {new Date(renewalDate).toLocaleDateString("en-NA", { day: "numeric", month: "short", year: "numeric" })}
+                  </p>
+                )}
+              </div>
+              <Link
+                href="/pricing"
+                className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-acacia transition hover:bg-slate-50"
+              >
+                Upgrade plan
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+            <div className="mt-4 space-y-4">
+              <QuotaRow label={labels.itemPlural} used={productCount} limit={tierLimits.products} />
+              {monthlyOrderLimit !== -1 && (
+                <QuotaRow label="Orders this month" used={monthlyOrderCount} limit={monthlyOrderLimit} />
+              )}
+            </div>
+          </section>
         );
       })()}
 
@@ -453,6 +509,46 @@ function QuickAction({
       </div>
       <ArrowRight size={18} className="text-slate-400 shrink-0" />
     </Link>
+  );
+}
+
+function QuotaRow({
+  label,
+  used,
+  limit,
+}: {
+  label: string;
+  used: number;
+  limit: number;
+}) {
+  if (limit === -1) {
+    return (
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span className="font-semibold text-slate-700">{label}</span>
+        <span className="font-black text-slate-950">
+          {used} <span className="font-bold text-slate-400">/ Unlimited</span>
+        </span>
+      </div>
+    );
+  }
+
+  const percentage = Math.min(100, Math.round((used / Math.max(limit, 1)) * 100));
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+        <span className="font-semibold text-slate-700">{label}</span>
+        <span className="font-black text-slate-950">
+          {used} <span className="font-bold text-slate-400">/ {limit}</span>
+        </span>
+      </div>
+      <div className="h-2 rounded-full bg-slate-100">
+        <div
+          className={`h-2 rounded-full ${percentage >= 80 ? "bg-amber-500" : "bg-gradient-to-r from-terracotta to-acacia"}`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
   );
 }
 

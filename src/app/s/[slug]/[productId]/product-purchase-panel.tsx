@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/storefront/cart-provider";
 import { formatPrice } from "@/lib/utils";
@@ -9,6 +9,7 @@ import {
   getVariantAttributePriority,
   sortVariantOptionValues,
 } from "@/lib/industry-variant-presets";
+import { useVariantImages } from "./product-gallery";
 
 type Variant = {
   id: string;
@@ -82,6 +83,15 @@ export function ProductPurchasePanel({
 
   const activePrice = selectedVariant?.price_nad ?? product.price_nad;
   const activeImage = selectedVariant?.images?.[0] || product.imageUrl;
+
+  // Let the gallery switch to the selected variant's images (if any)
+  const variantImagesCtx = useVariantImages();
+  const setVariantImages = variantImagesCtx?.setVariantImages;
+  const selectedVariantImages = selectedVariant?.images;
+  useEffect(() => {
+    if (!setVariantImages) return;
+    setVariantImages(selectedVariantImages ?? []);
+  }, [setVariantImages, selectedVariantImages]);
   const canAdd = !hasVariants || (selectedVariant && variantIsBuyable(selectedVariant));
   const selectedSummary = attributeNames
     .filter((name) => selected[name])

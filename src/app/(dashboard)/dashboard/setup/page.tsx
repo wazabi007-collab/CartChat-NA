@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify, normalizeNamibianPhone } from "@/lib/utils";
@@ -8,7 +8,7 @@ import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, INDUSTRY_GROUP_OR
 import { storeSetupSchema } from "@/lib/validations";
 import { SAFETY_POLICY_VERSION, safetyMessage, scanTextForProhibitedContent } from "@/lib/safety/prohibited-content";
 import { track } from "@/lib/track";
-import { Store, ArrowRight, Check, AlertCircle } from "lucide-react";
+import { Store, ArrowRight, Check, AlertCircle, X } from "lucide-react";
 import { PhoneInput } from "@/components/phone-input";
 import Link from "next/link";
 import {
@@ -24,6 +24,23 @@ import {
   alertError,
   alertIcon,
 } from "@/lib/ui";
+
+const DRAFT_KEY = "oshicart-setup-draft";
+
+const INITIAL_FORM = {
+  store_name: "",
+  description: "",
+  whatsapp_number: "",
+  industry: "",
+  bank_name: "",
+  bank_account_number: "",
+  bank_account_holder: "",
+  bank_branch_code: "",
+  momo_number: "",
+  pay2cell_number: "",
+  pickup_address: "",
+  delivery_fee_display: "",
+};
 
 export default function StoreSetupPage() {
   return (
@@ -83,25 +100,81 @@ function StoreSetupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [form, setForm] = useState({
-    store_name: "",
-    description: "",
-    whatsapp_number: "",
-    industry: "",
-    bank_name: "",
-    bank_account_number: "",
-    bank_account_holder: "",
-    bank_branch_code: "",
-    momo_number: "",
-    pay2cell_number: "",
-    pickup_address: "",
-    delivery_fee_display: "",
-  });
+  const [form, setForm] = useState({ ...INITIAL_FORM });
   const [selectedMethods, setSelectedMethods] = useState<string[]>(["cod"]);
   const [offersPickup, setOffersPickup] = useState(true);
   const [offersDelivery, setOffersDelivery] = useState(false);
   const [whatsappStatus, setWhatsappStatus] = useState<"idle" | "checking" | "blocked" | "warning" | "clear">("idle");
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Restore a saved draft on mount. localStorage is browser-only, so this
+  // can't be a lazy useState initializer (it would mismatch the SSR HTML).
+  // The one-time post-hydration setState is intentional.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft && typeof draft === "object") {
+          if (draft.form && typeof draft.form === "object") {
+            setForm((prev) => ({ ...prev, ...draft.form }));
+          }
+          if (typeof draft.step === "number" && draft.step >= 1 && draft.step <= 3) setStep(draft.step);
+          if (Array.isArray(draft.selectedMethods)) setSelectedMethods(draft.selectedMethods);
+          if (typeof draft.offersPickup === "boolean") setOffersPickup(draft.offersPickup);
+          if (typeof draft.offersDelivery === "boolean") setOffersDelivery(draft.offersDelivery);
+          setDraftRestored(true);
+        }
+      }
+    } catch {
+      // Corrupt draft or storage unavailable — start fresh
+    }
+    setHydrated(true);
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Debounce-save the draft whenever the form changes
+  useEffect(() => {
+    if (!hydrated) return;
+    const hasContent =
+      step > 1 || form.store_name || form.description || form.whatsapp_number || form.industry;
+    if (!hasContent) return;
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({ step, form, selectedMethods, offersPickup, offersDelivery })
+        );
+      } catch {
+        // Storage unavailable (private mode / quota) — skip saving
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [hydrated, step, form, selectedMethods, offersPickup, offersDelivery]);
+
+  function clearDraft() {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      // Storage unavailable — nothing to clear
+    }
+  }
+
+  function startOver() {
+    clearDraft();
+    setForm({ ...INITIAL_FORM });
+    setStep(1);
+    setSelectedMethods(["cod"]);
+    setOffersPickup(true);
+    setOffersDelivery(false);
+    setAcceptedPolicy(false);
+    setWhatsappStatus("idle");
+    setError("");
+    setDraftRestored(false);
+  }
 
   function update(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -264,6 +337,8 @@ function StoreSetupForm() {
 
     track("onboarding_completed", { industry: form.industry, payment_methods: selectedMethods.join(",") });
 
+    clearDraft();
+
     if (tierParam) {
       router.push(`/pricing/checkout?tier=${tierParam}`);
     } else {
@@ -299,6 +374,29 @@ function StoreSetupForm() {
           Takes under 2 minutes
         </p>
       </div>
+
+      {draftRestored && (
+        <div className="flex items-center justify-between gap-3 mb-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2.5 text-sm text-green-800">
+          <p>Welcome back — we restored your progress.</p>
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={startOver}
+              className="font-medium underline hover:text-green-900"
+            >
+              Start over
+            </button>
+            <button
+              type="button"
+              onClick={() => setDraftRestored(false)}
+              aria-label="Dismiss"
+              className="text-green-600 hover:text-green-800 transition-colors"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <StepProgress current={step} total={3} />
 

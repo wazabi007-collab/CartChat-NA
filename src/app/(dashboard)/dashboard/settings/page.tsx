@@ -43,7 +43,9 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState(false);
   const [merchantId, setMerchantId] = useState("");
   const [userId, setUserId] = useState("");
-  const [newTimeSlot, setNewTimeSlot] = useState("");
+  const [newSlotStart, setNewSlotStart] = useState("");
+  const [newSlotEnd, setNewSlotEnd] = useState("");
+  const [slotError, setSlotError] = useState("");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [logoError, setLogoError] = useState("");
@@ -171,10 +173,23 @@ export default function SettingsPage() {
   }
 
   function addTimeSlot() {
-    const trimmed = newTimeSlot.trim();
-    if (!trimmed || deliverySlots.times.includes(trimmed)) return;
-    setDeliverySlots((prev) => ({ ...prev, times: [...prev.times, trimmed] }));
-    setNewTimeSlot("");
+    if (!newSlotStart || !newSlotEnd) {
+      setSlotError("Please choose a start and end time");
+      return;
+    }
+    if (newSlotEnd <= newSlotStart) {
+      setSlotError("End time must be after start time");
+      return;
+    }
+    const slot = `${newSlotStart} - ${newSlotEnd}`;
+    if (deliverySlots.times.includes(slot)) {
+      setSlotError("This time slot has already been added");
+      return;
+    }
+    setSlotError("");
+    setDeliverySlots((prev) => ({ ...prev, times: [...prev.times, slot] }));
+    setNewSlotStart("");
+    setNewSlotEnd("");
   }
 
   function removeTimeSlot(slot: string) {
@@ -650,12 +665,21 @@ export default function SettingsPage() {
                     </div>
                   ))}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   <input
-                    type="text"
-                    placeholder="e.g. Morning (8:00 - 12:00)"
-                    value={newTimeSlot}
-                    onChange={(e) => setNewTimeSlot(e.target.value)}
+                    type="time"
+                    aria-label="Slot start time"
+                    value={newSlotStart}
+                    onChange={(e) => { setNewSlotStart(e.target.value); setSlotError(""); }}
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTimeSlot())}
+                    className={`flex-1 ${inputBase} ${focusGreen}`}
+                  />
+                  <span className="text-sm text-gray-400">to</span>
+                  <input
+                    type="time"
+                    aria-label="Slot end time"
+                    value={newSlotEnd}
+                    onChange={(e) => { setNewSlotEnd(e.target.value); setSlotError(""); }}
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTimeSlot())}
                     className={`flex-1 ${inputBase} ${focusGreen}`}
                   />
@@ -668,6 +692,10 @@ export default function SettingsPage() {
                     Add
                   </button>
                 </div>
+                {slotError && <p className="text-xs text-red-500 mt-1">{slotError}</p>}
+                <p className={helperText}>
+                  Customers pick one of these slots at checkout, e.g. 09:00 - 12:00
+                </p>
               </div>
             </>
           )}

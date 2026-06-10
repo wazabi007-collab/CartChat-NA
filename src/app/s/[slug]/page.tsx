@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowLeft, Grid3X3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
+import { isOrderLimitReached } from "@/lib/order-limit";
 import { getThemeConfig } from "@/lib/industry";
 import { TrackView } from "@/components/storefront/track-view";
 import { ReportButton } from "@/components/storefront/report-button";
@@ -126,6 +127,11 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   const categories = catRes.data;
   const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
   const isSoftSuspended = subscription?.status === "soft_suspended";
+  // Same monthly order-limit gate as checkout — block ordering here too
+  const orderLimitReached = isSoftSuspended
+    ? false
+    : await isOrderLimitReached(supabase, merchant.id, tier);
+  const orderingBlocked = isSoftSuspended || orderLimitReached;
   const hasBranding = showBranding(tier);
   const theme = getThemeConfig(merchant.industry);
 
@@ -308,7 +314,17 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
         <div className="bg-amber-50 border-b border-amber-200">
           <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2 text-amber-800 text-sm">
             <AlertTriangle className="w-4 h-4 shrink-0" />
-            <p>This store is temporarily unavailable for orders.</p>
+            <p>Ordering is paused for this store right now. You can still browse products, but new orders can&apos;t be placed.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Monthly order-limit banner */}
+      {!isSoftSuspended && orderLimitReached && (
+        <div className="bg-amber-50 border-b border-amber-200">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-2 text-amber-800 text-sm">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <p>This store can&apos;t accept new orders right now — contact the merchant on WhatsApp.</p>
           </div>
         </div>
       )}
@@ -392,7 +408,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
             allProducts={allProducts}
             theme={theme}
             slug={slug}
-            disabled={isSoftSuspended}
+            disabled={orderingBlocked}
             whatsappNumber={merchant.whatsapp_number}
             storeName={merchant.store_name}
             searchQuery={searchTerm}

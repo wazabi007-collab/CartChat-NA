@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Plus, Package, Layers3, Image as ImageIcon, Sparkles } from "lucide-react";
 import { ProductGrid } from "./product-actions";
 import { getServiceLabels } from "@/lib/service-labels";
+import { TIER_LIMITS, type SubscriptionTier } from "@/lib/tier-limits";
 
 export default async function ProductsPage() {
   const supabase = await createClient();
@@ -23,17 +24,34 @@ export default async function ProductsPage() {
 
   const labels = getServiceLabels(merchant.industry);
 
-  const { data: products } = await supabase
-    .from("products")
-    .select("*, categories(name)")
-    .eq("merchant_id", merchant.id)
-    .is("deleted_at", null)
-    .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: false });
+  const [{ data: products }, { data: subscription }, totalProductsResult] = await Promise.all([
+    supabase
+      .from("products")
+      .select("*, categories(name)")
+      .eq("merchant_id", merchant.id)
+      .is("deleted_at", null)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("subscriptions")
+      .select("tier")
+      .eq("merchant_id", merchant.id)
+      .single(),
+    // Includes soft-deleted — counts toward tier limit by design
+    supabase
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq("merchant_id", merchant.id),
+  ]);
 
   const productList = products || [];
   const availableCount = productList.filter((p) => p.is_available).length;
   const imageCount = productList.filter((p) => Array.isArray(p.images) && p.images.length > 0).length;
+
+  const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
+  const productLimit = TIER_LIMITS[tier].products;
+  const quotaUsed = totalProductsResult.count || 0;
+  const quotaPercent = productLimit === -1 ? 0 : Math.min(100, Math.round((quotaUsed / Math.max(productLimit, 1)) * 100));
 
   return (
     <div className="md:ml-56">
@@ -73,7 +91,24 @@ export default async function ProductsPage() {
               <Layers3 size={14} />
               Listed
             </div>
-            <p className="mt-2 text-2xl font-black text-slate-950">{productList.length}</p>
+            <p className="mt-2 text-2xl font-black text-slate-950">
+              {productLimit === -1 ? quotaUsed : `${quotaUsed} / ${productLimit}`}
+            </p>
+            {productLimit !== -1 && (
+              <>
+                <div className="mt-2 h-1.5 rounded-full bg-slate-200">
+                  <div
+                    className={`h-1.5 rounded-full ${quotaPercent >= 80 ? "bg-amber-500" : "bg-acacia"}`}
+                    style={{ width: `${quotaPercent}%` }}
+                  />
+                </div>
+                {quotaPercent >= 80 && (
+                  <Link href="/pricing" className="mt-1.5 inline-block text-xs font-bold text-acacia hover:underline">
+                    Upgrade
+                  </Link>
+                )}
+              </>
+            )}
           </div>
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-700">

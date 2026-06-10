@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart, X, Plus, Minus, Trash2 } from "lucide-react";
@@ -9,8 +8,17 @@ import { calculateVatBreakdown, VAT_RATE_LABEL } from "@/lib/vat";
 import { getCartItemKey, useCart } from "./cart-provider";
 
 export function CartDrawer({ slug }: { slug: string }) {
-  const [open, setOpen] = useState(false);
-  const { items, vatSettings, updateQuantity, removeItem, getTotal, itemCount } = useCart();
+  const {
+    items,
+    vatSettings,
+    updateQuantity,
+    removeItem,
+    getTotal,
+    itemCount,
+    isDrawerOpen: open,
+    openDrawer,
+    closeDrawer,
+  } = useCart();
   const router = useRouter();
   const subtotal = getTotal();
   const vatBreakdown = calculateVatBreakdown({
@@ -23,7 +31,7 @@ export function CartDrawer({ slug }: { slug: string }) {
     <>
       {/* Floating cart button */}
       <button
-        onClick={() => setOpen(true)}
+        onClick={openDrawer}
         className="fixed bottom-5 right-5 z-40 bg-terracotta hover:opacity-90 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition-colors"
         aria-label="Open cart"
       >
@@ -39,7 +47,7 @@ export function CartDrawer({ slug }: { slug: string }) {
       {open && (
         <div
           className="fixed inset-0 bg-black/40 z-40"
-          onClick={() => setOpen(false)}
+          onClick={closeDrawer}
         />
       )}
 
@@ -55,7 +63,7 @@ export function CartDrawer({ slug }: { slug: string }) {
             Cart ({itemCount})
           </h2>
           <button
-            onClick={() => setOpen(false)}
+            onClick={closeDrawer}
             className="p-1 text-gray-500 hover:text-gray-700"
             aria-label="Close cart"
           >
@@ -187,7 +195,7 @@ export function CartDrawer({ slug }: { slug: string }) {
             </div>
             <button
               onClick={() => {
-                setOpen(false);
+                closeDrawer();
                 router.push(`/checkout/${slug}`);
               }}
               className="w-full bg-terracotta hover:opacity-90 text-white font-semibold py-3 rounded-md transition-colors"

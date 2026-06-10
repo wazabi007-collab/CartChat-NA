@@ -404,11 +404,21 @@ export function CheckoutForm({
         }
 
         for (const variant of currentVariants) {
+          const variantItems = cartItems.filter((item) => item.variantId === variant.id);
+          const itemName = variantItems[0]
+            ? `"${formatCartItemName(variantItems[0])}"`
+            : "One of your selected product options";
           const unavailable =
             !variant.is_available ||
             (variant.track_inventory && variant.stock_quantity <= 0 && !variant.allow_backorder);
           if (unavailable) {
-            setError("One of your selected product options is no longer available. Please review your cart.");
+            setError(`${itemName} is no longer available — please remove it from your cart or choose another option.`);
+            setSubmitting(false);
+            return;
+          }
+          const requestedQty = variantItems.reduce((sum, item) => sum + item.quantity, 0);
+          if (variant.track_inventory && !variant.allow_backorder && variant.stock_quantity < requestedQty) {
+            setError(`Only ${variant.stock_quantity} of ${itemName} left in stock — please reduce the quantity in your cart.`);
             setSubmitting(false);
             return;
           }
@@ -416,25 +426,25 @@ export function CheckoutForm({
         }
       }
 
-      let pricesChanged = false;
+      const changedItemNames: string[] = [];
       const updatedItems = cartItems.map((item) => {
         const currentPrice = item.variantId
           ? variantPriceMap.get(item.variantId)
           : priceMap.get(item.productId);
         if (currentPrice !== undefined && currentPrice !== item.price) {
-          pricesChanged = true;
+          changedItemNames.push(`"${formatCartItemName(item)}"`);
           return { ...item, price: currentPrice };
         }
         return item;
       });
 
-      if (pricesChanged) {
+      if (changedItemNames.length > 0) {
         setCartItems(updatedItems);
         localStorage.setItem(
           `oshicart-cart-${storeSlug}`,
           JSON.stringify(updatedItems)
         );
-        setError("Some prices have changed since you added items to your cart. Please review your updated cart and try again.");
+        setError(`The price of ${changedItemNames.join(", ")} has changed since you added it to your cart. Your cart has been updated — please review and try again.`);
         setSubmitting(false);
         return;
       }
@@ -677,7 +687,15 @@ export function CheckoutForm({
       <div className={card}>
         <h2 className={`${sectionHeading} mb-3`}>Order Summary</h2>
         {cartItems.length === 0 ? (
-          <p className="text-gray-500 text-sm">Your cart is empty</p>
+          <div className="text-center py-2">
+            <p className="text-gray-500 text-sm">Your cart is empty</p>
+            <Link
+              href={`/s/${storeSlug}`}
+              className="inline-block mt-3 text-sm text-green-600 hover:text-green-700 font-medium"
+            >
+              Browse the store
+            </Link>
+          </div>
         ) : (
           <>
             <ul className="divide-y divide-gray-100">

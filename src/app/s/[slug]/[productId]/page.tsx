@@ -1,13 +1,15 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
+import { type SubscriptionTier } from "@/lib/tier-limits";
+import { isOrderLimitReached } from "@/lib/order-limit";
 import { JsonLd } from "@/components/json-ld";
 import { ProductPurchasePanel } from "./product-purchase-panel";
+import { ProductGallery, VariantImagesProvider } from "./product-gallery";
 import { StickyAddToCart } from "./sticky-add-to-cart";
 
 interface Props {
@@ -79,12 +81,21 @@ export default async function ProductDetailPage({ params }: Props) {
 
   if (!product) notFound();
 
-  const { data: variants } = await supabase
-    .from("product_variants")
-    .select("id, sku, price_nad, images, attributes, is_available, stock_quantity, track_inventory, allow_backorder, sort_order")
-    .eq("product_id", product.id)
-    .order("sort_order", { ascending: true })
-    .order("sku", { ascending: true });
+  const [{ data: variants }, { data: subscription }] = await Promise.all([
+    supabase
+      .from("product_variants")
+      .select("id, sku, price_nad, images, attributes, is_available, stock_quantity, track_inventory, allow_backorder, sort_order")
+      .eq("product_id", product.id)
+      .order("sort_order", { ascending: true })
+      .order("sku", { ascending: true }),
+    supabase.from("subscriptions").select("tier, status").eq("merchant_id", merchant.id).single(),
+  ]);
+
+  // Same blocked-store gates as the storefront and checkout pages
+  const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
+  const isSoftSuspended = subscription?.status === "soft_suspended";
+  const orderingBlocked =
+    isSoftSuspended || (await isOrderLimitReached(supabase, merchant.id, tier));
 
   const images = product.images ?? [];
   const productVariants = (variants || []).map((variant) => ({
@@ -157,58 +168,10 @@ export default async function ProductDetailPage({ params }: Props) {
       </div>
 
       <main className="max-w-4xl mx-auto px-4 py-7 md:py-8">
+        <VariantImagesProvider>
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm shadow-slate-900/5 overflow-hidden">
-          {/* Image section */}
-          {images.length > 0 ? (
-            <div className="relative">
-              {images.length === 1 ? (
-                <div className="aspect-square sm:aspect-[4/3] relative bg-slate-100">
-                  <Image
-                    src={images[0]}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 896px"
-                    priority
-                    className="object-contain"
-                  />
-                </div>
-              ) : (
-                <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-                  {images.map((img: string, idx: number) => (
-                    <div
-                      key={idx}
-                      className="aspect-square sm:aspect-[4/3] flex-shrink-0 w-full snap-center relative bg-slate-100"
-                    >
-                      <Image
-                        src={img}
-                        alt={`${product.name} - Image ${idx + 1}`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 896px"
-                        priority={idx === 0}
-                        className="object-contain"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-              {images.length > 1 && (
-                <div className="flex justify-center gap-1.5 py-2 bg-white">
-                  {images.map((_: string, idx: number) => (
-                    <div
-                      key={idx}
-                      className="w-2 h-2 rounded-full bg-slate-300"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="aspect-square sm:aspect-[4/3] bg-gradient-to-br from-blue-50 via-white to-emerald-50 flex items-center justify-center">
-              <span className="text-slate-300 text-6xl">
-                {product.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          )}
+          {/* Image section — switches to variant images when one is selected */}
+          <ProductGallery images={images} productName={product.name} />
 
           {/* Product info */}
           <div className="p-4 sm:p-6">
@@ -247,7 +210,19 @@ export default async function ProductDetailPage({ params }: Props) {
             )}
 
             <div className="mt-6" data-add-to-cart-section>
-              {product.track_inventory && product.stock_quantity === 0 && !product.allow_backorder ? (
+              {orderingBlocked ? (
+                <div className="space-y-3">
+                  <button
+                    disabled
+                    className="w-full sm:w-auto bg-slate-200 text-slate-500 font-semibold py-3 px-8 rounded-xl cursor-not-allowed"
+                  >
+                    Ordering Paused
+                  </button>
+                  <p className="text-sm text-slate-500">
+                    This store can&apos;t accept new orders right now — contact the merchant on WhatsApp.
+                  </p>
+                </div>
+              ) : product.track_inventory && product.stock_quantity === 0 && !product.allow_backorder ? (
                 <button
                   disabled
                   className="w-full sm:w-auto bg-slate-200 text-slate-500 font-semibold py-3 px-8 rounded-xl cursor-not-allowed"
@@ -269,6 +244,7 @@ export default async function ProductDetailPage({ params }: Props) {
             </div>
           </div>
         </div>
+        </VariantImagesProvider>
       </main>
 
       {/* Footer */}
@@ -284,7 +260,7 @@ export default async function ProductDetailPage({ params }: Props) {
         name={product.name}
         price={product.price_nad}
         imageUrl={images[0] ?? null}
-        isOutOfStock={isOutOfStock || productVariants.length > 0}
+        isOutOfStock={isOutOfStock || productVariants.length > 0 || orderingBlocked}
       />
     </div>
   );

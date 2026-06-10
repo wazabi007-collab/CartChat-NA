@@ -109,6 +109,7 @@ export default function NewProductPage() {
   const atLimit = !canAddProduct(tier, productCount);
   const hasInventory = hasTierFeature(tier, "inventory");
   const productLimit = TIER_LIMITS[tier].products;
+  const productsRemaining = productLimit === -1 ? -1 : Math.max(0, productLimit - productCount);
 
   function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
@@ -336,12 +337,12 @@ export default function NewProductPage() {
           <Lock size={32} className="mx-auto text-amber-500 mb-3" />
           <h2 className="text-lg font-semibold text-gray-900 mb-1">Product limit reached</h2>
           <p className="text-sm text-gray-600 mb-4">
-            You&apos;ve used {productCount}/{productLimit} products on the{" "}
+            You&apos;ve reached your plan&apos;s product limit ({productCount}/{productLimit}) on the{" "}
             <span className="font-medium">{TIER_LABELS[tier]}</span> plan.
             Upgrade to add more.
           </p>
           <Link
-            href="/#pricing"
+            href="/pricing"
             className="inline-block bg-green-600 text-white px-6 py-2.5 rounded-lg font-medium text-sm hover:bg-green-700 transition-colors"
           >
             View Plans
@@ -365,6 +366,12 @@ export default function NewProductPage() {
         {productLimit !== -1 && (
           <p className="text-xs text-gray-400 mt-1">
             {productCount}/{productLimit} items used ({TIER_LABELS[tier]})
+          </p>
+        )}
+        {productLimit !== -1 && productsRemaining <= 3 && (
+          <p className="text-xs text-amber-600 mt-1">
+            {productsRemaining} product{productsRemaining !== 1 ? "s" : ""} remaining on your plan.{" "}
+            <Link href="/pricing" className="text-green-600 hover:underline">Upgrade</Link>
           </p>
         )}
       </div>
@@ -699,10 +706,10 @@ export default function NewProductPage() {
         <div className="flex items-center gap-3 pt-4 border-t">
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || atLimit}
             className={cn(
               "flex items-center gap-2 bg-green-600 text-white px-6 py-2.5 rounded-lg font-medium text-sm transition-colors",
-              loading
+              loading || atLimit
                 ? "opacity-50 cursor-not-allowed"
                 : "hover:bg-green-700"
             )}

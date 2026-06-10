@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { getOrderPayableTotal, VAT_RATE_LABEL } from "@/lib/vat";
 
@@ -67,7 +68,9 @@ function getStepIndex(status: string): number {
 
 function formatTime(dateStr: string): string {
   const d = new Date(dateStr);
-  return d.toLocaleTimeString("en-NA", { hour: "2-digit", minute: "2-digit" });
+  const date = d.toLocaleDateString("en-NA", { day: "numeric", month: "short" });
+  const time = d.toLocaleTimeString("en-NA", { hour: "2-digit", minute: "2-digit", hour12: false });
+  return `${date}, ${time}`;
 }
 
 function formatDate(dateStr: string): string {
@@ -86,6 +89,7 @@ export function TrackerClient({
   const [showAllItems, setShowAllItems] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const merchant = order.merchants;
   const isCancelled = order.status === "cancelled";
@@ -157,6 +161,7 @@ export function TrackerClient({
       });
 
       if (res.ok) {
+        setUploadSuccess(true);
         // Re-fetch order to show updated POP status
         const data = await fetch(`/api/orders/track/${token}`).then((r) => r.json());
         if (data.order) setOrder(data.order);
@@ -175,6 +180,7 @@ export function TrackerClient({
     !isCancelled &&
     order.payment_method !== "cod" &&
     !order.proof_of_payment_url &&
+    !uploadSuccess &&
     order.status !== "completed";
 
   const items = order.order_items || [];
@@ -306,10 +312,14 @@ export function TrackerClient({
                   : "bg-amber-600 text-white hover:bg-amber-700"
               }`}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-              {uploading ? "Uploading..." : "Upload Proof of Payment"}
+              {uploading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+              )}
+              {uploading ? "Uploading…" : "Upload Proof of Payment"}
               <input
                 type="file"
                 accept="image/*"
@@ -324,13 +334,16 @@ export function TrackerClient({
           </div>
         )}
 
-        {order.proof_of_payment_url && (
+        {(order.proof_of_payment_url || uploadSuccess) && (
           <div className="bg-green-50 border border-green-200 rounded-xl p-4">
             <p className="text-green-800 text-sm font-medium flex items-center gap-1.5">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Payment proof received
+              Proof of payment received!
+            </p>
+            <p className="text-green-700 text-xs mt-1">
+              The merchant will verify and confirm your order shortly.
             </p>
           </div>
         )}

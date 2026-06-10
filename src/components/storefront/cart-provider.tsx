@@ -34,6 +34,9 @@ interface CartContextValue {
   clearCart: () => void;
   getTotal: () => number;
   itemCount: number;
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -57,6 +60,7 @@ export function CartProvider({
 }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [cartLoaded, setCartLoaded] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -89,9 +93,14 @@ export function CartProvider({
         }
         return [...prev, { ...item, quantity: 1 }];
       });
+      // Auto-open the cart drawer so buyers see the item land in their cart
+      setIsDrawerOpen(true);
     },
     []
   );
+
+  const openDrawer = useCallback(() => setIsDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setIsDrawerOpen(false), []);
 
   const removeItem = useCallback((cartKey: string) => {
     setItems((prev) => prev.filter((i) => getCartItemKey(i) !== cartKey));
@@ -133,6 +142,9 @@ export function CartProvider({
         clearCart,
         getTotal,
         itemCount,
+        isDrawerOpen,
+        openDrawer,
+        closeDrawer,
       }}
     >
       {children}

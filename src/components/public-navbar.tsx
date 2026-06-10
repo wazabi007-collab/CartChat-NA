@@ -35,7 +35,7 @@ export function PublicNavbar() {
             width={170}
             height={24}
             priority
-            style={{ width: 170, height: "auto" }}
+            className="w-[130px] sm:w-[170px] h-auto"
           />
         </Link>
 
@@ -71,10 +71,11 @@ export function PublicNavbar() {
           <Link
             href="/signup"
             onClick={() => track("landing_cta_clicked", { cta_location: "navbar" })}
-            className="inline-flex items-center gap-2 text-sm px-4 py-2.5 bg-terracotta text-white rounded-lg hover:bg-[#234B86] transition-colors font-bold shadow-sm shadow-terracotta/20"
+            className="inline-flex items-center gap-2 text-sm px-3 sm:px-4 py-2.5 bg-terracotta text-white rounded-lg hover:bg-[#234B86] transition-colors font-bold shadow-sm shadow-terracotta/20 whitespace-nowrap"
           >
             <Store size={16} />
-            Create Free Store
+            <span className="sm:hidden">Create Store</span>
+            <span className="hidden sm:inline">Create Free Store</span>
           </Link>
 
           {/* Mobile menu button */}

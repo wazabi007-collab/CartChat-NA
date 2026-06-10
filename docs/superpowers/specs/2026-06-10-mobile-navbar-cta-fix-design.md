@@ -24,9 +24,12 @@ All changes in `public-navbar.tsx`; no other files touched.
    icon remains in both cases.
 2. **Wrap guard:** add `whitespace-nowrap` to the CTA link classes so the label
    can never wrap, regardless of future copy edits.
-3. **Responsive logo:** render the logo at ~140px below `sm:` and 170px from
-   `sm:` up, using Tailwind width classes (`w-[140px] sm:w-[170px] h-auto`)
+3. **Responsive logo:** render the logo at 130px below `sm:` and 170px from
+   `sm:` up, using Tailwind width classes (`w-[130px] sm:w-[170px] h-auto`)
    instead of the inline `style`. `flex-shrink-0` stays.
+4. **Compact CTA padding on mobile:** `px-3 sm:px-4` on the CTA link. Combined
+   with the 130px logo this yields an 8px logo↔CTA gap at 360px (140px logo
+   left them touching).
 
 Mobile label is "Create Store" (keeps the verb; "Free" is already echoed by the
 hero button immediately below the header).

@@ -67,6 +67,7 @@ interface Props {
   pay2cellNumber: string | null;
   vatNumber: string | null;
   vatInclusive: boolean;
+  popRequired: boolean;
 }
 
 interface CouponApplied {
@@ -194,6 +195,7 @@ export function CheckoutForm({
   pay2cellNumber,
   vatNumber,
   vatInclusive,
+  popRequired,
 }: Props) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState("");
@@ -261,6 +263,7 @@ export function CheckoutForm({
 
   const hasBankDetails = bankName && bankAccountNumber;
   const needsProof = paymentMethod !== "cod";
+  const proofRequired = popRequired && paymentMethod === "eft";
   const effectiveDeliveryProvider: DeliveryProvider =
     deliveryMethod === "delivery" ? deliveryProvider : "store";
   const deliveryProviderLabel = getDeliveryProviderLabel(effectiveDeliveryProvider);
@@ -368,6 +371,12 @@ export function CheckoutForm({
       setError("Please select a delivery date and time slot");
       return;
     }
+    if (proofRequired && !proofFile) {
+      setError(
+        "This store requires proof of payment for EFT orders. Please upload your payment confirmation before placing the order."
+      );
+      return;
+    }
 
     setSubmitting(true);
     track("checkout_submitted", { merchant_id: merchantId, item_count: cartItems.length, total_nad: total, payment_method: paymentMethod });
@@ -449,7 +458,8 @@ export function CheckoutForm({
         return;
       }
 
-      // Upload proof of payment if provided
+      // Upload proof of payment if provided. Store the storage PATH —
+      // consumers re-sign it on demand (signed URLs expire after 7 days).
       let proofUrl: string | null = null;
       if (proofFile) {
         const ext = proofFile.name.split(".").pop();
@@ -465,11 +475,7 @@ export function CheckoutForm({
           throw new Error("Failed to upload proof of payment");
         }
 
-        const { data: urlData } = await supabase.storage
-          .from("order-proofs")
-          .createSignedUrl(uploadData.path, 604800); // 7-day expiry
-
-        proofUrl = urlData?.signedUrl || null;
+        proofUrl = uploadData.path;
       }
 
       // Create order via RPC
@@ -1187,10 +1193,12 @@ export function CheckoutForm({
         {needsProof && (
           <div>
             <label className={label}>
-              Proof of Payment (optional)
+              Proof of Payment {proofRequired ? "(required)" : "(optional)"}
             </label>
             <p className={`${helperText} mb-2`}>
-              Upload a screenshot of your payment confirmation. Max 5MB.
+              {proofRequired
+                ? "This store requires proof for EFT orders. Upload a screenshot of your payment confirmation. Max 5MB."
+                : "Upload a screenshot of your payment confirmation. Max 5MB."}
             </p>
             <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-lg p-4 cursor-pointer hover:border-green-500 transition-colors">
               <Upload className="w-5 h-5 text-gray-400" />

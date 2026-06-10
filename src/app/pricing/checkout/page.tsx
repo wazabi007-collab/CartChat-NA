@@ -3,12 +3,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { TIER_LIMITS, TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
+import { PUBLIC_PLANS } from "@/lib/plans";
 import { SITE_NAME } from "@/lib/constants";
 import { isDpoEnabled } from "@/lib/dpo";
 import { Check, ArrowLeft } from "lucide-react";
 import { PaymentSection } from "./payment-section";
 
-const VALID_TIERS: SubscriptionTier[] = ["oshi_basic", "oshi_grow"];
+const VALID_TIERS: SubscriptionTier[] = PUBLIC_PLANS.map((p) => p.tier);
 
 const OSHICART_BANK = {
   bank: "Nedbank Namibia",
@@ -19,26 +20,6 @@ const OSHICART_BANK = {
 };
 
 const OSHICART_WHATSAPP = "+264816274823";
-
-const TIER_FEATURES: Record<string, string[]> = {
-  oshi_basic: [
-    "50 products",
-    "300 orders/month",
-    "No OshiCart branding on your store",
-    "Sales analytics",
-    "WhatsApp order notifications",
-    "EFT, COD, MoMo, eWallet payments",
-  ],
-  oshi_grow: [
-    "200 products",
-    "1,000 orders/month",
-    "Automated WhatsApp order updates",
-    "Automated confirmed, ready, completed messages",
-    "Inventory tracking",
-    "Coupon & discount codes",
-    "Everything in Storefront",
-  ],
-};
 
 interface Props {
   searchParams: Promise<{ tier?: string }>;
@@ -71,7 +52,7 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
   const tierLabel = TIER_LABELS[tier];
   const priceNad = tierLimit.price_nad / 100;
   const priceDisplay = `N$${priceNad.toLocaleString()}`;
-  const features = TIER_FEATURES[tier] || [];
+  const features = PUBLIC_PLANS.find((p) => p.tier === tier)?.features ?? [];
   const refSuffix = tier.replace("oshi_", "").toUpperCase();
   const reference = merchantId
     ? `OSHI-${refSuffix}-${merchantId.slice(0, 8).toUpperCase()}`

@@ -69,6 +69,8 @@ oshicart-homepage-ref.png
 
 # unoptimized source images (keep WebP only)
 public/*.png
+!public/icon-*.png
+!public/apple-icon.png
 !public/landing/*.png
 public/hero-bg.webp
 public/hero-illustration.svg

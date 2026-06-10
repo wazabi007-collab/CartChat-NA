@@ -17,15 +17,15 @@ export function CtaBar() {
               <div>
                 <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-black uppercase tracking-wide text-white/80">
                   <Film size={15} className="text-sun" />
-                  Built for video marketing
+                  Made for social selling
                 </div>
                 <h2 className="text-3xl font-black tracking-tight sm:text-4xl">
-                  Turn every feature into a Facebook, Instagram, and TikTok ad.
+                  Show your store in Facebook, Instagram, and TikTok content.
                 </h2>
                 <p className="mt-4 text-base leading-7 text-white/75">
-                  The redesigned site should support short demos: setup, store
-                  sharing, checkout, payment proof, dashboard orders, and local
-                  payment methods.
+                  Record simple demos from your real store link: products,
+                  checkout, proof of payment, automated WhatsApp updates, and
+                  local payment options.
                 </p>
               </div>
               <div className="grid gap-3">

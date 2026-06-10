@@ -21,26 +21,68 @@ its own prices/limits:
   two publicly-sold plans. `oshi_pro` is in real use as an admin-comped
   unlimited tier.
 
-Decision (made with user): **make Oshi-Pro a public third plan priced at
-N$799/mo (unlimited products + orders).** Canonical ladder:
+Decisions (made with user):
+1. **Make Oshi-Pro a public third plan priced at N$799/mo** (unlimited
+   products + orders).
+2. **Make the free trial full-featured.** Today `oshi_start` has automation,
+   inventory, coupons all OFF and OshiCart branding ON — a hobbled preview.
+   The trial should give the *whole* paid experience and cap only **volume**:
+   all features ON (inventory, coupons, branding removed), products and orders
+   limited to **20 products / 50 orders/mo**.
 
-| Tier key | Name | Price | Products | Orders/mo |
-|----------|------|-------|----------|-----------|
-| `oshi_start` | Oshi-Start (free trial) | Free | 10 | 20 |
-| `oshi_basic` | Oshi-Storefront | N$149 | 50 | 300 |
-| `oshi_grow` | Oshi-Automate | N$399 | 200 | 1,000 |
-| `oshi_pro` | Oshi-Pro | **N$799** | Unlimited | Unlimited |
+Canonical ladder:
+
+| Tier key | Name | Price | Products | Orders/mo | Inventory | Coupons | Branding |
+|----------|------|-------|----------|-----------|-----------|---------|----------|
+| `oshi_start` | Oshi-Start (free trial) | Free | **20** | **50** | **on** | **on** | **removed** |
+| `oshi_basic` | Oshi-Storefront | N$149 | 50 | 300 | off | off | removed |
+| `oshi_grow` | Oshi-Automate | N$399 | 200 | 1,000 | on | on | removed |
+| `oshi_pro` | Oshi-Pro | **N$799** | Unlimited | Unlimited | on | on | removed |
+
+Note this makes the trial briefly *more* capable than the paid Storefront tier
+on features (inventory/coupons) — intentional: the trial is a full taste, and
+unpaid trials lapse to grace/suspended after 30 days (there is no permanent
+free tier to abuse).
 
 ## Design
 
 ### 1. Fix the data
 
-- **Migration `040_align_oshi_pro_pricing.sql`:**
-  `UPDATE public.tier_limits SET price_nad = 79900 WHERE tier = 'oshi_pro';`
-  Apply to production Supabase (project pcseqiaqeiiaiqxqtfmw). Limits stay
-  `-1/-1` (already correct).
-- **`src/lib/tier-limits.ts`:** set `oshi_pro.price_nad` `49900 → 79900`.
-  This file stays the single code-side source of truth for prices/limits.
+`tier_limits` columns: `max_products, max_orders_per_month, has_inventory,
+has_coupons, has_branding, price_nad`.
+
+- **Migration `040_tier_canonicalization.sql`** (apply to production Supabase
+  project pcseqiaqeiiaiqxqtfmw):
+  ```sql
+  -- Oshi-Pro: correct stale price (was 120000) to the public N$799.
+  UPDATE public.tier_limits SET price_nad = 79900 WHERE tier = 'oshi_pro';
+
+  -- Free trial: full-featured, volume-capped.
+  UPDATE public.tier_limits
+  SET max_products = 20,
+      max_orders_per_month = 50,
+      has_inventory = true,
+      has_coupons = true,
+      has_branding = false
+  WHERE tier = 'oshi_start';
+  ```
+- **`src/lib/tier-limits.ts`** (the single code-side source of truth):
+  - `oshi_pro.price_nad` `49900 → 79900`.
+  - `oshi_start`: `products 10 → 20`, `orders_per_month 20 → 50`,
+    `inventory false → true`, `coupons false → true`, `branding true → false`.
+
+### 1a. Trial entitlement ripple — verify (no code changes expected)
+
+These read the tier config and should adjust automatically once `oshi_start`
+flips:
+- **Nav** (`src/components/dashboard/nav.tsx`): the Coupons link is gated by
+  `hasTierFeature(tier, "coupons")` → trial users now see Coupons. ✓
+- **Branding** (`showBranding(tier)`): trial storefronts now hide the
+  "Powered by OshiCart" mark. ✓
+- **Inventory UI** gated by `hasTierFeature(tier, "inventory")` → available in
+  trial. ✓
+Confirm no surface hardcodes `oshi_start` feature flags instead of reading the
+helpers (grep `oshi_start` in `src/`).
 
 ### 2. Single source for public plan presentation — `src/lib/plans.ts` (new)
 
@@ -114,7 +156,12 @@ Known consumers to verify: `src/app/(dashboard)/dashboard/page.tsx` (reads
 
 - `npx tsc --noEmit` and `npm run build` clean.
 - Migration applied; `SELECT price_nad FROM tier_limits WHERE tier='oshi_pro'`
-  returns `79900`.
+  returns `79900`; `oshi_start` row returns `max_products=20,
+  max_orders_per_month=50, has_inventory=true, has_coupons=true,
+  has_branding=false`.
+- A trial (`oshi_start`) merchant: Coupons appears in the dashboard nav,
+  inventory tracking is available, and their public storefront shows no
+  "Powered by OshiCart" branding; product cap blocks at 20, order cap at 50.
 - Homepage and `/pricing` show three cards: N$149 / N$399 / N$799 with correct
   product/order counts; Automate highlighted.
 - Checkout `/pricing/checkout?tier=oshi_pro` renders (N$799, unlimited

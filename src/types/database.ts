@@ -44,6 +44,7 @@ export interface Database {
           safety_notes: string | null;
           vat_number: string | null;
           vat_inclusive: boolean;
+          pop_required: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -70,6 +71,7 @@ export interface Database {
           safety_notes?: string | null;
           vat_number?: string | null;
           vat_inclusive?: boolean;
+          pop_required?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -96,6 +98,7 @@ export interface Database {
           safety_notes?: string | null;
           vat_number?: string | null;
           vat_inclusive?: boolean;
+          pop_required?: boolean;
           created_at?: string;
           updated_at?: string;
         };

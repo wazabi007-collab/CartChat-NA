@@ -47,14 +47,14 @@ export default async function AnalyticsPage() {
   if (completedIds.length > 0) {
     const { data: items } = await supabase
       .from("order_items")
-      .select("product_name, quantity, unit_price_nad")
+      .select("product_name, quantity, line_total")
       .in("order_id", completedIds);
 
     const productMap = new Map<string, { qty: number; revenue: number }>();
     (items || []).forEach((item) => {
       const existing = productMap.get(item.product_name) || { qty: 0, revenue: 0 };
       existing.qty += item.quantity;
-      existing.revenue += item.unit_price_nad * item.quantity;
+      existing.revenue += item.line_total;
       productMap.set(item.product_name, existing);
     });
 

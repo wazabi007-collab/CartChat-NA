@@ -310,6 +310,7 @@ export default async function OrdersPage({
                   orderTotal={formatPrice(orderTotal)}
                   trackingToken={order.tracking_token || ""}
                   deliveryMethod={order.delivery_method || "pickup"}
+                  hasProof={!!order.proof_of_payment_url}
                 />
                 <a
                   href={`/invoice/${order.id}`}

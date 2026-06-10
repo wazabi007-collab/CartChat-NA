@@ -36,6 +36,7 @@ interface OrderActionsProps {
   orderTotal: string;
   trackingToken: string;
   deliveryMethod: string;
+  hasProof: boolean;
 }
 
 export function OrderActions({
@@ -51,12 +52,19 @@ export function OrderActions({
   orderTotal,
   trackingToken,
   deliveryMethod,
+  hasProof,
 }: OrderActionsProps) {
   const [loading, setLoading] = useState(false);
   const [notifyStatus, setNotifyStatus] = useState<NotifiableStatus | null>(null);
   const [confirmAction, setConfirmAction] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
+
+  const confirmLabel = hasProof ? "Confirm payment" : "Confirm";
+  const statusLabels: Record<string, string> = {
+    ...STATUS_LABELS,
+    confirmed: confirmLabel,
+  };
 
   async function updateStatus(newStatus: string) {
     const allowed = VALID_TRANSITIONS[currentStatus] || [];
@@ -172,7 +180,7 @@ export function OrderActions({
           <p className="text-sm text-gray-700">
             {isDestructive
               ? `Cancel order #${orderNumber}? This cannot be undone.`
-              : `${STATUS_LABELS[confirmAction]} order #${orderNumber}?`}
+              : `${statusLabels[confirmAction]} order #${orderNumber}?`}
           </p>
         </div>
         <div className="flex gap-2">
@@ -184,7 +192,7 @@ export function OrderActions({
                 : "bg-green-600 text-white hover:bg-green-700"
             }`}
           >
-            Yes, {STATUS_LABELS[confirmAction].toLowerCase()}
+            Yes, {statusLabels[confirmAction].toLowerCase()}
           </button>
           <button
             onClick={() => setConfirmAction(null)}
@@ -256,7 +264,7 @@ export function OrderActions({
           onClick={() => setConfirmAction("confirmed")}
           className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
-          Confirm
+          {confirmLabel}
         </button>
       )}
       {validNext.includes("ready") && (

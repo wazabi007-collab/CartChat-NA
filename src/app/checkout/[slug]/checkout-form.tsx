@@ -510,7 +510,7 @@ export function CheckoutForm({
       // order-proofs bucket blocks direct client uploads (RLS), and the route
       // also validates the file and notifies the merchant.
       let proofUploadFailed = false;
-      if (proofFile) {
+      if (proofFile && paymentMethod !== "cod") {
         try {
           const popForm = new FormData();
           popForm.append("order_id", order.order_id);
@@ -1081,7 +1081,10 @@ export function CheckoutForm({
                   name="paymentMethod"
                   value={method}
                   checked={paymentMethod === method}
-                  onChange={() => setPaymentMethod(method as PaymentMethod)}
+                  onChange={() => {
+                    setPaymentMethod(method as PaymentMethod);
+                    if (method === "cod") setProofFile(null);
+                  }}
                   className="sr-only"
                 />
                 <div className="text-lg">{info.icon}</div>
@@ -1221,7 +1224,7 @@ export function CheckoutForm({
               </span>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,.pdf"
                 onChange={handleProofChange}
                 className="sr-only"
               />

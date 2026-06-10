@@ -159,7 +159,7 @@ export default async function OrdersPage({
               merchant.pop_required &&
               order.payment_method === "eft" &&
               !order.proof_of_payment_url &&
-              order.status === "pending";
+              !["completed", "cancelled"].includes(order.status);
             return (
             <div
               key={order.id}

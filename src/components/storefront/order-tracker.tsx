@@ -237,7 +237,7 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.pdf"
         onChange={handleFileSelected}
         className="hidden"
       />

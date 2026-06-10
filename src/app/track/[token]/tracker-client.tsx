@@ -322,7 +322,7 @@ export function TrackerClient({
               {uploading ? "Uploading…" : "Upload Proof of Payment"}
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,.pdf"
                 className="hidden"
                 onChange={handleUpload}
                 disabled={uploading}

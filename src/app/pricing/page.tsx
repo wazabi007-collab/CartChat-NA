@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BotMessageSquare, Check, Store } from "lucide-react";
+import { ArrowRight, BotMessageSquare, Check, Rocket, Store } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { PublicNavbar } from "@/components/public-navbar";
+import { PUBLIC_PLANS, type PlanIconKey } from "@/lib/plans";
+
+const ICONS: Record<PlanIconKey, LucideIcon> = {
+  store: Store,
+  automate: BotMessageSquare,
+  pro: Rocket,
+};
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -10,46 +17,6 @@ export const metadata: Metadata = {
     "OshiCart pricing for Namibian sellers: a storefront plan and an automated WhatsApp plan for customer order updates.",
   alternates: { canonical: "/pricing" },
 };
-
-const PLANS = [
-  {
-    name: "Oshi-Storefront",
-    price: "N$149",
-    period: "/month",
-    audience: "For vendors, home businesses, and small shops",
-    href: "/signup?tier=oshi_basic",
-    cta: "Start Storefront",
-    icon: Store,
-    features: [
-      "50 products",
-      "300 orders/month",
-      "OshiCart store link",
-      "Local payment methods",
-      "Proof-of-payment upload",
-      "Manual WhatsApp order handoff",
-      "Sales analytics",
-    ],
-  },
-  {
-    name: "Oshi-Automate",
-    price: "N$399",
-    period: "/month",
-    audience: "For sellers who want WhatsApp updates sent automatically",
-    href: "/signup?tier=oshi_grow",
-    cta: "Start Automate",
-    highlighted: true,
-    icon: BotMessageSquare,
-    features: [
-      "200 products",
-      "1,000 orders/month",
-      "Automated WhatsApp order updates",
-      "Automated confirmed, ready, completed messages",
-      "Inventory tracking",
-      "Coupon codes",
-      "Branding removal",
-    ],
-  },
-];
 
 export default function PricingPage() {
   return (
@@ -63,7 +30,7 @@ export default function PricingPage() {
               WhatsApp automation available
             </span>
             <h1 className="text-4xl font-black tracking-tight text-walnut sm:text-5xl">
-              Two simple categories for Namibian sellers.
+              Plans that scale with your store.
             </h1>
             <p className="mt-4 text-base leading-7 text-walnut-2">
               Use Storefront when you need a professional order link. Use
@@ -72,9 +39,20 @@ export default function PricingPage() {
             </p>
           </div>
 
-          <div className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-2">
-            {PLANS.map((plan) => (
-              <PricingCard key={plan.name} {...plan} />
+          <div className="mx-auto mt-12 grid max-w-6xl gap-5 md:grid-cols-3">
+            {PUBLIC_PLANS.map((plan) => (
+              <PricingCard
+                key={plan.tier}
+                name={plan.name}
+                price={plan.priceDisplay}
+                period={plan.period}
+                audience={plan.audience}
+                features={plan.features}
+                cta={plan.cta}
+                href={plan.href}
+                icon={ICONS[plan.iconKey]}
+                highlighted={plan.highlighted}
+              />
             ))}
           </div>
 

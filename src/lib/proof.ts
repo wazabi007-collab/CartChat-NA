@@ -7,7 +7,12 @@ export function resolveProofPath(value: string | null): string | null {
   if (!value) return null;
   if (!value.startsWith("http")) return value;
   const match = value.match(/\/object\/sign\/order-proofs\/([^?]+)/);
-  return match ? decodeURIComponent(match[1]) : null;
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return null;
+  }
 }
 
 export function isPdfProof(path: string): boolean {

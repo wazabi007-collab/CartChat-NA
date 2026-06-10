@@ -26,6 +26,11 @@ path in `orders.proof_of_payment_url`, and alerts the merchant on WhatsApp
   required" blocks checkout submission client-side until a file is attached and
   changes the copy. Orders are still created first; the upload attaches to the
   order ID as today.
+- **EFT only:** The requirement applies ONLY to `eft` (bank transfer). Instant
+  mobile-wallet methods — `pay2cell`, `ewallet`, `momo` (FNB eWallet/Pay2Cell,
+  Bank Windhoek, Nedbank mobile payments) — notify the merchant directly, so
+  they are exempt, as are `cod` and `dpo`. For exempt methods the upload stays
+  available as "(optional)" exactly as today.
 
 ## Design
 
@@ -39,14 +44,15 @@ path in `orders.proof_of_payment_url`, and alerts the merchant on WhatsApp
 ### 2. Merchant settings toggle
 
 In `src/app/(dashboard)/dashboard/settings/page.tsx`, payments section, add a
-"Require proof of payment" toggle following the existing `vat_inclusive`
-pattern. Helper copy: customers must upload proof (e.g. EFT/eWallet
-screenshot) before completing checkout; does not apply to Cash on Delivery.
-Persisted with the existing settings save path.
+"Require proof of payment for EFT" toggle following the existing
+`vat_inclusive` pattern. Helper copy: customers paying by bank transfer (EFT)
+must upload proof before completing checkout; instant mobile payments
+(eWallet, Pay2Cell, MoMo) and Cash on Delivery are not affected. Persisted
+with the existing settings save path.
 
 ### 3. Checkout enforcement — `src/app/checkout/[slug]/checkout-form.tsx`
 
-When `merchant.pop_required` is true AND selected payment method ≠ `cod`:
+When `merchant.pop_required` is true AND selected payment method is `eft`:
 
 - Upload label reads **"Proof of Payment (required)"**; remove "optional"
   phrasing for this store.
@@ -56,7 +62,8 @@ When `merchant.pop_required` is true AND selected payment method ≠ `cod`:
   for the upload; do not proceed to the success state silently. The order
   remains visible to the merchant as awaiting proof.
 
-When the toggle is off (or method is COD), behavior is identical to today.
+When the toggle is off, or the method is anything other than EFT, behavior is
+identical to today (upload offered as optional where it is offered now).
 
 ### 4. Merchant orders dashboard — proof preview + one-click confirm
 
@@ -64,8 +71,8 @@ When the toggle is off (or method is COD), behavior is identical to today.
 
 - **Badge per order:**
   - Green "Proof uploaded" when `proof_of_payment_url` is set.
-  - Amber "Awaiting proof" when the store has `pop_required` and the order's
-    payment method ≠ `cod` and no proof is attached.
+  - Amber "Awaiting proof" when the store has `pop_required`, the order's
+    payment method is `eft`, and no proof is attached.
   - No badge otherwise.
 - **Proof preview** in order detail: server-side signed URL (short-lived)
   generated from the stored path for the owning merchant. Images render as an
@@ -97,7 +104,8 @@ When the toggle is off (or method is COD), behavior is identical to today.
 - Manual Playwright pass on local dev:
   1. Toggle on in settings → persists after reload.
   2. Checkout (EFT) shows "required" label and blocks submit without a file.
-  3. Checkout with COD ignores the requirement.
+  3. Checkout with COD, eWallet, Pay2Cell, or MoMo ignores the requirement
+     (still shows "(optional)" where offered).
   4. Place order with proof → merchant order shows green badge + preview;
      image opens full-size.
   5. "Confirm payment" moves order to confirmed; `whatsapp_messages` row for

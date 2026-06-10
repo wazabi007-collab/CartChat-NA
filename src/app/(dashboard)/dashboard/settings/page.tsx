@@ -66,6 +66,7 @@ export default function SettingsPage() {
     pay2cell_number: "",
     vat_number: "",
     vat_inclusive: false,
+    pop_required: false,
   });
 
   const [deliverySlots, setDeliverySlots] = useState<DeliverySlots>({
@@ -107,6 +108,7 @@ export default function SettingsPage() {
           pay2cell_number: merchant.pay2cell_number || "",
           vat_number: merchant.vat_number || "",
           vat_inclusive: false,
+          pop_required: merchant.pop_required ?? false,
         });
         if (merchant.delivery_slots) {
           setDeliverySlots(merchant.delivery_slots as DeliverySlots);
@@ -151,6 +153,7 @@ export default function SettingsPage() {
         pay2cell_number: form.pay2cell_number || null,
         vat_number: form.vat_number || null,
         vat_inclusive: false,
+        pop_required: form.pop_required,
       })
       .eq("id", merchantId);
 
@@ -557,6 +560,31 @@ export default function SettingsPage() {
               <p className={helperText}>
                 Your FNB cellphone banking number. Customers will send Pay2Cell payments to this number.
               </p>
+            </div>
+          )}
+
+          {form.accepted_payment_methods.includes("eft") && (
+            <div className="border-t border-gray-100 pt-4">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={form.pop_required}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, pop_required: e.target.checked }))
+                  }
+                  className="mt-0.5 w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                />
+                <span>
+                  <span className="block text-sm font-medium text-gray-700">
+                    Require proof of payment for EFT
+                  </span>
+                  <span className={helperText}>
+                    Customers paying by bank transfer must upload proof before
+                    placing the order. Instant mobile payments (eWallet,
+                    Pay2Cell, MoMo) and Cash on Delivery are not affected.
+                  </span>
+                </span>
+              </label>
             </div>
           )}
         </div>

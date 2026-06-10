@@ -213,6 +213,7 @@ export function CheckoutForm({
   const [orderId, setOrderId] = useState<string | null>(null);
   const [orderNumber, setOrderNumber] = useState<number | null>(null);
   const [paymentRef, setPaymentRef] = useState<string | null>(null);
+  const [proofUploadWarning, setProofUploadWarning] = useState(false);
 
   // Payment method
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
@@ -458,26 +459,6 @@ export function CheckoutForm({
         return;
       }
 
-      // Upload proof of payment if provided. Store the storage PATH —
-      // consumers re-sign it on demand (signed URLs expire after 7 days).
-      let proofUrl: string | null = null;
-      if (proofFile) {
-        const ext = proofFile.name.split(".").pop();
-        const fileName = `${merchantId}/${Date.now()}.${ext}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("order-proofs")
-          .upload(fileName, proofFile, {
-            cacheControl: "3600",
-            upsert: false,
-          });
-
-        if (uploadError) {
-          throw new Error("Failed to upload proof of payment");
-        }
-
-        proofUrl = uploadData.path;
-      }
-
       // Create order via RPC
       const { data: orderData, error: orderError } = await supabase.rpc(
         "place_order",
@@ -492,7 +473,7 @@ export function CheckoutForm({
           p_delivery_date: deliveryDate || null,
           p_delivery_time: deliveryTime || null,
           p_notes: orderNotes,
-          p_proof_url: proofUrl,
+          p_proof_url: null,
           p_items: cartItems.map((item) => ({
             productId: item.productId,
             variantId: item.variantId || null,
@@ -524,6 +505,29 @@ export function CheckoutForm({
       }
 
       const order = orderData[0] as { order_id: string; order_number: number; payment_reference: string; tracking_token: string };
+
+      // Upload proof of payment through the service-backed API route. The
+      // order-proofs bucket blocks direct client uploads (RLS), and the route
+      // also validates the file and notifies the merchant.
+      let proofUploadFailed = false;
+      if (proofFile) {
+        try {
+          const popForm = new FormData();
+          popForm.append("order_id", order.order_id);
+          popForm.append("whatsapp", customerWhatsapp.trim());
+          popForm.append("file", proofFile);
+          const popRes = await fetch("/api/orders/upload-pop", {
+            method: "POST",
+            body: popForm,
+          });
+          proofUploadFailed = !popRes.ok;
+        } catch {
+          proofUploadFailed = true;
+        }
+      }
+      if (proofUploadFailed) {
+        setProofUploadWarning(true);
+      }
 
       // Sync analytics for new order
       fetch("/api/analytics/sync", {
@@ -640,6 +644,16 @@ export function CheckoutForm({
           Your order number is{" "}
           <span className="font-bold text-gray-900">#{orderNumber}</span>
         </p>
+        {proofUploadWarning && (
+          <div className={alertWarning}>
+            <AlertCircle className={alertIcon} />
+            <p>
+              Your order was placed, but the proof of payment upload failed.
+              You can upload it from your order tracking page, or send it to
+              the store on WhatsApp.
+            </p>
+          </div>
+        )}
         {paymentRef && paymentMethod !== "cod" && (
           <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
             <p className="text-xs text-blue-600 font-medium">Payment Reference</p>

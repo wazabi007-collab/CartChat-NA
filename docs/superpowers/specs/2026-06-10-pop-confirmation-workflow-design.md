@@ -65,6 +65,15 @@ When `merchant.pop_required` is true AND selected payment method is `eft`:
 When the toggle is off, or the method is anything other than EFT, behavior is
 identical to today (upload offered as optional where it is offered now).
 
+**Implementation deviation (verified during build):** the `order-proofs`
+bucket has no INSERT policy (RLS hardening, migration 033), so the original
+direct client upload at checkout always failed with 400 — a pre-existing
+production bug that aborted any order with a proof attached. Checkout now
+places the order first, then uploads via the service-backed
+`/api/orders/upload-pop` route (the same path the tracking page uses), and
+shows a warning on the success screen if the upload fails. Switching to COD
+clears a previously selected proof file. Proof inputs accept `image/*,.pdf`.
+
 ### 4. Merchant orders dashboard — proof preview + one-click confirm
 
 `src/app/(dashboard)/dashboard/orders/page.tsx` + `order-actions.tsx`:

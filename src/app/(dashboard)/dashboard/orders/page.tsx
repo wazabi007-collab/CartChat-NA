@@ -7,7 +7,8 @@ import { OrderActions } from "./order-actions";
 import { QuickStatus } from "@/components/dashboard/quick-status";
 import { OrderItemsToggle } from "@/components/dashboard/order-items-toggle";
 import { card, statusPill } from "@/lib/ui";
-import { Bot, Clock3, PackageCheck, ShieldCheck } from "lucide-react";
+import { Bot, Clock3, FileText, ImageIcon, PackageCheck, ReceiptText, ShieldCheck } from "lucide-react";
+import { resolveProofPath, isPdfProof } from "@/lib/proof";
 
 export default async function OrdersPage({
   searchParams,
@@ -24,7 +25,7 @@ export default async function OrdersPage({
 
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("id, industry, store_name, store_slug")
+    .select("id, industry, store_name, store_slug, pop_required")
     .eq("user_id", user.id)
     .single();
 
@@ -46,6 +47,20 @@ export default async function OrdersPage({
 
   const { data: orders } = await query;
   const orderList = orders || [];
+  const proofPaths = orderList
+    .map((order) => resolveProofPath(order.proof_of_payment_url))
+    .filter((p): p is string => p !== null);
+  const proofUrlByPath = new Map<string, string>();
+  if (proofPaths.length > 0) {
+    const { data: signed } = await supabase.storage
+      .from("order-proofs")
+      .createSignedUrls([...new Set(proofPaths)], 3600);
+    for (const item of signed || []) {
+      if (item.signedUrl && item.path) {
+        proofUrlByPath.set(item.path, item.signedUrl);
+      }
+    }
+  }
   const pendingCount = orderList.filter((order) => order.status === "pending").length;
   const activeCount = orderList.filter((order) =>
     ["pending", "confirmed", "ready"].includes(order.status)
@@ -138,6 +153,13 @@ export default async function OrdersPage({
         <div className="space-y-4">
           {orderList.map((order) => {
             const orderTotal = getOrderPayableTotal(order);
+            const proofPath = resolveProofPath(order.proof_of_payment_url);
+            const proofUrl = proofPath ? proofUrlByPath.get(proofPath) ?? null : null;
+            const awaitingProof =
+              merchant.pop_required &&
+              order.payment_method === "eft" &&
+              !order.proof_of_payment_url &&
+              order.status === "pending";
             return (
             <div
               key={order.id}
@@ -164,6 +186,16 @@ export default async function OrdersPage({
                     {order.payment_method && order.payment_method !== "eft" && (
                       <span className={`${statusPill} bg-gray-100 text-gray-600`}>
                         {order.payment_method === "cod" ? "COD" : order.payment_method === "momo" ? "MoMo" : order.payment_method === "ewallet" ? "eWallet" : "EFT"}
+                      </span>
+                    )}
+                    {order.proof_of_payment_url && (
+                      <span className={`${statusPill} bg-emerald-100 text-emerald-700`}>
+                        Proof uploaded
+                      </span>
+                    )}
+                    {awaitingProof && (
+                      <span className={`${statusPill} bg-amber-100 text-amber-700`}>
+                        Awaiting proof
                       </span>
                     )}
                   </div>
@@ -206,16 +238,6 @@ export default async function OrdersPage({
                     {order.delivery_time ? ` ${order.delivery_time}` : ""}
                   </span>
                 )}
-                {order.proof_of_payment_url && (
-                  <a
-                    href={order.proof_of_payment_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-green-600 hover:underline font-medium"
-                  >
-                    View proof
-                  </a>
-                )}
               </div>
 
               {order.delivery_address && (
@@ -228,6 +250,47 @@ export default async function OrdersPage({
                 <p className="text-xs text-gray-400 mt-1 italic">
                   &quot;{order.notes}&quot;
                 </p>
+              )}
+
+              {order.proof_of_payment_url && (
+                <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/50 p-3">
+                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-emerald-700">
+                    <ReceiptText size={14} />
+                    Proof of payment
+                  </p>
+                  {proofUrl ? (
+                    proofPath && isPdfProof(proofPath) ? (
+                      <a
+                        href={proofUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 hover:underline"
+                      >
+                        <FileText size={16} />
+                        View proof (PDF)
+                      </a>
+                    ) : (
+                      <a
+                        href={proofUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 block w-fit"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={proofUrl}
+                          alt={`Proof of payment for order #${order.order_number}`}
+                          className="max-h-40 rounded-lg border border-emerald-200 object-contain"
+                        />
+                      </a>
+                    )
+                  ) : (
+                    <p className="mt-2 flex items-center gap-1.5 text-sm text-gray-500">
+                      <ImageIcon size={16} />
+                      Proof unavailable (file may have been removed)
+                    </p>
+                  )}
+                </div>
               )}
 
               {/* Expandable order items */}

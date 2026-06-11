@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Trash2, Pencil, CheckSquare, Square, Search, ArrowUpDown, ImagePlus } from "lucide-react";
 import { formatPrice, cn } from "@/lib/utils";
+import { ProductModerationNotice } from "@/components/dashboard/product-moderation-notice";
 
 interface Product {
   id: string;
@@ -21,6 +22,7 @@ interface Product {
   sku: string | null;
   moderation_status: "approved" | "review_required" | "blocked";
   moderation_reasons: string[];
+  hasOpenAppeal: boolean;
 }
 
 export function ProductGrid({ products }: { products: Product[] }) {
@@ -280,9 +282,12 @@ export function ProductGrid({ products }: { products: Product[] }) {
                 </p>
               )}
               {product.moderation_status !== "approved" && (
-                <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
-                  Hidden while OshiCart reviews this listing.
-                </p>
+                <ProductModerationNotice
+                  productId={product.id}
+                  moderationStatus={product.moderation_status}
+                  reasons={product.moderation_reasons}
+                  hasOpenAppeal={product.hasOpenAppeal}
+                />
               )}
               <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">
                 <Link

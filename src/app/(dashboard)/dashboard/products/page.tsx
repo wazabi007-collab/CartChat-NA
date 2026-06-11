@@ -5,6 +5,7 @@ import { Plus, Package, Layers3, Image as ImageIcon, Sparkles } from "lucide-rea
 import { ProductGrid } from "./product-actions";
 import { getServiceLabels } from "@/lib/service-labels";
 import { TIER_LIMITS, type SubscriptionTier } from "@/lib/tier-limits";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export default async function ProductsPage() {
   const supabase = await createClient();
@@ -45,6 +46,16 @@ export default async function ProductsPage() {
   ]);
 
   const productList = products || [];
+  const service = createServiceClient();
+  const { data: openAppeals } = await service
+    .from("safety_reviews")
+    .select("product_id")
+    .eq("merchant_id", merchant.id)
+    .eq("review_type", "merchant_appeal")
+    .eq("status", "open");
+  const appealedProductIds = new Set(
+    (openAppeals ?? []).map((r) => r.product_id).filter((x): x is string => x !== null)
+  );
   const availableCount = productList.filter((p) => p.is_available).length;
   const imageCount = productList.filter((p) => Array.isArray(p.images) && p.images.length > 0).length;
 
@@ -162,6 +173,7 @@ export default async function ProductsPage() {
             sku: p.sku ?? null,
             moderation_status: p.moderation_status ?? "approved",
             moderation_reasons: p.moderation_reasons ?? [],
+            hasOpenAppeal: appealedProductIds.has(p.id),
             category_name: (p.categories as { name: string } | null)?.name ?? null,
           }))}
         />

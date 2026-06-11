@@ -73,7 +73,7 @@ export default function TermsPage() {
           <ul className="list-disc pl-5 space-y-1">
             <li>
               <strong>Oshi-Start (Free Trial):</strong> 20 products and
-              50 orders per month with all features included.
+              50 orders per month with all features included, for 30 days.
             </li>
             <li>
               <strong>Oshi-Storefront (N$149/month):</strong> Up to 50 products and

@@ -148,6 +148,24 @@ export default async function DashboardPage({
 
   return (
     <div className="md:ml-64">
+      {merchant.store_status === "suspended" && (
+        <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+          <p className="font-black">Your store is suspended and not visible to customers.</p>
+          {merchant.safety_notes && (
+            <p className="mt-1 leading-5">{merchant.safety_notes}</p>
+          )}
+          <a
+            href={`https://wa.me/264816274823?text=${encodeURIComponent(
+              `Hi OshiCart, my store "${merchant.store_name}" is suspended and I'd like to appeal.`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center justify-center rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-red-700"
+          >
+            Contact support
+          </a>
+        </div>
+      )}
       <section className="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 md:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -215,19 +233,6 @@ export default async function DashboardPage({
         setupComplete={allChecklistComplete}
         storeLinkShared={merchantExt.store_link_shared ?? false}
       />
-
-      {merchant.store_status === "suspended" && (
-        <div className={`${alertError} mb-6 rounded-2xl p-4`}>
-          <ShieldAlert size={20} className={alertIcon} />
-          <div>
-            <h3 className="font-medium text-red-900">Store Suspended</h3>
-            <p className="text-sm text-red-800 mt-1">
-              Your store has been suspended. Customers cannot view your store or place orders.
-              Please contact support at support@oshicart.com to resolve this.
-            </p>
-          </div>
-        </div>
-      )}
 
       {subscription?.status === "grace" && (
         <div className={`${alertWarning} mb-6 rounded-2xl p-4`}>

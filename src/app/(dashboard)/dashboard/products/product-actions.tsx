@@ -236,14 +236,18 @@ export function ProductGrid({ products }: { products: Product[] }) {
                 <span
                   className={cn(
                     "absolute top-3 right-3 rounded-full px-2.5 py-1 text-xs font-black shadow-sm",
-                    product.moderation_status !== "approved"
+                    product.moderation_status === "blocked"
+                      ? "bg-red-100 text-red-800"
+                      : product.moderation_status === "review_required"
                       ? "bg-amber-100 text-amber-800"
                       : product.is_available
                       ? "bg-emerald-100 text-emerald-800"
                       : "bg-slate-100 text-slate-500"
                   )}
                 >
-                  {product.moderation_status !== "approved"
+                  {product.moderation_status === "blocked"
+                    ? "Blocked"
+                    : product.moderation_status === "review_required"
                     ? "In review"
                     : product.is_available
                     ? "Available"

@@ -72,8 +72,8 @@ export default function TermsPage() {
           <p>OshiCart offers the following subscription tiers:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>
-              <strong>Oshi-Start (Free Trial):</strong> Up to 10 products and
-              20 orders per month for 30 days.
+              <strong>Oshi-Start (Free Trial):</strong> 20 products and
+              50 orders per month with all features included.
             </li>
             <li>
               <strong>Oshi-Storefront (N$149/month):</strong> Up to 50 products and
@@ -84,6 +84,10 @@ export default function TermsPage() {
               <strong>Oshi-Automate (N$399/month):</strong> Up to 200 products and
               1,000 orders per month. Includes automated WhatsApp order updates,
               inventory tracking, and coupon codes.
+            </li>
+            <li>
+              <strong>Oshi-Pro (N$799/month):</strong> Unlimited products and
+              unlimited orders per month.
             </li>
           </ul>
           <p>

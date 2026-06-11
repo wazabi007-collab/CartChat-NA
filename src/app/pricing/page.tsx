@@ -33,9 +33,7 @@ export default function PricingPage() {
               Plans that scale with your store.
             </h1>
             <p className="mt-4 text-base leading-7 text-walnut-2">
-              Use Storefront when you need a professional order link. Use
-              Automate when you want customer WhatsApps sent automatically as
-              orders are confirmed, ready, and completed.
+              Use Storefront when you need a professional order link, Automate when you want customer WhatsApps sent automatically, and Pro when your store has outgrown order limits.
             </p>
           </div>
 

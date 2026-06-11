@@ -16,6 +16,7 @@ export interface SafetyReview {
   reasons: string[];
   content_excerpt: string | null;
   admin_notes: string | null;
+  merchant_message: string | null;
   created_at: string;
   merchants: { store_name: string; store_slug: string; store_status: string } | null;
   products: { name: string; moderation_status: string; is_available: boolean } | null;
@@ -225,6 +226,12 @@ export function SafetyReviewCard({
         <span>Store status: {review.merchants?.store_status || "unknown"}</span>
         {review.products && <span>Listing status: {review.products.moderation_status}</span>}
       </div>
+
+      {review.merchant_message && (
+        <div className="mt-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-900">
+          <span className="font-bold">Merchant says:</span> {review.merchant_message}
+        </div>
+      )}
 
       {review.admin_notes && (
         <p className="mt-3 rounded-2xl bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700">

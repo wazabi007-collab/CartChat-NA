@@ -42,6 +42,7 @@ export interface Database {
           prohibited_policy_version: string | null;
           prohibited_policy_accepted_ip: string | null;
           safety_notes: string | null;
+          delivery_estimate: string | null;
           vat_number: string | null;
           vat_inclusive: boolean;
           pop_required: boolean;
@@ -69,6 +70,7 @@ export interface Database {
           prohibited_policy_version?: string | null;
           prohibited_policy_accepted_ip?: string | null;
           safety_notes?: string | null;
+          delivery_estimate?: string | null;
           vat_number?: string | null;
           vat_inclusive?: boolean;
           pop_required?: boolean;
@@ -96,6 +98,7 @@ export interface Database {
           prohibited_policy_version?: string | null;
           prohibited_policy_accepted_ip?: string | null;
           safety_notes?: string | null;
+          delivery_estimate?: string | null;
           vat_number?: string | null;
           vat_inclusive?: boolean;
           pop_required?: boolean;

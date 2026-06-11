@@ -59,6 +59,7 @@ export default function SettingsPage() {
     bank_account_holder: "",
     bank_branch_code: "",
     delivery_fee_display: "0",
+    delivery_estimate: "",
     accepted_payment_methods: ["eft"] as string[],
     momo_number: "",
     ewallet_number: "",
@@ -101,6 +102,7 @@ export default function SettingsPage() {
           bank_account_holder: merchant.bank_account_holder || "",
           bank_branch_code: merchant.bank_branch_code || "",
           delivery_fee_display: merchant.delivery_fee_nad ? (merchant.delivery_fee_nad / 100).toFixed(2) : "0",
+          delivery_estimate: merchant.delivery_estimate ?? "",
           accepted_payment_methods: merchant.accepted_payment_methods || ["eft"],
           momo_number: merchant.momo_number || "",
           ewallet_number: merchant.ewallet_number || "",
@@ -146,6 +148,7 @@ export default function SettingsPage() {
         bank_branch_code: form.bank_branch_code || null,
         delivery_slots: deliverySlots.enabled ? deliverySlots : null,
         delivery_fee_nad: deliveryFeeCents,
+        delivery_estimate: form.delivery_estimate.trim() || null,
         accepted_payment_methods: form.accepted_payment_methods,
         momo_number: form.momo_number || null,
         ewallet_number: form.ewallet_number || null,
@@ -610,6 +613,22 @@ export default function SettingsPage() {
               className={`${inputBase} ${focusGreen} pl-9`}
               placeholder="30.00"
             />
+          </div>
+          <div>
+            <label className={label}>Delivery estimate</label>
+            <input
+              type="text"
+              maxLength={40}
+              value={form.delivery_estimate}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, delivery_estimate: e.target.value }))
+              }
+              className={`${inputBase} ${focusGreen}`}
+              placeholder="e.g. 1–2 days, same-day, 30 min"
+            />
+            <p className={helperText}>
+              Optional. Shown to customers as &quot;Usually ready in …&quot;.
+            </p>
           </div>
         </div>
 

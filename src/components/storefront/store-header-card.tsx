@@ -1,4 +1,4 @@
-import { MapPin, MessageCircle, Phone, Star } from "lucide-react";
+import { Clock, MapPin, MessageCircle, Phone, Star } from "lucide-react";
 import { ShareActions } from "./share-actions";
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
     openingHours?: string | null;
     rating?: number | null;
     orderCount?: number | null;
+    deliveryEstimate?: string | null;
     slug: string;
   };
   storeUrl: string;
@@ -73,6 +74,12 @@ export function StoreHeaderCard({ store, storeUrl, qrUrl }: Props) {
               <b className="text-acacia">{store.rating.toFixed(1)}</b>
               <span>-</span>
               {store.orderCount} order{store.orderCount === 1 ? "" : "s"}
+            </span>
+          )}
+          {store.deliveryEstimate && (
+            <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full bg-slate-50 border border-slate-200 text-slate-600">
+              <Clock size={13} />
+              Usually ready in {store.deliveryEstimate}
             </span>
           )}
         </div>

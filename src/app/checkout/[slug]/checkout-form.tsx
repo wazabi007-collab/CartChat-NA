@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
+  Clock,
   Upload,
   CheckCircle,
   MessageCircle,
@@ -68,6 +69,7 @@ interface Props {
   vatNumber: string | null;
   vatInclusive: boolean;
   popRequired: boolean;
+  deliveryEstimate?: string | null;
   preview?: boolean;
 }
 
@@ -197,6 +199,7 @@ export function CheckoutForm({
   vatNumber,
   vatInclusive,
   popRequired,
+  deliveryEstimate = null,
   preview = false,
 }: Props) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -914,6 +917,13 @@ export function CheckoutForm({
             Delivery
           </label>
         </div>
+
+        {deliveryEstimate && (
+          <p className="flex items-center gap-1.5 text-sm text-slate-600">
+            <Clock className="w-4 h-4 text-slate-400" />
+            Usually ready in {deliveryEstimate}
+          </p>
+        )}
 
         {deliveryMethod === "delivery" && (
           <>

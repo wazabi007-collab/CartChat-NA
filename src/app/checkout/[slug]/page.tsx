@@ -40,7 +40,7 @@ export default async function CheckoutPage({ params }: Props) {
   let merchantQuery = supabase
     .from("merchants")
     .select(
-      "id, user_id, store_name, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider, pay2cell_number, vat_number, vat_inclusive, pop_required"
+      "id, user_id, store_name, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider, pay2cell_number, vat_number, vat_inclusive, pop_required, delivery_estimate"
     )
     .eq("store_slug", slug);
   if (!previewCookie) {
@@ -152,6 +152,7 @@ export default async function CheckoutPage({ params }: Props) {
           vatNumber={merchant.vat_number ?? null}
           vatInclusive={merchant.vat_inclusive ?? false}
           popRequired={merchant.pop_required ?? false}
+          deliveryEstimate={merchant.delivery_estimate ?? null}
           preview={isPreview}
         />
       </main>

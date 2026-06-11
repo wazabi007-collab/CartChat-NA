@@ -308,6 +308,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
             openingHours: null,
             rating: null,
             orderCount: null,
+            deliveryEstimate: merchant.delivery_estimate,
             slug: merchant.store_slug,
           }}
           storeUrl={`${SITE_URL}/s/${slug}`}

@@ -370,6 +370,7 @@ export interface Database {
           reasons: string[];
           content_excerpt: string | null;
           admin_notes: string | null;
+          merchant_message: string | null;
           created_at: string;
           updated_at: string;
           resolved_at: string | null;
@@ -385,6 +386,7 @@ export interface Database {
           reasons?: string[];
           content_excerpt?: string | null;
           admin_notes?: string | null;
+          merchant_message?: string | null;
           created_at?: string;
           updated_at?: string;
           resolved_at?: string | null;
@@ -400,6 +402,7 @@ export interface Database {
           reasons?: string[];
           content_excerpt?: string | null;
           admin_notes?: string | null;
+          merchant_message?: string | null;
           created_at?: string;
           updated_at?: string;
           resolved_at?: string | null;

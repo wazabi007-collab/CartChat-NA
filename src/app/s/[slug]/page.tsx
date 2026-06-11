@@ -18,6 +18,8 @@ import { StoreHeaderCard } from "@/components/storefront/store-header-card";
 import { StorePaymentStrip } from "@/components/storefront/store-payment-strip";
 import { StoreCategoryGrid } from "@/components/storefront/store-category-grid";
 import { JsonLd } from "@/components/json-ld";
+import { PreviewBanner } from "@/components/storefront/preview-banner";
+import { readPreviewState } from "@/lib/preview";
 
 const PRODUCTS_PER_PAGE = 100;
 const MAX_SEARCH_PRODUCT_IDS = 300;
@@ -71,17 +73,21 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   const activeTab = tab === "orders" ? "orders" : "products";
   const currentPage = Math.max(1, parseInt(pageParam || "1") || 1);
   const supabase = await createClient();
+  const { previewCookie, userId } = await readPreviewState(supabase);
 
   // Fetch merchant
-  const { data: merchant } = await supabase
+  let merchantQuery = supabase
     .from("merchants")
     .select("*")
-    .eq("store_slug", slug)
-    .eq("is_active", true)
-    .eq("store_status", "active")
-    .single();
+    .eq("store_slug", slug);
+  if (!previewCookie) {
+    merchantQuery = merchantQuery.eq("is_active", true).eq("store_status", "active");
+  }
+  const { data: merchant } = await merchantQuery.single();
 
   if (!merchant) notFound();
+
+  const isPreview = previewCookie && !!userId && merchant.user_id === userId;
 
   const variantSearchProductIds: string[] = [];
   if (searchTerm) {
@@ -112,8 +118,8 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     .from("products")
     .select("id", { count: "exact", head: true })
     .eq("merchant_id", merchant.id)
-    .eq("is_available", true)
     .is("deleted_at", null);
+  if (!isPreview) countQuery.eq("is_available", true);
   if (categoryFilter) countQuery.eq("category_id", categoryFilter);
   if (searchFilterParts.length > 0) countQuery.or(searchFilterParts.join(","));
 
@@ -189,10 +195,10 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     .from("products")
     .select("*")
     .eq("merchant_id", merchant.id)
-    .eq("is_available", true)
     .is("deleted_at", null)
     .order("sort_order", { ascending: true })
     .range(offset, offset + PRODUCTS_PER_PAGE - 1);
+  if (!isPreview) productQuery = productQuery.eq("is_available", true);
   if (categoryFilter) productQuery = productQuery.eq("category_id", categoryFilter);
   if (searchFilterParts.length > 0) productQuery = productQuery.or(searchFilterParts.join(","));
   const { data: products } = await productQuery;
@@ -272,9 +278,10 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {isPreview && <PreviewBanner />}
       <JsonLd data={breadcrumbSchema} />
       <JsonLd data={localBusinessSchema} />
-      <TrackView merchantId={merchant.id} />
+      {!isPreview && <TrackView merchantId={merchant.id} />}
       {/* Site Navigation — slim transparent bar */}
       <nav className="bg-white/90 border-b border-slate-200/70 backdrop-blur">
         <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between text-xs">
@@ -480,7 +487,9 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
           ) : (
             <span />
           )}
-          <ReportButton merchantId={merchant.id} storeName={merchant.store_name} />
+          {!isPreview && (
+            <ReportButton merchantId={merchant.id} storeName={merchant.store_name} />
+          )}
         </div>
       </footer>
     </div>

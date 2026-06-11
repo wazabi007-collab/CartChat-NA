@@ -4,7 +4,8 @@ import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
-import { Plus, Trash2, Pencil, X, BadgePercent, Megaphone, TimerReset } from "lucide-react";
+import { copyToClipboard } from "@/lib/clipboard";
+import { Plus, Trash2, Pencil, X, BadgePercent, Megaphone, TimerReset, Copy, Check } from "lucide-react";
 
 interface Coupon {
   id: string;
@@ -53,6 +54,7 @@ export default function CouponsPage() {
   const [form, setForm] = useState<CouponForm>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -434,6 +436,21 @@ export default function CouponsPage() {
                       <span className="font-bold text-gray-900 font-mono text-lg">
                         {coupon.code}
                       </span>
+                      <button
+                        onClick={async () => {
+                          await copyToClipboard(coupon.code);
+                          setCopiedCode(coupon.code);
+                          setTimeout(() => setCopiedCode(null), 2000);
+                        }}
+                        className="flex-shrink-0 px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors inline-flex items-center gap-1"
+                      >
+                        {copiedCode === coupon.code ? (
+                          <Check size={12} className="text-green-600" />
+                        ) : (
+                          <Copy size={12} />
+                        )}
+                        {copiedCode === coupon.code ? "Copied!" : "Copy"}
+                      </button>
                       {!coupon.is_active && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
                           Inactive

@@ -2,25 +2,14 @@
 
 import { useState } from "react";
 import { Copy, Check, Share2, MessageCircle, Link as LinkIcon } from "lucide-react";
+import { copyToClipboard } from "@/lib/clipboard";
 
 export function CopyStoreLink({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
   const [copiedMessage, setCopiedMessage] = useState(false);
 
   async function copyText(text: string, setter: (v: boolean) => void) {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      const el = document.createElement("textarea");
-      el.value = text;
-      el.setAttribute("readonly", "");
-      el.style.position = "absolute";
-      el.style.left = "-9999px";
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      document.body.removeChild(el);
-    }
+    await copyToClipboard(text);
     setter(true);
     setTimeout(() => setter(false), 2000);
   }

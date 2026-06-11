@@ -181,8 +181,7 @@ export default async function DashboardPage({
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
-              href={storeUrl}
-              target="_blank"
+              href={`/api/preview/enter?slug=${merchant.store_slug}`}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
             >
               <Store size={16} />

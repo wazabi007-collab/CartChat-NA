@@ -4,6 +4,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { TIER_LIMITS, showBranding, type SubscriptionTier } from "@/lib/tier-limits";
+import { PreviewBanner } from "@/components/storefront/preview-banner";
+import { readPreviewState } from "@/lib/preview";
 import { CheckoutForm } from "./checkout-form";
 
 interface Props {
@@ -33,17 +35,22 @@ export default async function CheckoutPage({ params }: Props) {
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: merchant } = await supabase
+  const { previewCookie, userId } = await readPreviewState(supabase);
+
+  let merchantQuery = supabase
     .from("merchants")
     .select(
-      "id, store_name, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider, pay2cell_number, vat_number, vat_inclusive, pop_required"
+      "id, user_id, store_name, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider, pay2cell_number, vat_number, vat_inclusive, pop_required"
     )
-    .eq("store_slug", slug)
-    .eq("is_active", true)
-    .eq("store_status", "active")
-    .single();
+    .eq("store_slug", slug);
+  if (!previewCookie) {
+    merchantQuery = merchantQuery.eq("is_active", true).eq("store_status", "active");
+  }
+  const { data: merchant } = await merchantQuery.single();
 
   if (!merchant) notFound();
+
+  const isPreview = previewCookie && !!userId && merchant.user_id === userId;
 
   // Fetch subscription
   const { data: subscription } = await supabase
@@ -115,6 +122,7 @@ export default async function CheckoutPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {isPreview && <PreviewBanner />}
       <header className="bg-white border-b">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <h1 className="text-lg font-bold text-gray-900">
@@ -144,6 +152,7 @@ export default async function CheckoutPage({ params }: Props) {
           vatNumber={merchant.vat_number ?? null}
           vatInclusive={merchant.vat_inclusive ?? false}
           popRequired={merchant.pop_required ?? false}
+          preview={isPreview}
         />
       </main>
 

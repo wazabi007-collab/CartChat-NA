@@ -68,6 +68,7 @@ interface Props {
   vatNumber: string | null;
   vatInclusive: boolean;
   popRequired: boolean;
+  preview?: boolean;
 }
 
 interface CouponApplied {
@@ -196,6 +197,7 @@ export function CheckoutForm({
   vatNumber,
   vatInclusive,
   popRequired,
+  preview = false,
 }: Props) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState("");
@@ -346,6 +348,7 @@ export function CheckoutForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (preview) return;
     setError(null);
 
     if (cartItems.length === 0) {
@@ -1246,20 +1249,30 @@ export function CheckoutForm({
         <p className="text-xs text-center text-gray-400 mb-2 md:hidden">
           Secure order — your info stays between you and {storeName}
         </p>
-        <button
-          type="submit"
-          disabled={submitting || cartItems.length === 0}
-          className={`${btnPrimaryGreen} flex items-center justify-center gap-2`}
-        >
-          {submitting ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Placing Order...
-            </>
-          ) : (
-            "Place Order"
-          )}
-        </button>
+        {preview ? (
+          <button
+            type="button"
+            disabled
+            className={`${btnPrimaryGreen} flex items-center justify-center gap-2 opacity-60`}
+          >
+            Preview — ordering disabled
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={submitting || cartItems.length === 0}
+            className={`${btnPrimaryGreen} flex items-center justify-center gap-2`}
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Placing Order...
+              </>
+            ) : (
+              "Place Order"
+            )}
+          </button>
+        )}
       </div>
     </form>
   );

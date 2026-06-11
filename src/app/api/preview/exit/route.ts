@@ -3,6 +3,11 @@ import { PREVIEW_COOKIE } from "@/lib/preview";
 
 export async function GET(req: NextRequest) {
   const res = NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
-  res.cookies.set(PREVIEW_COOKIE, "", { path: "/", maxAge: 0 });
+  res.cookies.set(PREVIEW_COOKIE, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
   return res;
 }

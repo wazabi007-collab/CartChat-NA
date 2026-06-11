@@ -8,6 +8,8 @@ import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { type SubscriptionTier } from "@/lib/tier-limits";
 import { isOrderLimitReached } from "@/lib/order-limit";
 import { JsonLd } from "@/components/json-ld";
+import { PreviewBanner } from "@/components/storefront/preview-banner";
+import { readPreviewState } from "@/lib/preview";
 import { ProductPurchasePanel } from "./product-purchase-panel";
 import { ProductGallery, VariantImagesProvider } from "./product-gallery";
 import { StickyAddToCart } from "./sticky-add-to-cart";
@@ -58,26 +60,31 @@ export default async function ProductDetailPage({ params }: Props) {
   const { slug, productId } = await params;
   const supabase = await createClient();
 
-  // Fetch merchant — must be active and approved
-  const { data: merchant } = await supabase
+  const { previewCookie, userId } = await readPreviewState(supabase);
+
+  // Fetch merchant — must be active and approved (unless previewing)
+  let merchantQuery = supabase
     .from("merchants")
-    .select("id, store_name, industry")
-    .eq("store_slug", slug)
-    .eq("is_active", true)
-    .eq("store_status", "active")
-    .single();
+    .select("id, store_name, industry, user_id")
+    .eq("store_slug", slug);
+  if (!previewCookie) {
+    merchantQuery = merchantQuery.eq("is_active", true).eq("store_status", "active");
+  }
+  const { data: merchant } = await merchantQuery.single();
 
   if (!merchant) notFound();
 
+  const isPreview = previewCookie && !!userId && merchant.user_id === userId;
+
   // Fetch product, verify it belongs to this merchant
-  const { data: product } = await supabase
+  let productQuery = supabase
     .from("products")
     .select("*")
     .eq("id", productId)
     .eq("merchant_id", merchant.id)
-    .eq("is_available", true)
-    .is("deleted_at", null)
-    .single();
+    .is("deleted_at", null);
+  if (!isPreview) productQuery = productQuery.eq("is_available", true);
+  const { data: product } = await productQuery.single();
 
   if (!product) notFound();
 
@@ -140,6 +147,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-slate-50">
+      {isPreview && <PreviewBanner />}
       <JsonLd data={productSchema} />
       <JsonLd data={breadcrumbSchema} />
       {/* Site Navigation — slim transparent bar */}

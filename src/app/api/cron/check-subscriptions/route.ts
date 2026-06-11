@@ -19,6 +19,7 @@ type SubscriptionRow = {
   current_period_end: string | null;
   grace_ends_at: string | null;
   soft_suspended_at: string | null;
+  cancel_at_period_end: boolean;
   merchants: MerchantRow;
 };
 
@@ -46,8 +47,9 @@ export async function GET(request: NextRequest) {
 
   const { data: endingSoon } = await supabase
     .from("subscriptions")
-    .select("id, merchant_id, tier, status, trial_ends_at, current_period_end, grace_ends_at, soft_suspended_at, merchants!inner(id, store_name, whatsapp_number)")
+    .select("id, merchant_id, tier, status, trial_ends_at, current_period_end, grace_ends_at, soft_suspended_at, cancel_at_period_end, merchants!inner(id, store_name, whatsapp_number)")
     .in("status", ["trial", "active"])
+    .eq("cancel_at_period_end", false)
     .or(`trial_ends_at.lte.${sevenDaysAhead},current_period_end.lte.${sevenDaysAhead}`);
 
   for (const sub of ((endingSoon || []) as unknown as SubscriptionRow[])) {

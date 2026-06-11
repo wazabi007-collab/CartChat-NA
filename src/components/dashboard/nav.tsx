@@ -14,6 +14,7 @@ import {
   Ticket,
   User,
   Store,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
@@ -37,6 +38,7 @@ const baseNavItems = [
   { href: "/dashboard/coupons", label: "Coupons", icon: Ticket, requireFeature: "coupons" as const },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, requireFeature: null },
   { href: "/dashboard/account", label: "Account", icon: User, requireFeature: null },
+  { href: "/dashboard/subscription", label: "Subscription", icon: CreditCard, requireFeature: null },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, requireFeature: null },
 ];
 

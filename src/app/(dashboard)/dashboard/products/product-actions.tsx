@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Trash2, Pencil, CheckSquare, Square, Search, ArrowUpDown, ImagePlus } from "lucide-react";
+import { Trash2, Pencil, CheckSquare, Square, Search, ArrowUpDown, ImagePlus, Eye, EyeOff } from "lucide-react";
 import { formatPrice, cn } from "@/lib/utils";
 import { ProductModerationNotice } from "@/components/dashboard/product-moderation-notice";
 
@@ -62,6 +62,28 @@ export function ProductGrid({ products }: { products: Product[] }) {
       if (!res.ok) {
         const err = await res.json();
         alert(err.error || "Failed to delete");
+      } else {
+        setSelected(new Set());
+        setSelectMode(false);
+        router.refresh();
+      }
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function handleBulkAvailability(ids: string[], isAvailable: boolean) {
+    if (ids.length === 0) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/products?ids=${ids.join(",")}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_available: isAvailable }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || "Failed to update");
       } else {
         setSelected(new Set());
         setSelectMode(false);
@@ -161,14 +183,32 @@ export function ProductGrid({ products }: { products: Product[] }) {
               Cancel
             </button>
             {selected.size > 0 && (
-              <button
-                onClick={() => handleDelete(Array.from(selected))}
-                disabled={deleting}
-                className="flex items-center gap-1 text-xs text-red-600 hover:text-red-800 px-3 py-1.5 bg-red-50 border border-red-200 rounded-lg disabled:opacity-50"
-              >
-                <Trash2 size={14} />
-                {deleting ? "Deleting..." : `Delete ${selected.size}`}
-              </button>
+              <>
+                <button
+                  onClick={() => handleBulkAvailability(Array.from(selected), false)}
+                  disabled={deleting}
+                  className="flex items-center gap-1 text-xs text-slate-600 hover:text-slate-800 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg disabled:opacity-50"
+                >
+                  <EyeOff size={14} />
+                  Hide {selected.size}
+                </button>
+                <button
+                  onClick={() => handleBulkAvailability(Array.from(selected), true)}
+                  disabled={deleting}
+                  className="flex items-center gap-1 text-xs text-emerald-700 hover:text-emerald-900 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg disabled:opacity-50"
+                >
+                  <Eye size={14} />
+                  Show {selected.size}
+                </button>
+                <button
+                  onClick={() => handleDelete(Array.from(selected))}
+                  disabled={deleting}
+                  className="flex items-center gap-1 text-xs text-red-600 hover:text-red-800 px-3 py-1.5 bg-red-50 border border-red-200 rounded-lg disabled:opacity-50"
+                >
+                  <Trash2 size={14} />
+                  {deleting ? "Deleting..." : `Delete ${selected.size}`}
+                </button>
+              </>
             )}
           </>
         )}

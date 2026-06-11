@@ -73,6 +73,54 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const bulkIds = searchParams.get("ids");
+
+    const body = await request.json().catch(() => ({}));
+    const isAvailable = (body as { is_available?: unknown })?.is_available;
+    if (typeof isAvailable !== "boolean") {
+      return NextResponse.json({ error: "is_available boolean is required" }, { status: 400 });
+    }
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { data: merchant } = await supabase
+      .from("merchants")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+    if (!merchant) {
+      return NextResponse.json({ error: "Merchant not found" }, { status: 404 });
+    }
+
+    const ids = (bulkIds || "").split(",").map((id) => id.trim()).filter(Boolean);
+    if (ids.length === 0) {
+      return NextResponse.json({ error: "No product IDs provided" }, { status: 400 });
+    }
+
+    const { error } = await supabase
+      .from("products")
+      .update({ is_available: isAvailable })
+      .in("id", ids)
+      .eq("merchant_id", merchant.id)
+      .is("deleted_at", null);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, updated: ids.length });
+  } catch {
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
 // POST handler for form-based delete (from the products list page)
 export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);

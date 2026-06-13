@@ -50,6 +50,7 @@ export interface Database {
           delivery_estimate: string | null;
           enabled_delivery_providers: string[];
           paytoday_number: string | null;
+          pickup_address: string | null;
           vat_number: string | null;
           vat_inclusive: boolean;
           pop_required: boolean;
@@ -80,6 +81,7 @@ export interface Database {
           delivery_estimate?: string | null;
           enabled_delivery_providers?: string[];
           paytoday_number?: string | null;
+          pickup_address?: string | null;
           vat_number?: string | null;
           vat_inclusive?: boolean;
           pop_required?: boolean;
@@ -110,6 +112,7 @@ export interface Database {
           delivery_estimate?: string | null;
           enabled_delivery_providers?: string[];
           paytoday_number?: string | null;
+          pickup_address?: string | null;
           vat_number?: string | null;
           vat_inclusive?: boolean;
           pop_required?: boolean;

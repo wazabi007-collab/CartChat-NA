@@ -3,6 +3,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { CreditCard } from "lucide-react";
+import { getPaymentMethodLabel } from "@/lib/constants";
 import {
   TIER_LIMITS,
   TIER_LABELS,
@@ -32,14 +33,6 @@ function formatDate(value: string | null): string {
     year: "numeric",
   });
 }
-
-const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  eft: "EFT",
-  cash: "Cash",
-  dpo: "Card (DPO)",
-  momo: "MoMo",
-  ewallet: "eWallet",
-};
 
 export default async function SubscriptionPage() {
   const supabase = await createClient();
@@ -217,7 +210,7 @@ export default async function SubscriptionPage() {
                       N${(p.amount_nad / 100).toLocaleString()}
                     </td>
                     <td className="py-2 text-slate-600">
-                      {PAYMENT_METHOD_LABELS[p.payment_method] ?? p.payment_method}
+                      {getPaymentMethodLabel(p.payment_method)}
                     </td>
                     <td className="py-2 text-slate-500">
                       {p.period_start && p.period_end

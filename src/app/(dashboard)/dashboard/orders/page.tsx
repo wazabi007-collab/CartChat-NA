@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { formatPrice, whatsappLink } from "@/lib/utils";
 import { getOrderPayableTotal } from "@/lib/vat";
+import { getPaymentMethodLabel } from "@/lib/constants";
 import Link from "next/link";
 import { OrderActions } from "./order-actions";
 import { QuickStatus } from "@/components/dashboard/quick-status";
@@ -70,8 +71,8 @@ export default async function OrdersPage({
   const statuses = ["all", "pending", "confirmed", "ready", "completed", "cancelled"];
   const deliveryProviderLabel: Record<string, string> = {
     store: "Store delivery",
-    yango: "Yango courier - buyer pays",
-    indrive: "inDrive courier - buyer pays",
+    yango: "Yango — buyer books & pays courier",
+    indrive: "inDrive — buyer books & pays courier",
   };
 
   return (
@@ -185,7 +186,7 @@ export default async function OrdersPage({
                     />
                     {order.payment_method && order.payment_method !== "eft" && (
                       <span className={`${statusPill} bg-gray-100 text-gray-600`}>
-                        {order.payment_method === "cod" ? "COD" : order.payment_method === "momo" ? "MoMo" : order.payment_method === "ewallet" ? "eWallet" : "EFT"}
+                        {getPaymentMethodLabel(order.payment_method)}
                       </span>
                     )}
                     {order.proof_of_payment_url && (

@@ -66,8 +66,8 @@ export async function POST(req: NextRequest) {
   // — the merchant only prepares the parcel, so make that explicit.
   const deliveryProviderLabel: Record<string, string> = {
     store: "Store delivery",
-    yango: "Yango - buyer pays courier",
-    indrive: "inDrive - buyer pays courier",
+    yango: "Yango (buyer books & pays courier)",
+    indrive: "inDrive (buyer books & pays courier)",
   };
   const deliveryLine =
     order.delivery_method === "delivery"

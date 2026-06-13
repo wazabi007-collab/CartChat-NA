@@ -288,7 +288,7 @@ export function CheckoutForm({
     deliveryMethod === "delivery" ? deliveryProvider : "store";
   const deliveryProviderLabel = getDeliveryProviderLabel(effectiveDeliveryProvider);
   const courierNote = buyerPaidCourier
-    ? `${deliveryProviderLabel} selected: buyer arranges and pays the courier directly. Courier fee is not included in this OshiCart order.`
+    ? `${deliveryProviderLabel} selected: buyer arranges and pays the courier directly. Courier fee is not included in this OshiCart order. Prepare the parcel for courier pickup.`
     : null;
   const orderNotes = [courierNote, notes.trim()].filter(Boolean).join("\n\n") || null;
 

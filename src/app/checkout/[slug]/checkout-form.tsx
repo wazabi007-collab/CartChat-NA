@@ -67,6 +67,7 @@ interface Props {
   ewalletProvider: string | null;
   pay2cellNumber: string | null;
   paytodayNumber: string | null;
+  pickupAddress: string | null;
   enabledDeliveryProviders: string[];
   vatNumber: string | null;
   vatInclusive: boolean;
@@ -195,6 +196,7 @@ export function CheckoutForm({
   ewalletProvider,
   pay2cellNumber,
   paytodayNumber,
+  pickupAddress,
   enabledDeliveryProviders,
   vatNumber,
   vatInclusive,
@@ -648,6 +650,7 @@ export function CheckoutForm({
             : `Store delivery to: ${deliveryAddress}`
           : "Pickup"
       }`,
+      ...(buyerPaidCourier && pickupAddress?.trim() ? [`*Pickup address (for your courier):* ${pickupAddress}`] : []),
       ...(deliveryDate ? [`*Scheduled:* ${deliveryDate}${deliveryTime ? ` — ${deliveryTime}` : ""}`] : []),
       ...(orderNotes ? [`*Notes:* ${orderNotes}`] : []),
       ...(invoiceUrl ? [``, `*Invoice:* ${invoiceUrl}`] : []),
@@ -932,6 +935,12 @@ export function CheckoutForm({
           </label>
         </div>
 
+        {deliveryMethod === "pickup" && pickupAddress?.trim() && (
+          <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+            <span className="font-semibold">Collect from:</span> {pickupAddress}
+          </div>
+        )}
+
         {deliveryEstimate && (
           <p className="flex items-center gap-1.5 text-sm text-slate-600">
             <Clock className="w-4 h-4 text-slate-400" />
@@ -987,8 +996,14 @@ export function CheckoutForm({
                 ))}
               </div>
               {buyerPaidCourier && (
-                <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
-                  {deliveryProviderLabel} delivery is not charged by OshiCart. The buyer books and pays the courier directly, and the merchant prepares the parcel for pickup.
+                <div className="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 space-y-2">
+                  <p>
+                    {deliveryProviderLabel} delivery is not charged by OshiCart. The buyer books and pays the courier directly, and the merchant prepares the parcel for pickup.
+                  </p>
+                  <div>
+                    <p className="font-semibold">Pickup address — give this to your {deliveryProviderLabel} driver:</p>
+                    <p>{pickupAddress?.trim() ? pickupAddress : "Contact the merchant for the pickup address."}</p>
+                  </div>
                 </div>
               )}
             </div>

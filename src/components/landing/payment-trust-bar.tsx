@@ -5,6 +5,7 @@ const METHODS = [
   { name: "EFT", icon: Landmark },
   { name: "Pay2Cell", icon: Wallet },
   { name: "eWallet", icon: Wallet },
+  { name: "MTC Maris", icon: Smartphone },
   { name: "Cash on Delivery", icon: Banknote },
 ];
 

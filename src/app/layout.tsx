@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     "product catalog",
     "order management",
     "FNB Pay2Cell",
-    "MoMo Namibia",
+    "MTC Maris Namibia",
   ],
   authors: [{ name: "Octovia Nexus Investments CC" }],
   creator: "OshiCart",

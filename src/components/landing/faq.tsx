@@ -9,7 +9,7 @@ const FAQS = [
   },
   {
     q: "Which payment methods can I offer?",
-    a: "EFT, PayToday, FNB Pay2Cell, eWallet, MoMo, and Cash on Delivery can be presented to customers depending on your store settings.",
+    a: "EFT, PayToday, FNB Pay2Cell, eWallet, MTC Maris, and Cash on Delivery can be presented to customers depending on your store settings.",
   },
   {
     q: "Do customers need to install an app?",

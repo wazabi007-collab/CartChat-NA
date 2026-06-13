@@ -37,7 +37,7 @@ export default function TermsPage() {
             and service listings, pricing, and fulfillment of orders. OshiCart does not
             handle payment processing directly — merchants receive payments
             through their chosen payment methods, which may include bank
-            transfer (EFT), Cash on Delivery, MTC MoMo, FNB Pay2Cell, and eWallet services.
+            transfer (EFT), Cash on Delivery, MTC Maris, FNB Pay2Cell, and eWallet services.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
             3. Payment Disclaimer

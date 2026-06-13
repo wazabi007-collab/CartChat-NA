@@ -31,7 +31,7 @@ const STEPS = [
   {
     icon: Banknote,
     title: "Get paid locally",
-    body: "Accept EFT, PayToday, Pay2Cell, eWallet, MoMo, or cash on delivery with zero OshiCart commission.",
+    body: "Accept EFT, PayToday, Pay2Cell, eWallet, MTC Maris, or cash on delivery with zero OshiCart commission.",
   },
 ];
 

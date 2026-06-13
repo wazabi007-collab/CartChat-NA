@@ -11,15 +11,14 @@ export type StoreStatus = "pending" | "active" | "suspended" | "banned";
 export type OrderStatus = "pending" | "confirmed" | "completed" | "cancelled";
 export type DeliveryMethod = "pickup" | "delivery";
 export type DeliveryProvider = "store" | "yango" | "indrive";
-export type PaymentMethod = "eft" | "cod" | "momo" | "ewallet" | "pay2cell" | "dpo";
+export type PaymentMethod = "eft" | "cod" | "momo" | "ewallet" | "pay2cell" | "paytoday" | "dpo";
 export type DiscountType = "percentage" | "fixed";
 export type EwalletProvider =
   | "fnb_ewallet"
   | "bluewallet"
   | "easywallet"
   | "nedbank_money"
-  | "paypulse"
-  | "paytoday";
+  | "paypulse";
 export type ReportStatus = "open" | "reviewed" | "dismissed";
 export type ModerationStatus = "approved" | "review_required" | "blocked";
 
@@ -49,6 +48,8 @@ export interface Database {
           prohibited_policy_accepted_ip: string | null;
           safety_notes: string | null;
           delivery_estimate: string | null;
+          enabled_delivery_providers: string[];
+          paytoday_number: string | null;
           vat_number: string | null;
           vat_inclusive: boolean;
           pop_required: boolean;
@@ -77,6 +78,8 @@ export interface Database {
           prohibited_policy_accepted_ip?: string | null;
           safety_notes?: string | null;
           delivery_estimate?: string | null;
+          enabled_delivery_providers?: string[];
+          paytoday_number?: string | null;
           vat_number?: string | null;
           vat_inclusive?: boolean;
           pop_required?: boolean;
@@ -105,6 +108,8 @@ export interface Database {
           prohibited_policy_accepted_ip?: string | null;
           safety_notes?: string | null;
           delivery_estimate?: string | null;
+          enabled_delivery_providers?: string[];
+          paytoday_number?: string | null;
           vat_number?: string | null;
           vat_inclusive?: boolean;
           pop_required?: boolean;

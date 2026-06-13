@@ -69,7 +69,6 @@ export default function EditProductPage() {
   const [globalError, setGlobalError] = useState("");
   const [imageStatus, setImageStatus] = useState<Record<number, ImageUploadStatus>>({});
   const [uploadingImages, setUploadingImages] = useState(false);
-  const [warning, setWarning] = useState("");
   const [tier, setTier] = useState<SubscriptionTier>("oshi_start");
   const [merchantIndustry, setMerchantIndustry] = useState<string | null>(null);
   const [merchantVatNumber, setMerchantVatNumber] = useState<string | null>(null);
@@ -328,39 +327,61 @@ export default function EditProductPage() {
         }
       }
 
-      const variantPayloads = variantsToSave.map((variant, index) => ({
-        ...(variant.id ? { id: variant.id } : {}),
-        product_id: productId,
-        source: variant.source || "manual",
-        source_variation_id:
-          variant.sourceVariationId || (variant.id ? variant.id : `manual-${Date.now()}-${index + 1}`),
-        sku: variant.sku.trim() || `${validation.data.name.slice(0, 16).replace(/[^a-z0-9]+/gi, "-")}-${index + 1}`,
-        price_nad: variant.priceDisplay ? toCents(parseFloat(variant.priceDisplay) || 0) : validation.data.price_nad,
-        images: variant.imageUrl.trim() ? [variant.imageUrl.trim()] : [],
-        attributes: parseVariantOptions(variant.optionText),
-        is_available: variant.isAvailable,
-        track_inventory: hasInventory ? variant.trackInventory : false,
-        stock_quantity: hasInventory && variant.trackInventory ? variant.stockQuantity : 0,
-        allow_backorder: hasInventory ? variant.allowBackorder : false,
-        stock_status: variant.isAvailable ? "instock" : "outofstock",
-        sort_order: index,
-      }));
-      if (variantPayloads.length > 0) {
-        const { error: variantSaveError } = await supabase
+      const existingUpdates = variantsToSave.filter((v) => v.id);
+      const newVariants = variantsToSave.filter((v) => !v.id);
+
+      const buildPayload = (variant: typeof variantsToSave[number], index: number) => {
+        const rand = Math.random().toString(36).slice(2, 6);
+        return {
+          product_id: productId,
+          source: variant.source || "manual",
+          source_variation_id:
+            variant.sourceVariationId || (variant.id ? variant.id : `manual-${Date.now()}-${index + 1}-${rand}`),
+          sku:
+            variant.sku.trim() ||
+            `${validation.data.name.slice(0, 16).replace(/[^a-z0-9]+/gi, "-")}-${index + 1}-${rand}`,
+          price_nad: variant.priceDisplay ? toCents(parseFloat(variant.priceDisplay) || 0) : validation.data.price_nad,
+          images: variant.imageUrl.trim() ? [variant.imageUrl.trim()] : [],
+          attributes: parseVariantOptions(variant.optionText),
+          is_available: variant.isAvailable,
+          track_inventory: hasInventory ? variant.trackInventory : false,
+          stock_quantity: hasInventory && variant.trackInventory ? variant.stockQuantity : 0,
+          allow_backorder: hasInventory ? variant.allowBackorder : false,
+          stock_status: variant.isAvailable ? "instock" : "outofstock",
+          sort_order: variantsToSave.indexOf(variant),
+        };
+      };
+
+      // Update existing variants individually (idempotent, by id)
+      for (const variant of existingUpdates) {
+        const { error: vErr } = await supabase
           .from("product_variants")
-          .upsert(variantPayloads, { onConflict: "id" });
-        if (variantSaveError) {
-          throw new Error(`Save variations: ${variantSaveError.message}`);
+          .update(buildPayload(variant, variantsToSave.indexOf(variant)))
+          .eq("id", variant.id!)
+          .eq("product_id", productId);
+        if (vErr) {
+          throw new Error(
+            vErr.code === "23505"
+              ? "Each variation needs a unique SKU — two variations have the same SKU."
+              : `Save variations: ${vErr.message}`,
+          );
         }
       }
 
-      if (failedImages > 0) {
-        setWarning(`Saved, but ${failedImages} photo${failedImages > 1 ? "s" : ""} couldn't upload. Add ${failedImages > 1 ? "them" : "it"} again below.`);
-        setLoading(false);
-        router.refresh();
-        return;
+      // Bulk-insert new variants in one call
+      if (newVariants.length > 0) {
+        const newPayloads = newVariants.map((variant) => buildPayload(variant, variantsToSave.indexOf(variant)));
+        const { error: insErr } = await supabase.from("product_variants").insert(newPayloads);
+        if (insErr) {
+          throw new Error(
+            insErr.code === "23505"
+              ? "Each variation needs a unique SKU — two variations have the same SKU."
+              : `Save variations: ${insErr.message}`,
+          );
+        }
       }
-      router.push("/dashboard/products");
+
+      router.push(failedImages > 0 ? "/dashboard/products?img_notice=1" : "/dashboard/products");
       router.refresh();
     } catch (err) {
       setGlobalError(
@@ -421,10 +442,6 @@ export default function EditProductPage() {
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
             {globalError}
           </div>
-        )}
-
-        {warning && (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">{warning}</div>
         )}
 
         {/* Item Type Toggle */}

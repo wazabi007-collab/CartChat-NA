@@ -610,7 +610,7 @@ function StoreSetupForm() {
                       <p className="mt-1 text-xs text-slate-500">Yango and inDrive are buyer-booked.</p>
                     </div>
 
-                    {(enabledProviders.includes("yango") || enabledProviders.includes("indrive")) && (
+                    {!offersPickup && (enabledProviders.includes("yango") || enabledProviders.includes("indrive")) && (
                       <div className="mt-4">
                         <label className={label}>Pickup address</label>
                         <textarea

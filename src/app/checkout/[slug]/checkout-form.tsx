@@ -19,7 +19,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatPrice, whatsappLink } from "@/lib/utils";
 import { calculateVatBreakdown, VAT_RATE_LABEL } from "@/lib/vat";
 import { track } from "@/lib/track";
-import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
+import { MAX_IMAGE_SIZE, PAYMENT_METHODS, getEwalletProviderLabel } from "@/lib/constants";
 import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
 import type { DeliveryMethod, DeliveryProvider, PaymentMethod } from "@/types/database";
 import { PhoneInput } from "@/components/phone-input";
@@ -66,6 +66,8 @@ interface Props {
   ewalletNumber: string | null;
   ewalletProvider: string | null;
   pay2cellNumber: string | null;
+  paytodayNumber: string | null;
+  enabledDeliveryProviders: string[];
   vatNumber: string | null;
   vatInclusive: boolean;
   popRequired: boolean;
@@ -104,10 +106,6 @@ function calculateDiscount(coupon: CouponApplied, subtotal: number): number {
 
 function getPaymentLabel(method: string): string {
   return PAYMENT_METHODS.find((m) => m.value === method)?.label ?? method;
-}
-
-function getEwalletLabel(provider: string | null): string {
-  return EWALLET_PROVIDERS.find((p) => p.value === provider)?.label ?? "eWallet";
 }
 
 const DELIVERY_PROVIDERS: Array<{
@@ -196,6 +194,8 @@ export function CheckoutForm({
   ewalletNumber,
   ewalletProvider,
   pay2cellNumber,
+  paytodayNumber,
+  enabledDeliveryProviders,
   vatNumber,
   vatInclusive,
   popRequired,
@@ -206,7 +206,9 @@ export function CheckoutForm({
   const [customerName, setCustomerName] = useState("");
   const [customerWhatsapp, setCustomerWhatsapp] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
-  const [deliveryProvider, setDeliveryProvider] = useState<DeliveryProvider>("store");
+  const [deliveryProvider, setDeliveryProvider] = useState<DeliveryProvider>(
+    (enabledDeliveryProviders[0] as DeliveryProvider) ?? "store"
+  );
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
@@ -248,6 +250,18 @@ export function CheckoutForm({
       // ignore
     }
   }, [storeSlug]);
+
+  // Reset the delivery provider if the current selection isn't in the
+  // merchant's enabled set.
+  useEffect(() => {
+    if (!enabledDeliveryProviders.includes(deliveryProvider)) {
+      setDeliveryProvider((enabledDeliveryProviders[0] as DeliveryProvider) ?? "store");
+    }
+  }, [enabledDeliveryProviders, deliveryProvider]);
+
+  const visibleDeliveryProviders = DELIVERY_PROVIDERS.filter((p) =>
+    enabledDeliveryProviders.includes(p.value)
+  );
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -932,7 +946,7 @@ export function CheckoutForm({
                 Delivery Handling<span className="text-red-500 ml-0.5">*</span>
               </label>
               <div className="grid gap-2 sm:grid-cols-3">
-                {DELIVERY_PROVIDERS.map((option) => (
+                {visibleDeliveryProviders.map((option) => (
                   <label
                     key={option.value}
                     className={`${radioCardBase} text-left ${
@@ -1182,7 +1196,7 @@ export function CheckoutForm({
 
         {paymentMethod === "ewallet" && (
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-sm text-purple-800 space-y-1">
-            <p className="font-medium">{getEwalletLabel(ewalletProvider)} Payment</p>
+            <p className="font-medium">{getEwalletProviderLabel(ewalletProvider)} Payment</p>
             {ewalletNumber ? (
               <>
                 <p>
@@ -1215,6 +1229,25 @@ export function CheckoutForm({
               </>
             ) : (
               <p>Contact the merchant for their FNB Pay2Cell number.</p>
+            )}
+          </div>
+        )}
+
+        {paymentMethod === "paytoday" && (
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-sm text-purple-800 space-y-1">
+            <p className="font-medium">PayToday Payment</p>
+            {paytodayNumber ? (
+              <>
+                <p>
+                  Send <span className="font-bold">{formatPrice(total)}</span> via PayToday to:
+                </p>
+                <p className="font-bold text-lg">{paytodayNumber}</p>
+                <p className="text-xs mt-1">
+                  Open your PayToday app and send to this number. Upload proof of payment below.
+                </p>
+              </>
+            ) : (
+              <p>Contact the merchant for their PayToday number.</p>
             )}
           </div>
         )}

@@ -496,7 +496,7 @@ export default function SettingsPage() {
           {form.accepted_payment_methods.includes("momo") && (
             <div>
               <label className={label}>
-                MoMo Number
+                MTC Maris Number
               </label>
               <input
                 type="tel"
@@ -506,7 +506,7 @@ export default function SettingsPage() {
                 className={`${inputBase} ${focusGreen}`}
               />
               <p className={helperText}>
-                Customers will send MTC Money/Maris payment to this number
+                Customers will send MTC Maris payment to this number
               </p>
             </div>
           )}
@@ -584,7 +584,7 @@ export default function SettingsPage() {
                   <span className={helperText}>
                     Customers paying by bank transfer must upload proof before
                     placing the order. Instant mobile payments (eWallet,
-                    Pay2Cell, MoMo) and Cash on Delivery are not affected.
+                    Pay2Cell, MTC Maris) and Cash on Delivery are not affected.
                   </span>
                 </span>
               </label>

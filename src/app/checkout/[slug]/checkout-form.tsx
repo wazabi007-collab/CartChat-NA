@@ -1162,7 +1162,7 @@ export function CheckoutForm({
         {paymentMethod === "momo" && (
           <div className={alertInfo}>
             <div className="space-y-1">
-              <p className="font-medium">MTC MoMo / Maris Payment</p>
+              <p className="font-medium">MTC Maris Payment</p>
               {momoNumber ? (
                 <>
                   <p>
@@ -1170,11 +1170,11 @@ export function CheckoutForm({
                   </p>
                   <p className="font-bold text-lg">{momoNumber}</p>
                   <p className="text-xs mt-1">
-                    Use MTC Money (*133#) or MTC Maris app. Upload proof below.
+                    Send via the MTC Maris app, then upload proof below.
                   </p>
                 </>
               ) : (
-                <p>Contact the merchant for their MoMo number.</p>
+                <p>Contact the merchant for their MTC Maris number.</p>
               )}
             </div>
           </div>

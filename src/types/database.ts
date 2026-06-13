@@ -13,7 +13,13 @@ export type DeliveryMethod = "pickup" | "delivery";
 export type DeliveryProvider = "store" | "yango" | "indrive";
 export type PaymentMethod = "eft" | "cod" | "momo" | "ewallet" | "pay2cell" | "dpo";
 export type DiscountType = "percentage" | "fixed";
-export type EwalletProvider = "fnb_ewallet" | "paypulse" | "easywallet" | "paytoday";
+export type EwalletProvider =
+  | "fnb_ewallet"
+  | "bluewallet"
+  | "easywallet"
+  | "nedbank_money"
+  | "paypulse"
+  | "paytoday";
 export type ReportStatus = "open" | "reviewed" | "dismissed";
 export type ModerationStatus = "approved" | "review_required" | "blocked";
 

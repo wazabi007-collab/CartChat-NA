@@ -33,16 +33,21 @@ export const BANK_BRANCH_CODES: Record<string, string> = {
 export const PAYMENT_METHODS = [
   { value: "eft", label: "Bank Transfer (EFT)", icon: "🏦" },
   { value: "cod", label: "Cash on Delivery", icon: "💵" },
-  { value: "momo", label: "MTC MoMo / Maris", icon: "📱" },
+  { value: "momo", label: "MTC Maris", icon: "📱" },
   { value: "ewallet", label: "eWallet", icon: "📲" },
   { value: "pay2cell", label: "FNB Pay2Cell", icon: "💳" },
 ] as const;
 
+// Bank send-to-cellphone wallets + popular cross-bank apps. Each Namibian bank
+// has its own wallet: FNB eWallet, Standard Bank BlueWallet, Bank Windhoek
+// EasyWallet, Nedbank Money (MobiMoney). PayToday is bank-agnostic.
 export const EWALLET_PROVIDERS = [
   { value: "fnb_ewallet", label: "FNB eWallet" },
-  { value: "paypulse", label: "PayPulse (Standard Bank)" },
+  { value: "bluewallet", label: "BlueWallet (Standard Bank)" },
   { value: "easywallet", label: "EasyWallet (Bank Windhoek)" },
-  { value: "paytoday", label: "PayToday (Nedbank)" },
+  { value: "nedbank_money", label: "Nedbank Money (MobiMoney)" },
+  { value: "paypulse", label: "PayPulse (Standard Bank)" },
+  { value: "paytoday", label: "PayToday" },
 ] as const;
 
 // Industry options shown at store setup. `group` drives the optgroup rendering

@@ -315,7 +315,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
           qrUrl={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`${SITE_URL}/s/${slug}`)}&margin=10`}
         />
       </header>
-      <StorePaymentStrip />
+      <StorePaymentStrip methods={merchant.accepted_payment_methods ?? ["eft"]} />
 
       {/* Soft-suspend banner */}
       {isSoftSuspended && (

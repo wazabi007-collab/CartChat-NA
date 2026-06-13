@@ -11,6 +11,7 @@ import { toCents, formatPrice, cn } from "@/lib/utils";
 import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
 import { ArrowLeft, Upload, X, Loader2, Lock } from "lucide-react";
 import { MAX_IMAGE_SIZE } from "@/lib/constants";
+import { uploadProductImages, type ImageUploadStatus } from "@/lib/upload-product-images";
 import {
   ProductVariantsEditor,
   formatVariantOptions,
@@ -66,6 +67,9 @@ export default function EditProductPage() {
   const [pageLoading, setPageLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [globalError, setGlobalError] = useState("");
+  const [imageStatus, setImageStatus] = useState<Record<number, ImageUploadStatus>>({});
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [warning, setWarning] = useState("");
   const [tier, setTier] = useState<SubscriptionTier>("oshi_start");
   const [merchantIndustry, setMerchantIndustry] = useState<string | null>(null);
   const [merchantVatNumber, setMerchantVatNumber] = useState<string | null>(null);
@@ -260,26 +264,16 @@ export default function EditProductPage() {
         return;
       }
 
-      // Upload new images
-      const newImageUrls: string[] = [];
-      for (const file of newImageFiles) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("path", `${user.id}/products`);
-
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(`Image upload: ${err.error || "failed"}`);
-        }
-
-        const { url } = await res.json();
-        newImageUrls.push(url);
-      }
+      // Compress + upload new images in parallel (non-fatal)
+      setUploadingImages(true);
+      setImageStatus({});
+      const { urls: newImageUrls, failed: failedImages } = await uploadProductImages(
+        newImageFiles,
+        user.id,
+        supabase,
+        (i, s) => setImageStatus((prev) => ({ ...prev, [i]: s })),
+      );
+      setUploadingImages(false);
 
       const allImages = [...existingImages, ...newImageUrls];
 
@@ -334,44 +328,38 @@ export default function EditProductPage() {
         }
       }
 
-      for (const [index, variant] of variantsToSave.entries()) {
-        const variantPayload = {
-          product_id: productId,
-          source: variant.source || "manual",
-          source_variation_id: variant.sourceVariationId || (variant.id ? variant.id : `manual-${Date.now()}-${index + 1}`),
-          sku: variant.sku.trim() || `${validation.data.name.slice(0, 16).replace(/[^a-z0-9]+/gi, "-")}-${index + 1}`,
-          price_nad: variant.priceDisplay ? toCents(parseFloat(variant.priceDisplay) || 0) : validation.data.price_nad,
-          images: variant.imageUrl.trim() ? [variant.imageUrl.trim()] : [],
-          attributes: parseVariantOptions(variant.optionText),
-          is_available: variant.isAvailable,
-          track_inventory: hasInventory ? variant.trackInventory : false,
-          stock_quantity: hasInventory && variant.trackInventory ? variant.stockQuantity : 0,
-          allow_backorder: hasInventory ? variant.allowBackorder : false,
-          stock_status: variant.isAvailable ? "instock" : "outofstock",
-          sort_order: index,
-        };
-
-        if (variant.id) {
-          const { error: variantUpdateError } = await supabase
-            .from("product_variants")
-            .update(variantPayload)
-            .eq("id", variant.id)
-            .eq("product_id", productId);
-
-          if (variantUpdateError) {
-            throw new Error(`Save variation ${index + 1}: ${variantUpdateError.message}`);
-          }
-        } else {
-          const { error: variantInsertError } = await supabase
-            .from("product_variants")
-            .insert(variantPayload);
-
-          if (variantInsertError) {
-            throw new Error(`Save variation ${index + 1}: ${variantInsertError.message}`);
-          }
+      const variantPayloads = variantsToSave.map((variant, index) => ({
+        ...(variant.id ? { id: variant.id } : {}),
+        product_id: productId,
+        source: variant.source || "manual",
+        source_variation_id:
+          variant.sourceVariationId || (variant.id ? variant.id : `manual-${Date.now()}-${index + 1}`),
+        sku: variant.sku.trim() || `${validation.data.name.slice(0, 16).replace(/[^a-z0-9]+/gi, "-")}-${index + 1}`,
+        price_nad: variant.priceDisplay ? toCents(parseFloat(variant.priceDisplay) || 0) : validation.data.price_nad,
+        images: variant.imageUrl.trim() ? [variant.imageUrl.trim()] : [],
+        attributes: parseVariantOptions(variant.optionText),
+        is_available: variant.isAvailable,
+        track_inventory: hasInventory ? variant.trackInventory : false,
+        stock_quantity: hasInventory && variant.trackInventory ? variant.stockQuantity : 0,
+        allow_backorder: hasInventory ? variant.allowBackorder : false,
+        stock_status: variant.isAvailable ? "instock" : "outofstock",
+        sort_order: index,
+      }));
+      if (variantPayloads.length > 0) {
+        const { error: variantSaveError } = await supabase
+          .from("product_variants")
+          .upsert(variantPayloads, { onConflict: "id" });
+        if (variantSaveError) {
+          throw new Error(`Save variations: ${variantSaveError.message}`);
         }
       }
 
+      if (failedImages > 0) {
+        setWarning(`Saved, but ${failedImages} photo${failedImages > 1 ? "s" : ""} couldn't upload. Add ${failedImages > 1 ? "them" : "it"} again below.`);
+        setLoading(false);
+        router.refresh();
+        return;
+      }
       router.push("/dashboard/products");
       router.refresh();
     } catch (err) {
@@ -433,6 +421,10 @@ export default function EditProductPage() {
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
             {globalError}
           </div>
+        )}
+
+        {warning && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">{warning}</div>
         )}
 
         {/* Item Type Toggle */}
@@ -719,6 +711,12 @@ export default function EditProductPage() {
                 <span className="absolute bottom-1 left-1 bg-green-600 text-white text-[10px] px-1 rounded">
                   New
                 </span>
+                {imageStatus[i] === "uploading" && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs rounded-lg">Uploading…</span>
+                )}
+                {imageStatus[i] === "failed" && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-red-600/70 text-white text-xs rounded-lg">Failed</span>
+                )}
               </div>
             ))}
 
@@ -766,7 +764,7 @@ export default function EditProductPage() {
             )}
           >
             {loading && <Loader2 size={16} className="animate-spin" />}
-            {loading ? "Saving..." : "Save Changes"}
+            {uploadingImages ? "Optimising & uploading photos…" : loading ? "Saving…" : "Save Changes"}
           </button>
           <Link
             href="/dashboard/products"

@@ -36,18 +36,18 @@ export const PAYMENT_METHODS = [
   { value: "momo", label: "MTC Maris", icon: "📱" },
   { value: "ewallet", label: "eWallet", icon: "📲" },
   { value: "pay2cell", label: "FNB Pay2Cell", icon: "💳" },
+  { value: "paytoday", label: "PayToday", icon: "⚡" },
 ] as const;
 
 // Bank send-to-cellphone wallets + popular cross-bank apps. Each Namibian bank
 // has its own wallet: FNB eWallet, Standard Bank BlueWallet, Bank Windhoek
-// EasyWallet, Nedbank Money (MobiMoney). PayToday is bank-agnostic.
+// EasyWallet, Nedbank Money (MobiMoney).
 export const EWALLET_PROVIDERS = [
   { value: "fnb_ewallet", label: "FNB eWallet" },
   { value: "bluewallet", label: "BlueWallet (Standard Bank)" },
   { value: "easywallet", label: "EasyWallet (Bank Windhoek)" },
   { value: "nedbank_money", label: "Nedbank Money (MobiMoney)" },
   { value: "paypulse", label: "PayPulse (Standard Bank)" },
-  { value: "paytoday", label: "PayToday" },
 ] as const;
 
 // Industry options shown at store setup. `group` drives the optgroup rendering
@@ -129,3 +129,11 @@ export const STORE_STATUS_LABELS: Record<string, { label: string; color: string 
 
 // Re-export from tier-limits for convenience (single source of truth is tier-limits.ts)
 export { STATUS_LABELS as SUBSCRIPTION_STATUS_LABELS } from "@/lib/tier-limits";
+
+export function getPaymentMethodLabel(value: string | null | undefined): string {
+  return PAYMENT_METHODS.find((m) => m.value === value)?.label ?? "Payment";
+}
+
+export function getEwalletProviderLabel(value: string | null | undefined): string {
+  return EWALLET_PROVIDERS.find((p) => p.value === value)?.label ?? "eWallet";
+}

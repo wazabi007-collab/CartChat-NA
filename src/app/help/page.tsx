@@ -19,15 +19,15 @@ export default function HelpPage() {
         <p className="mt-2 text-walnut-2">Everything you need to set up your store, get paid, and sell on OshiCart.</p>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
-          <a href="/oshicart-merchant-guide.pdf" target="_blank" rel="noopener noreferrer"
+          <a href="/guide"
              className="rounded-xl border border-border-warm bg-sand p-4 hover:border-acacia transition-colors">
-            <p className="font-black text-walnut">Download the setup guide (PDF)</p>
-            <p className="mt-1 text-sm text-walnut-2">A step-by-step guide to setting up and selling.</p>
+            <p className="font-black text-walnut">Read the setup guide</p>
+            <p className="mt-1 text-sm text-walnut-2">Step-by-step guide — read online or download the PDF.</p>
           </a>
           <a href="https://wa.me/264816274823" target="_blank" rel="noopener noreferrer"
              className="rounded-xl border border-border-warm bg-sand p-4 hover:border-acacia transition-colors">
             <p className="font-black text-walnut">Chat to support on WhatsApp</p>
-            <p className="mt-1 text-sm text-walnut-2">+264 81 627 4823 · info@octovianexus.com</p>
+            <p className="mt-1 text-sm text-walnut-2">Call +264 81 238 4424 · WhatsApp +264 81 627 4823 · info@octovianexus.com</p>
           </a>
         </div>
 

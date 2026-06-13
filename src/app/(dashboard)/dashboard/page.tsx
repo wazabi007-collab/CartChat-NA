@@ -179,12 +179,12 @@ export default async function DashboardPage({
               Manage products, orders, store sharing, and payment checks from one clean workspace.
             </p>
             <a
-              href="/oshicart-merchant-guide.pdf"
+              href="/guide"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 inline-block text-sm font-semibold text-terracotta hover:underline"
             >
-              Read the setup guide (PDF)
+              Read the setup guide
             </a>
           </div>
           <div className="flex flex-wrap gap-2">

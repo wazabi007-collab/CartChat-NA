@@ -51,6 +51,11 @@ export function Footer() {
             <h4 className="mb-3 font-bold text-white">Contact & Support</h4>
             <ul className="space-y-2 text-sm">
               <li>
+                <a href="tel:+264812384424" className="hover:text-white transition-colors">
+                  Call: +264 81 238 4424
+                </a>
+              </li>
+              <li>
                 <a
                   href="https://wa.me/264816274823?text=Hi%20OshiCart%2C%20I%20need%20help%20with..."
                   target="_blank"
@@ -82,6 +87,11 @@ export function Footer() {
                   className="hover:text-white transition-colors"
                 >
                   Help
+                </Link>
+              </li>
+              <li>
+                <Link href="/guide" className="hover:text-white transition-colors">
+                  Setup guide
                 </Link>
               </li>
               <li>

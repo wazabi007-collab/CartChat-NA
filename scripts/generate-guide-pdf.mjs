@@ -1,7 +1,9 @@
 import { chromium } from "playwright";
 import { readFileSync } from "node:fs";
 
-const html = readFileSync(new URL("./merchant-guide.html", import.meta.url), "utf8");
+const logo = readFileSync("public/oshicart-logo-original.png").toString("base64");
+const html = readFileSync(new URL("./merchant-guide.html", import.meta.url), "utf8")
+  .replace("__LOGO__", `data:image/png;base64,${logo}`);
 const browser = await chromium.launch();
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: "networkidle" });

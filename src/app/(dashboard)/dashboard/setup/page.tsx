@@ -293,7 +293,7 @@ function StoreSetupForm() {
         pay2cell_number: form.pay2cell_number || null,
         paytoday_number: form.paytoday_number || null,
         enabled_delivery_providers: enabledProviders,
-        pickup_address: form.pickup_address || null,
+        pickup_address: form.pickup_address.trim() || null,
         delivery_fee_nad: offersDelivery ? Math.round((parseFloat(form.delivery_fee_display) || 0) * 100) : 0,
         store_status: "active",
         prohibited_policy_accepted_at: new Date().toISOString(),
@@ -609,6 +609,20 @@ function StoreSetupForm() {
                       </div>
                       <p className="mt-1 text-xs text-slate-500">Yango and inDrive are buyer-booked.</p>
                     </div>
+
+                    {(enabledProviders.includes("yango") || enabledProviders.includes("indrive")) && (
+                      <div className="mt-4">
+                        <label className={label}>Pickup address</label>
+                        <textarea
+                          value={form.pickup_address}
+                          onChange={(e) => update("pickup_address", e.target.value)}
+                          rows={2}
+                          placeholder="e.g. Shop 4, Maerua Mall, Windhoek"
+                          className={`${textareaBase} ${focusGreen}`}
+                        />
+                        <p className={helperText}>Where Yango/inDrive couriers collect orders.</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -797,7 +811,7 @@ function StoreSetupForm() {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading || selectedMethods.length === 0 || !acceptedPolicy}
+                  disabled={loading || selectedMethods.length === 0 || !acceptedPolicy || (offersDelivery && (enabledProviders.includes("yango") || enabledProviders.includes("indrive")) && !form.pickup_address.trim())}
                   className={`flex-1 ${btnPrimaryGreen} flex items-center justify-center gap-2`}
                 >
                   {loading ? (

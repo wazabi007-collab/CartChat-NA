@@ -38,6 +38,7 @@ const INITIAL_FORM = {
   bank_branch_code: "",
   momo_number: "",
   pay2cell_number: "",
+  paytoday_number: "",
   pickup_address: "",
   delivery_fee_display: "",
 };
@@ -102,6 +103,7 @@ function StoreSetupForm() {
 
   const [form, setForm] = useState({ ...INITIAL_FORM });
   const [selectedMethods, setSelectedMethods] = useState<string[]>(["cod"]);
+  const [enabledProviders, setEnabledProviders] = useState<string[]>(["store", "yango", "indrive"]);
   const [offersPickup, setOffersPickup] = useState(true);
   const [offersDelivery, setOffersDelivery] = useState(false);
   const [whatsappStatus, setWhatsappStatus] = useState<"idle" | "checking" | "blocked" | "warning" | "clear">("idle");
@@ -124,6 +126,7 @@ function StoreSetupForm() {
           }
           if (typeof draft.step === "number" && draft.step >= 1 && draft.step <= 3) setStep(draft.step);
           if (Array.isArray(draft.selectedMethods)) setSelectedMethods(draft.selectedMethods);
+          if (Array.isArray(draft.enabledProviders)) setEnabledProviders(draft.enabledProviders);
           if (typeof draft.offersPickup === "boolean") setOffersPickup(draft.offersPickup);
           if (typeof draft.offersDelivery === "boolean") setOffersDelivery(draft.offersDelivery);
           setDraftRestored(true);
@@ -146,14 +149,14 @@ function StoreSetupForm() {
       try {
         localStorage.setItem(
           DRAFT_KEY,
-          JSON.stringify({ step, form, selectedMethods, offersPickup, offersDelivery })
+          JSON.stringify({ step, form, selectedMethods, enabledProviders, offersPickup, offersDelivery })
         );
       } catch {
         // Storage unavailable (private mode / quota) — skip saving
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [hydrated, step, form, selectedMethods, offersPickup, offersDelivery]);
+  }, [hydrated, step, form, selectedMethods, enabledProviders, offersPickup, offersDelivery]);
 
   function clearDraft() {
     try {
@@ -288,6 +291,8 @@ function StoreSetupForm() {
         accepted_payment_methods: selectedMethods,
         momo_number: form.momo_number || null,
         pay2cell_number: form.pay2cell_number || null,
+        paytoday_number: form.paytoday_number || null,
+        enabled_delivery_providers: enabledProviders,
         pickup_address: form.pickup_address || null,
         delivery_fee_nad: offersDelivery ? Math.round((parseFloat(form.delivery_fee_display) || 0) * 100) : 0,
         store_status: "active",
@@ -577,6 +582,33 @@ function StoreSetupForm() {
                       />
                     </div>
                     <p className={helperText}>Set to 0 for free delivery</p>
+
+                    <div className="mt-4">
+                      <p className="mb-2 text-sm font-medium text-slate-700">Delivery options shown at checkout</p>
+                      <div className="space-y-2">
+                        {[
+                          { value: "store", label: "Store delivery" },
+                          { value: "yango", label: "Yango" },
+                          { value: "indrive", label: "inDrive" },
+                        ].map((opt) => (
+                          <label key={opt.value} className="flex items-center gap-3 cursor-pointer text-sm text-slate-700">
+                            <input
+                              type="checkbox"
+                              checked={enabledProviders.includes(opt.value)}
+                              onChange={(e) =>
+                                setEnabledProviders((prev) =>
+                                  e.target.checked
+                                    ? [...prev, opt.value]
+                                    : prev.filter((v) => v !== opt.value)
+                                )
+                              }
+                            />
+                            {opt.label}
+                          </label>
+                        ))}
+                      </div>
+                      <p className="mt-1 text-xs text-slate-500">Yango and inDrive are buyer-booked.</p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -714,6 +746,19 @@ function StoreSetupForm() {
                     labelText="FNB Pay2Cell Number"
                     value={form.pay2cell_number}
                     onChange={(val) => update("pay2cell_number", val)}
+                    variant="green"
+                  />
+                </div>
+              )}
+
+              {/* PayToday number — shown if PayToday selected */}
+              {selectedMethods.includes("paytoday") && (
+                <div className="border-t pt-3">
+                  <PhoneInput
+                    id="paytoday-number"
+                    labelText="PayToday Number"
+                    value={form.paytoday_number}
+                    onChange={(val) => update("paytoday_number", val)}
                     variant="green"
                   />
                 </div>

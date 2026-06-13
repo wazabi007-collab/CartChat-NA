@@ -389,6 +389,7 @@ export default function EditProductPage() {
       );
     } finally {
       setLoading(false);
+      setUploadingImages(false);
     }
   }
 

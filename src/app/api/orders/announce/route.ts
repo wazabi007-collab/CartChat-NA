@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
     .select(`
       id, order_number, customer_name, customer_whatsapp,
       subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, payment_method,
+      delivery_method, delivery_provider,
       merchant_id, tracking_token,
       merchants!inner(store_name, whatsapp_number),
       order_items(product_name, quantity, variant_attributes)
@@ -61,6 +62,18 @@ export async function POST(req: NextRequest) {
   const paymentLabel =
     order.payment_method === "cod" ? "Cash on Delivery" : String(order.payment_method || "").toUpperCase();
 
+  // Delivery line for the merchant alert. Yango/inDrive are buyer-paid couriers
+  // — the merchant only prepares the parcel, so make that explicit.
+  const deliveryProviderLabel: Record<string, string> = {
+    store: "Store delivery",
+    yango: "Yango - buyer pays courier",
+    indrive: "inDrive - buyer pays courier",
+  };
+  const deliveryLine =
+    order.delivery_method === "delivery"
+      ? deliveryProviderLabel[order.delivery_provider ?? "store"] ?? "Store delivery"
+      : "Pickup";
+
   // Merchant alert
   await sendWhatsAppEvent({
     supabase: service,
@@ -75,6 +88,7 @@ export async function POST(req: NextRequest) {
       itemSummary,
       formatPrice(total),
       paymentLabel,
+      deliveryLine,
     ],
   });
 

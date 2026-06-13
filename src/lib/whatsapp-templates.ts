@@ -28,7 +28,9 @@ export const WHATSAPP_TEMPLATES = {
     name: "new_order_merchant",
     category: "utility",
     recipientType: "merchant",
-    bodyVariableCounts: [5],
+    // 6th variable = delivery line (e.g. "Yango - buyer pays courier"). The
+    // live Meta template must carry a {{6}} placeholder before this ships.
+    bodyVariableCounts: [6],
     buttonParamCounts: [0],
   },
   order_placed: {

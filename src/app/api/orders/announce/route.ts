@@ -3,6 +3,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { formatPrice } from "@/lib/utils";
 import { getOrderPayableTotal } from "@/lib/vat";
 import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
+import { getPaymentMethodLabel } from "@/lib/constants";
 
 /**
  * Sends the post-checkout WhatsApp notifications (new-order alert to the
@@ -59,8 +60,7 @@ export async function POST(req: NextRequest) {
     items.length === 1
       ? `${items[0].product_name} x${items[0].quantity}`
       : `${items.length} items`;
-  const paymentLabel =
-    order.payment_method === "cod" ? "Cash on Delivery" : String(order.payment_method || "").toUpperCase();
+  const paymentLabel = getPaymentMethodLabel(order.payment_method);
 
   // Delivery line for the merchant alert. Yango/inDrive are buyer-paid couriers
   // — the merchant only prepares the parcel, so make that explicit.

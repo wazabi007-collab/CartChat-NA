@@ -3,12 +3,19 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, Store, X } from "lucide-react";
+import { LayoutDashboard, Menu, Store, X } from "lucide-react";
 import { track } from "@/lib/track";
+import { createClient } from "@/lib/supabase/client";
 
 export function PublicNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user));
+  }, []);
 
   useEffect(() => {
     let last = window.scrollY > 60;
@@ -59,23 +66,26 @@ export function PublicNavbar() {
           >
             Safety
           </Link>
-          <Link
-            href="/login"
-            className="text-sm font-semibold text-walnut-2 hover:text-walnut transition-colors"
-          >
-            Sign in
-          </Link>
+          {isLoggedIn ? (
+            <Link href="/dashboard" className="text-sm font-semibold text-walnut-2 hover:text-walnut transition-colors">
+              Dashboard
+            </Link>
+          ) : (
+            <Link href="/login" className="text-sm font-semibold text-walnut-2 hover:text-walnut transition-colors">
+              Sign in
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-3">
           <Link
-            href="/signup"
-            onClick={() => track("landing_cta_clicked", { cta_location: "navbar" })}
+            href={isLoggedIn ? "/dashboard" : "/signup"}
+            onClick={() => !isLoggedIn && track("landing_cta_clicked", { cta_location: "navbar" })}
             className="inline-flex items-center gap-2 text-sm px-3 sm:px-4 py-2.5 bg-terracotta text-white rounded-lg hover:bg-[#234B86] transition-colors font-bold shadow-sm shadow-terracotta/20 whitespace-nowrap"
           >
-            <Store size={16} />
-            <span className="sm:hidden">Create Store</span>
-            <span className="hidden sm:inline">Create Free Store</span>
+            {isLoggedIn ? <LayoutDashboard size={16} /> : <Store size={16} />}
+            <span className="sm:hidden">{isLoggedIn ? "Dashboard" : "Create Store"}</span>
+            <span className="hidden sm:inline">{isLoggedIn ? "Dashboard" : "Create Free Store"}</span>
           </Link>
 
           {/* Mobile menu button */}
@@ -113,13 +123,15 @@ export function PublicNavbar() {
           >
             Safety
           </Link>
-          <Link
-            href="/login"
-            onClick={() => setMobileOpen(false)}
-            className="block px-3 py-2 text-sm font-semibold text-walnut-2 hover:text-walnut hover:bg-sand rounded-md transition-colors"
-          >
-            Sign in
-          </Link>
+          {isLoggedIn ? (
+            <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-semibold text-walnut-2 hover:text-walnut hover:bg-sand rounded-md transition-colors">
+              Dashboard
+            </Link>
+          ) : (
+            <Link href="/login" onClick={() => setMobileOpen(false)} className="block px-3 py-2 text-sm font-semibold text-walnut-2 hover:text-walnut hover:bg-sand rounded-md transition-colors">
+              Sign in
+            </Link>
+          )}
         </nav>
       )}
     </header>

@@ -12,6 +12,7 @@ import { canAddProduct, hasTierFeature, TIER_LIMITS, TIER_LABELS, type Subscript
 import { ArrowLeft, Upload, X, Loader2, Lock } from "lucide-react";
 import { MAX_IMAGE_SIZE } from "@/lib/constants";
 import { track } from "@/lib/track";
+import { uploadProductImages, type ImageUploadStatus } from "@/lib/upload-product-images";
 import {
   ProductVariantsEditor,
   parseVariantOptions,
@@ -42,6 +43,8 @@ export default function NewProductPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [imageStatus, setImageStatus] = useState<Record<number, ImageUploadStatus>>({});
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -216,31 +219,16 @@ export default function NewProductPage() {
         return;
       }
 
-      // Upload images directly to Supabase Storage
-      const imageUrls: string[] = [];
-      for (const file of imageFiles) {
-        const timestamp = Date.now();
-        const rand = Math.random().toString(36).substring(2, 8);
-        const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-        const filePath = `${userId}/${timestamp}-${rand}.${ext}`;
-
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("merchant-assets")
-          .upload(filePath, file, {
-            cacheControl: "31536000",
-            upsert: false,
-          });
-
-        if (uploadError) {
-          throw new Error(`Image upload: ${uploadError.message}`);
-        }
-
-        const { data: urlData } = supabase.storage
-          .from("merchant-assets")
-          .getPublicUrl(uploadData.path);
-
-        imageUrls.push(urlData.publicUrl);
-      }
+      // Compress + upload images in parallel (non-fatal: a failed image is skipped)
+      setUploadingImages(true);
+      setImageStatus({});
+      const { urls: imageUrls, failed: failedImages } = await uploadProductImages(
+        imageFiles,
+        userId,
+        supabase,
+        (i, s) => setImageStatus((prev) => ({ ...prev, [i]: s })),
+      );
+      setUploadingImages(false);
 
       const variantsToSave = itemType === "product" ? variants : [];
       for (const [index, variant] of variantsToSave.entries()) {
@@ -299,7 +287,7 @@ export default function NewProductPage() {
       }
 
       track("product_created", { item_type: itemType, has_images: imageUrls.length > 0, category: categoryId || "none" });
-      router.push("/dashboard/products");
+      router.push(failedImages > 0 ? "/dashboard/products?img_notice=1" : "/dashboard/products");
       router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -309,6 +297,7 @@ export default function NewProductPage() {
       );
     } finally {
       setLoading(false);
+      setUploadingImages(false);
     }
   }
 
@@ -667,6 +656,12 @@ export default function NewProductPage() {
                 >
                   <X size={14} />
                 </button>
+                {imageStatus[i] === "uploading" && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-xs rounded-lg">Uploading…</span>
+                )}
+                {imageStatus[i] === "failed" && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-red-600/70 text-white text-xs rounded-lg">Failed</span>
+                )}
               </div>
             ))}
             {imageFiles.length < 3 && (
@@ -715,7 +710,7 @@ export default function NewProductPage() {
             )}
           >
             {loading && <Loader2 size={16} className="animate-spin" />}
-            {loading ? "Saving..." : itemType === "service" ? "Add Service" : "Add Product"}
+            {uploadingImages ? "Optimising & uploading photos…" : loading ? "Saving…" : itemType === "service" ? "Add Service" : "Add Product"}
           </button>
           <Link
             href="/dashboard/products"

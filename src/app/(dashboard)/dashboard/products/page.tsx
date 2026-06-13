@@ -7,7 +7,13 @@ import { getServiceLabels } from "@/lib/service-labels";
 import { TIER_LIMITS, type SubscriptionTier } from "@/lib/tier-limits";
 import { createServiceClient } from "@/lib/supabase/service";
 
-export default async function ProductsPage() {
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ img_notice?: string }>;
+}) {
+  const sp = await searchParams;
+  const imgNotice = sp?.img_notice;
   const supabase = await createClient();
   const {
     data: { user },
@@ -137,6 +143,12 @@ export default async function ProductsPage() {
           </div>
         </div>
       </div>
+
+      {imgNotice && (
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+          Your product was saved, but one or more photos didn&apos;t upload. Open the product to add them.
+        </div>
+      )}
 
       {productList.length === 0 ? (
         <div className="bg-white rounded-lg border p-12 text-center">

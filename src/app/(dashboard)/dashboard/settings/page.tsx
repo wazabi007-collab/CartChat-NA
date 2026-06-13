@@ -65,6 +65,8 @@ export default function SettingsPage() {
     ewallet_number: "",
     ewallet_provider: "",
     pay2cell_number: "",
+    paytoday_number: "",
+    enabled_delivery_providers: ["store", "yango", "indrive"] as string[],
     vat_number: "",
     vat_inclusive: false,
     pop_required: false,
@@ -108,6 +110,8 @@ export default function SettingsPage() {
           ewallet_number: merchant.ewallet_number || "",
           ewallet_provider: merchant.ewallet_provider || "",
           pay2cell_number: merchant.pay2cell_number || "",
+          paytoday_number: merchant.paytoday_number || "",
+          enabled_delivery_providers: merchant.enabled_delivery_providers ?? ["store", "yango", "indrive"],
           vat_number: merchant.vat_number || "",
           vat_inclusive: false,
           pop_required: merchant.pop_required ?? false,
@@ -136,6 +140,12 @@ export default function SettingsPage() {
 
     const deliveryFeeCents = Math.round((parseFloat(form.delivery_fee_display) || 0) * 100);
 
+    if (form.enabled_delivery_providers.length === 0) {
+      setError("Select at least one delivery option (Store, Yango, or inDrive).");
+      setSaving(false);
+      return;
+    }
+
     const { error: updateError } = await supabase
       .from("merchants")
       .update({
@@ -154,6 +164,8 @@ export default function SettingsPage() {
         ewallet_number: form.ewallet_number || null,
         ewallet_provider: form.ewallet_provider || null,
         pay2cell_number: form.pay2cell_number || null,
+        paytoday_number: form.paytoday_number || null,
+        enabled_delivery_providers: form.enabled_delivery_providers,
         vat_number: form.vat_number || null,
         vat_inclusive: false,
         pop_required: form.pop_required,
@@ -204,6 +216,19 @@ export default function SettingsPage() {
       times: prev.times.filter((t) => t !== slot),
     }));
   }
+
+  const DELIVERY_OPTIONS = [
+    { value: "store", label: "Store delivery" },
+    { value: "yango", label: "Yango" },
+    { value: "indrive", label: "inDrive" },
+  ];
+  const toggleProvider = (value: string, checked: boolean) =>
+    setForm((p) => ({
+      ...p,
+      enabled_delivery_providers: checked
+        ? [...p.enabled_delivery_providers, value]
+        : p.enabled_delivery_providers.filter((v) => v !== value),
+    }));
 
   if (loading) {
     return (
@@ -566,6 +591,22 @@ export default function SettingsPage() {
             </div>
           )}
 
+          {form.accepted_payment_methods.includes("paytoday") && (
+            <div>
+              <label className={label}>PayToday Number</label>
+              <input
+                type="tel"
+                value={form.paytoday_number}
+                onChange={(e) => setForm((p) => ({ ...p, paytoday_number: e.target.value }))}
+                placeholder="+264 81 123 4567"
+                className={`${inputBase} ${focusGreen}`}
+              />
+              <p className={helperText}>
+                Customers will send PayToday payments to this number.
+              </p>
+            </div>
+          )}
+
           {form.accepted_payment_methods.includes("eft") && (
             <div className="border-t border-gray-100 pt-4">
               <label className="flex items-start gap-3 cursor-pointer">
@@ -628,6 +669,24 @@ export default function SettingsPage() {
             />
             <p className={helperText}>
               Optional. Shown to customers as &quot;Usually ready in …&quot;.
+            </p>
+          </div>
+          <div className="border-t border-gray-100 pt-4">
+            <label className={label}>Delivery options shown at checkout</label>
+            <div className="mt-2 space-y-2">
+              {DELIVERY_OPTIONS.map((opt) => (
+                <label key={opt.value} className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.enabled_delivery_providers.includes(opt.value)}
+                    onChange={(e) => toggleProvider(opt.value, e.target.checked)}
+                  />
+                  <span className="text-sm text-gray-700">{opt.label}</span>
+                </label>
+              ))}
+            </div>
+            <p className={helperText}>
+              Yango and inDrive are buyer-booked — the buyer pays the courier and you just prepare the parcel.
             </p>
           </div>
         </div>

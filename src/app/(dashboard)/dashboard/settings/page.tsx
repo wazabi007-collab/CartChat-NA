@@ -67,6 +67,7 @@ export default function SettingsPage() {
     pay2cell_number: "",
     paytoday_number: "",
     enabled_delivery_providers: ["store", "yango", "indrive"] as string[],
+    pickup_address: "",
     vat_number: "",
     vat_inclusive: false,
     pop_required: false,
@@ -112,6 +113,7 @@ export default function SettingsPage() {
           pay2cell_number: merchant.pay2cell_number || "",
           paytoday_number: merchant.paytoday_number || "",
           enabled_delivery_providers: merchant.enabled_delivery_providers ?? ["store", "yango", "indrive"],
+          pickup_address: merchant.pickup_address || "",
           vat_number: merchant.vat_number || "",
           vat_inclusive: false,
           pop_required: merchant.pop_required ?? false,
@@ -146,6 +148,15 @@ export default function SettingsPage() {
       return;
     }
 
+    const offersCourier =
+      form.enabled_delivery_providers.includes("yango") ||
+      form.enabled_delivery_providers.includes("indrive");
+    if (offersCourier && !form.pickup_address.trim()) {
+      setError("Add a pickup address so Yango/inDrive couriers know where to collect.");
+      setSaving(false);
+      return;
+    }
+
     const { error: updateError } = await supabase
       .from("merchants")
       .update({
@@ -166,6 +177,7 @@ export default function SettingsPage() {
         pay2cell_number: form.pay2cell_number || null,
         paytoday_number: form.paytoday_number || null,
         enabled_delivery_providers: form.enabled_delivery_providers,
+        pickup_address: form.pickup_address.trim() || null,
         vat_number: form.vat_number || null,
         vat_inclusive: false,
         pop_required: form.pop_required,
@@ -689,6 +701,22 @@ export default function SettingsPage() {
               Yango and inDrive are buyer-booked — the buyer pays the courier and you just prepare the parcel.
             </p>
           </div>
+          {(form.enabled_delivery_providers.includes("yango") ||
+            form.enabled_delivery_providers.includes("indrive")) && (
+            <div className="border-t border-gray-100 pt-4">
+              <label className={label}>Pickup address</label>
+              <textarea
+                value={form.pickup_address}
+                onChange={(e) => setForm((p) => ({ ...p, pickup_address: e.target.value }))}
+                rows={2}
+                placeholder="e.g. Shop 4, Maerua Mall, Windhoek"
+                className={`${inputBase} ${focusGreen}`}
+              />
+              <p className={helperText}>
+                Where Yango/inDrive couriers collect orders. Buyers see this to book the driver.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Delivery Scheduling */}

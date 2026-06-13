@@ -15,6 +15,8 @@ import {
   User,
   Store,
   CreditCard,
+  ExternalLink,
+  HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
@@ -114,6 +116,24 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
                 </Link>
               );
             })}
+            {merchant && (
+              <a
+                href={`/s/${merchant.store_slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-950 transition-colors"
+              >
+                <ExternalLink size={18} strokeWidth={2} />
+                <span className="truncate">View store</span>
+              </a>
+            )}
+            <Link
+              href="/help"
+              className="flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-950 transition-colors"
+            >
+              <HelpCircle size={18} strokeWidth={2} />
+              <span className="truncate">Help</span>
+            </Link>
           </nav>
           <div className="p-4 border-t border-slate-100">
             {userPhone && (

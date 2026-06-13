@@ -14,6 +14,8 @@ import {
   Settings,
   LogOut,
   X,
+  ExternalLink,
+  HelpCircle,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getServiceLabels } from "@/lib/service-labels";
@@ -21,9 +23,10 @@ import { getServiceLabels } from "@/lib/service-labels";
 interface BottomNavProps {
   pendingOrders: number;
   industry?: string | null;
+  storeSlug?: string | null;
 }
 
-export function BottomNav({ pendingOrders, industry }: BottomNavProps) {
+export function BottomNav({ pendingOrders, industry, storeSlug }: BottomNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -151,6 +154,27 @@ export function BottomNav({ pendingOrders, industry }: BottomNavProps) {
               >
                 <Settings size={20} className="text-gray-500" />
                 <span className="text-sm font-medium">Settings</span>
+              </Link>
+
+              {storeSlug && (
+                <a
+                  href={`/s/${storeSlug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMoreOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
+                >
+                  <ExternalLink size={20} className="text-gray-500" />
+                  <span className="text-sm font-medium">View store</span>
+                </a>
+              )}
+              <Link
+                href="/help"
+                onClick={() => setMoreOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
+              >
+                <HelpCircle size={20} className="text-gray-500" />
+                <span className="text-sm font-medium">Help</span>
               </Link>
 
               <button

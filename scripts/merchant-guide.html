@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>OshiCart — Merchant Setup Guide</title>
+<style>
+  :root {
+    --acacia: #159947;
+    --terracotta: #2b5ea7;
+    --ink: #1f2937;
+    --muted: #5b6472;
+    --line: #e3e7ee;
+    --soft: #f4f7fb;
+  }
+
+  @page {
+    size: A4;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    font-size: 11.5pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ---------- Title block ---------- */
+  .cover {
+    border-bottom: 4px solid var(--acacia);
+    padding-bottom: 18px;
+    margin-bottom: 26px;
+  }
+
+  .wordmark {
+    font-size: 30pt;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .wordmark .oshi { color: var(--acacia); }
+  .wordmark .cart { color: var(--terracotta); }
+
+  .guide-title {
+    margin-top: 10px;
+    font-size: 17pt;
+    font-weight: 700;
+    color: var(--terracotta);
+  }
+
+  .subtitle {
+    margin-top: 4px;
+    font-size: 11.5pt;
+    color: var(--muted);
+  }
+
+  /* ---------- Sections ---------- */
+  section {
+    margin-bottom: 18px;
+    page-break-inside: avoid;
+  }
+
+  h2 {
+    font-size: 13.5pt;
+    font-weight: 700;
+    color: var(--terracotta);
+    margin: 0 0 4px 0;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  h2 .num {
+    display: inline-block;
+    min-width: 1.5em;
+    color: var(--acacia);
+    font-weight: 800;
+  }
+
+  p { margin: 6px 0; }
+
+  ul {
+    margin: 6px 0;
+    padding-left: 20px;
+  }
+  li { margin: 3px 0; }
+
+  strong { color: var(--ink); }
+
+  .lead {
+    color: var(--muted);
+    font-size: 11.5pt;
+  }
+
+  .link { color: var(--terracotta); font-weight: 600; white-space: nowrap; }
+
+  /* ---------- Callout ---------- */
+  .callout {
+    margin: 10px 0 2px 0;
+    padding: 10px 14px;
+    background: var(--soft);
+    border-left: 4px solid var(--acacia);
+    border-radius: 6px;
+    font-size: 10.8pt;
+  }
+  .callout.warn {
+    border-left-color: var(--terracotta);
+  }
+  .callout strong { color: var(--terracotta); }
+
+  /* ---------- Pills ---------- */
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+  }
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #e7f8ee;
+    color: var(--acacia);
+    border: 1px solid #bfe6cd;
+    border-radius: 999px;
+    font-size: 10pt;
+    font-weight: 600;
+  }
+
+  /* ---------- Footer / help ---------- */
+  .help {
+    margin-top: 6px;
+    padding-top: 14px;
+    border-top: 3px solid var(--terracotta);
+    page-break-inside: avoid;
+  }
+  .help h2 { border-bottom: none; padding-bottom: 0; }
+
+  .help-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin: 6px 0 10px 0;
+  }
+  .help-grid div { font-size: 11pt; }
+  .help-grid .label {
+    display: block;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .colophon {
+    margin-top: 4px;
+    font-size: 9.5pt;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .colophon .made { color: var(--acacia); font-weight: 700; }
+</style>
+</head>
+<body>
+
+  <div class="cover">
+    <div class="wordmark"><span class="oshi">Oshi</span><span class="cart">Cart</span></div>
+    <div class="guide-title">Merchant Setup Guide</div>
+    <div class="subtitle">Set up your store, get paid, and start selling — in minutes.</div>
+  </div>
+
+  <section>
+    <h2><span class="num">1</span>Welcome</h2>
+    <p>OshiCart is a proudly Namibian platform that lets you sell online through a clean store link and simple WhatsApp orders. There is <strong>zero OshiCart commission</strong> on your sales — customers pay you directly, so every dollar you earn stays with you. This guide walks you through everything you need to launch and start selling.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>Create your store (under 2 minutes)</h2>
+    <p>Head to the setup wizard and enter just three things to go live:</p>
+    <ul>
+      <li><strong>Store name</strong> — what customers will see at the top of your store.</li>
+      <li><strong>Your WhatsApp number</strong> — this is where customers contact you about orders.</li>
+      <li><strong>Your industry</strong> — so your store uses the right wording for what you sell.</li>
+    </ul>
+    <p>That's it. Your store goes live at a shareable link: <span class="link">oshicart.com/s/your-store</span>.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>Add products &amp; great photos</h2>
+    <p>Add up to <strong>3 photos per product</strong>. Good, bright, square photos sell best, so shoot in daylight against a clean background. The app automatically compresses your photos, so you can upload straight from your phone — no editing needed.</p>
+    <ul>
+      <li>Set a clear price for every item.</li>
+      <li>Add <strong>variations</strong> (for example size or colour) when a product comes in options.</li>
+      <li>You can also list <strong>Services</strong>, not just physical products.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>Payment methods you can accept</h2>
+    <p>Enable any of the payment options below. For each one, you simply enter the number customers should send money to.</p>
+    <div class="pills">
+      <span class="pill">Bank Transfer (EFT)</span>
+      <span class="pill">MTC Maris</span>
+      <span class="pill">FNB Pay2Cell</span>
+      <span class="pill">eWallet</span>
+      <span class="pill">PayToday</span>
+      <span class="pill">Cash on Delivery</span>
+    </div>
+    <p class="lead">eWallet covers FNB eWallet, BlueWallet, EasyWallet, Nedbank Money, and PayPulse.</p>
+    <div class="callout warn">
+      <strong>Important:</strong> Always confirm the money is actually in your bank account or wallet <strong>before</strong> you hand over any goods. Proof-of-payment screenshots can be faked — only trust your real balance.
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>Delivery options</h2>
+    <p>Choose what buyers see at checkout:</p>
+    <ul>
+      <li><strong>Store delivery</strong> — you deliver the order yourself and set your own delivery fee.</li>
+      <li><strong>Yango / inDrive</strong> — the <strong>buyer</strong> books and pays the courier directly. You just prepare the parcel for collection.</li>
+    </ul>
+    <p>If you offer Yango or inDrive, set your <strong>pickup address</strong> so couriers know exactly where to collect.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>Share your store</h2>
+    <p>Your store link works everywhere, and customers never need to install an app. Spread it as widely as you can:</p>
+    <ul>
+      <li>Post your link on <strong>WhatsApp Status</strong>.</li>
+      <li>Share your built-in <strong>QR code</strong> in person or on flyers.</li>
+      <li>Post it on <strong>Facebook, Instagram, and TikTok</strong>.</li>
+    </ul>
+    <p>The same single link works on every platform — no app needed for your customers.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span>Selling rules</h2>
+    <p>To keep OshiCart safe and trusted, some items are <strong>prohibited</strong>: adult content, illegal drugs, counterfeit goods, fraud, and dangerous or restricted items. Stores that break the rules can be hidden or suspended.</p>
+    <p>Read the full list before you list: <span class="link">oshicart.com/prohibited-products</span>.</p>
+  </section>
+
+  <div class="help">
+    <h2><span class="num">8</span>Need help?</h2>
+    <div class="help-grid">
+      <div>
+        <span class="label">WhatsApp</span>
+        +264 81 627 4823
+      </div>
+      <div>
+        <span class="label">Email</span>
+        info@octovianexus.com
+      </div>
+    </div>
+    <p class="colophon">
+      &copy; OshiCart — a product of Octovia Nexus Investments CC.<br />
+      <span class="made">Made in Namibia.</span>
+    </p>
+  </div>
+
+</body>
+</html>

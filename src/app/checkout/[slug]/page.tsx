@@ -150,7 +150,7 @@ export default async function CheckoutPage({ params }: Props) {
           ewalletProvider={merchant.ewallet_provider ?? null}
           pay2cellNumber={merchant.pay2cell_number ?? null}
           paytodayNumber={merchant.paytoday_number ?? null}
-          enabledDeliveryProviders={merchant.enabled_delivery_providers ?? ["store", "yango", "indrive"]}
+          enabledDeliveryProviders={merchant.enabled_delivery_providers?.length ? merchant.enabled_delivery_providers : ["store", "yango", "indrive"]}
           vatNumber={merchant.vat_number ?? null}
           vatInclusive={merchant.vat_inclusive ?? false}
           popRequired={merchant.pop_required ?? false}

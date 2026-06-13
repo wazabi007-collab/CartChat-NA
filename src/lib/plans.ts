@@ -50,7 +50,7 @@ export const PUBLIC_PLANS: PublicPlan[] = [
     features: [
       ...countLines("oshi_basic"),
       "OshiCart store link",
-      "Local payments (EFT, COD, MoMo, eWallet)",
+      "Local payments (EFT, COD, MTC Maris, eWallet)",
       "Proof-of-payment upload",
       "Sales analytics",
       "No OshiCart branding",

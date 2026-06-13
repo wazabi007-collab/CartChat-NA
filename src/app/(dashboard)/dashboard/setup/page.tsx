@@ -725,12 +725,12 @@ function StoreSetupForm() {
                 </div>
               )}
 
-              {/* MoMo number — shown if MoMo selected */}
+              {/* MTC Maris number — shown if MTC Maris selected */}
               {selectedMethods.includes("momo") && (
                 <div className="border-t pt-3">
                   <PhoneInput
                     id="momo-number"
-                    labelText="MoMo Number"
+                    labelText="MTC Maris Number"
                     value={form.momo_number}
                     onChange={(val) => update("momo_number", val)}
                     variant="green"

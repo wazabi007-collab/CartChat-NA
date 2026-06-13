@@ -381,10 +381,10 @@ export default async function InvoicePage({ params }: Props) {
                 </div>
               )}
 
-              {/* MoMo */}
+              {/* MTC Maris */}
               {order.payment_method === "momo" && (
                 <div className="space-y-2">
-                  <PaymentRow label="MoMo Number" value={merchant.momo_number ?? "—"} />
+                  <PaymentRow label="MTC Maris Number" value={merchant.momo_number ?? "—"} />
                   <PaymentRow label="Reference" value={order.payment_reference || `Order #${order.order_number}`} highlight />
                   <PaymentRow label="Amount" value={formatPrice(total)} highlight />
                 </div>

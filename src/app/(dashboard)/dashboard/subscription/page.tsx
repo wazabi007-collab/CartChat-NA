@@ -210,7 +210,8 @@ export default async function SubscriptionPage() {
                       N${(p.amount_nad / 100).toLocaleString()}
                     </td>
                     <td className="py-2 text-slate-600">
-                      {getPaymentMethodLabel(p.payment_method)}
+                      {({ cash: "Cash", dpo: "Card (DPO)" } as Record<string, string>)[p.payment_method] ??
+                        getPaymentMethodLabel(p.payment_method)}
                     </td>
                     <td className="py-2 text-slate-500">
                       {p.period_start && p.period_end

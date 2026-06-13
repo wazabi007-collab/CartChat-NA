@@ -3,6 +3,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     formats: ["image/webp"],
+    // Product image URLs are content-addressed (random filename per upload), so the
+    // optimized output is effectively immutable. Cache it for a year on the Vercel CDN
+    // and in the browser instead of revalidating against the storage origin (which
+    // currently serves Cache-Control: no-cache) every 60s.
+    minimumCacheTTL: 31536000,
     remotePatterns: [
       {
         protocol: "https",

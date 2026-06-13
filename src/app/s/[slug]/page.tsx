@@ -141,43 +141,24 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   const hasBranding = showBranding(tier);
   const theme = getThemeConfig(merchant.industry);
 
-  // Get accurate per-category product counts and visual previews using available products.
+  // Per-category product counts + up to 4 preview images in ONE query (RPC) instead of
+  // two queries per category. See migration 051 (storefront_category_meta). It is
+  // SECURITY INVOKER, so RLS still applies and it returns exactly the products the
+  // storefront is allowed to show.
   const catCountMap = new Map<string, number>();
   const catImageMap = new Map<string, string[]>();
   if (categories && categories.length > 0) {
-    const catCountPromises = categories.map(async (cat) => {
-      const [countRes, imageRes] = await Promise.all([
-        supabase
-          .from("products")
-          .select("id", { count: "exact", head: true })
-          .eq("merchant_id", merchant.id)
-          .eq("category_id", cat.id)
-          .eq("is_available", true)
-          .is("deleted_at", null),
-        supabase
-          .from("products")
-          .select("images")
-          .eq("merchant_id", merchant.id)
-          .eq("category_id", cat.id)
-          .eq("is_available", true)
-          .is("deleted_at", null)
-          .not("images", "eq", "{}")
-          .order("sort_order", { ascending: true })
-          .limit(4),
-      ]);
-      return {
-        id: cat.id,
-        count: countRes.count || 0,
-        images: (imageRes.data || [])
-          .flatMap((product) => product.images || [])
-          .filter(Boolean)
-          .slice(0, 4),
-      };
+    const { data: catMeta } = await supabase.rpc("storefront_category_meta", {
+      p_merchant_id: merchant.id,
     });
-    const catCounts = await Promise.all(catCountPromises);
-    for (const c of catCounts) {
-      catCountMap.set(c.id, c.count);
-      catImageMap.set(c.id, c.images);
+    const metaRows = (catMeta ?? []) as {
+      category_id: string;
+      product_count: number;
+      preview_images: string[] | null;
+    }[];
+    for (const row of metaRows) {
+      catCountMap.set(row.category_id, Number(row.product_count) || 0);
+      catImageMap.set(row.category_id, (row.preview_images ?? []).filter(Boolean).slice(0, 4));
     }
   }
 

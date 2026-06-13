@@ -3,7 +3,7 @@ import Image from "next/image";
 import { createServiceClient } from "@/lib/supabase/service";
 import { formatPrice } from "@/lib/utils";
 import { calculateVatBreakdown, VAT_RATE_BPS, VAT_RATE_LABEL } from "@/lib/vat";
-import { SITE_NAME, SITE_URL } from "@/lib/constants";
+import { SITE_NAME, SITE_URL, getPaymentMethodLabel, getEwalletProviderLabel } from "@/lib/constants";
 import { PrintButton } from "./print-button";
 import type { Metadata } from "next";
 
@@ -39,7 +39,7 @@ export default async function InvoicePage({ params }: Props) {
       merchants (
         store_name, whatsapp_number, logo_url, vat_number, vat_inclusive,
         bank_name, bank_account_number, bank_account_holder, bank_branch_code,
-        momo_number, ewallet_number, ewallet_provider
+        momo_number, ewallet_number, ewallet_provider, pay2cell_number, paytoday_number
       ),
       coupons (code)
     `)
@@ -61,6 +61,8 @@ export default async function InvoicePage({ params }: Props) {
     momo_number: string | null;
     ewallet_number: string | null;
     ewallet_provider: string | null;
+    pay2cell_number: string | null;
+    paytoday_number: string | null;
   } | null;
 
   const coupon = order.coupons as unknown as { code: string } | null;
@@ -123,19 +125,6 @@ export default async function InvoicePage({ params }: Props) {
   };
   const status = statusConfig[order.status] ?? statusConfig.pending;
 
-  const paymentMethodLabel: Record<string, string> = {
-    eft: "Bank Transfer (EFT)",
-    cod: "Cash on Delivery",
-    momo: "MTC MoMo",
-    ewallet: "eWallet",
-  };
-
-  const ewalletLabel: Record<string, string> = {
-    fnb_ewallet: "FNB eWallet",
-    paypulse: "PayPulse",
-    easywallet: "EasyWallet",
-    paytoday: "PayToday",
-  };
   const deliveryProviderLabel: Record<string, string> = {
     store: "Store delivery",
     yango: "Yango courier",
@@ -149,7 +138,7 @@ export default async function InvoicePage({ params }: Props) {
       ? order.delivery_method === "delivery"
         ? "Cash on Delivery"
         : "Cash on Collection"
-      : paymentMethodLabel[order.payment_method] ?? "Bank Transfer";
+      : getPaymentMethodLabel(order.payment_method);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 print:bg-white">
@@ -401,10 +390,20 @@ export default async function InvoicePage({ params }: Props) {
                 </div>
               )}
 
+              {/* Pay2Cell */}
+              {order.payment_method === "pay2cell" && (
+                <PaymentRow label="Pay2Cell Number" value={merchant.pay2cell_number ?? "—"} />
+              )}
+
+              {/* PayToday */}
+              {order.payment_method === "paytoday" && (
+                <PaymentRow label="PayToday Number" value={merchant.paytoday_number ?? "—"} />
+              )}
+
               {/* eWallet */}
               {order.payment_method === "ewallet" && (
                 <div className="space-y-2">
-                  <PaymentRow label="Provider" value={ewalletLabel[merchant.ewallet_provider ?? ""] ?? merchant.ewallet_provider ?? "—"} />
+                  <PaymentRow label="Provider" value={getEwalletProviderLabel(merchant.ewallet_provider)} />
                   <PaymentRow label="Send to" value={merchant.ewallet_number ?? "—"} />
                   <PaymentRow label="Reference" value={order.payment_reference || `Order #${order.order_number}`} highlight />
                   <PaymentRow label="Amount" value={formatPrice(total)} highlight />

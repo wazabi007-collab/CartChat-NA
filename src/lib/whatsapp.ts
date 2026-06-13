@@ -1,3 +1,4 @@
+import "server-only";
 import { normalizeNamibianPhone } from "./utils";
 
 const GRAPH_API_VERSION = "v22.0";

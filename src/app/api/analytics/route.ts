@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 
 // POST /api/analytics — increment page view for a merchant (called from storefront)
@@ -29,24 +28,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Merchant not found" }, { status: 404 });
     }
 
-    const supabase = await createClient();
     const today = new Date().toISOString().split("T")[0];
 
-    // Upsert: increment page_views for today, create row if not exists
-    const { data: existing } = await supabase
+    // Storefront visitors are anonymous, so this upsert must run with the service-role
+    // client: store_analytics RLS is owner-only, so the previous anon-client write was
+    // silently rejected and page views were never recorded. merchant_id is validated
+    // (UUID format + active store) above before we reach here.
+    const { data: existing } = await service
       .from("store_analytics")
       .select("id, page_views")
       .eq("merchant_id", merchant_id)
       .eq("date", today)
-      .single();
+      .maybeSingle();
 
     if (existing) {
-      await supabase
+      await service
         .from("store_analytics")
         .update({ page_views: existing.page_views + 1 })
         .eq("id", existing.id);
     } else {
-      await supabase.from("store_analytics").insert({
+      await service.from("store_analytics").insert({
         merchant_id,
         date: today,
         page_views: 1,

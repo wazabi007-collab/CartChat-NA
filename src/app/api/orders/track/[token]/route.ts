@@ -7,8 +7,11 @@ export async function GET(
 ) {
   const { token } = await params;
 
-  if (!token || token.length < 6) {
-    return NextResponse.json({ error: "Invalid token" }, { status: 404 });
+  // Tracking tokens are 32-hex (gen_random_uuid, post entropy-upgrade) or 8-hex (legacy).
+  // Reject anything else up front so this unauthenticated endpoint can't be probed with
+  // arbitrary input; return a uniform 404 either way (no format-error oracle).
+  if (!token || !/^(?:[a-f0-9]{8}|[a-f0-9]{32})$/.test(token)) {
+    return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
   const supabase = createServiceClient();

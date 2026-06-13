@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isWhatsAppEnabled } from "@/lib/whatsapp";
 import { formatPrice } from "@/lib/utils";
@@ -13,9 +14,18 @@ import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
  * After 3 days + 1 hour, auto-cancel and restock inventory.
  */
 export async function GET(req: NextRequest) {
-  // Verify cron secret
-  const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  // Reject if CRON_SECRET is not properly configured (fail closed)
+  if (!process.env.CRON_SECRET || process.env.CRON_SECRET.length < 16) {
+    return NextResponse.json({ error: "CRON_SECRET not configured" }, { status: 500 });
+  }
+
+  // Verify cron secret with a length-checked timing-safe comparison
+  const authHeader = req.headers.get("authorization") || "";
+  const expected = `Bearer ${process.env.CRON_SECRET}`;
+  const isValid =
+    authHeader.length === expected.length &&
+    crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
+  if (!isValid) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 

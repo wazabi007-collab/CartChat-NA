@@ -66,7 +66,7 @@ export function Hero({
                 className="h-auto w-full"
               />
             </div>
-            <div className="absolute -left-6 top-14 hidden sm:flex items-center gap-2.5 rounded-2xl border border-border-warm bg-white px-3.5 py-2.5 shadow-xl shadow-walnut/10">
+            <div className="absolute -left-8 bottom-36 hidden sm:flex items-center gap-2.5 rounded-2xl border border-border-warm bg-white px-3.5 py-2.5 shadow-xl shadow-walnut/10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/whatsapp-icon.webp"

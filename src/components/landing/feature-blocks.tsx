@@ -25,6 +25,7 @@ const FEATURES: Array<{
     icon: BotMessageSquare,
     title: "Automated WhatsApp replies",
     body: "Customers receive order confirmed, ready, and completed updates when merchants move an order forward.",
+    image: "/landing/feature-whatsapp.png",
   },
   {
     icon: Boxes,
@@ -36,6 +37,7 @@ const FEATURES: Array<{
     icon: Percent,
     title: "Coupons and promos",
     body: "Run launch discounts, weekend specials, and customer offers without manual calculations.",
+    image: "/landing/feature-coupons.png",
   },
   {
     icon: FileText,

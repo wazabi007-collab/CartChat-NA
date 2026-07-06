@@ -7,11 +7,19 @@ import {
   Percent,
 } from "lucide-react";
 
-const FEATURES = [
+// Screenshots are real captures from a live OshiCart merchant dashboard
+// (customer details pixelated).
+const FEATURES: Array<{
+  icon: typeof MessageSquareText;
+  title: string;
+  body: string;
+  image?: string;
+}> = [
   {
     icon: MessageSquareText,
     title: "Clean WhatsApp orders",
     body: "Customers send complete orders with items, quantities, delivery choice, and payment proof.",
+    image: "/landing/feature-orders.png",
   },
   {
     icon: BotMessageSquare,
@@ -22,6 +30,7 @@ const FEATURES = [
     icon: Boxes,
     title: "Stock control",
     body: "Track quantities, show out-of-stock badges, and reduce the 'is this available?' messages.",
+    image: "/landing/feature-stock.png",
   },
   {
     icon: Percent,
@@ -32,11 +41,13 @@ const FEATURES = [
     icon: FileText,
     title: "Invoices and VAT",
     body: "Create professional invoices with Namibia's 15% VAT support when your business needs it.",
+    image: "/landing/feature-invoice.png",
   },
   {
     icon: BarChart3,
     title: "Sales visibility",
     body: "See orders, revenue, products, and low-stock warnings from one mobile-friendly dashboard.",
+    image: "/landing/feature-dashboard.png",
   },
 ];
 
@@ -65,8 +76,18 @@ export function FeatureBlocks() {
               return (
                 <div
                   key={feature.title}
-                  className="rounded-xl border border-border-warm bg-sand p-5"
+                  className="overflow-hidden rounded-xl border border-border-warm bg-sand"
                 >
+                  {feature.image && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={feature.image}
+                      alt={`${feature.title} — real OshiCart dashboard screenshot`}
+                      className="w-full border-b border-border-warm bg-white object-cover"
+                      loading="lazy"
+                    />
+                  )}
+                  <div className="p-5">
                   <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white text-terracotta shadow-sm">
                     <Icon size={21} />
                   </span>
@@ -76,6 +97,7 @@ export function FeatureBlocks() {
                   <p className="mt-2 text-sm leading-6 text-walnut-2">
                     {feature.body}
                   </p>
+                  </div>
                 </div>
               );
             })}

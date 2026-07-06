@@ -83,6 +83,18 @@ export function Hero({
             </div>
           </div>
         </div>
+
+        <div className="mt-12 flex flex-col items-center justify-center gap-3 border-t border-border-warm pt-6 sm:flex-row sm:gap-8 md:mt-16">
+          <span className="inline-flex items-center gap-2 text-sm font-bold text-walnut-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/whatsapp-icon.webp" alt="WhatsApp" className="h-5 w-5 object-contain" />
+            Runs on the WhatsApp Business Platform
+          </span>
+          <span className="hidden text-border-warm sm:inline">|</span>
+          <span className="text-sm font-bold text-walnut-2">
+            A product of Octovia Nexus Investments CC — registered Namibian business
+          </span>
+        </div>
       </div>
     </section>
   );

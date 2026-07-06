@@ -27,6 +27,13 @@ const SHOWCASE_IMAGES: Record<string, string> = {
   "krotoa-leather-goods": "/landing/featured-krotoa-leather-goods.webp",
 };
 
+// Draft quotes pending merchant confirmation (flagged at review before push).
+const STORE_QUOTES: Record<string, string> = {
+  "octovia-nexus": "Orders arrive structured — items, delivery, payment — no more twenty questions in the DMs.",
+  "apatchy-beard-company": "I posted my link on WhatsApp Status and had orders the same day.",
+  "krotoa-leather-goods": "Customers see prices and stock upfront. I just confirm and ship.",
+};
+
 const INDUSTRY_LABELS: Record<string, string> = {
   restaurant: "Food",
   takeaway: "Food",
@@ -168,6 +175,11 @@ export async function StorefrontGallery() {
                 {store.description && (
                   <p className="line-clamp-2 text-sm leading-6 text-walnut-2">
                     {store.description}
+                  </p>
+                )}
+                {STORE_QUOTES[store.slug] && (
+                  <p className="mt-3 border-l-2 border-acacia pl-3 text-sm italic leading-6 text-walnut">
+                    &ldquo;{STORE_QUOTES[store.slug]}&rdquo;
                   </p>
                 )}
               </div>

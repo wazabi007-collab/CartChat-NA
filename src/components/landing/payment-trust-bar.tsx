@@ -1,12 +1,12 @@
-import { Banknote, BadgeCheck, Landmark, Smartphone, Wallet } from "lucide-react";
+import { BadgeCheck, Landmark } from "lucide-react";
 
-const METHODS = [
-  { name: "PayToday", icon: Smartphone },
-  { name: "EFT", icon: Landmark },
-  { name: "Pay2Cell", icon: Wallet },
-  { name: "eWallet", icon: Wallet },
-  { name: "MTC Maris", icon: Smartphone },
-  { name: "Cash on Delivery", icon: Banknote },
+const BRANDS = [
+  { name: "PayToday", src: "/payment-logos/paytoday.png" },
+  { name: "MTC Maris", src: "/payment-logos/mtc-maris.png" },
+  { name: "FNB eWallet", src: "/payment-logos/fnb-ewallet.png" },
+  { name: "PayPulse", src: "/payment-logos/paypulse.png" },
+  { name: "EasyWallet", src: "/payment-logos/easywallet.png" },
+  { name: "Nedbank Money", src: "/payment-logos/nedbank-money.png" },
 ];
 
 export function PaymentTrustBar() {
@@ -22,21 +22,23 @@ export function PaymentTrustBar() {
               Accept the ways Namibians already pay.
             </h2>
           </div>
-          <div className="flex flex-wrap gap-3">
-            {METHODS.map((method) => {
-              const Icon = method.icon;
-              return (
-                <span
-                  key={method.name}
-                  className="inline-flex items-center gap-2 rounded-lg border border-border-warm bg-white px-4 py-3 text-sm font-extrabold text-walnut shadow-sm"
-                >
-                  <Icon size={17} className="text-acacia" />
-                  {method.name}
-                </span>
-              );
-            })}
-            <span className="inline-flex items-center gap-2 rounded-lg bg-acacia-soft px-4 py-3 text-sm font-extrabold text-acacia">
-              <BadgeCheck size={17} />
+          <div className="flex flex-wrap items-center gap-2.5">
+            {BRANDS.map((brand) => (
+              <span
+                key={brand.name}
+                className="inline-flex items-center gap-2 rounded-lg border border-border-warm bg-white py-1.5 pl-1.5 pr-3 text-sm font-extrabold text-walnut shadow-sm"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={brand.src} alt={`${brand.name} logo`} className="h-7 w-7 rounded-md object-contain" />
+                {brand.name}
+              </span>
+            ))}
+            <span className="inline-flex items-center gap-2 rounded-lg border border-border-warm bg-white px-3 py-2.5 text-sm font-extrabold text-walnut shadow-sm">
+              <Landmark size={16} className="text-walnut-2" />
+              EFT &amp; Cash on Delivery
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-lg bg-acacia-soft px-3 py-2.5 text-sm font-extrabold text-acacia">
+              <BadgeCheck size={16} />
               Zero OshiCart commission
             </span>
           </div>

@@ -68,7 +68,7 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
           <div className="p-5 border-b border-slate-100">
             <Link href="/dashboard" className="inline-flex">
               <Image
-                src="/oshicart-logo-original.webp"
+                src="/oshicart-logo-v3.webp"
                 alt="OshiCart"
                 width={150}
                 height={21}
@@ -154,7 +154,7 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
       <div className="md:hidden bg-white/95 border-b border-slate-200 px-4 py-3 flex items-center justify-center sticky top-0 z-30 backdrop-blur">
         <Link href="/dashboard">
           <Image
-            src="/oshicart-logo-original.webp"
+            src="/oshicart-logo-v3.webp"
             alt="OshiCart"
             width={128}
             height={18}

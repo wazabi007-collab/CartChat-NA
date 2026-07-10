@@ -12,7 +12,7 @@ export function Footer() {
           {/* Brand */}
           <div>
             <Image
-              src="/oshicart-logo-original.webp"
+              src="/oshicart-logo-v3-dark.webp"
               alt="OshiCart"
               width={170}
               height={24}

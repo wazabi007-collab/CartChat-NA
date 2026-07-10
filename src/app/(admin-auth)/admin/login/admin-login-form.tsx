@@ -85,7 +85,7 @@ export function AdminLoginForm({ initialError }: { initialError?: string }) {
         <section className="hidden lg:block">
           <Link href="/" className="inline-flex">
             <Image
-              src="/oshicart-logo-original.webp"
+              src="/oshicart-logo-v3.webp"
               alt="OshiCart"
               width={170}
               height={24}

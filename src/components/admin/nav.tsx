@@ -59,7 +59,7 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
         <div className="flex flex-col flex-1 overflow-y-auto">
           <div className="border-b border-white/10 p-5">
             <Image
-              src="/oshicart-logo-original.webp"
+              src="/oshicart-logo-v3-dark.webp"
               alt="OshiCart"
               width={150}
               height={21}
@@ -119,7 +119,7 @@ export function AdminNav({ userEmail, adminRole }: { userEmail: string; adminRol
       <div className="md:hidden sticky top-0 z-40 flex items-center justify-between border-b border-white/10 bg-slate-950 px-4 py-3">
         <div className="flex items-center gap-2">
           <Image
-            src="/oshicart-logo-original.webp"
+            src="/oshicart-logo-v3-dark.webp"
             alt="OshiCart"
             width={128}
             height={18}

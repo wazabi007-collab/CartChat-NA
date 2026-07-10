@@ -1,63 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 455 112" fill="none" role="img" aria-label="OshiCart">
-  <defs>
-    <linearGradient id="badgeGradient" x1="14" y1="12" x2="96" y2="94" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#2C7FE2"/>
-      <stop offset="0.45" stop-color="#13B75F"/>
-      <stop offset="1" stop-color="#F0B429"/>
-    </linearGradient>
-    <linearGradient id="badgeGloss" x1="27" y1="20" x2="72" y2="72" gradientUnits="userSpaceOnUse">
-      <stop stop-color="white" stop-opacity="0.55"/>
-      <stop offset="0.62" stop-color="white" stop-opacity="0.08"/>
-      <stop offset="1" stop-color="white" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="cartGradient" x1="363" y1="31" x2="430" y2="91" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#2C7FE2"/>
-      <stop offset="1" stop-color="#0B4EA2"/>
-    </linearGradient>
-    <filter id="logoDepth" x="-2" y="0" width="458" height="112" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="2" stdDeviation="0.8" flood-color="#FFFFFF" flood-opacity="0.45"/>
-      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.18"/>
-    </filter>
-    <filter id="badgeDepth" x="0" y="2" width="110" height="110" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#0F172A" flood-opacity="0.22"/>
-      <feDropShadow dx="-2" dy="-2" stdDeviation="1" flood-color="#FFFFFF" flood-opacity="0.28"/>
-    </filter>
-    <filter id="textDepth" x="110" y="23" width="238" height="70" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="1" stdDeviation="0" flood-color="#FFFFFF" flood-opacity="0.75"/>
-      <feDropShadow dx="2" dy="4" stdDeviation="1.4" flood-color="#0B1220" flood-opacity="0.16"/>
-    </filter>
-    <filter id="cartDepth" x="350" y="21" width="92" height="85" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="1" stdDeviation="0" flood-color="#FFFFFF" flood-opacity="0.65"/>
-      <feDropShadow dx="3" dy="5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.2"/>
-    </filter>
-  </defs>
-
-  <g filter="url(#logoDepth)">
-    <g filter="url(#badgeDepth)">
-      <rect x="16" y="14" width="78" height="78" rx="25" fill="url(#badgeGradient)"/>
-      <path d="M21 24c10-8 32-11 55 0 10 5 14 13 13 22C79 34 58 25 21 24Z" fill="url(#badgeGloss)"/>
-      <path d="M36 39h8l5.4 27h29l6.2-19.2H53.5" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="m59 35 8.2 8.2L82 27" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="54" cy="75" r="4.8" fill="white"/>
-      <circle cx="75" cy="75" r="4.8" fill="white"/>
-    </g>
-
-    <text x="116" y="73" filter="url(#textDepth)" font-family="Arial Rounded MT Bold, Nunito, Inter, Segoe UI, Arial, sans-serif" font-size="57" font-weight="900" letter-spacing="-1">
-      <tspan fill="#1769C2">Oshi</tspan><tspan fill="#19C76A">Cart</tspan>
-    </text>
-
-    <path d="M119 84h140" stroke="#1769C2" stroke-width="5" stroke-linecap="round"/>
-    <path d="M268 84h68" stroke="#19C76A" stroke-width="5" stroke-linecap="round"/>
-
-    <g filter="url(#cartDepth)">
-      <g stroke="url(#cartGradient)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M366 35h15l8 38h43l7-26h-46"/>
-        <path d="M395 59h34"/>
-        <path d="M391 73h39"/>
-      </g>
-      <circle cx="401" cy="89" r="6" fill="#1769C2"/>
-      <circle cx="430" cy="89" r="6" fill="#1769C2"/>
-      <path d="M394 39h40" stroke="white" stroke-opacity="0.35" stroke-width="2" stroke-linecap="round"/>
-    </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="OshiCart mark">
+  <!-- Sun rays -->
+  <g stroke="#f2b705" stroke-width="6" stroke-linecap="round">
+    <path d="M62 28 v-10"/>
+    <path d="M79.2 41.4 L83.8 34.9"/>
+    <path d="M44.8 41.4 L40.2 34.9"/>
+    <path d="M89.2 53.3 L96.4 49.9"/>
+    <path d="M34.8 53.3 L27.6 49.9"/>
   </g>
+  <!-- Rising sun = cart basket -->
+  <path d="M38 66 a24 24 0 0 1 48 0 z" fill="#f2b705"/>
+  <!-- Cart handle + rim -->
+  <path d="M18 34 h11 l9 32 h56" fill="none" stroke="#0b1220" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Wheels -->
+  <circle cx="50" cy="84" r="6.5" fill="#159947"/>
+  <circle cx="78" cy="84" r="6.5" fill="#159947"/>
 </svg>

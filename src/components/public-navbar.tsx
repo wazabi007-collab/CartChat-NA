@@ -37,7 +37,7 @@ export function PublicNavbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         <Link href="/" className="flex-shrink-0">
           <Image
-            src="/oshicart-logo-original.webp"
+            src="/oshicart-logo-v3.webp"
             alt="OshiCart"
             width={170}
             height={24}

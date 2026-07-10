@@ -304,7 +304,7 @@ export default async function StoresPage({
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
           <div className="flex items-center gap-3">
             <Image
-              src="/oshicart-logo-original.webp"
+              src="/oshicart-logo-v3.webp"
               alt={SITE_NAME}
               width={130}
               height={18}

@@ -70,7 +70,7 @@ function AdminResetPasswordForm() {
       <div className="relative mx-auto flex min-h-screen max-w-md flex-col justify-center px-5 py-10">
         <Link href="/admin/login" className="mb-8 inline-flex">
           <Image
-            src="/oshicart-logo-original.webp"
+            src="/oshicart-logo-v3.webp"
             alt="OshiCart"
             width={170}
             height={24}

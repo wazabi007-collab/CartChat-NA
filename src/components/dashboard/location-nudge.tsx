@@ -9,6 +9,9 @@ const DISMISS_KEY = "oshicart-location-nudge-dismissed";
 export function LocationNudge() {
   const [show, setShow] = useState(false);
 
+  // Post-hydration setState: localStorage is browser-only, can't be read during SSR.
+  // The one-time setState is intentional.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     try {
       if (!localStorage.getItem(DISMISS_KEY)) setShow(true);
@@ -16,6 +19,7 @@ export function LocationNudge() {
       // storage unavailable — leave hidden
     }
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!show) return null;
 

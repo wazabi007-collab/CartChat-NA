@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify, normalizeNamibianPhone } from "@/lib/utils";
-import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, INDUSTRY_GROUP_ORDER, PAYMENT_METHODS } from "@/lib/constants";
+import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, INDUSTRY_GROUP_ORDER, PAYMENT_METHODS, NAMIBIA_REGIONS, townsForRegion } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { SAFETY_POLICY_VERSION, safetyMessage, scanTextForProhibitedContent } from "@/lib/safety/prohibited-content";
 import { track } from "@/lib/track";
@@ -32,6 +32,8 @@ const INITIAL_FORM = {
   description: "",
   whatsapp_number: "",
   industry: "",
+  region: "",
+  town: "",
   bank_name: "",
   bank_account_number: "",
   bank_account_holder: "",
@@ -284,6 +286,8 @@ function StoreSetupForm() {
         description: form.description || null,
         whatsapp_number: normalizeNamibianPhone(form.whatsapp_number),
         industry: form.industry || "other",
+        region: form.region || null,
+        town: form.town || null,
         bank_name: form.bank_name || null,
         bank_account_number: form.bank_account_number || null,
         bank_account_holder: form.bank_account_holder || null,
@@ -479,6 +483,43 @@ function StoreSetupForm() {
                   Helps us personalise your store experience
                 </p>
               </div>
+              <div>
+                <label className={label}>
+                  Region<span className="text-red-500 ml-0.5">*</span>
+                </label>
+                <select
+                  value={form.region}
+                  onChange={(e) => {
+                    // Region change invalidates the chosen town
+                    setForm((prev) => ({ ...prev, region: e.target.value, town: "" }));
+                  }}
+                  required
+                  className={`${selectBase} ${focusGreen}`}
+                >
+                  <option value="">Where do you sell from?</option>
+                  {NAMIBIA_REGIONS.map((r) => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={label}>
+                  Town<span className="text-red-500 ml-0.5">*</span>
+                </label>
+                <select
+                  value={form.town}
+                  onChange={(e) => update("town", e.target.value)}
+                  required
+                  disabled={!form.region}
+                  className={`${selectBase} ${focusGreen} disabled:opacity-50`}
+                >
+                  <option value="">{form.region ? "Select your town" : "Choose a region first"}</option>
+                  {townsForRegion(form.region).map((t) => (
+                    <option key={t.value} value={t.value}>{t.label}</option>
+                  ))}
+                </select>
+                <p className={helperText}>Customers will see this on your store</p>
+              </div>
 
               {error && (
                 <div className={alertError}>
@@ -496,6 +537,10 @@ function StoreSetupForm() {
                   }
                   if (!form.industry) {
                     setError("Please select your industry");
+                    return;
+                  }
+                  if (!form.region || !form.town) {
+                    setError("Please choose your region and town");
                     return;
                   }
                   if (whatsappStatus === "blocked") {

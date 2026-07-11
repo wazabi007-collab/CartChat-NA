@@ -39,10 +39,10 @@ export function PublicNavbar() {
           <Image
             src="/oshicart-logo-v3.webp"
             alt="OshiCart"
-            width={170}
-            height={24}
+            width={200}
+            height={49}
             priority
-            className="w-[130px] sm:w-[170px] h-auto"
+            className="w-[150px] sm:w-[196px] h-auto"
           />
         </Link>
 

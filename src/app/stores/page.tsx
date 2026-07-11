@@ -190,9 +190,11 @@ export default async function StoresPage({
         <div className="flex flex-wrap gap-2 justify-center mb-8">
           {CATEGORY_ORDER.map((cat) => {
             const isActive = cat === "All" ? !category : category === cat;
-            const href = cat === "All"
-              ? q ? `/stores?q=${q}` : "/stores"
-              : q ? `/stores?q=${q}&category=${encodeURIComponent(cat)}` : `/stores?category=${encodeURIComponent(cat)}`;
+            const params = new URLSearchParams();
+            if (q) params.set("q", q);
+            if (cat !== "All") params.set("category", cat);
+            if (region && region !== "all") params.set("region", region);
+            const href = `/stores${params.toString() ? `?${params.toString()}` : ""}`;
             return (
               <Link
                 key={cat}

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft, Grid3X3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { SITE_NAME, SITE_URL } from "@/lib/constants";
+import { SITE_NAME, SITE_URL, TOWN_LABELS, REGION_LABELS } from "@/lib/constants";
 import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { isOrderLimitReached } from "@/lib/order-limit";
 import { getThemeConfig } from "@/lib/industry";
@@ -257,6 +257,12 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     telephone: merchant.whatsapp_number,
   };
 
+  const locationLabel = merchant.town
+    ? [TOWN_LABELS[merchant.town], merchant.region ? REGION_LABELS[merchant.region] : null]
+        .filter(Boolean)
+        .join(", ")
+    : null;
+
   return (
     <div className="min-h-screen bg-slate-50">
       {isPreview && <PreviewBanner />}
@@ -283,7 +289,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
             storeName: merchant.store_name,
             description: merchant.description,
             logoUrl: merchant.logo_url,
-            location: null,
+            location: locationLabel,
             phone: null,
             whatsappNumber: merchant.whatsapp_number,
             openingHours: null,

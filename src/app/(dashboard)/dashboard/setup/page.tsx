@@ -241,6 +241,13 @@ function StoreSetupForm() {
       return;
     }
 
+    if (!form.region || !form.town) {
+      setError("Please choose your region and town");
+      setStep(1);
+      setLoading(false);
+      return;
+    }
+
     const {
       data: { user },
     } = await supabase.auth.getUser();

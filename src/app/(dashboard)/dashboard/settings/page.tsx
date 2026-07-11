@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { BANKS_NAMIBIA, BANK_BRANCH_CODES, PAYMENT_METHODS, EWALLET_PROVIDERS } from "@/lib/constants";
+import { BANKS_NAMIBIA, BANK_BRANCH_CODES, PAYMENT_METHODS, EWALLET_PROVIDERS, NAMIBIA_REGIONS, townsForRegion } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { normalizeNamibianPhone } from "@/lib/utils";
 import Image from "next/image";
@@ -52,6 +52,8 @@ export default function SettingsPage() {
 
   const [form, setForm] = useState({
     store_name: "",
+    region: "",
+    town: "",
     description: "",
     whatsapp_number: "",
     bank_name: "",
@@ -98,6 +100,8 @@ export default function SettingsPage() {
         setLogoUrl(merchant.logo_url || null);
         setForm({
           store_name: merchant.store_name,
+          region: merchant.region || "",
+          town: merchant.town || "",
           description: merchant.description || "",
           whatsapp_number: merchant.whatsapp_number,
           bank_name: merchant.bank_name || "",
@@ -161,6 +165,8 @@ export default function SettingsPage() {
       .from("merchants")
       .update({
         store_name: form.store_name,
+        region: form.region || null,
+        town: form.town || null,
         description: form.description || null,
         whatsapp_number: normalizeNamibianPhone(form.whatsapp_number),
         bank_name: form.bank_name || null,
@@ -394,6 +400,34 @@ export default function SettingsPage() {
             <p className={helperText}>
               Customers will contact you on this number
             </p>
+          </div>
+          <div>
+            <label className={label}>Region</label>
+            <select
+              value={form.region}
+              onChange={(e) => setForm((p) => ({ ...p, region: e.target.value, town: "" }))}
+              className={`${selectBase} ${focusGreen}`}
+            >
+              <option value="">Not set</option>
+              {NAMIBIA_REGIONS.map((r) => (
+                <option key={r.value} value={r.value}>{r.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={label}>Town</label>
+            <select
+              value={form.town}
+              onChange={(e) => setForm((p) => ({ ...p, town: e.target.value }))}
+              disabled={!form.region}
+              className={`${selectBase} ${focusGreen} disabled:opacity-50`}
+            >
+              <option value="">{form.region ? "Select your town" : "Choose a region first"}</option>
+              {townsForRegion(form.region).map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+            <p className={helperText}>Shown to customers on your store and the Browse page</p>
           </div>
         </div>
 

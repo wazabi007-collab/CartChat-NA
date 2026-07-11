@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { Store, Search, ArrowRight, MessageCircle, ShieldCheck } from "lucide-react";
+import { Store, Search, ArrowRight, MessageCircle, ShieldCheck, MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { SITE_NAME } from "@/lib/constants";
+import { SITE_NAME, NAMIBIA_REGIONS, TOWN_LABELS } from "@/lib/constants";
 import { PublicNavbar } from "@/components/public-navbar";
 import { StoreThumbGrid } from "@/components/storefront/store-thumb-grid";
 
@@ -63,15 +63,15 @@ const CATEGORY_ORDER = [
 export default async function StoresPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; region?: string }>;
 }) {
-  const { q, category } = await searchParams;
+  const { q, category, region } = await searchParams;
   const supabase = await createClient();
 
   // Fetch all active merchants with their product count
   let query = supabase
     .from("merchants")
-    .select("id, store_name, store_slug, description, logo_url, whatsapp_number, industry, created_at")
+    .select("id, store_name, store_slug, description, logo_url, whatsapp_number, industry, region, town, created_at")
     .eq("is_active", true)
     .eq("store_status", "active")
     .order("created_at", { ascending: false });
@@ -80,6 +80,10 @@ export default async function StoresPage({
     query = query.or(
       `store_name.ilike.%${q.trim()}%,description.ilike.%${q.trim()}%`
     );
+  }
+
+  if (region && region !== "all") {
+    query = query.eq("region", region);
   }
 
   const { data: merchants } = await query;
@@ -205,6 +209,31 @@ export default async function StoresPage({
           })}
         </div>
 
+        {/* Region filters */}
+        <div className="flex flex-wrap gap-2 justify-center mb-8">
+          {[{ value: "all", label: "All regions" }, ...NAMIBIA_REGIONS].map((r) => {
+            const isActive = r.value === "all" ? !region : region === r.value;
+            const params = new URLSearchParams();
+            if (q) params.set("q", q);
+            if (category && category !== "All") params.set("category", category);
+            if (r.value !== "all") params.set("region", r.value);
+            const href = `/stores${params.toString() ? `?${params.toString()}` : ""}`;
+            return (
+              <Link
+                key={r.value}
+                href={href}
+                className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                  isActive
+                    ? "bg-terracotta text-white border-terracotta"
+                    : "bg-white text-walnut-2 border-border-warm hover:bg-sand-2"
+                }`}
+              >
+                {r.label}
+              </Link>
+            );
+          })}
+        </div>
+
         {/* Results */}
         {q && (
           <p className="text-sm text-walnut-2 mb-4">
@@ -253,6 +282,11 @@ export default async function StoresPage({
                         <h3 className="truncate font-black text-walnut transition-colors group-hover:text-terracotta">
                           {merchant.store_name}
                         </h3>
+                        {merchant.town && (
+                          <p className="flex items-center gap-1 text-xs font-semibold text-acacia">
+                            <MapPin size={12} /> {TOWN_LABELS[merchant.town] ?? ""}
+                          </p>
+                        )}
                         <p className="text-xs font-semibold text-walnut-2/70">
                           {INDUSTRY_LABELS[merchant.industry || "other"] || "General"} &middot; {productCount} product{productCount !== 1 ? "s" : ""}
                         </p>

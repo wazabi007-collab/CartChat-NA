@@ -19,6 +19,7 @@ import { SITE_URL } from "@/lib/constants";
 import { TIER_LIMITS, TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
 import { getServiceLabels } from "@/lib/service-labels";
 import { GettingStarted } from "@/components/dashboard/getting-started";
+import { LocationNudge } from "@/components/dashboard/location-nudge";
 import { ShareStoreCard } from "@/components/dashboard/share-store-card";
 import { DashboardCommandPanel } from "@/components/dashboard/dashboard-command-panel";
 import { QuotaRow } from "@/components/dashboard/quota-row";
@@ -205,6 +206,8 @@ export default async function DashboardPage({
           </div>
         </div>
       </section>
+
+      {(!merchant.region || !merchant.town) && <LocationNudge />}
 
       {showChecklist && (
         <GettingStarted

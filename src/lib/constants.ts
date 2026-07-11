@@ -111,6 +111,113 @@ export const INDUSTRIES_NAMIBIA = [
   { value: "other", label: "Other", group: "Other" },
 ] as const;
 
+// ─── Store location (Namibian regions + towns) ──────────────────────────
+// Region order = rough commercial density so common picks sit near the top.
+export const NAMIBIA_REGIONS = [
+  { value: "khomas",       label: "Khomas" },
+  { value: "erongo",       label: "Erongo" },
+  { value: "oshana",       label: "Oshana" },
+  { value: "oshikoto",     label: "Oshikoto" },
+  { value: "otjozondjupa", label: "Otjozondjupa" },
+  { value: "omusati",      label: "Omusati" },
+  { value: "ohangwena",    label: "Ohangwena" },
+  { value: "kavango_east", label: "Kavango East" },
+  { value: "kavango_west", label: "Kavango West" },
+  { value: "hardap",       label: "Hardap" },
+  { value: "karas",        label: "ǁKaras" },
+  { value: "kunene",       label: "Kunene" },
+  { value: "omaheke",      label: "Omaheke" },
+  { value: "zambezi",      label: "Zambezi" },
+] as const;
+
+export const TOWNS_NAMIBIA = [
+  // Khomas
+  { value: "windhoek",     label: "Windhoek",     region: "khomas" },
+  { value: "khomas_other", label: "Other (Khomas)", region: "khomas" },
+  // Erongo
+  { value: "swakopmund",   label: "Swakopmund",   region: "erongo" },
+  { value: "walvis_bay",   label: "Walvis Bay",   region: "erongo" },
+  { value: "henties_bay",  label: "Henties Bay",  region: "erongo" },
+  { value: "arandis",      label: "Arandis",      region: "erongo" },
+  { value: "usakos",       label: "Usakos",       region: "erongo" },
+  { value: "karibib",      label: "Karibib",      region: "erongo" },
+  { value: "omaruru",      label: "Omaruru",      region: "erongo" },
+  { value: "erongo_other", label: "Other (Erongo)", region: "erongo" },
+  // Oshana
+  { value: "oshakati",     label: "Oshakati",     region: "oshana" },
+  { value: "ongwediva",    label: "Ongwediva",    region: "oshana" },
+  { value: "ondangwa",     label: "Ondangwa",     region: "oshana" },
+  { value: "oshana_other", label: "Other (Oshana)", region: "oshana" },
+  // Oshikoto
+  { value: "tsumeb",       label: "Tsumeb",       region: "oshikoto" },
+  { value: "omuthiya",     label: "Omuthiya",     region: "oshikoto" },
+  { value: "oniipa",       label: "Oniipa",       region: "oshikoto" },
+  { value: "oshikoto_other", label: "Other (Oshikoto)", region: "oshikoto" },
+  // Otjozondjupa
+  { value: "otjiwarongo",  label: "Otjiwarongo",  region: "otjozondjupa" },
+  { value: "okahandja",    label: "Okahandja",    region: "otjozondjupa" },
+  { value: "grootfontein", label: "Grootfontein", region: "otjozondjupa" },
+  { value: "otavi",        label: "Otavi",        region: "otjozondjupa" },
+  { value: "okakarara",    label: "Okakarara",    region: "otjozondjupa" },
+  { value: "otjozondjupa_other", label: "Other (Otjozondjupa)", region: "otjozondjupa" },
+  // Omusati
+  { value: "outapi",       label: "Outapi",       region: "omusati" },
+  { value: "oshikuku",     label: "Oshikuku",     region: "omusati" },
+  { value: "okahao",       label: "Okahao",       region: "omusati" },
+  { value: "ruacana",      label: "Ruacana",      region: "omusati" },
+  { value: "omusati_other", label: "Other (Omusati)", region: "omusati" },
+  // Ohangwena
+  { value: "eenhana",      label: "Eenhana",      region: "ohangwena" },
+  { value: "helao_nafidi", label: "Helao Nafidi (Oshikango)", region: "ohangwena" },
+  { value: "ohangwena_other", label: "Other (Ohangwena)", region: "ohangwena" },
+  // Kavango East
+  { value: "rundu",        label: "Rundu",        region: "kavango_east" },
+  { value: "divundu",      label: "Divundu",      region: "kavango_east" },
+  { value: "kavango_east_other", label: "Other (Kavango East)", region: "kavango_east" },
+  // Kavango West
+  { value: "nkurenkuru",   label: "Nkurenkuru",   region: "kavango_west" },
+  { value: "kavango_west_other", label: "Other (Kavango West)", region: "kavango_west" },
+  // Hardap
+  { value: "mariental",    label: "Mariental",    region: "hardap" },
+  { value: "rehoboth",     label: "Rehoboth",     region: "hardap" },
+  { value: "aranos",       label: "Aranos",       region: "hardap" },
+  { value: "maltahohe",    label: "Maltahöhe",    region: "hardap" },
+  { value: "hardap_other", label: "Other (Hardap)", region: "hardap" },
+  // ǁKaras
+  { value: "keetmanshoop", label: "Keetmanshoop", region: "karas" },
+  { value: "luderitz",     label: "Lüderitz",     region: "karas" },
+  { value: "oranjemund",   label: "Oranjemund",   region: "karas" },
+  { value: "karasburg",    label: "Karasburg",    region: "karas" },
+  { value: "rosh_pinah",   label: "Rosh Pinah",   region: "karas" },
+  { value: "karas_other",  label: "Other (ǁKaras)", region: "karas" },
+  // Kunene
+  { value: "opuwo",        label: "Opuwo",        region: "kunene" },
+  { value: "khorixas",     label: "Khorixas",     region: "kunene" },
+  { value: "outjo",        label: "Outjo",        region: "kunene" },
+  { value: "kamanjab",     label: "Kamanjab",     region: "kunene" },
+  { value: "kunene_other", label: "Other (Kunene)", region: "kunene" },
+  // Omaheke
+  { value: "gobabis",      label: "Gobabis",      region: "omaheke" },
+  { value: "omaheke_other", label: "Other (Omaheke)", region: "omaheke" },
+  // Zambezi
+  { value: "katima_mulilo", label: "Katima Mulilo", region: "zambezi" },
+  { value: "bukalo",       label: "Bukalo",       region: "zambezi" },
+  { value: "zambezi_other", label: "Other (Zambezi)", region: "zambezi" },
+] as const;
+
+export const REGION_LABELS: Record<string, string> = Object.fromEntries(
+  NAMIBIA_REGIONS.map((r) => [r.value, r.label])
+);
+export const TOWN_LABELS: Record<string, string> = Object.fromEntries(
+  TOWNS_NAMIBIA.map((t) => [t.value, t.label])
+);
+export const TOWN_REGION: Record<string, string> = Object.fromEntries(
+  TOWNS_NAMIBIA.map((t) => [t.value, t.region])
+);
+export function townsForRegion(region: string) {
+  return TOWNS_NAMIBIA.filter((t) => t.region === region);
+}
+
 export const REPORT_REASONS = [
   { value: "scam", label: "Suspected scam or fraud" },
   { value: "fake_products", label: "Fake or counterfeit products" },

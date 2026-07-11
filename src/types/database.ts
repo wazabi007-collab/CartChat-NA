@@ -32,6 +32,8 @@ export interface Database {
           store_name: string;
           store_slug: string;
           industry: string | null;
+          region: string | null;
+          town: string | null;
           description: string | null;
           whatsapp_number: string;
           bank_name: string | null;
@@ -63,6 +65,8 @@ export interface Database {
           store_name: string;
           store_slug: string;
           industry?: string | null;
+          region?: string | null;
+          town?: string | null;
           description?: string | null;
           whatsapp_number: string;
           bank_name?: string | null;
@@ -94,6 +98,8 @@ export interface Database {
           store_name?: string;
           store_slug?: string;
           industry?: string | null;
+          region?: string | null;
+          town?: string | null;
           description?: string | null;
           whatsapp_number?: string;
           bank_name?: string | null;

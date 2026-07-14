@@ -123,8 +123,10 @@ export default async function MerchantsPage({
         <FilterLink href="/admin/merchants?status=banned" active={status === "banned"} label="Banned" />
       </div>
 
-      <form className="relative mb-6 max-w-xl">
+      <form action="/admin/merchants" method="GET" className="relative mb-6 max-w-xl">
         <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+        {status && <input type="hidden" name="status" value={status} />}
+        {tier && <input type="hidden" name="tier" value={tier} />}
         <input
           name="q"
           type="text"

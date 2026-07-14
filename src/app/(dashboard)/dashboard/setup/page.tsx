@@ -11,6 +11,7 @@ import { track } from "@/lib/track";
 import { Store, ArrowRight, Check, AlertCircle, X } from "lucide-react";
 import { PhoneInput } from "@/components/phone-input";
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
+import { EwalletProviderPicker } from "@/components/ewallet-provider-picker";
 import Link from "next/link";
 import {
   inputBase,
@@ -40,6 +41,8 @@ const INITIAL_FORM = {
   bank_account_holder: "",
   bank_branch_code: "",
   momo_number: "",
+  ewallet_provider: "",
+  ewallet_number: "",
   pay2cell_number: "",
   paytoday_number: "",
   pickup_address: "",
@@ -302,6 +305,8 @@ function StoreSetupForm() {
         bank_branch_code: form.bank_branch_code || null,
         accepted_payment_methods: selectedMethods,
         momo_number: form.momo_number || null,
+        ewallet_provider: form.ewallet_provider || null,
+        ewallet_number: form.ewallet_number || null,
         pay2cell_number: form.pay2cell_number || null,
         paytoday_number: form.paytoday_number || null,
         enabled_delivery_providers: enabledProviders,
@@ -801,6 +806,25 @@ function StoreSetupForm() {
                     value={form.momo_number}
                     onChange={(val) => update("momo_number", val)}
                     variant="green"
+                  />
+                </div>
+              )}
+
+              {/* eWallet bank + number — shown if eWallet selected */}
+              {selectedMethods.includes("ewallet") && (
+                <div className="border-t pt-3 space-y-2">
+                  <label className={label}>Which bank eWallet?</label>
+                  <EwalletProviderPicker
+                    value={form.ewallet_provider}
+                    onChange={(v) => update("ewallet_provider", v)}
+                  />
+                  <PhoneInput
+                    id="ewallet-number"
+                    labelText="eWallet Number"
+                    value={form.ewallet_number}
+                    onChange={(val) => update("ewallet_number", val)}
+                    variant="green"
+                    hint="Customers send eWallet payment to this number"
                   />
                 </div>
               )}

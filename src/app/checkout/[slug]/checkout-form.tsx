@@ -19,7 +19,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatPrice, whatsappLink } from "@/lib/utils";
 import { calculateVatBreakdown, VAT_RATE_LABEL } from "@/lib/vat";
 import { track } from "@/lib/track";
-import { MAX_IMAGE_SIZE, PAYMENT_METHODS, getEwalletProviderLabel } from "@/lib/constants";
+import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS, getEwalletProviderLabel } from "@/lib/constants";
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
 import type { DeliveryMethod, DeliveryProvider, PaymentMethod } from "@/types/database";
@@ -1112,6 +1112,13 @@ export function CheckoutForm({
           {acceptedPaymentMethods.map((method) => {
             const info = PAYMENT_METHODS.find((m) => m.value === method);
             if (!info) return null;
+            // eWallet shows the merchant's specific bank (logo + label).
+            const provider =
+              method === "ewallet" && ewalletProvider
+                ? EWALLET_PROVIDERS.find((p) => p.value === ewalletProvider)
+                : null;
+            const visLogo = provider?.logo ?? info.logo;
+            const visLabel = provider?.label ?? info.label;
             return (
               <label
                 key={method}
@@ -1130,8 +1137,8 @@ export function CheckoutForm({
                   }}
                   className="sr-only"
                 />
-                <PaymentMethodVisual value={info.value} logo={info.logo} label={info.label} />
-                <span className="text-xs block mt-1">{info.label}</span>
+                <PaymentMethodVisual value={info.value} logo={visLogo} label={visLabel} />
+                <span className="text-xs block mt-1">{visLabel}</span>
               </label>
             );
           })}

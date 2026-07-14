@@ -33,13 +33,13 @@ export const BANK_BRANCH_CODES: Record<string, string> = {
 // `logo` points to a real brand image in public/payment-logos/ where one
 // exists. EFT and Cash on Delivery are not brands, so they have no logo
 // (rendered as a brand-coloured badge instead — see PaymentMethodVisual).
-// eWallet is a generic "send to any bank wallet" category; PayPulse stands in
-// as its representative logo (FNB is already used by Pay2Cell).
+// eWallet is a generic category (neutral wallet badge); the merchant then
+// picks a specific bank wallet from EWALLET_PROVIDERS, each with its own logo.
 export const PAYMENT_METHODS = [
   { value: "eft", label: "Bank Transfer (EFT)", icon: "🏦", logo: null },
   { value: "cod", label: "Cash on Delivery", icon: "💵", logo: null },
   { value: "momo", label: "MTC Maris", icon: "📱", logo: "/payment-logos/mtc-maris.png" },
-  { value: "ewallet", label: "eWallet", icon: "📲", logo: "/payment-logos/paypulse.png" },
+  { value: "ewallet", label: "eWallet", icon: "📲", logo: null },
   { value: "pay2cell", label: "FNB Pay2Cell", icon: "💳", logo: "/payment-logos/fnb-ewallet.png" },
   { value: "paytoday", label: "PayToday", icon: "⚡", logo: "/payment-logos/paytoday.png" },
 ] as const;
@@ -48,11 +48,10 @@ export const PAYMENT_METHODS = [
 // has its own wallet: FNB eWallet, Standard Bank BlueWallet, Bank Windhoek
 // EasyWallet, Nedbank Money (MobiMoney).
 export const EWALLET_PROVIDERS = [
-  { value: "fnb_ewallet", label: "FNB eWallet" },
-  { value: "bluewallet", label: "BlueWallet (Standard Bank)" },
-  { value: "easywallet", label: "EasyWallet (Bank Windhoek)" },
-  { value: "nedbank_money", label: "Nedbank Money (MobiMoney)" },
-  { value: "paypulse", label: "PayPulse (Standard Bank)" },
+  { value: "fnb_ewallet", label: "FNB eWallet", logo: "/payment-logos/fnb-ewallet.png" },
+  { value: "paypulse", label: "PayPulse (Standard Bank)", logo: "/payment-logos/paypulse.png" },
+  { value: "easywallet", label: "EasyWallet (Bank Windhoek)", logo: "/payment-logos/easywallet.png" },
+  { value: "nedbank_money", label: "Nedbank Money (MobiMoney)", logo: "/payment-logos/nedbank-money.png" },
 ] as const;
 
 // Industry options shown at store setup. `group` drives the optgroup rendering
@@ -247,5 +246,7 @@ export function getPaymentMethodLabel(value: string | null | undefined): string 
 }
 
 export function getEwalletProviderLabel(value: string | null | undefined): string {
+  // Legacy value no longer offered in the picker (Standard Bank is now PayPulse).
+  if (value === "bluewallet") return "BlueWallet (Standard Bank)";
   return EWALLET_PROVIDERS.find((p) => p.value === value)?.label ?? "eWallet";
 }

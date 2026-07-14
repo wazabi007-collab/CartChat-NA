@@ -3,8 +3,9 @@
 import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { BANKS_NAMIBIA, BANK_BRANCH_CODES, PAYMENT_METHODS, EWALLET_PROVIDERS, NAMIBIA_REGIONS, townsForRegion } from "@/lib/constants";
+import { BANKS_NAMIBIA, BANK_BRANCH_CODES, PAYMENT_METHODS, NAMIBIA_REGIONS, townsForRegion } from "@/lib/constants";
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
+import { EwalletProviderPicker } from "@/components/ewallet-provider-picker";
 import { storeSetupSchema } from "@/lib/validations";
 import { normalizeNamibianPhone } from "@/lib/utils";
 import Image from "next/image";
@@ -588,18 +589,10 @@ export default function SettingsPage() {
                 <label className={label}>
                   eWallet Provider
                 </label>
-                <select
+                <EwalletProviderPicker
                   value={form.ewallet_provider}
-                  onChange={(e) => setForm((p) => ({ ...p, ewallet_provider: e.target.value }))}
-                  className={`${selectBase} ${focusGreen}`}
-                >
-                  <option value="">Select provider...</option>
-                  {EWALLET_PROVIDERS.map((provider) => (
-                    <option key={provider.value} value={provider.value}>
-                      {provider.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => setForm((p) => ({ ...p, ewallet_provider: v }))}
+                />
               </div>
               <div>
                 <label className={label}>

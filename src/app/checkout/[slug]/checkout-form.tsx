@@ -20,6 +20,7 @@ import { formatPrice, whatsappLink } from "@/lib/utils";
 import { calculateVatBreakdown, VAT_RATE_LABEL } from "@/lib/vat";
 import { track } from "@/lib/track";
 import { MAX_IMAGE_SIZE, PAYMENT_METHODS, getEwalletProviderLabel } from "@/lib/constants";
+import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
 import type { DeliveryMethod, DeliveryProvider, PaymentMethod } from "@/types/database";
 import { PhoneInput } from "@/components/phone-input";
@@ -1129,7 +1130,7 @@ export function CheckoutForm({
                   }}
                   className="sr-only"
                 />
-                <div className="text-lg">{info.icon}</div>
+                <PaymentMethodVisual value={info.value} logo={info.logo} label={info.label} />
                 <span className="text-xs block mt-1">{info.label}</span>
               </label>
             );

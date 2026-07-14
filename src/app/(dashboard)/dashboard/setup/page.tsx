@@ -10,6 +10,7 @@ import { SAFETY_POLICY_VERSION, safetyMessage, scanTextForProhibitedContent } fr
 import { track } from "@/lib/track";
 import { Store, ArrowRight, Check, AlertCircle, X } from "lucide-react";
 import { PhoneInput } from "@/components/phone-input";
+import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import Link from "next/link";
 import {
   inputBase,
@@ -743,7 +744,7 @@ function StoreSetupForm() {
                       }}
                       className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
                     />
-                    <span className="text-lg">{method.icon}</span>
+                    <PaymentMethodVisual value={method.value} logo={method.logo} label={method.label} />
                     <span className="text-sm font-medium text-gray-700">{method.label}</span>
                   </label>
                 ))}

@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { BANKS_NAMIBIA, BANK_BRANCH_CODES, PAYMENT_METHODS, EWALLET_PROVIDERS, NAMIBIA_REGIONS, townsForRegion } from "@/lib/constants";
+import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { storeSetupSchema } from "@/lib/validations";
 import { normalizeNamibianPhone } from "@/lib/utils";
 import Image from "next/image";
@@ -557,9 +558,8 @@ export default function SettingsPage() {
                   }}
                   className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
                 />
-                <span className="text-sm text-gray-700">
-                  {method.icon} {method.label}
-                </span>
+                <PaymentMethodVisual value={method.value} logo={method.logo} label={method.label} size={24} />
+                <span className="text-sm text-gray-700">{method.label}</span>
               </label>
             ))}
           </div>

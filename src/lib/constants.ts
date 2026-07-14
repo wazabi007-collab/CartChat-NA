@@ -30,13 +30,18 @@ export const BANK_BRANCH_CODES: Record<string, string> = {
   "Other": "",
 };
 
+// `logo` points to a real brand image in public/payment-logos/ where one
+// exists. EFT and Cash on Delivery are not brands, so they have no logo
+// (rendered as a brand-coloured badge instead — see PaymentMethodVisual).
+// eWallet is a generic "send to any bank wallet" category; PayPulse stands in
+// as its representative logo (FNB is already used by Pay2Cell).
 export const PAYMENT_METHODS = [
-  { value: "eft", label: "Bank Transfer (EFT)", icon: "🏦" },
-  { value: "cod", label: "Cash on Delivery", icon: "💵" },
-  { value: "momo", label: "MTC Maris", icon: "📱" },
-  { value: "ewallet", label: "eWallet", icon: "📲" },
-  { value: "pay2cell", label: "FNB Pay2Cell", icon: "💳" },
-  { value: "paytoday", label: "PayToday", icon: "⚡" },
+  { value: "eft", label: "Bank Transfer (EFT)", icon: "🏦", logo: null },
+  { value: "cod", label: "Cash on Delivery", icon: "💵", logo: null },
+  { value: "momo", label: "MTC Maris", icon: "📱", logo: "/payment-logos/mtc-maris.png" },
+  { value: "ewallet", label: "eWallet", icon: "📲", logo: "/payment-logos/paypulse.png" },
+  { value: "pay2cell", label: "FNB Pay2Cell", icon: "💳", logo: "/payment-logos/fnb-ewallet.png" },
+  { value: "paytoday", label: "PayToday", icon: "⚡", logo: "/payment-logos/paytoday.png" },
 ] as const;
 
 // Bank send-to-cellphone wallets + popular cross-bank apps. Each Namibian bank

@@ -366,7 +366,7 @@ function StoreSetupForm() {
       return;
     }
 
-    // Create trial subscription (30-day, or 45-day for referred merchants)
+    // Create trial subscription (30-day, or 35-day for referred merchants)
     const trialDays = validReferral ? REFERRED_TRIAL_DAYS : STANDARD_TRIAL_DAYS;
     const trialEnds = new Date();
     trialEnds.setDate(trialEnds.getDate() + trialDays);
@@ -469,7 +469,7 @@ function StoreSetupForm() {
           <span>🎉</span>
           <p>
             {referrerName ? `Referred by ${referrerName} — ` : "Referred by a friend — "}
-            you get a <b>45-day free trial</b> instead of 30.
+            you get a <b>35-day free trial</b> instead of 30.
           </p>
         </div>
       )}

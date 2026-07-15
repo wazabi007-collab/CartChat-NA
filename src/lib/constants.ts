@@ -259,7 +259,7 @@ export const REFERRAL_BOUNTY_NAD: Record<string, number> = {
   oshi_grow: 20000,
   oshi_pro: 40000,
 };
-export const REFERRED_TRIAL_DAYS = 45; // referred merchants (vs the standard 30)
+export const REFERRED_TRIAL_DAYS = 35; // referred merchants (5 extra days vs the standard 30)
 export const STANDARD_TRIAL_DAYS = 30;
 
 export function getReferralBounty(tier: string | null | undefined): number {

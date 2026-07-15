@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("store_name, description, logo_url")
+    .select("store_name, description, logo_url, region, town")
     .eq("store_slug", slug)
     .eq("is_active", true)
     .eq("store_status", "active")
@@ -43,14 +43,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!merchant) return { title: "Store Not Found" };
 
+  const locationSuffix = merchant.town ? ` — ${TOWN_LABELS[merchant.town] ?? merchant.town}, Namibia` : ", Namibia";
+  const title = `${merchant.store_name}${locationSuffix}`;
+  const description =
+    merchant.description ||
+    (merchant.town
+      ? `Shop at ${merchant.store_name} in ${TOWN_LABELS[merchant.town] ?? merchant.town} on ${SITE_NAME}. Order via WhatsApp, pay locally.`
+      : `Shop at ${merchant.store_name} on ${SITE_NAME}. Order via WhatsApp, pay locally.`);
+  const ogImage = merchant.logo_url || `${SITE_URL}/og-default.png`;
+
   return {
-    title: `${merchant.store_name} | ${SITE_NAME}`,
-    description: merchant.description || `Shop at ${merchant.store_name} on ${SITE_NAME}`,
+    title,
+    description,
+    alternates: { canonical: `${SITE_URL}/s/${slug}` },
     openGraph: {
-      title: merchant.store_name,
-      description: merchant.description || `Shop at ${merchant.store_name}`,
+      title: `${merchant.store_name}${locationSuffix}`,
+      description,
       url: `${SITE_URL}/s/${slug}`,
-      images: merchant.logo_url ? [{ url: merchant.logo_url }] : [],
+      images: [{ url: ogImage, width: 1200, height: 630 }],
       type: "website",
     },
   };
@@ -253,7 +263,12 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     description: merchant.description || `Shop at ${merchant.store_name} on OshiCart`,
     url: `${SITE_URL}/s/${slug}`,
     ...(merchant.logo_url && { image: merchant.logo_url }),
-    address: { "@type": "PostalAddress", addressCountry: "NA" },
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "NA",
+      ...(merchant.town && { addressLocality: TOWN_LABELS[merchant.town] ?? merchant.town }),
+      ...(merchant.region && { addressRegion: REGION_LABELS[merchant.region] ?? merchant.region }),
+    },
     telephone: merchant.whatsapp_number,
   };
 

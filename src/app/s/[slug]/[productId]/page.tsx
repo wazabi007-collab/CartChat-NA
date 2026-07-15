@@ -43,14 +43,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!product) return { title: "Not Found" };
 
+  const ogImage = product.images?.[0] || `${SITE_URL}/og-default.png`;
+
   return {
     title: `${product.name} | ${merchant.store_name}`,
-    description: product.description || `${product.name} - ${formatPrice(product.price_nad)}`,
+    description: product.description || `${product.name} - ${formatPrice(product.price_nad)}, from ${merchant.store_name} on ${SITE_NAME}. Order via WhatsApp.`,
+    alternates: { canonical: `${SITE_URL}/s/${slug}/${productId}` },
     openGraph: {
       title: `${product.name} - ${formatPrice(product.price_nad)}`,
       description: product.description || `Buy ${product.name} from ${merchant.store_name}`,
       url: `${SITE_URL}/s/${slug}/${productId}`,
-      ...(product.images?.[0] && { images: [{ url: product.images[0] }] }),
+      images: [{ url: ogImage, width: 1200, height: 630 }],
       type: "website",
     },
   };

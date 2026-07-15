@@ -8,6 +8,7 @@ import { FAQ } from "@/components/landing/faq";
 export const metadata: Metadata = {
   title: "Help & Setup Guide",
   description: "How to set up and sell on OshiCart — FAQs, selling rules, and support.",
+  alternates: { canonical: "/help" },
 };
 
 export default function HelpPage() {

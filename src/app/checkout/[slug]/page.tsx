@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!merchant) return { title: "Checkout" };
 
   return {
-    title: `Checkout | ${merchant.store_name} | ${SITE_NAME}`,
+    title: `Checkout | ${merchant.store_name}`,
   };
 }
 

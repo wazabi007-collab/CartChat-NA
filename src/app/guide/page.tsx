@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer";
 export const metadata: Metadata = {
   title: "Merchant Setup Guide",
   description: "How to set up and sell on OshiCart.",
+  alternates: { canonical: "/guide" },
 };
 
 export default function GuidePage() {

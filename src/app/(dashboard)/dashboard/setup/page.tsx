@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify, normalizeNamibianPhone } from "@/lib/utils";
-import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, INDUSTRY_GROUP_ORDER, PAYMENT_METHODS, NAMIBIA_REGIONS, townsForRegion } from "@/lib/constants";
+import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, INDUSTRY_GROUP_ORDER, PAYMENT_METHODS, NAMIBIA_REGIONS, townsForRegion, REFERRED_TRIAL_DAYS, STANDARD_TRIAL_DAYS } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { SAFETY_POLICY_VERSION, safetyMessage, scanTextForProhibitedContent } from "@/lib/safety/prohibited-content";
 import { track } from "@/lib/track";
@@ -101,11 +101,14 @@ function StoreSetupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tierParam = searchParams.get("tier");
+  const refParam = searchParams.get("ref");
   const supabase = createClient();
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referrerName, setReferrerName] = useState<string | null>(null);
 
   const [form, setForm] = useState({ ...INITIAL_FORM });
   const [selectedMethods, setSelectedMethods] = useState<string[]>(["cod"]);
@@ -163,6 +166,30 @@ function StoreSetupForm() {
     }, 500);
     return () => clearTimeout(timer);
   }, [hydrated, step, form, selectedMethods, enabledProviders, offersPickup, offersDelivery]);
+
+  // Validate a referral code (from the ?ref= param or a stashed localStorage
+  // value) on mount so we can show the trial-extension banner. Final
+  // attribution is re-checked with the phone number at submit time.
+  useEffect(() => {
+    let code = refParam;
+    if (!code) {
+      try { code = localStorage.getItem("oshicart_ref"); } catch { code = null; }
+    }
+    if (!code) return;
+    fetch("/api/referral/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    })
+      .then((r) => r.json())
+      .then((v) => {
+        if (v?.valid) {
+          setReferralCode(code);
+          setReferrerName(v.referrerName ?? null);
+        }
+      })
+      .catch(() => { /* ignore — no attribution */ });
+  }, [refParam]);
 
   function clearDraft() {
     try {
@@ -288,6 +315,18 @@ function StoreSetupForm() {
       return;
     }
 
+    // Re-validate the referral code with the phone number to catch
+    // self-referral (a referrer signing up their own store with their code).
+    let validReferral: string | null = null;
+    if (referralCode) {
+      const rv = await fetch("/api/referral/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: referralCode, phone: form.whatsapp_number }),
+      }).then((r) => r.json()).catch(() => ({ valid: false }));
+      if (rv?.valid) validReferral = referralCode;
+    }
+
     const { data: newMerchant, error: insertError } = await supabase
       .from("merchants")
       .insert({
@@ -299,6 +338,7 @@ function StoreSetupForm() {
         industry: form.industry || "other",
         region: form.region || null,
         town: form.town || null,
+        referred_by_code: validReferral,
         bank_name: form.bank_name || null,
         bank_account_number: form.bank_account_number || null,
         bank_account_holder: form.bank_account_holder || null,
@@ -325,9 +365,10 @@ function StoreSetupForm() {
       return;
     }
 
-    // Create trial subscription (30-day Oshi-Start)
+    // Create trial subscription (30-day, or 45-day for referred merchants)
+    const trialDays = validReferral ? REFERRED_TRIAL_DAYS : STANDARD_TRIAL_DAYS;
     const trialEnds = new Date();
-    trialEnds.setDate(trialEnds.getDate() + 30);
+    trialEnds.setDate(trialEnds.getDate() + trialDays);
 
     await supabase.from("subscriptions").insert({
       merchant_id: newMerchant.id,
@@ -335,6 +376,8 @@ function StoreSetupForm() {
       status: "trial",
       trial_ends_at: trialEnds.toISOString(),
     });
+
+    try { localStorage.removeItem("oshicart_ref"); } catch { /* ignore */ }
 
     // WhatsApp Business API: welcome message (to the merchant's own number)
     fetch("/api/whatsapp/notify", {
@@ -417,6 +460,16 @@ function StoreSetupForm() {
               <X size={14} />
             </button>
           </div>
+        </div>
+      )}
+
+      {referralCode && (
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+          <span>🎉</span>
+          <p>
+            {referrerName ? `Referred by ${referrerName} — ` : "Referred by a friend — "}
+            you get a <b>45-day free trial</b> instead of 30.
+          </p>
         </div>
       )}
 

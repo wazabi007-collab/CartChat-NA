@@ -18,7 +18,11 @@ function getConfig() {
 }
 
 export function isDpoEnabled(): boolean {
-  return getConfig().enabled;
+  // EFT-only for launch: card/DPO payments are disabled regardless of the
+  // DPO_ENABLED env var. This gates both the subscription checkout UI and the
+  // DPO payment endpoints. To re-enable card payments later, restore:
+  //   return getConfig().enabled;
+  return false;
 }
 
 // ─── XML helpers ─────────────────────────────────────────────────────────────

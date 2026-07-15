@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { requireAdminPermission } from "@/lib/admin-auth";
+import { getAuthenticatedAdmin } from "@/lib/admin-auth";
+import { hasPermission } from "@/lib/admin-permissions";
 
 export async function POST(req: NextRequest) {
-  const admin = await requireAdminPermission("manage_referrals");
+  const admin = await getAuthenticatedAdmin();
+  if (!admin || !hasPermission(admin.role, "manage_referrals")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
   const body = await req.json().catch(() => null);
   const action = body?.action;
   const supabase = createServiceClient();

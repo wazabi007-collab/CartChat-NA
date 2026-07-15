@@ -1,153 +1,45 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { Store, Search, ArrowRight, MessageCircle, ShieldCheck, MapPin } from "lucide-react";
+import { Store, Search, ArrowRight, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { SITE_NAME, NAMIBIA_REGIONS, TOWN_LABELS } from "@/lib/constants";
+import { SITE_NAME, SITE_URL, NAMIBIA_REGIONS, REGION_LABELS } from "@/lib/constants";
+import { fetchStoreListData, CATEGORY_ORDER } from "@/lib/storefront/store-list";
 import { PublicNavbar } from "@/components/public-navbar";
-import { StoreThumbGrid } from "@/components/storefront/store-thumb-grid";
+import { StoreListCard } from "@/components/storefront/store-list-card";
 
-export const metadata: Metadata = {
-  title: `Browse Stores | ${SITE_NAME}`,
-  description:
-    "Discover Namibian businesses on OshiCart. Browse stores, shop products, and order via WhatsApp. Find restaurants, boutiques, and services near you.",
-  alternates: { canonical: "/stores" },
-};
-
-const INDUSTRY_LABELS: Record<string, string> = {
-  restaurant: "Restaurants & Takeaways",
-  takeaway: "Restaurants & Takeaways",
-  cafe: "Restaurants & Takeaways",
-  bakery: "Restaurants & Takeaways",
-  catering: "Restaurants & Takeaways",
-  grocery: "Grocery & Fresh",
-  butchery: "Grocery & Fresh",
-  liquor: "Grocery & Fresh",
-  agriculture: "Grocery & Fresh",
-  fashion: "Fashion & Retail",
-  electronics: "Electronics & Tech",
-  hardware: "Hardware & Auto",
-  auto_parts: "Hardware & Auto",
-  salon: "Beauty & Wellness",
-  cosmetics: "Beauty & Wellness",
-  pharmacy: "Beauty & Wellness",
-  cleaning: "Services",
-  printing: "Services",
-  services: "Services",
-  gas_water: "Services",
-  flowers: "Gifting & Lifestyle",
-  pet: "Gifting & Lifestyle",
-  furniture: "Home & Furniture",
-  stationery: "General & Other",
-  sports: "General & Other",
-  toys: "General & Other",
-  crafts: "General & Other",
-  general_dealer: "General & Other",
-  other: "General & Other",
-};
-
-const CATEGORY_ORDER = [
-  "All",
-  "Electronics & Tech",
-  "Restaurants & Takeaways",
-  "Fashion & Retail",
-  "Beauty & Wellness",
-  "Grocery & Fresh",
-  "Home & Furniture",
-  "Hardware & Auto",
-  "Services",
-  "Gifting & Lifestyle",
-  "General & Other",
-];
-
-export default async function StoresPage({
-  searchParams,
-}: {
+interface Props {
   searchParams: Promise<{ q?: string; category?: string; region?: string }>;
-}) {
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { q, category, region } = await searchParams;
+
+  // A region-only filter (no search/category) is the same content as the
+  // dedicated /stores/[region] landing page — canonicalize to it so Google
+  // doesn't see them as duplicate content.
+  const isRegionOnly = region && region !== "all" && !q && (!category || category === "All");
+  if (isRegionOnly && REGION_LABELS[region]) {
+    return {
+      title: `Shops & Stores in ${REGION_LABELS[region]}, Namibia`,
+      description: `Browse Namibian businesses selling online in the ${REGION_LABELS[region]} region. Order via WhatsApp and pay locally — zero commission on ${SITE_NAME}.`,
+      alternates: { canonical: `${SITE_URL}/stores/${region}` },
+    };
+  }
+
+  return {
+    title: "Browse Stores",
+    description:
+      "Discover Namibian businesses on OshiCart. Browse stores, shop products, and order via WhatsApp. Find restaurants, boutiques, and services near you.",
+    alternates: { canonical: "/stores" },
+  };
+}
+
+export default async function StoresPage({ searchParams }: Props) {
   const { q, category, region } = await searchParams;
   const supabase = await createClient();
 
-  // Fetch all active merchants with their product count
-  let query = supabase
-    .from("merchants")
-    .select("id, store_name, store_slug, description, logo_url, whatsapp_number, industry, region, town, created_at")
-    .eq("is_active", true)
-    .eq("store_status", "active")
-    .order("created_at", { ascending: false });
-
-  if (q && q.trim()) {
-    query = query.or(
-      `store_name.ilike.%${q.trim()}%,description.ilike.%${q.trim()}%`
-    );
-  }
-
-  if (region && region !== "all") {
-    query = query.eq("region", region);
-  }
-
-  const { data: merchants } = await query;
-  let storeList = merchants || [];
-
-  // Filter by category if specified
-  if (category && category !== "All") {
-    storeList = storeList.filter((m) => {
-      const label = INDUSTRY_LABELS[m.industry || "other"] || "General & Other";
-      return label === category;
-    });
-  }
-
-  // Fetch product counts per merchant using individual count queries
-  const countMap = new Map<string, number>();
-  if (storeList.length > 0) {
-    const countPromises = storeList.map(async (m) => {
-      const { count } = await supabase
-        .from("products")
-        .select("id", { count: "exact", head: true })
-        .eq("merchant_id", m.id)
-        .eq("is_available", true)
-        .is("deleted_at", null);
-      return { id: m.id, count: count || 0 };
-    });
-    const counts = await Promise.all(countPromises);
-    for (const c of counts) {
-      countMap.set(c.id, c.count);
-    }
-  }
-
-  const publicStoreList = storeList.filter((merchant) => {
-    const productCount = countMap.get(merchant.id) || 0;
-    const normalizedName = merchant.store_name.toLowerCase();
-    const normalizedDescription = (merchant.description || "").toLowerCase();
-    const isInternalDemo =
-      normalizedName.includes("test") ||
-      normalizedName.includes("demo") ||
-      normalizedDescription.includes("demonstration store");
-
-    return productCount > 0 && !isInternalDemo;
-  });
-
-  // Fetch up to 4 product image URLs per merchant for thumbnail grids
-  const merchantIds = publicStoreList.map((m) => m.id);
-  const previewMap = new Map<string, string[]>();
-  if (merchantIds.length > 0) {
-    const { data: previews } = await supabase
-      .from("products")
-      .select("merchant_id, image_url")
-      .in("merchant_id", merchantIds)
-      .eq("is_available", true)
-      .is("deleted_at", null)
-      .not("image_url", "is", null)
-      .order("created_at", { ascending: false });
-    for (const p of previews ?? []) {
-      if (!p.image_url) continue;
-      const existing = previewMap.get(p.merchant_id) ?? [];
-      if (existing.length < 4) {
-        existing.push(p.image_url);
-        previewMap.set(p.merchant_id, existing);
-      }
-    }
-  }
+  const publicStoreList = await fetchStoreListData(supabase, { region, q, category });
 
   return (
     <div className="min-h-screen bg-sand">
@@ -266,54 +158,9 @@ export default async function StoresPage({
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {publicStoreList.map((merchant) => {
-              const productCount = countMap.get(merchant.id) || 0;
-              return (
-                <Link
-                  key={merchant.id}
-                  href={`/s/${merchant.store_slug}`}
-                  className="group overflow-hidden rounded-xl border border-border-warm bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
-                >
-                  <div className="p-5">
-                    <div className="flex items-center gap-3 mb-3">
-                      <StoreThumbGrid
-                        productImages={previewMap.get(merchant.id) ?? []}
-                        fallbackInitial={merchant.store_name.charAt(0).toUpperCase()}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-black text-walnut transition-colors group-hover:text-terracotta">
-                          {merchant.store_name}
-                        </h3>
-                        {merchant.town && (
-                          <p className="flex items-center gap-1 text-xs font-semibold text-acacia">
-                            <MapPin size={12} /> {TOWN_LABELS[merchant.town] ?? ""}
-                          </p>
-                        )}
-                        <p className="text-xs font-semibold text-walnut-2/70">
-                          {INDUSTRY_LABELS[merchant.industry || "other"] || "General"} &middot; {productCount} product{productCount !== 1 ? "s" : ""}
-                        </p>
-                      </div>
-                    </div>
-
-                    {merchant.description && (
-                      <p className="mb-3 line-clamp-2 text-sm leading-6 text-walnut-2">
-                        {merchant.description}
-                      </p>
-                    )}
-
-                    <div className="flex items-center justify-between border-t border-border-warm pt-3">
-                      <span className="inline-flex items-center gap-1 text-xs font-bold text-acacia">
-                        <MessageCircle size={14} />
-                        WhatsApp Store
-                      </span>
-                      <span className="flex items-center gap-1 text-xs font-bold text-walnut-2/70 transition-colors group-hover:text-terracotta">
-                        Visit Store <ArrowRight size={14} />
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+            {publicStoreList.map((store) => (
+              <StoreListCard key={store.id} store={store} />
+            ))}
           </div>
         )}
 
@@ -332,6 +179,24 @@ export default async function StoresPage({
           >
             Create Free Store <ArrowRight size={16} />
           </Link>
+        </div>
+
+        {/* Browse by region — internal links to the SEO landing pages */}
+        <div className="mt-10 text-center">
+          <p className="mb-3 text-xs font-black uppercase tracking-wide text-walnut-2/70">
+            Browse stores by region
+          </p>
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
+            {NAMIBIA_REGIONS.map((r) => (
+              <Link
+                key={r.value}
+                href={`/stores/${r.value}`}
+                className="text-walnut-2 hover:text-terracotta hover:underline"
+              >
+                {r.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </main>
 

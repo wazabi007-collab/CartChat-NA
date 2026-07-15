@@ -176,6 +176,7 @@ function StoreSetupForm() {
       try { code = localStorage.getItem("oshicart_ref"); } catch { code = null; }
     }
     if (!code) return;
+    code = code.toLowerCase();
     fetch("/api/referral/validate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

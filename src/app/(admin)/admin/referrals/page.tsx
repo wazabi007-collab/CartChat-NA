@@ -38,6 +38,7 @@ export default async function AdminReferralsPage() {
   }
 
   const nad = (cents: number) => `N$${(cents / 100).toLocaleString()}`;
+  const referrerNameByCode = new Map((referrers || []).map((r) => [r.code, r.name]));
 
   return (
     <div className="md:ml-56">
@@ -81,15 +82,16 @@ export default async function AdminReferralsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-slate-500">
-              <tr><th className="py-2">Store</th><th>Referrer</th><th>Plan</th><th>Status</th><th>Bounty</th><th>Payout</th></tr>
+              <tr><th className="py-2">Store</th><th>Referrer</th><th>Plan</th><th>Status</th><th>Renews</th><th>Bounty</th><th>Payout</th></tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {rows.map((r) => (
                 <tr key={r.id}>
                   <td className="py-2 font-medium text-slate-900">{r.store_name}</td>
-                  <td className="text-slate-600">{r.referred_by_code}</td>
+                  <td className="text-slate-600">{referrerNameByCode.get(r.referred_by_code) ?? r.referred_by_code}</td>
                   <td className="text-slate-600">{r.tier}</td>
                   <td className="text-slate-600">{r.status}</td>
+                  <td className="text-slate-600">{r.isPaying && r.currentPeriodEnd ? new Date(r.currentPeriodEnd).toLocaleDateString() : "—"}</td>
                   <td className="text-slate-600">{r.isPaying ? nad(r.bounty) : "—"}</td>
                   <td>
                     {r.payout
@@ -100,7 +102,7 @@ export default async function AdminReferralsPage() {
                   </td>
                 </tr>
               ))}
-              {rows.length === 0 && <tr><td colSpan={6} className="py-4 text-center text-slate-400">No referred merchants yet.</td></tr>}
+              {rows.length === 0 && <tr><td colSpan={7} className="py-4 text-center text-slate-400">No referred merchants yet.</td></tr>}
             </tbody>
           </table>
         </div>

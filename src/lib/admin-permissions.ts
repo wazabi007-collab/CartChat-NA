@@ -24,7 +24,8 @@ export type Permission =
   | "manage_announcements"   // send merchant platform messages
   | "view_team"
   | "manage_team"            // invite, remove, change role
-  | "view_audit";
+  | "view_audit"
+  | "manage_referrals";      // create referrers, mark referral payouts
 
 const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
   super_admin: [
@@ -34,6 +35,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     "view_safety", "manage_safety",
     "view_announcements", "manage_announcements",
     "view_team", "manage_team", "view_audit",
+    "manage_referrals",
   ],
   support: [
     "view_overview", "view_merchants", "view_merchant_detail",
@@ -46,6 +48,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     "view_overview",
     "view_merchants",
     "view_billing", "manage_billing",
+    "manage_referrals",
   ],
 };
 

@@ -34,6 +34,7 @@ export interface Database {
           industry: string | null;
           region: string | null;
           town: string | null;
+          referred_by_code: string | null;
           description: string | null;
           whatsapp_number: string;
           bank_name: string | null;
@@ -67,6 +68,7 @@ export interface Database {
           industry?: string | null;
           region?: string | null;
           town?: string | null;
+          referred_by_code?: string | null;
           description?: string | null;
           whatsapp_number: string;
           bank_name?: string | null;
@@ -100,6 +102,7 @@ export interface Database {
           industry?: string | null;
           region?: string | null;
           town?: string | null;
+          referred_by_code?: string | null;
           description?: string | null;
           whatsapp_number?: string;
           bank_name?: string | null;
@@ -429,6 +432,70 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           resolved_at?: string | null;
+        };
+      };
+      referrers: {
+        Row: {
+          id: string;
+          code: string;
+          name: string;
+          whatsapp: string | null;
+          payout_number: string | null;
+          is_active: boolean;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          name: string;
+          whatsapp?: string | null;
+          payout_number?: string | null;
+          is_active?: boolean;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          name?: string;
+          whatsapp?: string | null;
+          payout_number?: string | null;
+          is_active?: boolean;
+          notes?: string | null;
+          created_at?: string;
+        };
+      };
+      referral_payouts: {
+        Row: {
+          id: string;
+          referrer_code: string;
+          merchant_id: string;
+          commission_nad: number;
+          paid_reference: string | null;
+          admin_note: string | null;
+          paid_by: string | null;
+          paid_at: string;
+        };
+        Insert: {
+          id?: string;
+          referrer_code: string;
+          merchant_id: string;
+          commission_nad: number;
+          paid_reference?: string | null;
+          admin_note?: string | null;
+          paid_by?: string | null;
+          paid_at?: string;
+        };
+        Update: {
+          id?: string;
+          referrer_code?: string;
+          merchant_id?: string;
+          commission_nad?: number;
+          paid_reference?: string | null;
+          admin_note?: string | null;
+          paid_by?: string | null;
+          paid_at?: string;
         };
       };
     };

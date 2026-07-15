@@ -250,3 +250,18 @@ export function getEwalletProviderLabel(value: string | null | undefined): strin
   if (value === "bluewallet") return "BlueWallet (Standard Bank)";
   return EWALLET_PROVIDERS.find((p) => p.value === value)?.label ?? "eWallet";
 }
+
+// ─── Referral program ───────────────────────────────────────────────────
+// One-time bounty per paid tier (cents). Free/trial tier earns nothing.
+export const REFERRAL_BOUNTY_NAD: Record<string, number> = {
+  oshi_start: 0,
+  oshi_basic: 7500,
+  oshi_grow: 20000,
+  oshi_pro: 40000,
+};
+export const REFERRED_TRIAL_DAYS = 45; // referred merchants (vs the standard 30)
+export const STANDARD_TRIAL_DAYS = 30;
+
+export function getReferralBounty(tier: string | null | undefined): number {
+  return (tier && REFERRAL_BOUNTY_NAD[tier]) || 0;
+}

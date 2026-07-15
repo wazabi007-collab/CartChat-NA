@@ -5,6 +5,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = await searchParams.get("code");
   const tier = await searchParams.get("tier");
+  const ref = await searchParams.get("ref");
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=auth`);
@@ -36,11 +37,12 @@ export async function GET(request: Request) {
       }
       return NextResponse.redirect(`${origin}/dashboard`);
     } else {
-      // New user → setup (with tier if present)
-      const setupUrl = tier
-        ? `/dashboard/setup?tier=${encodeURIComponent(tier)}`
-        : "/dashboard/setup";
-      return NextResponse.redirect(`${origin}${setupUrl}`);
+      // New user → setup (carry tier and referral code if present)
+      const params = new URLSearchParams();
+      if (tier) params.set("tier", tier);
+      if (ref) params.set("ref", ref);
+      const qs = params.toString();
+      return NextResponse.redirect(`${origin}/dashboard/setup${qs ? `?${qs}` : ""}`);
     }
   }
 

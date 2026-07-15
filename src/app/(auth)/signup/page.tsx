@@ -30,6 +30,7 @@ export default function SignupPage() {
 function SignupForm() {
   const searchParams = useSearchParams();
   const tierParam = searchParams.get("tier");
+  const refParam = searchParams.get("ref");
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -48,6 +49,13 @@ function SignupForm() {
     };
   }, []);
 
+  // Persist referral code as a backstop so it survives the OAuth round-trip.
+  useEffect(() => {
+    if (refParam) {
+      try { localStorage.setItem("oshicart_ref", refParam); } catch { /* storage unavailable */ }
+    }
+  }, [refParam]);
+
   // If already logged in with tier param, redirect to checkout or setup
   useEffect(() => {
     if (!tierParam) return;
@@ -62,11 +70,11 @@ function SignupForm() {
       if (merchant) {
         window.location.href = `/pricing/checkout?tier=${tierParam}`;
       } else {
-        window.location.href = `/dashboard/setup?tier=${tierParam}`;
+        window.location.href = `/dashboard/setup?${new URLSearchParams({ tier: tierParam!, ...(refParam ? { ref: refParam } : {}) }).toString()}`;
       }
     }
     checkUser();
-  }, [tierParam, supabase]);
+  }, [tierParam, refParam, supabase]);
 
   // Inline email duplicate check (debounced)
   const checkEmailExists = useCallback((emailValue: string) => {
@@ -159,10 +167,12 @@ function SignupForm() {
 
     track("signup_completed", { method: "password" });
 
-    // Redirect: tier param goes to setup with tier, otherwise plain setup
-    window.location.href = tierParam
-      ? `/dashboard/setup?tier=${tierParam}`
-      : "/dashboard/setup";
+    // Redirect: carry tier + referral code to setup if present
+    const params = new URLSearchParams();
+    if (tierParam) params.set("tier", tierParam);
+    if (refParam) params.set("ref", refParam);
+    const qs = params.toString();
+    window.location.href = `/dashboard/setup${qs ? `?${qs}` : ""}`;
   }
 
   return (
@@ -178,7 +188,7 @@ function SignupForm() {
         </div>
 
         <div className={card}>
-          <GoogleSignInButton tier={tierParam} />
+          <GoogleSignInButton tier={tierParam} referralCode={refParam} />
 
           <div className="relative my-5">
             <div className="absolute inset-0 flex items-center">

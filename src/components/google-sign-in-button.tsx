@@ -6,17 +6,21 @@ import { createClient } from "@/lib/supabase/client";
 interface GoogleSignInButtonProps {
   /** Tier param to pass through the OAuth flow (for pricing page signups) */
   tier?: string | null;
+  /** Referral code to pass through the OAuth flow (named referralCode — `ref` is reserved) */
+  referralCode?: string | null;
 }
 
-export function GoogleSignInButton({ tier }: GoogleSignInButtonProps) {
+export function GoogleSignInButton({ tier, referralCode }: GoogleSignInButtonProps) {
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
   async function handleGoogleSignIn() {
     setLoading(true);
-    const redirectTo = `${window.location.origin}/auth/callback${
-      tier ? `?tier=${encodeURIComponent(tier)}` : ""
-    }`;
+    const params = new URLSearchParams();
+    if (tier) params.set("tier", tier);
+    if (referralCode) params.set("ref", referralCode);
+    const qs = params.toString();
+    const redirectTo = `${window.location.origin}/auth/callback${qs ? `?${qs}` : ""}`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",

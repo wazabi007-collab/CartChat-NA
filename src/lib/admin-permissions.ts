@@ -61,6 +61,7 @@ export function getVisibleNavItems(role: AdminRole) {
     { label: "Overview", href: "/admin", permission: "view_overview" as Permission },
     { label: "Merchants", href: "/admin/merchants", permission: "view_merchants" as Permission },
     { label: "Billing", href: "/admin/billing", permission: "view_billing" as Permission },
+    { label: "Referrals", href: "/admin/referrals", permission: "manage_referrals" as Permission },
     { label: "Analytics", href: "/admin/analytics", permission: "view_analytics" as Permission },
     { label: "Reports", href: "/admin/reports", permission: "view_reports" as Permission },
     { label: "Safety", href: "/admin/safety", permission: "view_safety" as Permission },

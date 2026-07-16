@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { BANKS_NAMIBIA, BANK_BRANCH_CODES, PAYMENT_METHODS, NAMIBIA_REGIONS, townsForRegion } from "@/lib/constants";
+import { BANKS_NAMIBIA, BANK_BRANCH_CODES, PAYMENT_METHODS, NAMIBIA_REGIONS, townsForRegion, isCourierAvailable } from "@/lib/constants";
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { EwalletProviderPicker } from "@/components/ewallet-provider-picker";
 import { storeSetupSchema } from "@/lib/validations";
@@ -148,15 +148,21 @@ export default function SettingsPage() {
 
     const deliveryFeeCents = Math.round((parseFloat(form.delivery_fee_display) || 0) * 100);
 
-    if (form.enabled_delivery_providers.length === 0) {
+    // Couriers are only valid where they operate (by town). Drop any courier the
+    // town isn't served by before saving, so it can never persist as an option.
+    const savedDeliveryProviders = form.enabled_delivery_providers.filter((p) =>
+      isCourierAvailable(p, form.town)
+    );
+
+    if (savedDeliveryProviders.length === 0) {
       setError("Select at least one delivery option (Store, Yango, or inDrive).");
       setSaving(false);
       return;
     }
 
     const offersCourier =
-      form.enabled_delivery_providers.includes("yango") ||
-      form.enabled_delivery_providers.includes("indrive");
+      savedDeliveryProviders.includes("yango") ||
+      savedDeliveryProviders.includes("indrive");
     if (offersCourier && !form.pickup_address.trim()) {
       setError("Add a pickup address so Yango/inDrive couriers know where to collect.");
       setSaving(false);
@@ -184,7 +190,7 @@ export default function SettingsPage() {
         ewallet_provider: form.ewallet_provider || null,
         pay2cell_number: form.pay2cell_number || null,
         paytoday_number: form.paytoday_number || null,
-        enabled_delivery_providers: form.enabled_delivery_providers,
+        enabled_delivery_providers: savedDeliveryProviders,
         pickup_address: form.pickup_address.trim() || null,
         vat_number: form.vat_number || null,
         vat_inclusive: false,
@@ -237,10 +243,12 @@ export default function SettingsPage() {
     }));
   }
 
+  // Couriers are only shown where they operate (by store town). Store delivery
+  // is always available.
   const DELIVERY_OPTIONS = [
     { value: "store", label: "Store delivery" },
-    { value: "yango", label: "Yango" },
-    { value: "indrive", label: "inDrive" },
+    ...(isCourierAvailable("yango", form.town) ? [{ value: "yango", label: "Yango" }] : []),
+    ...(isCourierAvailable("indrive", form.town) ? [{ value: "indrive", label: "inDrive" }] : []),
   ];
   const toggleProvider = (value: string, checked: boolean) =>
     setForm((p) => ({

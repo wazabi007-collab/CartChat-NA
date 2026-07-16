@@ -265,3 +265,30 @@ export const STANDARD_TRIAL_DAYS = 30;
 export function getReferralBounty(tier: string | null | undefined): number {
   return (tier && REFERRAL_BOUNTY_NAD[tier]) || 0;
 }
+
+// ─── Delivery: courier coverage by town ─────────────────────────────────
+// Buyer-booked couriers only operate in certain towns (values match
+// TOWNS_NAMIBIA). A courier is offered as a delivery option ONLY for stores
+// located in one of its towns — enforced at checkout and in the merchant
+// settings/setup forms. "store" delivery is unrestricted. Extend a courier's
+// list here as coverage expands.
+export const COURIER_TOWNS: Record<string, readonly string[]> = {
+  yango: ["windhoek", "swakopmund", "walvis_bay"],
+  indrive: ["windhoek", "swakopmund", "walvis_bay"],
+};
+
+/** True if the given delivery provider is available for a store in `town`.
+ *  Non-courier providers (e.g. "store") are always available. */
+export function isCourierAvailable(
+  provider: string,
+  town: string | null | undefined
+): boolean {
+  const towns = COURIER_TOWNS[provider];
+  if (!towns) return true; // not a coverage-limited courier
+  return !!town && towns.includes(town);
+}
+
+/** Back-compat convenience for Yango specifically. */
+export function isYangoAvailable(town: string | null | undefined): boolean {
+  return isCourierAvailable("yango", town);
+}

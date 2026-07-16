@@ -19,7 +19,7 @@ import { createClient } from "@/lib/supabase/client";
 import { formatPrice, whatsappLink } from "@/lib/utils";
 import { calculateVatBreakdown, VAT_RATE_LABEL } from "@/lib/vat";
 import { track } from "@/lib/track";
-import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS, getEwalletProviderLabel } from "@/lib/constants";
+import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS, getEwalletProviderLabel, isCourierAvailable } from "@/lib/constants";
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
 import type { DeliveryMethod, DeliveryProvider, PaymentMethod } from "@/types/database";
@@ -54,6 +54,7 @@ interface Props {
   merchantId: string;
   storeName: string;
   storeSlug: string;
+  merchantTown: string | null;
   merchantTier: string;
   whatsappNumber: string;
   bankName: string | null;
@@ -183,6 +184,7 @@ export function CheckoutForm({
   merchantId,
   storeName,
   storeSlug,
+  merchantTown,
   merchantTier: _merchantTier,
   whatsappNumber,
   bankName,
@@ -205,12 +207,21 @@ export function CheckoutForm({
   deliveryEstimate = null,
   preview = false,
 }: Props) {
+  // Couriers (Yango, inDrive) are only offered where they operate (by store
+  // town). Strip any courier the store's town isn't served by, so the buyer
+  // never sees a courier that can't reach them.
+  const effectiveDeliveryProviders = useMemo(
+    () =>
+      enabledDeliveryProviders.filter((p) => isCourierAvailable(p, merchantTown)),
+    [enabledDeliveryProviders, merchantTown]
+  );
+
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState("");
   const [customerWhatsapp, setCustomerWhatsapp] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
   const [deliveryProvider, setDeliveryProvider] = useState<DeliveryProvider>(
-    (enabledDeliveryProviders[0] as DeliveryProvider) ?? "store"
+    (effectiveDeliveryProviders[0] as DeliveryProvider) ?? "store"
   );
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [notes, setNotes] = useState("");
@@ -257,13 +268,13 @@ export function CheckoutForm({
   // Reset the delivery provider if the current selection isn't in the
   // merchant's enabled set.
   useEffect(() => {
-    if (!enabledDeliveryProviders.includes(deliveryProvider)) {
-      setDeliveryProvider((enabledDeliveryProviders[0] as DeliveryProvider) ?? "store");
+    if (!effectiveDeliveryProviders.includes(deliveryProvider)) {
+      setDeliveryProvider((effectiveDeliveryProviders[0] as DeliveryProvider) ?? "store");
     }
-  }, [enabledDeliveryProviders, deliveryProvider]);
+  }, [effectiveDeliveryProviders, deliveryProvider]);
 
   const visibleDeliveryProviders = DELIVERY_PROVIDERS.filter((p) =>
-    enabledDeliveryProviders.includes(p.value)
+    effectiveDeliveryProviders.includes(p.value)
   );
 
   const subtotal = cartItems.reduce(

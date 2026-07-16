@@ -277,6 +277,11 @@ export function getThemeConfig(industry: string | null | undefined): ThemeConfig
   return THEME_CONFIGS[archetype];
 }
 
+/** Brand accent colour for an industry (falls back to the retail archetype). */
+export function getIndustryAccent(industry: string | null | undefined): string {
+  return THEME_CONFIGS[getArchetype(industry)].accent;
+}
+
 export function getOrderMessage(
   industry: string | null | undefined,
   status: NotifiableStatus,

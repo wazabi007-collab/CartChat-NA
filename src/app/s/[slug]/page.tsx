@@ -304,6 +304,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
             storeName: merchant.store_name,
             description: merchant.description,
             logoUrl: merchant.logo_url,
+            industry: merchant.industry,
             location: locationLabel,
             phone: null,
             whatsappNumber: merchant.whatsapp_number,

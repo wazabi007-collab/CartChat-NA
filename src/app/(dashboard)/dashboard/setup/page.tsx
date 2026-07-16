@@ -4,9 +4,10 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify, normalizeNamibianPhone } from "@/lib/utils";
-import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, INDUSTRY_GROUP_ORDER, PAYMENT_METHODS, NAMIBIA_REGIONS, townsForRegion, REFERRED_TRIAL_DAYS, STANDARD_TRIAL_DAYS } from "@/lib/constants";
+import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, INDUSTRY_GROUP_ORDER, PAYMENT_METHODS, NAMIBIA_REGIONS, townsForRegion, REFERRED_TRIAL_DAYS, STANDARD_TRIAL_DAYS, isCourierAvailable } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { SAFETY_POLICY_VERSION, safetyMessage, scanTextForProhibitedContent } from "@/lib/safety/prohibited-content";
+import { IndustryIcon } from "@/components/industry-icon";
 import { track } from "@/lib/track";
 import { Store, ArrowRight, Check, AlertCircle, X } from "lucide-react";
 import { PhoneInput } from "@/components/phone-input";
@@ -115,6 +116,11 @@ function StoreSetupForm() {
   const [enabledProviders, setEnabledProviders] = useState<string[]>(["store", "yango", "indrive"]);
   const [offersPickup, setOffersPickup] = useState(true);
   const [offersDelivery, setOffersDelivery] = useState(false);
+  // Couriers are only valid where they operate (by store town). Strip any courier
+  // the chosen town isn't served by — used for the save and courier checks.
+  const effectiveProviders = enabledProviders.filter((p) =>
+    isCourierAvailable(p, form.town)
+  );
   const [whatsappStatus, setWhatsappStatus] = useState<"idle" | "checking" | "blocked" | "warning" | "clear">("idle");
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
@@ -350,7 +356,7 @@ function StoreSetupForm() {
         ewallet_number: form.ewallet_number || null,
         pay2cell_number: form.pay2cell_number || null,
         paytoday_number: form.paytoday_number || null,
-        enabled_delivery_providers: enabledProviders,
+        enabled_delivery_providers: effectiveProviders,
         pickup_address: form.pickup_address.trim() || null,
         delivery_fee_nad: offersDelivery ? Math.round((parseFloat(form.delivery_fee_display) || 0) * 100) : 0,
         store_status: "active",
@@ -546,9 +552,16 @@ function StoreSetupForm() {
                     </optgroup>
                   ))}
                 </select>
-                <p className={helperText}>
-                  Helps us personalise your store experience
-                </p>
+                {form.industry ? (
+                  <div className="mt-2 flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                    <IndustryIcon industry={form.industry} size={30} />
+                    <p className="text-xs text-slate-600">
+                      This category badge will show on your storefront and in search.
+                    </p>
+                  </div>
+                ) : (
+                  <p className={helperText}>Helps us personalise your store experience</p>
+                )}
               </div>
               <div>
                 <label className={label}>
@@ -700,8 +713,8 @@ function StoreSetupForm() {
                       <div className="space-y-2">
                         {[
                           { value: "store", label: "Store delivery" },
-                          { value: "yango", label: "Yango" },
-                          { value: "indrive", label: "inDrive" },
+                          ...(isCourierAvailable("yango", form.town) ? [{ value: "yango", label: "Yango" }] : []),
+                          ...(isCourierAvailable("indrive", form.town) ? [{ value: "indrive", label: "inDrive" }] : []),
                         ].map((opt) => (
                           <label key={opt.value} className="flex items-center gap-3 cursor-pointer text-sm text-slate-700">
                             <input
@@ -722,7 +735,7 @@ function StoreSetupForm() {
                       <p className="mt-1 text-xs text-slate-500">Yango and inDrive are buyer-booked.</p>
                     </div>
 
-                    {!offersPickup && (enabledProviders.includes("yango") || enabledProviders.includes("indrive")) && (
+                    {!offersPickup && (effectiveProviders.includes("yango") || effectiveProviders.includes("indrive")) && (
                       <div className="mt-4">
                         <label className={label}>Pickup address</label>
                         <textarea
@@ -942,7 +955,7 @@ function StoreSetupForm() {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading || selectedMethods.length === 0 || !acceptedPolicy || (offersDelivery && (enabledProviders.includes("yango") || enabledProviders.includes("indrive")) && !form.pickup_address.trim())}
+                  disabled={loading || selectedMethods.length === 0 || !acceptedPolicy || (offersDelivery && (effectiveProviders.includes("yango") || effectiveProviders.includes("indrive")) && !form.pickup_address.trim())}
                   className={`flex-1 ${btnPrimaryGreen} flex items-center justify-center gap-2`}
                 >
                   {loading ? (

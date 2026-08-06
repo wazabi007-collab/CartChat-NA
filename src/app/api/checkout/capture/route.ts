@@ -58,8 +58,10 @@ export async function POST(req: NextRequest) {
   const sub = Array.isArray(merchant.subscriptions)
     ? merchant.subscriptions[0]
     : merchant.subscriptions;
-  // Paid-plan feature: only active Oshi-Automate / Oshi-Pro stores enrol.
-  if (!sub || sub.status !== "active" || !hasCartRecovery(sub.tier)) return ok();
+  // Oshi-Automate / Oshi-Pro feature. Trials count too — a merchant evaluating
+  // a premium plan should see the automation they are being sold.
+  const liveSub = sub && (sub.status === "active" || sub.status === "trial");
+  if (!liveSub || !hasCartRecovery(sub.tier)) return ok();
 
   // Cap new enrolments per store per day.
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();

@@ -264,7 +264,7 @@ export async function GET(req: NextRequest) {
 
       const stillEligible =
         merchant.cart_recovery_enabled !== false &&
-        sub?.status === "active" &&
+        (sub?.status === "active" || sub?.status === "trial") &&
         hasCartRecovery(sub?.tier);
 
       // Stamp either way so an ineligible row is not re-examined every 15 min.

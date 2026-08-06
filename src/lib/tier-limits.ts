@@ -55,6 +55,17 @@ export function showBranding(tier: SubscriptionTier): boolean {
   return TIER_LIMITS[tier].branding;
 }
 
+/**
+ * Automated abandoned-checkout recovery is an Oshi-Automate / Oshi-Pro feature —
+ * it is the concrete automation those plans are sold on. Change this set to
+ * widen or narrow eligibility.
+ */
+export const CART_RECOVERY_TIERS: SubscriptionTier[] = ["oshi_grow", "oshi_pro"];
+
+export function hasCartRecovery(tier: SubscriptionTier | string | null | undefined): boolean {
+  return !!tier && CART_RECOVERY_TIERS.includes(tier as SubscriptionTier);
+}
+
 export function formatTierPrice(tier: SubscriptionTier): string {
   const price = TIER_LIMITS[tier].price_nad;
   if (price === 0) return "Free";

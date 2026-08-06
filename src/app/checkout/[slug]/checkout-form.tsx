@@ -273,6 +273,36 @@ export function CheckoutForm({
     }
   }, [effectiveDeliveryProviders, deliveryProvider]);
 
+  // Abandoned-checkout capture: once the buyer has given a name, a plausible
+  // WhatsApp number and has items in the cart, remember the attempt so a single
+  // reminder can be sent if they never place the order. Debounced so it isn't
+  // called on every keystroke; stops entirely once the order succeeds. The API
+  // ignores stores that are ineligible or have the feature switched off.
+  useEffect(() => {
+    if (step !== "form") return;
+    if (cartItems.length === 0) return;
+    const name = customerName.trim();
+    const phoneDigits = customerWhatsapp.replace(/\D/g, "");
+    if (name.length < 2 || phoneDigits.length < 9) return;
+
+    const timer = setTimeout(() => {
+      fetch("/api/checkout/capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchant_id: merchantId,
+          customer_name: name,
+          customer_whatsapp: customerWhatsapp,
+          cart_item_count: cartItems.reduce((n, i) => n + i.quantity, 0),
+          // Cart value only — delivery/discount aren't chosen yet at capture time.
+          cart_total_nad: cartItems.reduce((n, i) => n + i.price * i.quantity, 0),
+        }),
+      }).catch(() => {});
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [step, cartItems, customerName, customerWhatsapp, merchantId]);
+
   const visibleDeliveryProviders = DELIVERY_PROVIDERS.filter((p) =>
     effectiveDeliveryProviders.includes(p.value)
   );

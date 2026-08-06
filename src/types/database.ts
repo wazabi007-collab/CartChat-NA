@@ -36,6 +36,7 @@ export interface Database {
           town: string | null;
           referred_by_code: string | null;
           is_demo: boolean;
+          cart_recovery_enabled: boolean;
           description: string | null;
           whatsapp_number: string;
           bank_name: string | null;
@@ -71,6 +72,7 @@ export interface Database {
           town?: string | null;
           referred_by_code?: string | null;
           is_demo?: boolean;
+          cart_recovery_enabled?: boolean;
           description?: string | null;
           whatsapp_number: string;
           bank_name?: string | null;
@@ -106,6 +108,7 @@ export interface Database {
           town?: string | null;
           referred_by_code?: string | null;
           is_demo?: boolean;
+          cart_recovery_enabled?: boolean;
           description?: string | null;
           whatsapp_number?: string;
           bank_name?: string | null;

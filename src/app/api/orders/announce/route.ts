@@ -109,5 +109,20 @@ export async function POST(req: NextRequest) {
     buttonParams: [order.tracking_token],
   });
 
+  // The buyer completed the purchase, so close any open abandoned-checkout row
+  // for this (store, phone). Without this the cron would chase someone who has
+  // already ordered. Runs on every order, so recovery state stays accurate.
+  if (order.customer_whatsapp) {
+    await service
+      .from("abandoned_checkouts")
+      .update({
+        recovered_at: new Date().toISOString(),
+        recovered_order_id: order.id,
+      })
+      .eq("merchant_id", order.merchant_id)
+      .eq("customer_whatsapp", order.customer_whatsapp)
+      .is("recovered_at", null);
+  }
+
   return NextResponse.json({ ok: true });
 }

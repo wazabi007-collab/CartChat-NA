@@ -75,6 +75,7 @@ export default function SettingsPage() {
     vat_number: "",
     vat_inclusive: false,
     pop_required: false,
+    cart_recovery_enabled: true,
   });
 
   const [deliverySlots, setDeliverySlots] = useState<DeliverySlots>({
@@ -123,6 +124,7 @@ export default function SettingsPage() {
           vat_number: merchant.vat_number || "",
           vat_inclusive: false,
           pop_required: merchant.pop_required ?? false,
+          cart_recovery_enabled: merchant.cart_recovery_enabled ?? true,
         });
         if (merchant.delivery_slots) {
           setDeliverySlots(merchant.delivery_slots as DeliverySlots);
@@ -195,6 +197,7 @@ export default function SettingsPage() {
         vat_number: form.vat_number || null,
         vat_inclusive: false,
         pop_required: form.pop_required,
+        cart_recovery_enabled: form.cart_recovery_enabled,
       })
       .eq("id", merchantId);
 
@@ -678,6 +681,29 @@ export default function SettingsPage() {
               </label>
             </div>
           )}
+
+          <div className="border-t border-gray-100 pt-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.cart_recovery_enabled}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, cart_recovery_enabled: e.target.checked }))
+                }
+                className="mt-0.5 w-4 h-4 text-green-600 rounded focus:ring-green-500"
+              />
+              <span>
+                <span className="block text-sm font-medium text-gray-700">
+                  Recover abandoned checkouts
+                </span>
+                <span className={helperText}>
+                  If a customer enters their details at checkout but doesn&apos;t
+                  finish, OshiCart sends them one WhatsApp reminder an hour later.
+                  Available on Oshi-Automate and Oshi-Pro.
+                </span>
+              </span>
+            </label>
+          </div>
         </div>
 
         {/* Delivery Fee */}

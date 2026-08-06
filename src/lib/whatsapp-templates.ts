@@ -17,6 +17,15 @@ export const WHATSAPP_TEMPLATES = {
     bodyVariableCounts: [1],
     buttonParamCounts: [1],
   },
+  abandoned_cart_reminder: {
+    name: "abandoned_cart_reminder",
+    category: "marketing",
+    recipientType: "customer",
+    // {{1}} customer first name · {{2}} item count · {{3}} total (e.g. "N$250.00")
+    // {{4}} store name.  Button param = store URL suffix back to the storefront.
+    bodyVariableCounts: [4],
+    buttonParamCounts: [1],
+  },
   welcome_merchant: {
     name: "welcome_merchant",
     category: "utility",

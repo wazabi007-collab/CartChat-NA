@@ -5,6 +5,7 @@ import { isWhatsAppEnabled } from "@/lib/whatsapp";
 import { formatPrice } from "@/lib/utils";
 import { getOrderPayableTotal } from "@/lib/vat";
 import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
+import { hasCartRecovery } from "@/lib/tier-limits";
 
 /**
  * Cron job: Payment reminders + auto-cancel unpaid orders.
@@ -231,12 +232,81 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // ---- 3. Abandoned-checkout recovery ----
+  // One reminder per abandoned checkout, an hour after the buyer gave their
+  // details and left without ordering. Eligibility (paid plan + merchant
+  // toggle) was already checked at capture time, but it is re-checked here so
+  // a downgrade or a switched-off toggle stops queued reminders too.
+  let cartRemindersSent = 0;
+  if (whatsappOn) {
+    const abandonedCutoff = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
+
+    const { data: abandoned } = await supabase
+      .from("abandoned_checkouts")
+      .select(
+        "id, merchant_id, customer_name, customer_whatsapp, cart_item_count, cart_total_nad, merchants!inner(store_name, store_slug, cart_recovery_enabled, subscriptions(tier, status))"
+      )
+      .is("reminder_sent_at", null)
+      .is("recovered_at", null)
+      .lte("created_at", abandonedCutoff)
+      .limit(100);
+
+    for (const row of abandoned ?? []) {
+      const merchant = row.merchants as unknown as {
+        store_name: string;
+        store_slug: string;
+        cart_recovery_enabled: boolean;
+        subscriptions: { tier: string; status: string } | { tier: string; status: string }[];
+      };
+      const sub = Array.isArray(merchant.subscriptions)
+        ? merchant.subscriptions[0]
+        : merchant.subscriptions;
+
+      const stillEligible =
+        merchant.cart_recovery_enabled !== false &&
+        sub?.status === "active" &&
+        hasCartRecovery(sub?.tier);
+
+      // Stamp either way so an ineligible row is not re-examined every 15 min.
+      if (stillEligible) {
+        const firstName = (row.customer_name || "there").split(" ")[0];
+        const result = await sendWhatsAppEvent({
+          supabase,
+          merchantId: row.merchant_id,
+          eventKey: `abandoned_cart_reminder:${row.id}`,
+          templateName: "abandoned_cart_reminder",
+          recipientPhone: row.customer_whatsapp,
+          variables: [
+            firstName,
+            String(row.cart_item_count),
+            formatPrice(row.cart_total_nad),
+            merchant.store_name,
+          ],
+          buttonParams: [merchant.store_slug],
+        });
+        if (result.ok && !result.skipped) cartRemindersSent++;
+      }
+
+      await supabase
+        .from("abandoned_checkouts")
+        .update({ reminder_sent_at: now.toISOString() })
+        .eq("id", row.id);
+    }
+  }
+
+  // ---- 4. Purge stale abandoned checkouts ----
+  // These rows hold a name + phone for someone who never bought, so they are
+  // deleted after 30 days regardless of outcome.
+  const purgeCutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  await supabase.from("abandoned_checkouts").delete().lt("created_at", purgeCutoff);
+
   return NextResponse.json({
     ok: true,
     remindersSent,
     merchantOrderAlertsSent,
     lowStockAlertsSent,
     ordersCancelled,
+    cartRemindersSent,
     timestamp: now.toISOString(),
   });
 }

@@ -90,11 +90,11 @@ export default function SettingsPage() {
       } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: merchant } = await supabase
-        .from("merchants")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
+      // Payment credentials are hidden from direct table SELECT by column
+      // grants (migration 055); get_my_merchant() returns the caller's own
+      // full row, hard-filtered on auth.uid().
+      const { data: ownMerchant } = await supabase.rpc("get_my_merchant");
+      const merchant = Array.isArray(ownMerchant) ? ownMerchant[0] : ownMerchant;
 
       if (merchant) {
         setMerchantId(merchant.id);

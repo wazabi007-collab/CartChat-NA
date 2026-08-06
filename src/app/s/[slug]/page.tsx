@@ -85,10 +85,14 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   const supabase = await createClient();
   const { previewCookie, userId } = await readPreviewState(supabase);
 
-  // Fetch merchant
+  // Fetch merchant. Explicit public column list — payment credentials
+  // (bank_account_*, momo/ewallet/pay2cell/paytoday numbers) are not readable
+  // by anon/authenticated (migration 055) and are not needed to render a store.
   let merchantQuery = supabase
     .from("merchants")
-    .select("*")
+    .select(
+      "id, user_id, store_name, store_slug, description, whatsapp_number, logo_url, is_active, created_at, industry, delivery_slots, delivery_fee_nad, accepted_payment_methods, store_status, vat_number, vat_inclusive, pickup_address, pop_required, delivery_estimate, enabled_delivery_providers, region, town"
+    )
     .eq("store_slug", slug);
   if (!previewCookie) {
     merchantQuery = merchantQuery.eq("is_active", true).eq("store_status", "active");

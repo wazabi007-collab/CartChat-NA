@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `${SITE_NAME} Admin <onboarding@resend.dev>`,
+        from: process.env.RESEND_FROM_ADMIN || process.env.RESEND_FROM || `${SITE_NAME} Admin <admin@oshicart.com>`,
         to: adminUser.email,
         subject: `${SITE_NAME} admin password reset`,
         html,

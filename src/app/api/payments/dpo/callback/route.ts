@@ -288,7 +288,7 @@ async function sendReceiptEmail(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "OshiCart <onboarding@resend.dev>",
+      from: process.env.RESEND_FROM_BILLING || process.env.RESEND_FROM || "OshiCart <billing@oshicart.com>",
       to: email,
       subject: `Payment Receipt — ${tierLabel} Plan (${params.months}mo)`,
       html,

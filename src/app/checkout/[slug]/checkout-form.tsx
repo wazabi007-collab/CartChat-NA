@@ -567,7 +567,12 @@ export function CheckoutForm({
       fetch("/api/analytics/sync", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ merchant_id: merchantId }),
+        body: JSON.stringify({
+          merchant_id: merchantId,
+          // Buyers are anonymous — the order's tracking token authorises this.
+          order_id: order.order_id,
+          tracking_token: order.tracking_token,
+        }),
       }).catch(() => {});
 
       // Send email notification to merchant
@@ -575,8 +580,11 @@ export function CheckoutForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          merchant_id: merchantId,
-          order_number: order.order_number,
+          // Buyers are anonymous; the tracking token is the capability that
+          // authorises this call (the route derives merchant + order number
+          // server-side from it).
+          order_id: order.order_id,
+          tracking_token: order.tracking_token,
           customer_name: customerName.trim(),
           customer_whatsapp: customerWhatsapp.trim(),
           items: cartItems.map((item) => ({

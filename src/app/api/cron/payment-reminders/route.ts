@@ -29,9 +29,10 @@ export async function GET(req: NextRequest) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  if (!isWhatsAppEnabled()) {
-    return NextResponse.json({ ok: true, reason: "whatsapp disabled" });
-  }
+  // WhatsApp being off must NOT stop order expiry — auto-cancel (section 2) is
+  // order-lifecycle work, not messaging. Only the reminder/alert sections are
+  // skipped when messaging is disabled.
+  const whatsappOn = isWhatsAppEnabled();
 
   const supabase = createServiceClient();
   const now = new Date();
@@ -41,6 +42,8 @@ export async function GET(req: NextRequest) {
   let lowStockAlertsSent = 0;
 
   // ---- 1. Send payment reminders ----
+  // Sections 1–1c are messaging; skipped entirely when WhatsApp is disabled.
+  if (whatsappOn) {
 
   // Find pending non-COD orders created in the last 3 days
   const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
@@ -170,7 +173,11 @@ export async function GET(req: NextRequest) {
     if (result.ok && !result.skipped) lowStockAlertsSent++;
   }
 
+  } // end messaging sections (whatsappOn)
+
   // ---- 2. Auto-cancel expired unpaid orders (3 days + 1 hour) ----
+  // Always runs, even with WhatsApp disabled — stock must be released and
+  // stale orders closed regardless of whether we can notify anyone.
 
   const expiredCutoff = new Date(
     now.getTime() - 49 * 60 * 60 * 1000

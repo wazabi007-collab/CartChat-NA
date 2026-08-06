@@ -1,47 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { createClient } from "@/lib/supabase/server";
 
+/**
+ * Emails the merchant a copy of a freshly placed order.
+ *
+ * Orders are placed by ANONYMOUS buyers, so this cannot require a session —
+ * it previously did, which meant every real call returned 401 and merchants
+ * never received an order email. It is now gated the same way as
+ * /api/orders/announce: by the order's tracking_token, the capability
+ * place_order returns only to the buyer. The recipient merchant and the order
+ * number are derived server-side from the order row, never from the body.
+ */
 export async function POST(req: NextRequest) {
   try {
-    // Verify the caller is authenticated and owns this merchant
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const body = await req.json();
-    const { merchant_id, order_number, customer_name, customer_whatsapp, items, subtotal, delivery_fee, discount, vat, vat_inclusive, total, payment_method, payment_ref, delivery_method, delivery_provider, delivery_address, delivery_date, delivery_time, notes } = body;
+    const { order_id, tracking_token, customer_name, customer_whatsapp, items, subtotal, delivery_fee, discount, vat, vat_inclusive, total, payment_method, payment_ref, delivery_method, delivery_provider, delivery_address, delivery_date, delivery_time, notes } = body;
 
-    if (!merchant_id || !order_number) {
+    if (!order_id || !tracking_token) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const service = createServiceClient();
 
-    // Verify merchant ownership
-    const { data: ownerCheck } = await service
-      .from("merchants")
-      .select("id")
-      .eq("id", merchant_id)
-      .eq("user_id", user.id)
+    // The tracking_token must match the order — this is the buyer's capability.
+    const { data: order } = await service
+      .from("orders")
+      .select("id, order_number, merchant_id, merchants!inner(store_name, user_id)")
+      .eq("id", order_id)
+      .eq("tracking_token", tracking_token)
       .single();
 
-    if (!ownerCheck) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (!order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    // Get merchant info + email
-    const { data: merchant } = await service
-      .from("merchants")
-      .select("store_name, user_id")
-      .eq("id", merchant_id)
-      .single();
-
-    if (!merchant) {
-      return NextResponse.json({ error: "Merchant not found" }, { status: 404 });
-    }
+    const order_number = order.order_number;
+    const merchant = order.merchants as unknown as { store_name: string; user_id: string };
 
     const { data: userData } = await service.auth.admin.getUserById(merchant.user_id);
     const merchantEmail = userData?.user?.email;
@@ -159,7 +153,7 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "OshiCart Orders <onboarding@resend.dev>",
+        from: process.env.RESEND_FROM_ORDERS || process.env.RESEND_FROM || "OshiCart Orders <orders@oshicart.com>",
         to: merchantEmail,
         subject: `New Order #${order_number} — ${customer_name}`,
         html: htmlEmail,

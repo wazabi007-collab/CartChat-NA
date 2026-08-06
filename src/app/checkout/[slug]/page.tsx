@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { TIER_LIMITS, showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { PreviewBanner } from "@/components/storefront/preview-banner";
@@ -37,7 +38,11 @@ export default async function CheckoutPage({ params }: Props) {
 
   const { previewCookie, userId } = await readPreviewState(supabase);
 
-  let merchantQuery = supabase
+  // Payment credentials are not readable by anon/authenticated (migration 055),
+  // so read them with the service role. This runs server-side only; the buyer
+  // receives just this one store's details, never a bulk-enumerable list.
+  const service = createServiceClient();
+  let merchantQuery = service
     .from("merchants")
     .select(
       "id, user_id, store_name, town, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider, pay2cell_number, vat_number, vat_inclusive, pop_required, delivery_estimate, enabled_delivery_providers, paytoday_number, pickup_address"

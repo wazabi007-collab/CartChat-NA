@@ -11,6 +11,7 @@ import { FAQ } from "@/components/landing/faq";
 import { CtaBar } from "@/components/landing/cta-bar";
 import { Footer } from "@/components/footer";
 import { SupportButton } from "@/components/support-button";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -30,13 +31,44 @@ const organizationSchema = {
   ],
 };
 
-export default function Home() {
+/**
+ * Live counts for the hero. Previously hard-coded ("34+ stores / 3,000+
+ * products") while /stores listed 7 — the claim collapsed on the first click.
+ * Internal/demo stores are excluded so the figure reflects real merchants.
+ */
+async function getLiveCounts() {
+  try {
+    const service = createServiceClient();
+    const [{ data: stores }, { count: productCount }] = await Promise.all([
+      service
+        .from("merchants")
+        .select("id")
+        .eq("is_active", true)
+        .eq("store_status", "active")
+        .eq("is_demo", false),
+      service
+        .from("products")
+        .select("id", { count: "exact", head: true })
+        .eq("is_available", true)
+        .is("deleted_at", null),
+    ]);
+    return {
+      liveStoreCount: stores?.length ?? 0,
+      liveProductCount: productCount ?? 0,
+    };
+  } catch {
+    return { liveStoreCount: 0, liveProductCount: 0 };
+  }
+}
+
+export default async function Home() {
+  const { liveStoreCount, liveProductCount } = await getLiveCounts();
   return (
     <div className="min-h-screen bg-white">
       <JsonLd data={organizationSchema} />
       <PublicNavbar />
       <main>
-        <Hero />
+        <Hero liveStoreCount={liveStoreCount} liveProductCount={liveProductCount} />
         <PaymentTrustBar />
         <HowItWorks />
         <StorefrontGallery />

@@ -9,9 +9,15 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+// Mono is only used for payment references, coupon codes and invoice fields —
+// none of which appear on the landing or storefront pages. Preloading it site-
+// wide downloaded a font file most visitors never render (and produced a
+// "preloaded but not used" console warning on every page). It still loads
+// normally via the CSS variable wherever font-mono is actually applied.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://oshicart.com";

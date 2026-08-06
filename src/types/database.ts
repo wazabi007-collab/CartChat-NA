@@ -35,6 +35,7 @@ export interface Database {
           region: string | null;
           town: string | null;
           referred_by_code: string | null;
+          is_demo: boolean;
           description: string | null;
           whatsapp_number: string;
           bank_name: string | null;
@@ -69,6 +70,7 @@ export interface Database {
           region?: string | null;
           town?: string | null;
           referred_by_code?: string | null;
+          is_demo?: boolean;
           description?: string | null;
           whatsapp_number: string;
           bank_name?: string | null;
@@ -103,6 +105,7 @@ export interface Database {
           region?: string | null;
           town?: string | null;
           referred_by_code?: string | null;
+          is_demo?: boolean;
           description?: string | null;
           whatsapp_number?: string;
           bank_name?: string | null;

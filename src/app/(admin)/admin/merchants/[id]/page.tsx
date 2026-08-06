@@ -77,7 +77,15 @@ export default async function MerchantDetailPage({
                 <span className={`rounded-full px-2.5 py-1 text-xs font-black ${storeStatus.color}`}>{storeStatus.label}</span>
                 <span className={`rounded-full px-2.5 py-1 text-xs font-black ${tierColor}`}>{tierLabel}</span>
                 {subStatus && <span className={`rounded-full px-2.5 py-1 text-xs font-black ${subStatus.color}`}>{subStatus.label}</span>}
+                {merchant.is_demo && (
+                  <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-black text-violet-800">DEMO STORE</span>
+                )}
               </div>
+              {merchant.is_demo && (
+                <p className="mt-2 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-sm text-violet-800">
+                  Internal/reseller demo store — not a paying customer. Exclude from revenue and merchant reporting.
+                </p>
+              )}
               <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-slate-500">
                 <span>/s/{merchant.store_slug}</span>
                 <Link href={`/s/${merchant.store_slug}`} target="_blank" className="inline-flex items-center gap-1 font-bold text-blue-600 hover:underline">

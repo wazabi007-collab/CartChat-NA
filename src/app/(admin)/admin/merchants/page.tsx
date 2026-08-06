@@ -22,7 +22,7 @@ export default async function MerchantsPage({
 
   let query = service
     .from("merchants")
-    .select("id, store_name, store_slug, user_id, store_status, created_at, industry, whatsapp_number")
+    .select("id, store_name, store_slug, user_id, store_status, created_at, industry, whatsapp_number, is_demo")
     .order("created_at", { ascending: false });
 
   if (status && ["pending", "active", "suspended", "banned"].includes(status)) {
@@ -167,6 +167,11 @@ export default async function MerchantsPage({
                     <Link href={`/admin/merchants/${merchant.id}`} className="font-black text-slate-950 hover:text-emerald-700">
                       {merchant.store_name}
                     </Link>
+                    {merchant.is_demo && (
+                      <span className="ml-2 rounded-full bg-violet-100 px-2 py-0.5 text-xs font-black text-violet-800">
+                        DEMO
+                      </span>
+                    )}
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-400">
                       <span>{merchant.store_slug}</span>
                       <Link href={`/s/${merchant.store_slug}`} target="_blank" className="font-bold text-blue-600 hover:underline">

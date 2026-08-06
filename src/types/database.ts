@@ -440,6 +440,18 @@ export interface Database {
           resolved_at?: string | null;
         };
       };
+      broadcast_templates: {
+        Row: { id: string; merchant_id: string | null; name: string; body: string; created_at: string; updated_at: string };
+        Insert: { id?: string; merchant_id?: string | null; name: string; body: string; created_at?: string; updated_at?: string };
+        Update: { id?: string; merchant_id?: string | null; name?: string; body?: string; created_at?: string; updated_at?: string };
+        Relationships: [];
+      };
+      broadcast_sends: {
+        Row: { id: string; merchant_id: string; customer_id: string; template_id: string | null; sent_at: string };
+        Insert: { id?: string; merchant_id: string; customer_id: string; template_id?: string | null; sent_at?: string };
+        Update: { id?: string; merchant_id?: string; customer_id?: string; template_id?: string | null; sent_at?: string };
+        Relationships: [];
+      };
       customers: {
         Row: {
           id: string;

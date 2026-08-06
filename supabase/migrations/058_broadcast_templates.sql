@@ -1,0 +1,18 @@
+-- Migration 058: Merchant broadcast templates + send tracking
+-- (applied to production as 058_broadcast_templates)
+--
+-- Broadcasts are sent from the MERCHANT'S OWN WhatsApp number via click-to-send
+-- (wa.me deep links), NOT through OshiCart's WABA. Consequences:
+--   * merchants can freely write their own templates — no Meta approval, since
+--     nothing goes through the Cloud API;
+--   * no per-message cost and no risk to the platform number's quality rating;
+--   * the conversation is the merchant's own, so opt-out is honoured by the
+--     merchant toggling customers.marketing_opt_out.
+--
+-- Placeholders resolved client-side: {name} {store} {link} {address}
+--
+-- Tables: broadcast_templates (merchant_id NULL = built-in sample, read-only to
+-- merchants) and broadcast_sends (who has been messaged, so a long list can be
+-- worked through over several sittings). Both are RLS-scoped to the owning
+-- merchant. Four sample templates are seeded, each showcasing the store link or
+-- pickup address.

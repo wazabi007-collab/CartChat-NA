@@ -5,6 +5,7 @@ import { card } from "@/lib/ui";
 import { MessageCircle, Repeat, Users, Wallet } from "lucide-react";
 import { CustomerSearch } from "./customer-search";
 import { CustomerNotes } from "./customer-notes";
+import { CustomerOptOut } from "./customer-opt-out";
 
 interface CustomerRow {
   id: string;
@@ -146,6 +147,7 @@ export default async function CustomersPage({
                   <span><b>{formatPrice(Number(c.total_spent_nad || 0))}</b> spent</span>
                   <span>Last: {formatDate(c.last_order_at)}</span>
                 </div>
+                <CustomerOptOut customerId={c.id} initialOptOut={c.marketing_opt_out} />
                 <CustomerNotes customerId={c.id} initialNotes={c.notes} />
               </div>
             ))}
@@ -170,6 +172,9 @@ export default async function CustomersPage({
                     <td className="py-3 pr-3">
                       <p className="font-semibold text-slate-900">{c.name || "Unnamed customer"}</p>
                       <p className="text-xs text-slate-500">{c.whatsapp}</p>
+                      <div className="mt-1">
+                        <CustomerOptOut customerId={c.id} initialOptOut={c.marketing_opt_out} />
+                      </div>
                     </td>
                     <td className="py-3 pr-3 text-slate-700">
                       {c.completed_orders}

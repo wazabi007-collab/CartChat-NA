@@ -94,7 +94,10 @@ export async function POST(req: NextRequest) {
   const { data: orders, error } = await supabase
     .from("orders")
     .select(
-      "id, order_number, status, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, delivery_method, delivery_provider, payment_method, payment_reference, proof_of_payment_url, created_at, order_items(product_name, quantity, line_total, variant_sku, variant_attributes)"
+      // tracking_token is returned so the buyer can re-order. They have already
+      // proven ownership of this number via the WhatsApp OTP above, and the
+      // token only ever grants access to their own orders.
+      "id, order_number, status, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, delivery_method, delivery_provider, payment_method, payment_reference, proof_of_payment_url, tracking_token, created_at, order_items(product_name, quantity, line_total, variant_sku, variant_attributes)"
     )
     .eq("merchant_id", merchantId)
     .in("customer_whatsapp", Array.from(new Set([inputDigits, cleanPhone])))

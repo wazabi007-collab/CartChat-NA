@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { ReorderButton } from "@/components/storefront/reorder-button";
 import { Search, Package, Clock, CheckCircle2, XCircle, Loader2, Upload, ImageIcon } from "lucide-react";
 import { getOrderPayableTotal } from "@/lib/vat";
 
@@ -24,6 +25,7 @@ interface Order {
   payment_method: string;
   payment_reference: string | null;
   proof_of_payment_url: string | null;
+  tracking_token?: string | null;
   created_at: string;
   order_items: OrderItem[];
 }
@@ -325,6 +327,17 @@ export function OrderTracker({ merchantId }: { merchantId: string }) {
                         </>
                       )}
                     </button>
+                  </div>
+                )}
+
+                {/* Re-order: rebuilds the cart at today's prices */}
+                {order.status === "completed" && order.tracking_token && (
+                  <div className="mt-3 flex pt-3 border-t">
+                    <ReorderButton
+                      orderId={order.id}
+                      trackingToken={order.tracking_token}
+                      storeSlug=""
+                    />
                   </div>
                 )}
 

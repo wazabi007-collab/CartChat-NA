@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Plus, Package, Layers3, Image as ImageIcon, Sparkles } from "lucide-react";
+import { Plus, Package, Layers3, Image as ImageIcon, Sparkles, Upload } from "lucide-react";
 import { ProductGrid } from "./product-actions";
 import { getServiceLabels } from "@/lib/service-labels";
 import { TIER_LIMITS, type SubscriptionTier } from "@/lib/tier-limits";
@@ -92,6 +92,13 @@ export default async function ProductsPage({
               className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
             >
               Categories
+            </Link>
+            <Link
+              href="/dashboard/products/import"
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+            >
+              <Upload size={16} />
+              Import
             </Link>
             <Link
               href="/dashboard/products/new"

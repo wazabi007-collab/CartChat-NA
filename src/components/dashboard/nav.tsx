@@ -17,6 +17,7 @@ import {
   CreditCard,
   ExternalLink,
   HelpCircle,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
@@ -37,6 +38,7 @@ const baseNavItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, requireFeature: null },
   { href: "/dashboard/products", label: "Products", icon: Package, requireFeature: null },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart, requireFeature: null },
+  { href: "/dashboard/customers", label: "Customers", icon: Users, requireFeature: null },
   { href: "/dashboard/coupons", label: "Coupons", icon: Ticket, requireFeature: "coupons" as const },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, requireFeature: null },
   { href: "/dashboard/account", label: "Account", icon: User, requireFeature: null },

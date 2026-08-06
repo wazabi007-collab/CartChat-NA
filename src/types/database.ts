@@ -440,6 +440,39 @@ export interface Database {
           resolved_at?: string | null;
         };
       };
+      customers: {
+        Row: {
+          id: string;
+          merchant_id: string;
+          whatsapp: string;
+          name: string | null;
+          notes: string | null;
+          marketing_opt_out: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          merchant_id: string;
+          whatsapp: string;
+          name?: string | null;
+          notes?: string | null;
+          marketing_opt_out?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          merchant_id?: string;
+          whatsapp?: string;
+          name?: string | null;
+          notes?: string | null;
+          marketing_opt_out?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       referrers: {
         Row: {
           id: string;

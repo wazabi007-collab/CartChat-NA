@@ -288,7 +288,9 @@ async function sendReceiptEmail(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM_BILLING || process.env.RESEND_FROM || "OshiCart <billing@oshicart.com>",
+      // send.oshicart.com is the domain verified in Resend — the apex
+      // oshicart.com is NOT, and sending from it is rejected.
+      from: process.env.RESEND_FROM_BILLING || process.env.RESEND_FROM || "OshiCart <billing@send.oshicart.com>",
       to: email,
       subject: `Payment Receipt — ${tierLabel} Plan (${params.months}mo)`,
       html,

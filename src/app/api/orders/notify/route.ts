@@ -153,7 +153,9 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: process.env.RESEND_FROM_ORDERS || process.env.RESEND_FROM || "OshiCart Orders <orders@oshicart.com>",
+        // send.oshicart.com is the domain verified in Resend — the apex
+        // oshicart.com is NOT, and sending from it is rejected.
+        from: process.env.RESEND_FROM_ORDERS || process.env.RESEND_FROM || "OshiCart Orders <orders@send.oshicart.com>",
         to: merchantEmail,
         subject: `New Order #${order_number} — ${customer_name}`,
         html: htmlEmail,

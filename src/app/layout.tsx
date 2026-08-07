@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -56,6 +57,14 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico?v=4",
     apple: [{ url: "/apple-icon.png?v=4", sizes: "180x180", type: "image/png" }],
   },
+  // Without this, iOS "Add to Home Screen" opens the site inside Safari chrome
+  // — a bookmark rather than an app. Storefronts override the title with the
+  // merchant's own store name.
+  appleWebApp: {
+    capable: true,
+    title: "OshiCart",
+    statusBarStyle: "default",
+  },
   openGraph: {
     title: "OshiCart - Your Namibian Business, Online in Minutes",
     description: "Create a clean online store for shops, local vendors, food sellers, services, and WhatsApp businesses. Zero commission. Built for Namibia.",
@@ -80,6 +89,12 @@ export const metadata: Metadata = {
   },
 };
 
+// Next requires themeColor on the viewport export, not in `metadata`. This is
+// the colour the phone paints the status bar with once the app is installed.
+export const viewport: Viewport = {
+  themeColor: "#159947",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -91,6 +106,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <ServiceWorkerRegister />
         <SpeedInsights />
         <Analytics />
       </body>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>OshiCart — Referral Agent Handbook</title>
+<style>
+  :root {
+    --acacia: #159947;
+    --terracotta: #2b5ea7;
+    --ink: #1f2937;
+    --muted: #5b6472;
+    --line: #e3e7ee;
+    --soft: #f4f7fb;
+  }
+
+  @page { size: A4; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    font-size: 11pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .cover {
+    border-bottom: 4px solid var(--acacia);
+    padding-bottom: 18px;
+    margin-bottom: 26px;
+  }
+  .logo { height: 46px; width: auto; display: block; margin-bottom: 10px; }
+  .wordmark { font-size: 30pt; font-weight: 800; letter-spacing: -0.5px; line-height: 1; }
+  .oshi { color: var(--terracotta); }
+  .cart { color: var(--acacia); }
+  .guide-title { font-size: 17pt; font-weight: 800; margin-top: 10px; }
+  .subtitle { color: var(--muted); margin-top: 6px; font-size: 11pt; }
+
+  section { page-break-inside: avoid; margin-bottom: 22px; }
+
+  h2 {
+    font-size: 13pt;
+    color: var(--terracotta);
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px; height: 21px;
+    border-radius: 50%;
+    background: var(--acacia);
+    color: #fff;
+    font-size: 9.5pt;
+    font-weight: 800;
+    flex: none;
+  }
+  h3 { font-size: 11pt; margin: 14px 0 5px; color: var(--ink); }
+
+  p { margin: 0 0 8px; }
+  ul, ol { margin: 0 0 8px; padding-left: 20px; }
+  li { margin-bottom: 4px; }
+
+  .callout {
+    background: var(--soft);
+    border-left: 3px solid var(--acacia);
+    padding: 9px 12px;
+    margin: 10px 0;
+    font-size: 10.5pt;
+  }
+  .link { color: var(--terracotta); font-weight: 700; }
+
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10.5pt; }
+  th {
+    text-align: left;
+    border-bottom: 2px solid var(--ink);
+    padding: 6px 8px 5px;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  td { border-bottom: 1px solid var(--line); padding: 7px 8px; vertical-align: top; }
+  td.money, th.money { text-align: right; white-space: nowrap; }
+  .big { font-weight: 800; color: var(--acacia); }
+
+  .script {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    font-size: 10.5pt;
+  }
+  .script .who { font-weight: 800; color: var(--terracotta); }
+
+  .colophon { margin-top: 26px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 9.5pt; color: var(--muted); }
+  .made { color: var(--acacia); font-weight: 700; }
+</style>
+</head>
+<body>
+
+  <div class="cover">
+    <img class="logo" src="__LOGO__" alt="OshiCart" />
+    <div class="wordmark"><span class="oshi">Oshi</span><span class="cart">Cart</span></div>
+    <div class="guide-title">Referral Agent Handbook</div>
+    <div class="subtitle">How to earn, how the platform works, and how to explain every feature.</div>
+  </div>
+
+  <section>
+    <h2><span class="num">1</span>What you are selling</h2>
+    <p>OshiCart puts a Namibian business online in minutes. The merchant gets a store link customers open on their phone, orders arrive on WhatsApp, and customers pay the merchant directly.</p>
+    <p><strong>OshiCart takes no commission on their sales.</strong> That is the single strongest line in your pitch. A merchant who sells N$10,000 keeps N$10,000 — they pay only their monthly plan.</p>
+    <div class="callout">Your buyer is anyone selling on WhatsApp today: home bakers, salons, hardware shops, food stalls, boutiques, mechanics, tailors. If they are posting products in a WhatsApp Status, they are your customer.</div>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span>What you earn</h2>
+    <p>You earn a <strong>one-time bounty</strong> when a merchant you referred starts paying for a plan. There is no cap on how many merchants you sign up.</p>
+    <table>
+      <thead>
+        <tr><th>Plan the merchant pays for</th><th class="money">Their monthly price</th><th class="money">You earn</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Oshi-Start (free)</td><td class="money">N$0</td><td class="money">N$0</td></tr>
+        <tr><td>Oshi-Storefront</td><td class="money">N$149</td><td class="money big">N$75</td></tr>
+        <tr><td>Oshi-Automate</td><td class="money">N$399</td><td class="money big">N$200</td></tr>
+        <tr><td>Oshi-Pro</td><td class="money">N$799</td><td class="money big">N$400</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">A merchant on the free plan earns you nothing — but get them on anyway. A free store that starts taking orders upgrades on its own. Signing them up is the hard part; upgrading is easy.</div>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span>How your link works</h2>
+    <ol>
+      <li>You get a personal link: <span class="link">oshicart.com/r/your-code</span></li>
+      <li>Share it. Anyone who signs up through it is tagged to you permanently.</li>
+      <li>They get a <strong>35-day free trial</strong> instead of the standard 30 — five extra days, because they came from you. Use that in your pitch.</li>
+      <li>When they pay for a plan, your bounty is recorded.</li>
+      <li>Payouts are made by EFT. Send your banking details to the OshiCart team once.</li>
+    </ol>
+    <div class="callout">Always send <strong>your own link</strong>, never plain "oshicart.com". If they type the address themselves, you are not credited and you cannot fix it afterwards.</div>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span>The plans, in plain terms</h2>
+    <table>
+      <thead>
+        <tr><th>Plan</th><th class="money">Price</th><th class="money">Products</th><th class="money">Orders/month</th><th>Best for</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Oshi-Start</td><td class="money">Free</td><td class="money">20</td><td class="money">50</td><td>Trying it out</td></tr>
+        <tr><td>Oshi-Storefront</td><td class="money">N$149</td><td class="money">50</td><td class="money">300</td><td>A real small shop</td></tr>
+        <tr><td>Oshi-Automate</td><td class="money">N$399</td><td class="money">200</td><td class="money">1,000</td><td>Busy shops</td></tr>
+        <tr><td>Oshi-Pro</td><td class="money">N$799</td><td class="money">Unlimited</td><td class="money">Unlimited</td><td>Established retailers</td></tr>
+      </tbody>
+    </table>
+    <p>The free plan is the full storefront at smaller limits, with a small "Powered by OshiCart" badge. Paying removes that badge. Order allowances reset every month on the merchant's billing date, and cancelled orders do not count.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span>Every feature, and how to explain it</h2>
+    <p>Merchants buy what they understand. Learn these well enough to say each one in a single sentence.</p>
+
+    <h3>Store link and QR code</h3>
+    <p>Their store link is their address on the internet — no website or domain needed. The QR code is a picture of that link for flyers, packaging and shop doors. <em>"You don't need a website. This link is your website."</em></p>
+
+    <h3>WhatsApp order updates</h3>
+    <p>Customers are messaged automatically when an order is received, confirmed, ready and completed. <em>"You stop typing the same replies twenty times a day."</em> Available on every plan, including free.</p>
+
+    <h3>Products, photos and variants</h3>
+    <p>Add products with photos straight from the phone. Variants cover sizes and colours so customers choose at checkout instead of messaging. Stock tracking stops sales when they run out.</p>
+
+    <h3>Bulk import</h3>
+    <p>A shop with hundreds of items uploads a spreadsheet instead of typing them in. This is what closes hardware shops and boutiques.</p>
+
+    <h3>Payment methods</h3>
+    <p>EFT, cash on delivery or collection, MTC Maris, eWallet, FNB Pay2Cell, PayToday. Customers pay the merchant directly. <em>"The money goes to your account, not ours."</em></p>
+
+    <h3>Delivery and couriers</h3>
+    <p>Collection, their own delivery with a flat fee, or Yango and inDrive where the buyer pays the driver. Couriers appear only in Windhoek, Swakopmund and Walvis Bay.</p>
+
+    <h3>Orders and invoices</h3>
+    <p>Every order gets a proper invoice they can print or send. If they have a VAT number it becomes a tax invoice showing 15% VAT.</p>
+
+    <h3>Customers list</h3>
+    <p>Everyone who orders is saved, with how often they buy and what they spend. <em>"Your customer list is yours — it's never shared with another shop."</em></p>
+
+    <h3>WhatsApp broadcast</h3>
+    <p>Send an offer to all customers, repeat customers, or recent customers — from the merchant's own WhatsApp number.</p>
+
+    <h3>Coupons</h3>
+    <p>Discount codes for promotions, with four ready-made templates so they don't start from a blank form.</p>
+
+    <h3>Reviews</h3>
+    <p>Only verified buyers can leave a rating, so reviews on OshiCart mean something.</p>
+
+    <h3>Analytics</h3>
+    <p>Visits, orders, revenue, and which products people look at most.</p>
+
+    <h3>Install as an app</h3>
+    <p>OshiCart goes on the home screen like an app, with no Play Store or App Store. Merchants install their dashboard; shoppers install the store directory.</p>
+
+    <h3>Abandoned checkout recovery <span class="link">(Automate and Pro)</span></h3>
+    <p>A customer who starts checkout and does not finish gets an automatic WhatsApp reminder. <em>"It goes and fetches the sale you already lost."</em></p>
+
+    <h3>Statements <span class="link">(Automate and Pro)</span></h3>
+    <p>A monthly record of every order with VAT totals, printable or downloadable as a spreadsheet for a bookkeeper. This is the line that upgrades anyone with an accountant.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span>How to open the conversation</h2>
+    <div class="script">
+      <p><span class="who">You:</span> "How do you take orders now?"</p>
+      <p><span class="who">Them:</span> "WhatsApp, people message me."</p>
+      <p><span class="who">You:</span> "So you're typing the same prices all day, and you lose the ones who don't message. I can put everything you sell on one link. They browse, they order, it lands in your WhatsApp done — with the name, the items and the total. You still get paid straight into your account, and OshiCart takes nothing off your sales."</p>
+    </div>
+    <p>Then show them, on your phone, a real store: <span class="link">oshicart.com/stores</span>. Do not describe it — open it.</p>
+    <ol>
+      <li>Show a live store and scroll the products.</li>
+      <li>Add something to the cart so they see the checkout.</li>
+      <li>Show the WhatsApp message the merchant receives.</li>
+      <li>Then send your link and help them sign up on the spot.</li>
+    </ol>
+    <div class="callout">Sign them up while you are standing there. Do not leave it with "have a look tonight" — that is how a lead dies.</div>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span>Objections, and what to say</h2>
+    <h3>"I already sell fine on WhatsApp."</h3>
+    <p>"You do — this is your WhatsApp with a catalogue attached. Customers still message you. They just arrive knowing what they want and what it costs."</p>
+
+    <h3>"It's too expensive."</h3>
+    <p>"Start free. Twenty products, fifty orders a month, no card needed. If it doesn't bring you anything, you've lost nothing."</p>
+
+    <h3>"I'm not good with computers."</h3>
+    <p>"It's your phone. Setup is a name, a number and your town — about two minutes. I'll do it with you now."</p>
+
+    <h3>"Do you take a percentage?"</h3>
+    <p>"No. Nothing on your sales. Customers pay you directly. You pay a monthly plan and that's all."</p>
+
+    <h3>"What if nobody finds my store?"</h3>
+    <p>"You share the link — Status, Facebook, flyers, the QR on your door. You also get listed in Browse Stores for your town, as soon as you've added a product."</p>
+  </section>
+
+  <section>
+    <h2><span class="num">8</span>Getting a merchant live properly</h2>
+    <p>A signup that never adds a product earns you nothing and helps nobody. Walk them through all of it:</p>
+    <ol>
+      <li>Sign up through <strong>your link</strong>.</li>
+      <li>Store name, WhatsApp number, region and town, industry.</li>
+      <li><strong>Add at least one product with a photo.</strong> Their store does not appear in Browse Stores until it has one.</li>
+      <li><strong>Enter their payment details</strong> — the bank and account number, or the wallet number. A method with no details is hidden at checkout, and if none work their checkout closes.</li>
+      <li>Set delivery or collection.</li>
+      <li>Open the Share page, copy the link, and post it to their WhatsApp Status while you are there.</li>
+    </ol>
+    <div class="callout">Steps 3 and 4 are where merchants stall. If you do nothing else, do those two with them.</div>
+  </section>
+
+  <section>
+    <h2><span class="num">9</span>The rules</h2>
+    <ul>
+      <li>Never sign up a merchant without their knowledge, and never use fake details. Fake signups are removed and not paid.</li>
+      <li>Do not promise features that do not exist. This handbook is the truth — if it is not in here, do not claim it.</li>
+      <li>Do not promise a merchant a discount, a longer trial, or a refund. Only OshiCart can agree that.</li>
+      <li>Prohibited goods (adult content, illegal drugs, counterfeits, dangerous items) are not allowed. Signing up such a store earns nothing.</li>
+      <li>Bounties are paid on merchants who actually pay for a plan, and only once per merchant.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">10</span>Where to get help</h2>
+    <ul>
+      <li>WhatsApp: <strong>+264 81 627 4823</strong></li>
+      <li>Call: <strong>+264 81 238 4424</strong></li>
+      <li>Email: <strong>info@octovianexus.com</strong></li>
+      <li>Merchant guide, to send a prospect: <span class="link">oshicart.com/guide</span></li>
+      <li>Installing as an app: <span class="link">oshicart.com/app</span></li>
+      <li>Selling rules: <span class="link">oshicart.com/prohibited-products</span></li>
+    </ul>
+    <p class="colophon">
+      &copy; OshiCart — a product of Octovia Nexus Investments CC.<br />
+      <span class="made">Made in Namibia.</span>
+    </p>
+  </section>
+
+</body>
+</html>

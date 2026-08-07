@@ -18,7 +18,7 @@ export default function TermsPage() {
         </h1>
         <div className="prose prose-gray max-w-none space-y-4 text-gray-600 text-sm leading-relaxed">
           <p>
-            <strong>Last updated:</strong> March 2026
+            <strong>Last updated:</strong> August 2026
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
             1. Service Description
@@ -73,21 +73,27 @@ export default function TermsPage() {
           <ul className="list-disc pl-5 space-y-1">
             <li>
               <strong>Oshi-Start (Free Trial):</strong> 20 products and
-              50 orders per month with all features included, for 30 days.
+              50 orders per month with all features included, for 30 days
+              (35 days if you were referred by an OshiCart agent).
             </li>
             <li>
-              <strong>Oshi-Storefront (N$149/month):</strong> Up to 50 products and
-              300 orders per month. Includes sales analytics and no OshiCart
-              branding.
+              <strong>Oshi-Storefront (N$149/month):</strong> Up to 50 products
+              and 300 orders per month. Includes your customer list and order
+              history, verified-purchase reviews, WhatsApp broadcast messaging
+              to your own customers, bulk CSV product import, sales analytics,
+              and no OshiCart branding.
             </li>
             <li>
-              <strong>Oshi-Automate (N$399/month):</strong> Up to 200 products and
-              1,000 orders per month. Includes automated WhatsApp order updates,
-              inventory tracking, and coupon codes.
+              <strong>Oshi-Automate (N$399/month):</strong> Up to 200 products
+              and 1,000 orders per month. Includes everything in
+              Oshi-Storefront, plus automated WhatsApp order updates,
+              abandoned-checkout WhatsApp recovery, inventory tracking, and
+              coupon codes.
             </li>
             <li>
               <strong>Oshi-Pro (N$799/month):</strong> Unlimited products and
-              unlimited orders per month.
+              unlimited orders per month, with everything included in
+              Oshi-Automate.
             </li>
           </ul>
           <p>
@@ -105,7 +111,40 @@ export default function TermsPage() {
             disputes between customers and merchants.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
-            7. Prohibited Items &amp; Conduct
+            7. Customer Reviews
+          </h2>
+          <p>
+            A customer who has completed an order may leave a public review
+            and star rating for the merchant they ordered from. Reviews can
+            only be submitted using the unique link sent for that specific
+            order, so they cannot be created by the merchant themselves, by a
+            competitor, or by anyone who has not actually placed and
+            completed an order with that store. Merchants may reply publicly
+            to a review but may not edit or delete it. OshiCart may remove a
+            review that violates these Terms — for example, content that is
+            abusive, defamatory, or discloses another person&apos;s private
+            information — at its discretion.
+          </p>
+          <h2 className="text-lg font-semibold text-gray-900 mt-8">
+            8. Marketing Messages &amp; Customer Communication
+          </h2>
+          <p>
+            On plans that include WhatsApp Broadcast, merchants may send
+            promotional messages to their own past customers. These messages
+            are sent directly from the merchant&apos;s own WhatsApp number and
+            account — OshiCart does not send, and does not store the content
+            of, these messages. Merchants are solely responsible for the
+            content of their marketing messages and for complying with
+            applicable Namibian law regarding unsolicited communications. A
+            customer may ask a merchant not to receive further marketing
+            messages, and merchants must honour such requests. OshiCart keeps
+            a record of which customers a merchant has contacted through
+            Broadcast and when, to help merchants avoid contacting the same
+            customer too often — this record does not include the message
+            content.
+          </p>
+          <h2 className="text-lg font-semibold text-gray-900 mt-8">
+            9. Prohibited Items &amp; Conduct
           </h2>
           <p>Merchants may not list the following on OshiCart:</p>
           <ul className="list-disc pl-5 space-y-1">
@@ -133,7 +172,7 @@ export default function TermsPage() {
             <li>Impersonating other businesses or individuals</li>
           </ul>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
-            8. Consequences of Violation
+            10. Consequences of Violation
           </h2>
           <p>
             OshiCart reserves the right to suspend or permanently ban any
@@ -153,7 +192,7 @@ export default function TermsPage() {
             on any storefront. All reports are reviewed by the OshiCart team.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
-            9. New Stores
+            11. New Stores
           </h2>
           <p>
             New stores are active immediately upon signup with no order
@@ -161,14 +200,14 @@ export default function TermsPage() {
             take action if fraudulent activity is detected.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
-            10. Termination
+            12. Termination
           </h2>
           <p>
             Either party may terminate at any time. Upon termination, merchant
             data will be retained for 30 days before deletion.
           </p>
           <h2 className="text-lg font-semibold text-gray-900 mt-8">
-            11. Limitation of Liability
+            13. Limitation of Liability
           </h2>
           <p>
             OshiCart is provided &quot;as is&quot;. We are not liable for lost

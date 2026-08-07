@@ -69,7 +69,15 @@ export default function PricingPage() {
               />
               <FAQ
                 q="Is there a free trial?"
-                a="Yes. New sellers can start with a free trial before choosing the plan that fits their store."
+                a="Yes — a 30-day free trial, no credit card required. If you were referred by an OshiCart agent, you get 35 days instead."
+              />
+              <FAQ
+                q="Can I see who has ordered from me before?"
+                a="Yes, on every plan. OshiCart automatically builds a list of your customers from your orders — with their order history and how much they've spent — so you always know who your repeat buyers are."
+              />
+              <FAQ
+                q="Are the reviews on OshiCart genuine?"
+                a="Yes. Only a customer who completed a real order can leave a review, so they can't be faked by a merchant or a competitor. You can reply publicly to any review, but you can't edit or delete one."
               />
             </div>
           </div>

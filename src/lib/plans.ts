@@ -52,6 +52,10 @@ export const PUBLIC_PLANS: PublicPlan[] = [
       "OshiCart store link",
       "Local payments (EFT, COD, MTC Maris, eWallet)",
       "Proof-of-payment upload",
+      "Customer list & order history",
+      "Verified-purchase reviews & ratings",
+      "WhatsApp broadcast to your customers",
+      "Bulk product import (CSV)",
       "Sales analytics",
       "No OshiCart branding",
     ],
@@ -70,6 +74,7 @@ export const PUBLIC_PLANS: PublicPlan[] = [
       ...countLines("oshi_grow"),
       "Everything in Storefront",
       "Automated WhatsApp updates (confirmed, ready, completed)",
+      "Abandoned-checkout WhatsApp recovery",
       "Inventory tracking",
       "Coupon & discount codes",
     ],
@@ -87,8 +92,6 @@ export const PUBLIC_PLANS: PublicPlan[] = [
     features: [
       ...countLines("oshi_pro"),
       "Everything in Oshi-Automate",
-      "Automated WhatsApp order updates",
-      "Inventory tracking and coupons",
     ],
   },
 ];

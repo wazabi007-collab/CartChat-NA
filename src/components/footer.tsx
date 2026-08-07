@@ -51,8 +51,12 @@ export function Footer() {
             <h4 className="mb-3 font-bold text-white">Contact & Support</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="tel:+264812384424" className="hover:text-white transition-colors">
-                  Call: +264 81 238 4424
+                {/* Matches the "sales" contactPoint in the Organization JSON-LD
+                    on the homepage — was previously a stray personal number
+                    that matched neither the structured data nor anything
+                    else on the site. */}
+                <a href="tel:+264816262961" className="hover:text-white transition-colors">
+                  Call: +264 81 626 2961
                 </a>
               </li>
               <li>

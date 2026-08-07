@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Link2, MessageCircle, Check, ExternalLink } from "lucide-react";
+import { Link2, Check, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { StoreQRCode } from "./store-qr-code";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 interface ShareStoreCardProps {
   storeUrl: string;
@@ -65,7 +66,7 @@ export function ShareStoreCard({
             className="p-2.5 rounded-xl bg-acacia hover:bg-emerald-700 text-white transition-colors"
             title="Share on WhatsApp"
           >
-            <MessageCircle size={16} />
+            <WhatsAppIcon size={16} />
           </button>
           <StoreQRCode storeUrl={storeUrl} storeName={storeName} />
           <Link
@@ -97,7 +98,7 @@ export function ShareStoreCard({
           onClick={handleWhatsAppShare}
           className="flex items-center gap-1.5 px-4 py-2 bg-acacia rounded-xl text-sm font-semibold text-white hover:bg-emerald-700 transition-colors"
         >
-          <MessageCircle size={14} />
+          <WhatsAppIcon size={14} />
           Share on WhatsApp
         </button>
         <StoreQRCode storeUrl={storeUrl} storeName={storeName} />

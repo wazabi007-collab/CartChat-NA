@@ -61,11 +61,11 @@ export default function PricingPage() {
             <div className="mt-6 divide-y divide-border-warm">
               <FAQ
                 q="Is WhatsApp automated?"
-                a="Yes on Oshi-Automate. Customers can receive order confirmed, ready, and completed WhatsApp messages automatically."
+                a="Yes, on every plan — including the free trial. Your customers automatically receive WhatsApp messages when their order is placed, confirmed, ready, and completed."
               />
               <FAQ
-                q="Can I start with Storefront and upgrade later?"
-                a="Yes. You can start with Storefront and move to Automate when you want automated customer updates, inventory tracking, and coupon tools."
+                q="Can I start free and upgrade later?"
+                a="Yes. The free trial is the full Oshi-Storefront experience with smaller limits and a small 'Powered by OshiCart' badge on your store. Upgrading removes the badge and raises your product and order limits."
               />
               <FAQ
                 q="Is there a free trial?"

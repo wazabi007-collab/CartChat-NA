@@ -12,7 +12,12 @@ export interface TierLimit {
 
 // Static fallback — must match tier_limits DB table
 export const TIER_LIMITS: Record<SubscriptionTier, TierLimit> = {
-  oshi_start: { products: 20,  orders_per_month: 50,  inventory: true,  coupons: true,  branding: false, price_nad: 0 },
+  // The free tier is the full Oshi-Storefront experience at smaller limits,
+  // with "Powered by OshiCart" shown on the storefront and checkout. Removing
+  // that badge is what the first paid tier actually buys you — before this,
+  // branding was false everywhere, so "No OshiCart branding" was an inert
+  // selling point that changed nothing.
+  oshi_start: { products: 20,  orders_per_month: 50,  inventory: true,  coupons: true,  branding: true,  price_nad: 0 },
   // A paid tier must never be worse than the free tier: oshi_basic previously
   // removed inventory + coupons that oshi_start gets for free.
   oshi_basic: { products: 50,  orders_per_month: 300, inventory: true,  coupons: true,  branding: false, price_nad: 14900 },

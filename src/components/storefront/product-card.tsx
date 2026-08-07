@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { formatPrice, normalizeNamibianPhone } from "@/lib/utils";
 import { useCart } from "./cart-provider";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 interface ProductCardProps {
   id: string;
@@ -114,7 +115,7 @@ export function ProductCard({
               onClick={handleQuoteClick}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5"
             >
-              <MessageCircle size={14} />
+              <WhatsAppIcon size={14} />
               Request Quote
             </button>
           ) : hasVariants ? (

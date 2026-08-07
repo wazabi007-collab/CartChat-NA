@@ -4,13 +4,13 @@ import {
   Banknote,
   CheckCircle2,
   Link2,
-  MessageCircle,
   PackageCheck,
   PackagePlus,
   Share2,
   ShoppingCart,
   type LucideIcon,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 const STEPS = [
   {
@@ -108,7 +108,7 @@ export function HowItWorks() {
                   body="Move the order from pending to confirmed, ready, and completed from the dashboard."
                 />
                 <FlowRow
-                  icon={MessageCircle}
+                  icon={WhatsAppIcon}
                   title="WhatsApp updates go out automatically"
                   body="The customer receives status messages without the merchant typing the same replies again."
                 />
@@ -193,7 +193,8 @@ function FlowRow({
   title,
   body,
 }: {
-  icon: LucideIcon;
+  // Widened from LucideIcon so the official WhatsAppIcon can be used here too.
+  icon: React.ComponentType<{ size?: number; className?: string }>;
   title: string;
   body: string;
 }) {

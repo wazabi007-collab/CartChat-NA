@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { MessageCircle, ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { TOWN_LABELS } from "@/lib/constants";
 import { INDUSTRY_LABELS, type EnrichedStore } from "@/lib/storefront/store-list";
 import { StoreThumbGrid } from "@/components/storefront/store-thumb-grid";
 import { IndustryIcon } from "@/components/industry-icon";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 /** One store's card on /stores and /stores/[region]. */
 export function StoreListCard({ store }: { store: EnrichedStore }) {
@@ -48,7 +49,7 @@ export function StoreListCard({ store }: { store: EnrichedStore }) {
 
         <div className="flex items-center justify-between border-t border-border-warm pt-3">
           <span className="inline-flex items-center gap-1 text-xs font-bold text-acacia">
-            <MessageCircle size={14} />
+            <WhatsAppIcon size={14} />
             WhatsApp Store
           </span>
           <span className="flex items-center gap-1 text-xs font-bold text-walnut-2/70 transition-colors group-hover:text-terracotta">

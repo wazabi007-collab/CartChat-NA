@@ -72,23 +72,24 @@ export default function TermsPage() {
           <p>OshiCart offers the following subscription tiers:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>
-              <strong>Oshi-Start (Free Trial):</strong> 20 products and
-              50 orders per month with all features included, for 30 days
-              (35 days if you were referred by an OshiCart agent).
+              <strong>Oshi-Start (Free Trial):</strong> 20 products and 50
+              orders per month, for 30 days (35 days if you were referred by
+              an OshiCart agent). This is the full Oshi-Storefront feature
+              set at smaller limits, with a &quot;Powered by OshiCart&quot;
+              badge shown on your storefront and checkout.
             </li>
             <li>
               <strong>Oshi-Storefront (N$149/month):</strong> Up to 50 products
-              and 300 orders per month. Includes your customer list and order
-              history, verified-purchase reviews, WhatsApp broadcast messaging
-              to your own customers, bulk CSV product import, sales analytics,
-              and no OshiCart branding.
+              and 300 orders per month. Includes automated WhatsApp order
+              updates, your customer list and order history, verified-purchase
+              reviews, WhatsApp broadcast messaging to your own customers, bulk
+              CSV product import, inventory tracking, coupon codes, sales
+              analytics, and removal of OshiCart branding.
             </li>
             <li>
               <strong>Oshi-Automate (N$399/month):</strong> Up to 200 products
               and 1,000 orders per month. Includes everything in
-              Oshi-Storefront, plus automated WhatsApp order updates,
-              abandoned-checkout WhatsApp recovery, inventory tracking, and
-              coupon codes.
+              Oshi-Storefront, plus abandoned-checkout WhatsApp recovery.
             </li>
             <li>
               <strong>Oshi-Pro (N$799/month):</strong> Unlimited products and

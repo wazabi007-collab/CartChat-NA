@@ -1,7 +1,8 @@
-import { Clock, MapPin, MessageCircle, Phone, Star } from "lucide-react";
+import { Clock, MapPin, Phone, Star } from "lucide-react";
 import { ShareActions } from "./share-actions";
 import { IndustryIcon } from "@/components/industry-icon";
 import { INDUSTRY_LABELS } from "@/lib/storefront/store-list";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 type Props = {
   store: {
@@ -112,7 +113,7 @@ export function StoreHeaderCard({ store, storeUrl, qrUrl }: Props) {
             rel="noopener noreferrer"
             className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-acacia text-white font-semibold text-sm shadow-sm shadow-emerald-900/10 hover:bg-emerald-700 transition"
           >
-            <MessageCircle size={17} />
+            <WhatsAppIcon size={17} />
             Message on WhatsApp
           </a>
           <ShareActions storeUrl={storeUrl} qrUrl={qrUrl} />

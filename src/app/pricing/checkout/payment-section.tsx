@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { CreditCard, Building2, MessageCircle } from "lucide-react";
+import { CreditCard, Building2 } from "lucide-react";
 import { CopyButton } from "./copy-button";
 import { DpoPayButton } from "./dpo-pay-button";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 interface Props {
   tier: string;
@@ -151,7 +152,7 @@ export function PaymentSection({
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full py-3.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-sm transition-colors shadow-lg shadow-green-600/20"
           >
-            <MessageCircle size={18} />
+            <WhatsAppIcon size={18} />
             Send Proof of Payment via WhatsApp
           </a>
         </>

@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MessageCircle, ShieldAlert, Trash2 } from "lucide-react";
+import { ShieldAlert, Trash2 } from "lucide-react";
 import { normalizeNamibianPhone } from "@/lib/utils";
 import { TIER_LABELS, TIER_LIMITS, STATUS_LABELS, formatTierPrice, type SubscriptionTier, type SubscriptionStatus } from "@/lib/tier-limits";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 const TABS = ["Overview", "Subscription", "Performance", "Products", "Orders", "Safety & Compliance", "Activity", "Danger Zone"] as const;
 
@@ -633,7 +634,7 @@ function WhatsAppButton({ phone, label, message }: { phone: string; label: strin
       rel="noopener noreferrer"
       className="flex items-center gap-2 px-3 py-2 text-sm bg-green-50 border border-green-200 text-green-800 rounded-lg hover:bg-green-100 transition-colors"
     >
-      <MessageCircle size={14} />
+      <WhatsAppIcon size={14} />
       {label}
     </a>
   );

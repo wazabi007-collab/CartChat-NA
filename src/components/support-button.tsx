@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircle, X, Mail } from "lucide-react";
+import { X, Mail } from "lucide-react";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 const SUPPORT_WHATSAPP_1 = "+264816274823";
 const SUPPORT_WHATSAPP_2 = "+264816262961";
@@ -42,7 +43,7 @@ export function SupportButton() {
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
             >
               <div className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center flex-shrink-0">
-                <MessageCircle size={20} className="text-white" />
+                <WhatsAppIcon size={20} className="text-white" />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-900 group-hover:text-[#25D366] transition-colors">
@@ -59,7 +60,7 @@ export function SupportButton() {
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
             >
               <div className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center flex-shrink-0">
-                <MessageCircle size={20} className="text-white" />
+                <WhatsAppIcon size={20} className="text-white" />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-900 group-hover:text-[#25D366] transition-colors">
@@ -96,7 +97,7 @@ export function SupportButton() {
         {open ? (
           <X size={24} className="text-white" />
         ) : (
-          <MessageCircle size={24} className="text-white" />
+          <WhatsAppIcon size={24} className="text-white" />
         )}
       </button>
     </div>

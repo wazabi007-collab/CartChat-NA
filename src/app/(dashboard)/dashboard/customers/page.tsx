@@ -2,10 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { formatPrice, whatsappLink } from "@/lib/utils";
 import { card } from "@/lib/ui";
-import { MessageCircle, Repeat, Users, Wallet } from "lucide-react";
+import { Repeat, Users, Wallet } from "lucide-react";
 import { CustomerSearch } from "./customer-search";
 import { CustomerNotes } from "./customer-notes";
 import { CustomerOptOut } from "./customer-opt-out";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 interface CustomerRow {
   id: string;
@@ -139,7 +140,7 @@ export default async function CustomersPage({
                     rel="noopener noreferrer"
                     className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-bold text-white"
                   >
-                    <MessageCircle size={13} /> Chat
+                    <WhatsAppIcon size={13} /> Chat
                   </a>
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
@@ -198,7 +199,7 @@ export default async function CustomersPage({
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"
                       >
-                        <MessageCircle size={13} /> Chat
+                        <WhatsAppIcon size={13} /> Chat
                       </a>
                     </td>
                   </tr>

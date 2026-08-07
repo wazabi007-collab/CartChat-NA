@@ -7,7 +7,6 @@ import { card, sectionHeading, helperText, inputBase, textareaBase, focusGreen, 
 import {
   Check,
   Loader2,
-  MessageCircle,
   Megaphone,
   Pencil,
   Plus,
@@ -15,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import type { BroadcastCustomer, BroadcastTemplate } from "./page";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 type Audience = "all" | "repeat" | "recent";
 
@@ -358,7 +358,7 @@ export function BroadcastClient({
                           : "bg-emerald-600 text-white hover:bg-emerald-700"
                       }`}
                     >
-                      {done ? <Check size={13} /> : <MessageCircle size={13} />}
+                      {done ? <Check size={13} /> : <WhatsAppIcon size={13} />}
                       {done ? "Sent" : "Send"}
                     </button>
                   </div>

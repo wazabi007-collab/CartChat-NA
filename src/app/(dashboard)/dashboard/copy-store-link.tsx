@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, Share2, MessageCircle, Link as LinkIcon } from "lucide-react";
+import { Copy, Check, Share2, Link as LinkIcon } from "lucide-react";
 import { copyToClipboard } from "@/lib/clipboard";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 export function CopyStoreLink({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
@@ -55,7 +56,7 @@ export function CopyStoreLink({ url }: { url: string }) {
           rel="noopener noreferrer"
           className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
         >
-          <MessageCircle size={14} />
+          <WhatsAppIcon size={14} />
           Share via WhatsApp
         </a>
         <button

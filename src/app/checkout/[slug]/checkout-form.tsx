@@ -7,7 +7,6 @@ import {
   Clock,
   Upload,
   CheckCircle,
-  MessageCircle,
   Loader2,
   AlertCircle,
   Tag,
@@ -43,6 +42,7 @@ import {
   radioCardSelected,
   radioCardUnselected,
 } from "@/lib/ui";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 interface DeliverySlots {
   enabled: boolean;
@@ -751,7 +751,7 @@ export function CheckoutForm({
             rel="noopener noreferrer"
             className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg inline-flex items-center justify-center gap-2 transition-colors"
           >
-            <MessageCircle className="w-5 h-5" />
+            <WhatsAppIcon className="w-5 h-5" />
             Message {storeName} on WhatsApp
           </a>
           <Link

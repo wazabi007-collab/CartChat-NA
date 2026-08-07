@@ -6,7 +6,6 @@ import {
   ArrowRight,
   BarChart3,
   CheckCircle2,
-  MessageCircle,
   PackagePlus,
   Radio,
   Send,
@@ -15,6 +14,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 type TabKey = "today" | "growth" | "automation";
 
@@ -97,7 +97,7 @@ export function DashboardCommandPanel({
         "Order updates are designed around WhatsApp so customers stay informed without manual back-and-forth.",
       primaryHref: "/dashboard/settings",
       primaryLabel: "Check store settings",
-      Icon: MessageCircle,
+      Icon: WhatsAppIcon,
       highlights: [
         { label: "Order alerts", value: "Active" },
         { label: "Setup", value: `${setupScore}/4` },
@@ -111,7 +111,9 @@ export function DashboardCommandPanel({
     description: string;
     primaryHref: string;
     primaryLabel: string;
-    Icon: typeof ShoppingCart;
+    // Widened from `typeof ShoppingCart` so non-Lucide icons (the official
+    // WhatsAppIcon) can be used here too.
+    Icon: React.ComponentType<{ size?: number; className?: string }>;
     highlights: { label: string; value: string }[];
   }>;
 

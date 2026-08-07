@@ -41,7 +41,7 @@ export default async function ReviewsPage() {
   const awaitingReply = reviews.filter((r) => !r.merchant_reply).length;
 
   return (
-    <div className="space-y-6">
+    <div className="md:ml-56 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Reviews</h1>
         <p className="mt-1 text-sm text-gray-500">

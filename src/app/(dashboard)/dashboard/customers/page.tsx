@@ -69,7 +69,7 @@ export default async function CustomersPage({
   const lifetimeRevenue = all.reduce((sum, c) => sum + Number(c.total_spent_nad || 0), 0);
 
   return (
-    <div className="space-y-6">
+    <div className="md:ml-56 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
         <p className="mt-1 text-sm text-gray-500">

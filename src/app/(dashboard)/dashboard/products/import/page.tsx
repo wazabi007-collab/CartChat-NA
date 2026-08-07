@@ -33,7 +33,7 @@ export default async function ImportProductsPage() {
   const remaining = limit === -1 ? -1 : Math.max(0, limit - used);
 
   return (
-    <div className="space-y-6">
+    <div className="md:ml-56 space-y-6">
       <div>
         <Link
           href="/dashboard/products"

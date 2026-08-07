@@ -6,6 +6,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { getOrderQuota } from "@/lib/order-limit";
+import { usablePaymentMethods } from "@/lib/payment-methods";
 import { formatNamibianDate } from "@/lib/date";
 import { PreviewBanner } from "@/components/storefront/preview-banner";
 import { readPreviewState } from "@/lib/preview";
@@ -114,6 +115,42 @@ export default async function CheckoutPage({ params }: Props) {
     );
   }
 
+  // Only offer methods the merchant can actually be paid through. Ticking a
+  // method in settings never required entering its details, so stores were
+  // offering bank transfer with no account number and eWallet with no number —
+  // the buyer picked one and got "—" to pay into.
+  const availablePaymentMethods = usablePaymentMethods(
+    merchant.accepted_payment_methods,
+    merchant
+  );
+
+  if (availablePaymentMethods.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-lg border p-8 max-w-sm text-center">
+          <p className="text-lg font-bold text-gray-900">Can&apos;t check out right now</p>
+          <p className="text-sm text-gray-500 mt-2">
+            {merchant.store_name} hasn&apos;t finished setting up their payment
+            details, so this order can&apos;t be paid yet. Message them on
+            WhatsApp and they can help you directly.
+          </p>
+          <a
+            href={`https://wa.me/${merchant.whatsapp_number.replace(/\D/g, "")}`}
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-acacia px-4 text-sm font-bold text-white"
+          >
+            Message {merchant.store_name}
+          </a>
+          <Link
+            href={`/s/${slug}`}
+            className="mt-3 block text-sm text-green-600 hover:underline"
+          >
+            Back to store
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {isPreview && <PreviewBanner />}
@@ -139,7 +176,7 @@ export default async function CheckoutPage({ params }: Props) {
           bankBranchCode={merchant.bank_branch_code}
           deliverySlots={merchant.delivery_slots as { enabled: boolean; days: number[]; times: string[] } | null}
           deliveryFeeNad={merchant.delivery_fee_nad ?? 0}
-          acceptedPaymentMethods={merchant.accepted_payment_methods ?? ["eft"]}
+          acceptedPaymentMethods={availablePaymentMethods}
           momoNumber={merchant.momo_number ?? null}
           ewalletNumber={merchant.ewallet_number ?? null}
           ewalletProvider={merchant.ewallet_provider ?? null}

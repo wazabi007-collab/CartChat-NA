@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft, Grid3X3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
+import { usablePaymentMethods } from "@/lib/payment-methods";
 import { SITE_NAME, SITE_URL, TOWN_LABELS, REGION_LABELS } from "@/lib/constants";
 import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { isOrderLimitReached } from "@/lib/order-limit";
@@ -102,6 +104,22 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   const { data: merchant } = await merchantQuery.single();
 
   if (!merchant) notFound();
+
+  // The payment badges must match what checkout will actually offer, or the
+  // store advertises a method the buyer then cannot select. Deciding that needs
+  // the payment credentials, which anon cannot read (migration 055), so this
+  // one small read goes through the service role — the same reason checkout
+  // does. Only the booleans derived from it ever reach the browser.
+  const { data: paymentDetails } = await createServiceClient()
+    .from("merchants")
+    .select("bank_name, bank_account_number, momo_number, ewallet_number, pay2cell_number, paytoday_number")
+    .eq("id", merchant.id)
+    .single();
+
+  const advertisedPaymentMethods = usablePaymentMethods(
+    merchant.accepted_payment_methods,
+    paymentDetails ?? {}
+  );
 
   // Reviews are verified-purchase only (migration 059), so this is a real
   // trust signal rather than anything a store can write about itself.
@@ -341,7 +359,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
           qrUrl={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`${SITE_URL}/s/${slug}`)}&margin=10`}
         />
       </header>
-      <StorePaymentStrip methods={merchant.accepted_payment_methods ?? ["eft"]} />
+      <StorePaymentStrip methods={advertisedPaymentMethods} />
 
       {/* Soft-suspend banner */}
       {isSoftSuspended && (

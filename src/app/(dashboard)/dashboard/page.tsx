@@ -22,6 +22,12 @@ import { GettingStarted } from "@/components/dashboard/getting-started";
 import { LocationNudge } from "@/components/dashboard/location-nudge";
 import { ShareStoreCard } from "@/components/dashboard/share-store-card";
 import { DashboardCommandPanel } from "@/components/dashboard/dashboard-command-panel";
+import { PaymentSetupWarning } from "@/components/dashboard/payment-setup-warning";
+import {
+  misconfiguredPaymentMethods,
+  usablePaymentMethods,
+  type MerchantPaymentDetails,
+} from "@/lib/payment-methods";
 import { QuotaRow } from "@/components/dashboard/quota-row";
 import { alertError, alertWarning, alertInfo, alertIcon } from "@/lib/ui";
 import { getOrderQuota } from "@/lib/order-limit";
@@ -116,6 +122,21 @@ export default async function DashboardPage({
   const orderQuota = await getOrderQuota(supabase, merchant.id, tier);
   const monthlyOrderCount = orderQuota.count;
 
+  // Payment credentials are hidden from direct table SELECT by column grants
+  // (migration 055), so `merchant` above has no bank or wallet fields at all.
+  // get_my_merchant() returns the caller's own full row, filtered on auth.uid().
+  const { data: ownMerchantRows } = await supabase.rpc("get_my_merchant");
+  const ownMerchant = (
+    Array.isArray(ownMerchantRows) ? ownMerchantRows[0] : ownMerchantRows
+  ) as (MerchantPaymentDetails & { accepted_payment_methods: string[] | null }) | null;
+
+  const brokenPaymentMethods = ownMerchant
+    ? misconfiguredPaymentMethods(ownMerchant.accepted_payment_methods, ownMerchant)
+    : [];
+  const paymentSetupBlocking = ownMerchant
+    ? usablePaymentMethods(ownMerchant.accepted_payment_methods, ownMerchant).length === 0
+    : false;
+
   const productCount = productsResult.count || 0;
   const completedOrders = ordersResult.count || 0;
   const pendingOrders = pendingResult.count || 0;
@@ -139,6 +160,11 @@ export default async function DashboardPage({
 
   return (
     <div className="md:ml-64">
+      <PaymentSetupWarning
+        methods={brokenPaymentMethods}
+        blocking={paymentSetupBlocking}
+      />
+
       {merchant.store_status === "suspended" && (
         <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
           <p className="font-black">Your store is suspended and not visible to customers.</p>

@@ -8,6 +8,7 @@ import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { EwalletProviderPicker } from "@/components/ewallet-provider-picker";
 import { storeSetupSchema } from "@/lib/validations";
 import { normalizeNamibianPhone } from "@/lib/utils";
+import { misconfiguredPaymentMethods } from "@/lib/payment-methods";
 import Image from "next/image";
 import { Save, Plus, X, Upload, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { MAX_IMAGE_SIZE } from "@/lib/constants";
@@ -171,6 +172,39 @@ export default function SettingsPage() {
       return;
     }
 
+    // Drop anything that is no longer a real payment method before validating.
+    // At least one live store still carries a stale "dpo" entry, which has no
+    // checkbox — validating it would block saving with an error the merchant
+    // has no way to clear. Saving the filtered list also cleans it up.
+    const knownPaymentMethods = form.accepted_payment_methods.filter((method) =>
+      PAYMENT_METHODS.some((pm) => pm.value === method)
+    );
+
+    // A method with no account or number cannot be paid. Offering one produced
+    // invoices reading "Send to —", so it is refused at the source rather than
+    // quietly hidden later.
+    const unusableMethods = misconfiguredPaymentMethods(knownPaymentMethods, {
+      bank_name: form.bank_name,
+      bank_account_number: form.bank_account_number,
+      momo_number: form.momo_number,
+      ewallet_number: form.ewallet_number,
+      pay2cell_number: form.pay2cell_number,
+      paytoday_number: form.paytoday_number,
+    });
+
+    if (unusableMethods.length > 0) {
+      const labels = unusableMethods
+        .map((m) => PAYMENT_METHODS.find((pm) => pm.value === m)?.label ?? m)
+        .join(", ");
+      setError(
+        `Add the account or number for ${labels}, or switch ${
+          unusableMethods.length > 1 ? "those options" : "that option"
+        } off. Customers can't pay a method with no details.`
+      );
+      setSaving(false);
+      return;
+    }
+
     const { error: updateError } = await supabase
       .from("merchants")
       .update({
@@ -186,7 +220,7 @@ export default function SettingsPage() {
         delivery_slots: deliverySlots.enabled ? deliverySlots : null,
         delivery_fee_nad: deliveryFeeCents,
         delivery_estimate: form.delivery_estimate.trim() || null,
-        accepted_payment_methods: form.accepted_payment_methods,
+        accepted_payment_methods: knownPaymentMethods,
         momo_number: form.momo_number || null,
         ewallet_number: form.ewallet_number || null,
         ewallet_provider: form.ewallet_provider || null,

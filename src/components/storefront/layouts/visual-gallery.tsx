@@ -84,7 +84,7 @@ export function VisualGallery({ products, theme, slug, disabled }: LayoutProps) 
                         imageUrl,
                       })
                     }
-                    className="w-full text-white text-sm font-medium py-2 px-3 rounded-full transition-colors"
+                    className="w-full min-h-[44px] flex items-center justify-center text-white text-sm font-medium py-2 px-3 rounded-full transition-colors"
                     style={{ backgroundColor: theme.accent }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = theme.accentHover;

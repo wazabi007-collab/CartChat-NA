@@ -77,7 +77,7 @@ export function MenuList({ products, theme, slug, disabled }: LayoutProps) {
                       imageUrl,
                     })
                   }
-                  className="text-white text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
+                  className="min-h-[40px] inline-flex items-center justify-center text-white text-xs font-medium px-3 py-1.5 rounded-full transition-colors"
                   style={{ backgroundColor: theme.accent }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = theme.accentHover;

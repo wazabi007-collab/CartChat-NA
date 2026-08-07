@@ -79,7 +79,7 @@ export function CompactGrid({ products, theme, slug, disabled }: LayoutProps) {
                         imageUrl,
                       })
                     }
-                    className="w-full text-white text-xs font-medium py-1.5 px-2 rounded-md transition-colors"
+                    className="w-full min-h-[40px] flex items-center justify-center text-white text-xs font-medium py-1.5 px-2 rounded-md transition-colors"
                     style={{ backgroundColor: theme.accent }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = theme.accentHover;

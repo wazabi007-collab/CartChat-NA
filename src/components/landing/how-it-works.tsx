@@ -8,6 +8,7 @@ import {
   PackagePlus,
   Share2,
   ShoppingCart,
+  Smartphone,
   type LucideIcon,
 } from "lucide-react";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
@@ -32,6 +33,11 @@ const STEPS = [
     icon: Banknote,
     title: "Get paid locally",
     body: "Accept EFT, PayToday, Pay2Cell, eWallet, MTC Maris, or cash on delivery with zero OshiCart commission.",
+  },
+  {
+    icon: Smartphone,
+    title: "Your shop, as an app",
+    body: "Customers add your store to their home screen — your name, your logo — and reopen it with one tap. No Play Store, no App Store.",
   },
 ];
 
@@ -148,7 +154,7 @@ export function HowItWorks() {
           </div>
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {STEPS.map((step, index) => {
             const Icon = step.icon;
             return (

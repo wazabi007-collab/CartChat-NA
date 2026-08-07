@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
+import { GetTheAppRow } from "@/components/pwa/get-the-app-row";
 
 type TabKey = "today" | "growth" | "automation";
 
@@ -199,6 +200,9 @@ export function DashboardCommandPanel({
                 <ReadinessRow label="Store link shared" done={storeLinkShared} />
                 <ReadinessRow label="First order received" done={totalOrders > 0} />
                 <ReadinessRow label="Setup flow healthy" done={setupComplete} />
+                {/* Client-resolved: installing leaves no server-side trace, so
+                    this is informational and not part of setupScore. */}
+                <GetTheAppRow />
               </div>
             </div>
 

@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard,
+  FileText,
   Package,
   Share2,
   ShoppingCart,
@@ -47,6 +48,7 @@ const baseNavItems = [
   { href: "/dashboard/reviews", label: "Reviews", icon: Star, requireFeature: null },
   { href: "/dashboard/coupons", label: "Coupons", icon: Ticket, requireFeature: "coupons" as const },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, requireFeature: null },
+  { href: "/dashboard/statements", label: "Statements", icon: FileText, requireFeature: null },
   { href: "/dashboard/account", label: "Account", icon: User, requireFeature: null },
   { href: "/dashboard/subscription", label: "Subscription", icon: CreditCard, requireFeature: null },
   { href: "/dashboard/settings", label: "Settings", icon: Settings, requireFeature: null },

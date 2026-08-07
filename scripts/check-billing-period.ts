@@ -8,7 +8,13 @@
  *
  *   npx tsx scripts/check-billing-period.ts
  */
-import { namibianBillingPeriod, formatNamibianDate } from "../src/lib/date";
+import {
+  namibianBillingPeriod,
+  formatNamibianDate,
+  namibianMonthKey,
+  namibianMonthRange,
+  recentNamibianMonths,
+} from "../src/lib/date";
 
 let failures = 0;
 
@@ -104,6 +110,42 @@ checkDate("first of the month", "2026-07-31T22:30:00Z", "1 August 2026");
 // Year rollover — the old code would have dated this 31 December 2025.
 checkDate("new year", "2025-12-31T22:30:00Z", "1 January 2026");
 checkDate("midday is unaffected", "2026-03-15T10:00:00Z", "15 March 2026");
+
+// ---------------------------------------------------------------------------
+// Statement periods. Selected by Namibian calendar month, so an order placed at
+// 00:30 on the 1st has to fall in the new month even though UTC still says the
+// previous one — otherwise a month's takings land on the wrong VAT return.
+// ---------------------------------------------------------------------------
+function checkValue(name: string, actual: unknown, expected: unknown) {
+  const a = JSON.stringify(actual);
+  const e = JSON.stringify(expected);
+  if (a === e) {
+    console.log(`ok   ${name}  ${a}`);
+    return;
+  }
+  failures++;
+  console.log(`FAIL ${name}\n  got      ${a}\n  expected ${e}`);
+}
+
+checkValue("month key midday", namibianMonthKey(new Date("2026-08-07T10:00:00Z")), "2026-08");
+// 22:30 UTC on 31 July is 00:30 on 1 August in Windhoek.
+checkValue("month key rolls at local midnight", namibianMonthKey(new Date("2026-07-31T22:30:00Z")), "2026-08");
+checkValue("month key year rollover", namibianMonthKey(new Date("2025-12-31T22:30:00Z")), "2026-01");
+
+checkValue("month range", namibianMonthRange("2026-08"), {
+  startISO: "2026-08-01T00:00:00+02:00",
+  endISO: "2026-09-01T00:00:00+02:00",
+});
+checkValue("december range wraps the year", namibianMonthRange("2026-12"), {
+  startISO: "2026-12-01T00:00:00+02:00",
+  endISO: "2027-01-01T00:00:00+02:00",
+});
+
+checkValue("recent months walk back over new year", recentNamibianMonths(3, new Date("2026-01-15T10:00:00Z")), [
+  "2026-01",
+  "2025-12",
+  "2025-11",
+]);
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

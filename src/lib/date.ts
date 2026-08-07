@@ -48,6 +48,52 @@ export function formatNamibianDate(
   });
 }
 
+/**
+ * The Namibian calendar month containing `date`, as `YYYY-MM`.
+ *
+ * Statements are selected by month, so the boundary has to be local: an order
+ * placed at 00:30 on the 1st belongs to the new month, even though it is still
+ * the previous month in UTC.
+ */
+export function namibianMonthKey(date: Date = new Date()): string {
+  const shifted = new Date(date.getTime() + NAMIBIA_UTC_OFFSET_MINUTES * 60_000);
+  const month = String(shifted.getUTCMonth() + 1).padStart(2, "0");
+  return `${shifted.getUTCFullYear()}-${month}`;
+}
+
+/**
+ * Half-open range covering a `YYYY-MM` month in Namibian time, as ISO strings
+ * with an explicit +02:00 offset. End is exclusive.
+ */
+export function namibianMonthRange(monthKey: string): { startISO: string; endISO: string } {
+  const [year, month] = monthKey.split("-").map(Number);
+  const nextYear = month === 12 ? year + 1 : year;
+  const nextMonth = month === 12 ? 1 : month + 1;
+
+  return {
+    startISO: `${year}-${String(month).padStart(2, "0")}-01T00:00:00+02:00`,
+    endISO: `${nextYear}-${String(nextMonth).padStart(2, "0")}-01T00:00:00+02:00`,
+  };
+}
+
+/** The last `count` Namibian months, newest first, as `YYYY-MM` keys. */
+export function recentNamibianMonths(count: number, from: Date = new Date()): string[] {
+  const shifted = new Date(from.getTime() + NAMIBIA_UTC_OFFSET_MINUTES * 60_000);
+  let year = shifted.getUTCFullYear();
+  let month = shifted.getUTCMonth() + 1;
+
+  const keys: string[] = [];
+  for (let i = 0; i < count; i++) {
+    keys.push(`${year}-${String(month).padStart(2, "0")}`);
+    month -= 1;
+    if (month === 0) {
+      month = 12;
+      year -= 1;
+    }
+  }
+  return keys;
+}
+
 /** Number of days in a 1-indexed month. Day 0 of month+1 is the last day of month. */
 function daysInMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month, 0)).getUTCDate();

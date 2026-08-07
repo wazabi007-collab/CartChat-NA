@@ -71,6 +71,13 @@ export function hasCartRecovery(tier: SubscriptionTier | string | null | undefin
   return !!tier && CART_RECOVERY_TIERS.includes(tier as SubscriptionTier);
 }
 
+/** Statements are a higher-tier feature, matching cart recovery. */
+export const STATEMENT_TIERS: SubscriptionTier[] = ["oshi_grow", "oshi_pro"];
+
+export function hasStatements(tier: SubscriptionTier | string | null | undefined): boolean {
+  return !!tier && STATEMENT_TIERS.includes(tier as SubscriptionTier);
+}
+
 export function formatTierPrice(tier: SubscriptionTier): string {
   const price = TIER_LIMITS[tier].price_nad;
   if (price === 0) return "Free";

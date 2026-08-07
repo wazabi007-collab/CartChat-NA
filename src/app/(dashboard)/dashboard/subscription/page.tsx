@@ -15,7 +15,8 @@ import {
 import { PUBLIC_PLANS } from "@/lib/plans";
 import { QuotaRow } from "@/components/dashboard/quota-row";
 import { SubscriptionActions } from "./subscription-actions";
-import { getMonthlyOrderCount } from "@/lib/order-limit";
+import { getOrderQuota } from "@/lib/order-limit";
+import { formatNamibianDate } from "@/lib/date";
 
 const TIER_RANK: Record<SubscriptionTier, number> = {
   oshi_start: 0,
@@ -70,9 +71,8 @@ export default async function SubscriptionPage() {
     .select("id", { count: "exact", head: true })
     .eq("merchant_id", merchant.id);
 
-  // Shared helper — excludes cancelled orders and uses the Namibian month boundary.
-  const monthlyOrderCount =
-    limits.orders_per_month === -1 ? 0 : await getMonthlyOrderCount(service, merchant.id);
+  // Shared helper — excludes cancelled orders and runs on the billing cycle.
+  const quota = await getOrderQuota(service, merchant.id, tier);
 
   const { data: payments } = await service
     .from("payments")
@@ -140,10 +140,20 @@ export default async function SubscriptionPage() {
         <div className="mt-5 space-y-3 border-t border-slate-100 pt-5">
           <QuotaRow label="Products" used={productCount || 0} limit={limits.products} />
           <QuotaRow
-            label="Orders this month"
-            used={monthlyOrderCount}
+            label="Orders this cycle"
+            used={quota.count}
             limit={limits.orders_per_month}
           />
+          {limits.orders_per_month !== -1 && (
+            <p className="text-xs font-semibold text-slate-400">
+              Your order allowance resets on{" "}
+              {formatNamibianDate(quota.resetsAt, {
+                day: "numeric",
+                month: "long",
+              })}
+              .
+            </p>
+          )}
         </div>
       </div>
 

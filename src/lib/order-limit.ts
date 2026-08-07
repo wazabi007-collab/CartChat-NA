@@ -1,16 +1,19 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { TIER_LIMITS, type SubscriptionTier } from "@/lib/tier-limits";
-import { namibianMonthStartISO } from "@/lib/date";
+import {
+  namibianBillingPeriod,
+  namibianMonthStartISO,
+  type BillingPeriod,
+} from "@/lib/date";
 
 /**
  * Monthly order quota — the single implementation.
  *
- * Quotas reset at the start of each CALENDAR month (Namibian time), not on the
- * merchant's billing anniversary. That is deliberate and simple to explain, but
- * it does mean a merchant who subscribes on the 25th gets a fresh allowance a
- * few days later.
+ * The allowance runs from the merchant's BILLING DATE, not the calendar month.
+ * A merchant who subscribes on the 25th gets a full month of orders before the
+ * counter resets; under the old calendar-month rule they got six days.
  *
- * Two things this deliberately does NOT do:
+ * Three things this deliberately does NOT do:
  *
  *  - Count cancelled orders. The reminder cron auto-cancels unpaid orders after
  *    ~49 hours, so counting them meant a merchant could burn an entire month's
@@ -19,32 +22,98 @@ import { namibianMonthStartISO } from "@/lib/date";
  *    month where all 8 quota-consuming orders were cancelled.
  *
  *  - Use `new Date()` month boundaries. On Vercel that resolves to midnight UTC
- *    — 02:00 in Namibia — so orders placed in the first two hours of the 1st
- *    were charged to the previous month. See namibianMonthStartISO().
+ *    — 02:00 in Namibia — so orders placed in the first two hours of a cycle
+ *    were charged to the previous one. See namibianBillingPeriod().
+ *
+ *  - Assume a billing date exists. Most merchants are on the free tier and have
+ *    never paid, so current_period_start is null for them; see below.
  */
-export async function getMonthlyOrderCount(
+
+/**
+ * The cycle a merchant's allowance runs on.
+ *
+ * Paid merchants anchor on current_period_start, which the billing endpoint
+ * sets to the moment payment is recorded — so paying or upgrading starts a
+ * fresh allowance immediately. Merchants who have never paid anchor on the day
+ * they signed up, which gives free and trial stores a stable, explainable reset
+ * day instead of no cycle at all.
+ */
+async function resolveBillingPeriod(
   supabase: SupabaseClient,
   merchantId: string
+): Promise<BillingPeriod> {
+  const { data } = await supabase
+    .from("subscriptions")
+    .select("current_period_start, created_at")
+    .eq("merchant_id", merchantId)
+    .maybeSingle();
+
+  const anchor = data?.current_period_start ?? data?.created_at ?? null;
+
+  // No subscription row at all: anchor on the 1st, which reproduces the old
+  // calendar-month behaviour rather than handing out a rolling allowance.
+  return namibianBillingPeriod(new Date(anchor ?? namibianMonthStartISO()));
+}
+
+export interface OrderQuota {
+  /** Orders placed in the current cycle, excluding cancelled ones. */
+  count: number;
+  /** Tier allowance; -1 means unlimited. */
+  limit: number;
+  reached: boolean;
+  /** When the current allowance resets. */
+  resetsAt: string;
+}
+
+async function countOrdersInPeriod(
+  supabase: SupabaseClient,
+  merchantId: string,
+  period: BillingPeriod
 ): Promise<number> {
   const { count } = await supabase
     .from("orders")
     .select("id", { count: "exact", head: true })
     .eq("merchant_id", merchantId)
     .neq("status", "cancelled")
-    .gte("created_at", namibianMonthStartISO());
+    .gte("created_at", period.startISO)
+    .lt("created_at", period.endISO);
 
   return count || 0;
 }
 
-/** True when the merchant has reached their tier's monthly order limit. */
+/** Full quota picture for a merchant, including when the allowance resets. */
+export async function getOrderQuota(
+  supabase: SupabaseClient,
+  merchantId: string,
+  tier: SubscriptionTier
+): Promise<OrderQuota> {
+  const limit = TIER_LIMITS[tier].orders_per_month;
+  const period = await resolveBillingPeriod(supabase, merchantId);
+
+  // Unlimited tiers never need the count, so skip the query entirely.
+  if (limit === -1) {
+    return { count: 0, limit, reached: false, resetsAt: period.endISO };
+  }
+
+  const count = await countOrdersInPeriod(supabase, merchantId, period);
+  return { count, limit, reached: count >= limit, resetsAt: period.endISO };
+}
+
+/** Orders used in the merchant's current billing cycle. */
+export async function getMonthlyOrderCount(
+  supabase: SupabaseClient,
+  merchantId: string
+): Promise<number> {
+  const period = await resolveBillingPeriod(supabase, merchantId);
+  return countOrdersInPeriod(supabase, merchantId, period);
+}
+
+/** True when the merchant has used their whole allowance for this cycle. */
 export async function isOrderLimitReached(
   supabase: SupabaseClient,
   merchantId: string,
   tier: SubscriptionTier
 ): Promise<boolean> {
-  const orderLimit = TIER_LIMITS[tier].orders_per_month;
-  if (orderLimit === -1) return false;
-
-  const count = await getMonthlyOrderCount(supabase, merchantId);
-  return count >= orderLimit;
+  const { reached } = await getOrderQuota(supabase, merchantId, tier);
+  return reached;
 }

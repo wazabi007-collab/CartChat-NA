@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
-import { isOrderLimitReached } from "@/lib/order-limit";
+import { getOrderQuota } from "@/lib/order-limit";
+import { formatNamibianDate } from "@/lib/date";
 import { PreviewBanner } from "@/components/storefront/preview-banner";
 import { readPreviewState } from "@/lib/preview";
 import { CheckoutForm } from "./checkout-form";
@@ -90,15 +91,17 @@ export default async function CheckoutPage({ params }: Props) {
   }
 
   // Shared with the storefront and product pages so the gates can't drift.
-  const orderLimitReached = await isOrderLimitReached(supabase, merchant.id, tier);
+  const quota = await getOrderQuota(supabase, merchant.id, tier);
 
-  if (orderLimitReached) {
+  if (quota.reached) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="bg-white rounded-lg border p-8 max-w-sm text-center">
           <p className="text-lg font-bold text-gray-900">Store Temporarily Unavailable</p>
           <p className="text-sm text-gray-500 mt-2">
-            This store has reached its monthly order limit. Please try again next month or contact the merchant directly.
+            This store has reached its monthly order limit. It can accept new
+            orders again from {formatNamibianDate(quota.resetsAt)}, or you can
+            contact the merchant directly.
           </p>
           <Link
             href={`/s/${slug}`}

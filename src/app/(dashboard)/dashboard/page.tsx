@@ -24,7 +24,8 @@ import { ShareStoreCard } from "@/components/dashboard/share-store-card";
 import { DashboardCommandPanel } from "@/components/dashboard/dashboard-command-panel";
 import { QuotaRow } from "@/components/dashboard/quota-row";
 import { alertError, alertWarning, alertInfo, alertIcon } from "@/lib/ui";
-import { getMonthlyOrderCount } from "@/lib/order-limit";
+import { getOrderQuota } from "@/lib/order-limit";
+import { formatNamibianDate } from "@/lib/date";
 
 export default async function DashboardPage({
   searchParams,
@@ -111,9 +112,9 @@ export default async function DashboardPage({
   const tierLimits = TIER_LIMITS[tier];
   const monthlyOrderLimit = tierLimits.orders_per_month;
 
-  // Shared helper — excludes cancelled orders and uses the Namibian month boundary.
-  const monthlyOrderCount =
-    monthlyOrderLimit === -1 ? 0 : await getMonthlyOrderCount(supabase, merchant.id);
+  // Shared helper — excludes cancelled orders and runs on the billing cycle.
+  const orderQuota = await getOrderQuota(supabase, merchant.id, tier);
+  const monthlyOrderCount = orderQuota.count;
 
   const productCount = productsResult.count || 0;
   const completedOrders = ordersResult.count || 0;
@@ -312,7 +313,12 @@ export default async function DashboardPage({
             <div className="mt-4 space-y-4">
               <QuotaRow label={labels.itemPlural} used={productCount} limit={tierLimits.products} />
               {monthlyOrderLimit !== -1 && (
-                <QuotaRow label="Orders this month" used={monthlyOrderCount} limit={monthlyOrderLimit} />
+                <>
+                  <QuotaRow label="Orders this cycle" used={monthlyOrderCount} limit={monthlyOrderLimit} />
+                  <p className="text-xs font-semibold text-slate-400">
+                    Resets {formatNamibianDate(orderQuota.resetsAt)}
+                  </p>
+                </>
               )}
             </div>
           </section>

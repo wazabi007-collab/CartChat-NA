@@ -65,6 +65,13 @@ export const metadata: Metadata = {
     title: "OshiCart",
     statusBarStyle: "default",
   },
+  // Next emits the modern `mobile-web-app-capable`. iOS only honours the
+  // manifest's display mode from 16.4 onward, and second-hand iPhones running
+  // older versions are common here, so the legacy tag is set explicitly.
+  // Inherited by every route, including storefronts.
+  other: {
+    "apple-mobile-web-app-capable": "yes",
+  },
   openGraph: {
     title: "OshiCart - Your Namibian Business, Online in Minutes",
     description: "Create a clean online store for shops, local vendors, food sellers, services, and WhatsApp businesses. Zero commission. Built for Namibia.",

@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { getOrderPayableTotal, VAT_RATE_LABEL } from "@/lib/vat";
 import { ReorderButton } from "@/components/storefront/reorder-button";
+import { ReviewForm } from "@/components/storefront/review-form";
 
 interface StatusEntry {
   status: string;
@@ -448,6 +449,16 @@ export function TrackerClient({
             )}
           </div>
         </div>
+
+        {/* Review prompt — only once the order is actually complete. The form
+            hides itself if this order has already been reviewed. */}
+        {order.status === "completed" && (
+          <ReviewForm
+            orderId={order.id}
+            trackingToken={token}
+            storeName={merchant.store_name}
+          />
+        )}
       </div>
 
       {/* Sticky Action Bar */}

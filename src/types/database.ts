@@ -440,6 +440,12 @@ export interface Database {
           resolved_at?: string | null;
         };
       };
+      reviews: {
+        Row: { id: string; merchant_id: string; order_id: string; customer_name: string | null; rating: number; comment: string | null; merchant_reply: string | null; merchant_replied_at: string | null; is_published: boolean; created_at: string };
+        Insert: { id?: string; merchant_id: string; order_id: string; customer_name?: string | null; rating: number; comment?: string | null; merchant_reply?: string | null; merchant_replied_at?: string | null; is_published?: boolean; created_at?: string };
+        Update: { id?: string; merchant_id?: string; order_id?: string; customer_name?: string | null; rating?: number; comment?: string | null; merchant_reply?: string | null; merchant_replied_at?: string | null; is_published?: boolean; created_at?: string };
+        Relationships: [];
+      };
       broadcast_templates: {
         Row: { id: string; merchant_id: string | null; name: string; body: string; created_at: string; updated_at: string };
         Insert: { id?: string; merchant_id?: string | null; name: string; body: string; created_at?: string; updated_at?: string };

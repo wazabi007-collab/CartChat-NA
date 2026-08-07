@@ -19,6 +19,7 @@ import {
   HelpCircle,
   Users,
   Megaphone,
+  Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
@@ -41,6 +42,7 @@ const baseNavItems = [
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart, requireFeature: null },
   { href: "/dashboard/customers", label: "Customers", icon: Users, requireFeature: null },
   { href: "/dashboard/broadcast", label: "Broadcast", icon: Megaphone, requireFeature: null },
+  { href: "/dashboard/reviews", label: "Reviews", icon: Star, requireFeature: null },
   { href: "/dashboard/coupons", label: "Coupons", icon: Ticket, requireFeature: "coupons" as const },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, requireFeature: null },
   { href: "/dashboard/account", label: "Account", icon: User, requireFeature: null },

@@ -16,6 +16,7 @@ import { OrderTracker } from "@/components/storefront/order-tracker";
 import { StoreCover } from "@/components/storefront/store-cover";
 import { StoreHeaderCard } from "@/components/storefront/store-header-card";
 import { StorePaymentStrip } from "@/components/storefront/store-payment-strip";
+import { StoreReviews, type StoreReview } from "@/components/storefront/store-reviews";
 import { StoreCategoryGrid } from "@/components/storefront/store-category-grid";
 import { JsonLd } from "@/components/json-ld";
 import { PreviewBanner } from "@/components/storefront/preview-banner";
@@ -100,6 +101,23 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   const { data: merchant } = await merchantQuery.single();
 
   if (!merchant) notFound();
+
+  // Reviews are verified-purchase only (migration 059), so this is a real
+  // trust signal rather than anything a store can write about itself.
+  const [{ data: ratingRows }, { data: reviewRows }] = await Promise.all([
+    supabase.rpc("get_store_rating", { p_merchant_id: merchant.id }),
+    supabase
+      .from("reviews")
+      .select("id, customer_name, rating, comment, merchant_reply, merchant_replied_at, created_at")
+      .eq("merchant_id", merchant.id)
+      .eq("is_published", true)
+      .order("created_at", { ascending: false })
+      .limit(10),
+  ]);
+  const ratingRow = Array.isArray(ratingRows) ? ratingRows[0] : ratingRows;
+  const reviewAverage = ratingRow?.average != null ? Number(ratingRow.average) : null;
+  const reviewTotal = ratingRow?.total != null ? Number(ratingRow.total) : 0;
+  const reviews = (reviewRows ?? []) as StoreReview[];
 
   const isPreview = previewCookie && !!userId && merchant.user_id === userId;
 
@@ -313,8 +331,8 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
             phone: null,
             whatsappNumber: merchant.whatsapp_number,
             openingHours: null,
-            rating: null,
-            orderCount: null,
+            rating: reviewAverage,
+            orderCount: reviewTotal,
             deliveryEstimate: merchant.delivery_estimate,
             slug: merchant.store_slug,
           }}
@@ -483,6 +501,15 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
         )}
         </>
         )}
+
+        <div className="mt-10">
+          <StoreReviews
+            reviews={reviews}
+            average={reviewAverage}
+            total={reviewTotal}
+            storeName={merchant.store_name}
+          />
+        </div>
       </main>
 
       {/* Footer */}

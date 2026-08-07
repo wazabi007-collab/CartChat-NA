@@ -87,12 +87,15 @@ export function StoreHeaderCard({ store, storeUrl, qrUrl }: Props) {
             </a>
           )}
           {store.rating != null && store.orderCount != null && store.orderCount > 0 && (
-            <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-slate-600">
-              <Star size={13} className="text-acacia" fill="currentColor" />
-              <b className="text-acacia">{store.rating.toFixed(1)}</b>
-              <span>-</span>
-              {store.orderCount} order{store.orderCount === 1 ? "" : "s"}
-            </span>
+            <a
+              href="#reviews"
+              className="inline-flex items-center gap-1.5 rounded-full border border-amber-100 bg-amber-50 px-3 py-1 text-xs text-slate-600 transition hover:bg-amber-100"
+            >
+              <Star size={13} className="text-amber-500" fill="currentColor" />
+              <b className="text-slate-900">{store.rating.toFixed(1)}</b>
+              <span className="text-slate-400">·</span>
+              {store.orderCount} review{store.orderCount === 1 ? "" : "s"}
+            </a>
           )}
           {store.deliveryEstimate && (
             <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full bg-slate-50 border border-slate-200 text-slate-600">

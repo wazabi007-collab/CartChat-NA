@@ -1,0 +1,18 @@
+-- Migration 059: Store reviews (verified purchase only)
+-- (applied to production as 059_reviews)
+--
+-- Reviews are only worth anything if they can't be manufactured. Buyers are
+-- anonymous, so instead of accounts a review is tied to a real ORDER:
+--   * UNIQUE(order_id) — one review per order, no review bombing;
+--   * writing one requires the order's tracking_token, which only the buyer
+--     receives, so a merchant cannot review their own store and a competitor
+--     cannot review a store they never bought from;
+--   * the order must be `completed` (enforced in /api/reviews).
+--
+-- Merchants may REPLY but never edit or delete a review — a store that can
+-- delete bad reviews has ratings no shopper should trust. This is enforced by
+-- column grants (UPDATE only on merchant_reply/merchant_replied_at), not just
+-- the UI. Removing abusive content is an admin action via is_published.
+--
+-- Also adds get_store_rating(uuid) returning (average, total) over published
+-- reviews, used by the storefront header chip and the reviews section.

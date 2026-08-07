@@ -1,97 +1,88 @@
 # OshiCart PWA Install — Design
 
 **Date:** 2026-08-07
-**Status:** Approved
+**Status:** Shipped (revised twice on the day — see Revision history)
 
 ## Goal
 
-Let merchants install the OshiCart dashboard as an app, and let shoppers install
-an individual storefront as **that merchant's own** branded app — so a customer
-ends up with "Sunrise Crumbs Bakery" on their home screen, not "OshiCart".
+Two installable apps on one origin:
 
-Ship an install guide covering iOS and Android, surface it in the merchant
-dashboard, and advertise it on the marketing site.
+- **Shoppers** install **OshiCart**, which opens the store directory so they can
+  browse and buy from every shop without being locked into one.
+- **Merchants** install **OshiCart Dashboard**, which opens their orders.
 
-## Current state
+Both carry the OshiCart icon. Ship an install guide covering iOS and Android,
+surface it in the merchant dashboard, and advertise it on the marketing site.
 
-OshiCart is **not** a PWA today:
+## Current state before this work
 
-- `/manifest.webmanifest` and `/manifest.json` both return 404
-- no service worker
-- no `apple-mobile-web-app` or `theme-color` tags
-
-Icons already exist and are declared in `src/app/layout.tsx`: `icon-32.png`,
-`icon-192.png`, `icon-512.png`, and a 180x180 `apple-icon.png`. So "Add to Home
-Screen" on iOS already picks up a correct icon — but with no manifest the site
-opens inside Safari chrome, i.e. it behaves as a bookmark, not an app.
+OshiCart was **not** a PWA: `/manifest.webmanifest` 404'd, there was no service
+worker, and no `apple-mobile-web-app` or `theme-color` tags. Icons existed and
+were declared in `src/app/layout.tsx` (`icon-32`, `icon-192`, `icon-512`, and a
+180x180 `apple-icon.png`), so iOS "Add to Home Screen" already picked up a
+correct icon — but with no manifest the site opened inside Safari chrome. It
+behaved as a bookmark, not an app.
 
 ## Decisions
 
 | Decision | Choice | Why |
 |---|---|---|
-| Who can install | Both merchants and shoppers | Per-store apps are the differentiator; the merchant app is nearly free once the plumbing exists |
-| Store app identity | Merchant's store name + logo | An icon called "OshiCart" on a customer's phone buries the merchant's brand |
-| Shopper prompt | Subtle, dismissible, once | Install rate without hurting merchants' conversion |
-| Desktop | Never prompt | Explicit user requirement — this is a phone product |
+| Who can install | Shoppers and merchants, as two separate apps | Different start points and different jobs |
+| Shopper app opens | `/stores` (the directory) | A shopper must not be locked into the one shop they happened to install from |
+| Shopper app scope | `/` (whole site) | A narrower scope would eject shoppers to the browser the moment they opened a store |
+| Icons | The OshiCart icon everywhere | Product decision — see Revision history |
+| Shopper prompt | Subtle, dismissible, once, per app | Install rate without hurting merchants' conversion |
+| Desktop | Never prompt | Explicit requirement — this is a phone product |
 | Offline | Shell only, never commerce data | A cached price or stock level risks orders merchants cannot honour |
 | Onboarding placement | Store readiness checklist | The setup wizard gates going live; installing an app must not block that |
 
 ### Rejected alternatives
 
-- **Single site-wide manifest.** Simplest, but every customer gets an icon named
-  "OshiCart". Defeats the purpose.
+- **One installable app per store.** Built and shipped, then withdrawn. It put
+  the merchant's name and logo on the home screen, but locked the shopper into a
+  single shop.
 - **Native app via Capacitor.** Gains store listings, costs app-store review,
-  signing, and a release process. Not warranted yet.
+  signing, and a release process. Not warranted.
 
 ## Architecture
 
-### 1. Merchant app (root manifest)
+### 1. Shopper app
 
-`src/app/manifest.ts` using Next's manifest convention:
+`src/app/manifest.ts`, served by Next at `/manifest.webmanifest` and linked
+automatically from every route that does not override it:
 
-- `name: "OshiCart"`, `short_name: "OshiCart"`
-- `start_url: "/dashboard"`, `scope: "/"`, `display: "standalone"`
-- icons: existing `icon-192.png` and `icon-512.png`, both `purpose: "any"`
-- `theme_color` / `background_color` from the existing brand palette
+- `id: "/stores"`, `name: "OshiCart"`, `short_name: "OshiCart"`
+- `start_url: "/stores"`, `scope: "/"`, `display: "standalone"`
+- icons: `icon-192.png`, `icon-512.png` (`any` and `maskable`)
+- `theme_color: "#159947"`, `background_color: "#f8fafc"`
 
-`appleWebApp` metadata added to the root layout so iOS opens it chrome-free.
+### 2. Merchant app
 
-### 2. Per-store apps
+`src/app/merchant-app.webmanifest/route.ts`, linked by a `metadata` export in
+`src/app/(dashboard)/layout.tsx`, which overrides the root manifest across every
+dashboard route.
 
-**Manifest:** route handler at
-`src/app/s/[slug]/manifest.webmanifest/route.ts` returning
-`application/manifest+json` with:
+- `id: "/dashboard"`, `name` and `short_name`: `"OshiCart Dashboard"`
+- `start_url: "/dashboard"`, `scope: "/"`
 
-- `name` / `short_name`: the merchant's store name
-- `start_url` and `scope`: `/s/[slug]`
-- `display: "standalone"`
-- icons pointing at the generated icon routes below
+**It must not live under `/dashboard`.** The auth middleware redirects anything
+matching `startsWith("/dashboard")` to `/login`, and browsers fetch manifests
+*without credentials*. A manifest served from `/dashboard/manifest.webmanifest`
+therefore resolved to a login page and merchants got no install prompt at all.
+This was caught in testing. The manifest holds no secrets, so serving it from a
+public path is safe.
 
-Returns 404 for slugs that are missing, inactive, or not `store_status=active`,
-matching the storefront's own visibility rules.
-
-**Icons — the trap.** Chrome refuses to install without both a 192px and a 512px
-icon. Merchant logos are arbitrary sizes on Supabase storage, so linking them
-directly would make install silently fail for most stores. Icons are therefore
-generated on demand:
-
-- `src/app/s/[slug]/icon-192.png/route.tsx`
-- `src/app/s/[slug]/icon-512.png/route.tsx`
-
-Both use `ImageResponse` from `next/og` (already a Next dependency), drawing the
-merchant logo when present and falling back to a branded tile with the store's
-initial when absent. Cached with a long `Cache-Control` since logos change rarely.
-
-**Linking:** the storefront's `generateMetadata` sets `manifest` to the per-store
-URL and fills in `appleWebApp.title` with the store name.
+It is a route handler because Next's manifest file convention only applies at the
+app root, which the shopper app occupies.
 
 ### 3. Service worker
 
-A single `public/sw.js` at root scope, covering both `/dashboard` and `/s/*`.
+A single `public/sw.js` at root scope, covering `/dashboard` and `/s/*` alike.
 
-Network-first with a **shell-only** cache: CSS, fonts, logo, and the offline
-fallback page. Product, price, stock, cart, and checkout responses are never
-cached. Registered from a small client component mounted in the root layout.
+Network-first with a **shell-only** cache: CSS, JS, fonts, and images. Product,
+price, stock, cart, and checkout responses are never cached. Registered from
+`src/components/pwa/service-worker-register.tsx`, mounted in the root layout;
+registration failure is swallowed because the site works identically without it.
 
 Included deliberately even though current Chrome may not strictly require one for
 installability — it is cheap and removes any dependence on which version's
@@ -99,70 +90,71 @@ criteria apply.
 
 ### 4. Install bar
 
-Client component rendered on storefronts.
+`src/components/pwa/install-bar.tsx`, rendered on `/stores` and on storefronts.
 
-- **Gate 1 — mobile only.** `navigator.userAgentData.mobile` when available
-  (Chromium, which is exactly where the install event fires), falling back to
-  `matchMedia("(pointer: coarse)")` plus touch support for iOS Safari. iPad
-  counts as mobile.
-- **Gate 2 — not already installed.** Hidden when
-  `matchMedia("(display-mode: standalone)")` matches, or on iOS when
-  `navigator.standalone` is true.
-- **Gate 3 — not dismissed.** A `localStorage` key, per store slug.
+Three gates, all of which must pass:
+
+1. **Mobile only.** `navigator.userAgentData.mobile` where available (Chromium,
+   which is exactly where the install event fires), falling back to
+   `matchMedia("(pointer: coarse)")` plus touch support for iOS Safari. Checked
+   in that order because a Windows touchscreen laptop is otherwise
+   indistinguishable from a tablet. iPad counts as mobile.
+2. **Not already installed** — `display-mode: standalone`, or `navigator.standalone` on iOS.
+3. **Not dismissed** — a `localStorage` key per app scope, so declining the
+   dashboard app does not also decline the shopper app.
 
 On Android it captures `beforeinstallprompt`, calls `preventDefault()` to
-suppress Chrome's own mini-infobar, and shows an **Install** button that calls
-`prompt()`. On iOS, where no such event exists, it shows the Share → *Add to
-Home Screen* instructions instead.
+suppress Chrome's own mini-infobar, and shows an **Install** button. On iOS,
+where no such event exists, it shows Share → *Add to Home Screen* instead.
 
 **Known limitation:** `preventDefault()` suppresses the automatic infobar, but
 Chrome's desktop address-bar install icon still appears for any valid manifest.
-We can guarantee OshiCart never prompts on desktop; we cannot remove the
-browser's own affordance.
+OshiCart never prompts on desktop; the browser's own affordance cannot be removed.
 
 ### 5. Guide, onboarding, marketing
 
-- **`/app` page** — iOS and Android steps side by side, with a note that the
-  steps differ by browser. Linked from the footer and `/help`.
-- **Dashboard** — a "Get the app" row alongside the existing **Store readiness**
-  checklist in `dashboard-command-panel.tsx`, linking to `/app`. Not a
-  setup-wizard step, because the wizard gates going live.
-
-  Its state is resolved **client-side**, not server-side: whether a merchant has
-  installed the app is not knowable from the database, so the row must not be
-  driven by server props. It renders "Installed" when
-  `display-mode: standalone` matches and "Get the app" otherwise. The existing
-  four readiness rows keep their server-computed state and their
-  `setupScore` denominator is unchanged, so this row is presentational and never
-  reports a completion the platform cannot verify.
-- **Homepage** — a short section: *your customers get your shop as an app on
-  their home screen*.
+- **`/app`** — iOS and Android steps side by side, plus separate shopper and
+  merchant sections. Linked from the footer and `/help`.
+- **Dashboard** — a "Get the app" row beside the **Store readiness** checklist in
+  `dashboard-command-panel.tsx`. Its state is resolved **client-side**: whether a
+  merchant installed the app is not knowable from the database, so it must not be
+  driven by server props or it would show a completion the platform cannot
+  verify. It is presentational and does not affect `setupScore`.
+- **Homepage** — a fifth card in `how-it-works.tsx`.
 
 ## Error handling
 
 | Case | Behaviour |
 |---|---|
-| Merchant has no logo | Icon route renders a branded initial tile |
-| Logo fails to fetch | Same fallback; icon route must never 500 |
-| Unknown / inactive store slug | Manifest and icon routes return 404 |
 | `beforeinstallprompt` never fires | Bar stays hidden on Android; no empty shell |
 | Service worker registration fails | Silently ignored; the site works normally |
 | Desktop visitor | No bar, no prompt |
+| Merchant not logged in | Manifest still served — it is outside the auth path |
 
 ## Verification
 
-- Manifest route returns 200 with `application/manifest+json`; icon routes return
-  200 PNGs at exactly 192x192 and 512x512, including for a merchant with no logo
-- Inactive slug returns 404 for manifest and icons
-- Chrome DevTools **Application → Manifest** reports a real storefront as
-  installable
-- Install bar visible at 375px, hidden at desktop width, hidden in standalone
-- iOS wording checked against Safari's actual menu labels
+- `scripts/check-pwa-helpers.ts` — device rules and per-scope dismissal keys
+- Both manifests return 200 `application/manifest+json`; the merchant one
+  **while unauthenticated**
+- Every public page links exactly one manifest, the shopper one
+- Install bar visible at 375px, hidden at desktop width, hidden in standalone,
+  and does not reappear after dismissal
 - Existing storefront and checkout routes still return 200
+
+## Revision history
+
+1. **Original.** One installable app per store, each with the merchant's own name
+   and a per-store icon generated from their logo via `ImageResponse`.
+2. **Icon revision.** All apps use the OshiCart icon. The generated-icon route
+   (`src/app/s/[slug]/app-icon/[size]/route.tsx`) was removed. It had normalised
+   logos through `sharp` because `ImageResponse` silently returns a blank PNG for
+   WebP sources — worth remembering if per-store artwork is ever revisited.
+3. **Single shopper app.** Per-store manifests removed entirely. Shoppers install
+   one OshiCart app that opens the directory, because per-store apps locked them
+   into a single shop.
 
 ## Out of scope
 
 - Push notifications
 - Offline browsing of products
 - App store (Play / App Store) distribution
-- Installing individual stores from the `/stores` browse page

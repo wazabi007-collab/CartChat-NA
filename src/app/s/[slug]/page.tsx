@@ -58,15 +58,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: `${SITE_URL}/s/${slug}` },
-    // Each store is its own installable app, so this overrides the site-wide
-    // manifest — otherwise a customer's home screen would say "OshiCart"
-    // instead of the merchant's shop name.
-    manifest: `/s/${slug}/manifest.webmanifest`,
-    appleWebApp: {
-      capable: true,
-      title: merchant.store_name,
-      statusBarStyle: "default",
-    },
     openGraph: {
       title: `${merchant.store_name}${locationSuffix}`,
       description,
@@ -384,7 +375,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
         className="max-w-4xl mx-auto px-4 py-7 md:py-8"
         style={theme ? { backgroundColor: theme.bgTint } : undefined}
       >
-        <InstallBar storeName={merchant.store_name} scope={slug} />
+        <InstallBar />
 
         {activeTab === "orders" ? (
           <div className="max-w-lg mx-auto py-4">

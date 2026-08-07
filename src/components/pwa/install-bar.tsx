@@ -11,19 +11,27 @@ interface InstallPromptEvent extends Event {
 }
 
 interface Props {
-  storeName: string;
-  /** Store slug — dismissal is remembered per store. */
-  scope: string;
+  /**
+   * Which app is being offered. Dismissal is remembered per scope, so a
+   * merchant declining the dashboard app is not also declining the shopper one.
+   */
+  scope?: string;
+  title?: string;
+  subtitle?: string;
 }
 
 /**
- * Offers to add this shop to the visitor's home screen.
+ * Offers to add OshiCart to the visitor's home screen.
  *
  * Three gates, all of which must pass: the device is a phone or tablet, the app
  * is not already installed, and the visitor has not dismissed it before. PCs
  * never see this — installing on a desktop is explicitly not wanted.
  */
-export function InstallBar({ storeName, scope }: Props) {
+export function InstallBar({
+  scope = "shopper",
+  title = "Add OshiCart to your home screen",
+  subtitle = "Browse every shop like an app, straight from your phone.",
+}: Props) {
   const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);
   const [showIosHint, setShowIosHint] = useState(false);
   const [dismissed, setDismissed] = useState(true);
@@ -93,18 +101,14 @@ export function InstallBar({ storeName, scope }: Props) {
   return (
     <div className="mb-4 flex items-start gap-3 rounded-xl border border-acacia/20 bg-acacia-soft p-3">
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold text-walnut">
-          Add {storeName} to your home screen
-        </p>
+        <p className="text-sm font-bold text-walnut">{title}</p>
         {showIosHint ? (
           <p className="mt-1 flex flex-wrap items-center gap-1 text-xs font-semibold text-walnut-2">
             Tap <Share size={13} className="inline shrink-0" /> Share, then
             <span className="font-black">Add to Home Screen</span>
           </p>
         ) : (
-          <p className="mt-1 text-xs font-semibold text-walnut-2">
-            Open this shop like an app, straight from your phone.
-          </p>
+          <p className="mt-1 text-xs font-semibold text-walnut-2">{subtitle}</p>
         )}
       </div>
 

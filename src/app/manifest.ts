@@ -1,18 +1,24 @@
 import type { MetadataRoute } from "next";
 
 /**
- * The merchant-facing app. Shoppers get a per-store manifest instead
- * (src/app/s/[slug]/manifest.webmanifest), so their home screen shows the
- * merchant's shop rather than "OshiCart".
+ * The shopper app.
+ *
+ * Opens the store directory rather than any single shop: someone who installs
+ * OshiCart from one storefront should still be able to browse and buy from
+ * every other store without leaving the app. `scope` is the whole site for the
+ * same reason — a narrower scope would kick shoppers out to the browser the
+ * moment they opened a store.
+ *
+ * Merchants get a separate app from /dashboard/manifest.webmanifest.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    id: "/dashboard",
-    name: "OshiCart — manage your store",
+    id: "/stores",
+    name: "OshiCart",
     short_name: "OshiCart",
     description:
-      "Manage your OshiCart store, orders, and products from your phone.",
-    start_url: "/dashboard",
+      "Browse Namibian shops, order on WhatsApp, and pay locally.",
+    start_url: "/stores",
     scope: "/",
     display: "standalone",
     orientation: "portrait",

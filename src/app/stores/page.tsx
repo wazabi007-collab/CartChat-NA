@@ -7,6 +7,7 @@ import { SITE_NAME, SITE_URL, NAMIBIA_REGIONS, REGION_LABELS } from "@/lib/const
 import { fetchStoreListData, CATEGORY_ORDER } from "@/lib/storefront/store-list";
 import { PublicNavbar } from "@/components/public-navbar";
 import { StoreListCard } from "@/components/storefront/store-list-card";
+import { InstallBar } from "@/components/pwa/install-bar";
 
 interface Props {
   searchParams: Promise<{ q?: string; category?: string; region?: string }>;
@@ -46,6 +47,9 @@ export default async function StoresPage({ searchParams }: Props) {
       <PublicNavbar />
 
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        {/* This is the installed app's home screen, so offer it here too. */}
+        <InstallBar />
+
         {/* Page Title & Search */}
         <div className="mx-auto mb-8 max-w-3xl text-center">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-acacia-soft px-3 py-1 text-xs font-black uppercase tracking-wide text-acacia">

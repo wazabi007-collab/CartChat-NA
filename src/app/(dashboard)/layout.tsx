@@ -4,6 +4,20 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { DashboardNav } from "@/components/dashboard/nav";
 import { BottomNav } from "@/components/dashboard/bottom-nav";
 import { PolicyAcceptanceGate } from "@/components/dashboard/policy-acceptance-gate";
+import type { Metadata } from "next";
+
+// Merchants install a different app from shoppers: this overrides the root
+// (shopper) manifest across every dashboard route.
+export const metadata: Metadata = {
+  // Not under /dashboard: the auth middleware would redirect the manifest
+  // fetch to /login, leaving merchants with no install prompt.
+  manifest: "/merchant-app.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "OshiCart Dashboard",
+    statusBarStyle: "default",
+  },
+};
 
 export default async function DashboardLayout({
   children,

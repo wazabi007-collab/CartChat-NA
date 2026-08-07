@@ -63,11 +63,11 @@ export default function AppInstallPage() {
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <div className="rounded-xl border border-border-warm bg-sand p-5">
-            <h2 className="font-black text-walnut">Shoppers: install a shop</h2>
+            <h2 className="font-black text-walnut">Shoppers: install OshiCart</h2>
             <p className="mt-2 text-sm leading-6 text-walnut-2">
-              Follow the steps above on any store link. The icon on your home
-              screen carries that shop&apos;s own name and logo — not
-              OshiCart&apos;s.
+              One app for every shop. It opens on the store directory, so you
+              can browse all the stores and order from any of them without
+              being stuck in a single shop.
             </p>
             <Link
               href="/stores"
@@ -82,8 +82,9 @@ export default function AppInstallPage() {
               Merchants: install your dashboard
             </h2>
             <p className="mt-2 text-sm leading-6 text-walnut-2">
-              Follow the same steps on your dashboard to manage orders, stock,
-              and customers from your home screen.
+              Follow the same steps while on your dashboard and it installs as
+              <strong> OshiCart Dashboard</strong> — a separate app from the
+              shopper one, opening straight on your orders.
             </p>
             <Link
               href="/dashboard"

@@ -37,22 +37,3 @@ export function installDismissKey(scope: string): string {
   return `oshicart:install-dismissed:${scope}`;
 }
 
-/** Home screens show about 12 characters before they truncate. */
-const SHORT_NAME_LIMIT = 12;
-
-/**
- * The label that sits under the icon on a home screen.
- *
- * Cutting at exactly 12 characters leaves things like "Octovia Nexu", which
- * reads as broken rather than abbreviated. Falling back to the last whole word
- * gives "Octovia". A single word longer than the limit is still cut, since
- * there is no better break available.
- */
-export function storeShortName(storeName: string): string {
-  const name = storeName.trim();
-  if (name.length <= SHORT_NAME_LIMIT) return name;
-
-  const cut = name.slice(0, SHORT_NAME_LIMIT);
-  const lastSpace = cut.lastIndexOf(" ");
-  return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trim();
-}

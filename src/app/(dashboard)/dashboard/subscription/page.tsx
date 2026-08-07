@@ -15,6 +15,7 @@ import {
 import { PUBLIC_PLANS } from "@/lib/plans";
 import { QuotaRow } from "@/components/dashboard/quota-row";
 import { SubscriptionActions } from "./subscription-actions";
+import { getMonthlyOrderCount } from "@/lib/order-limit";
 
 const TIER_RANK: Record<SubscriptionTier, number> = {
   oshi_start: 0,
@@ -69,18 +70,9 @@ export default async function SubscriptionPage() {
     .select("id", { count: "exact", head: true })
     .eq("merchant_id", merchant.id);
 
-  let monthlyOrderCount = 0;
-  if (limits.orders_per_month !== -1) {
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    const { count } = await service
-      .from("orders")
-      .select("id", { count: "exact", head: true })
-      .eq("merchant_id", merchant.id)
-      .gte("created_at", startOfMonth.toISOString());
-    monthlyOrderCount = count || 0;
-  }
+  // Shared helper — excludes cancelled orders and uses the Namibian month boundary.
+  const monthlyOrderCount =
+    limits.orders_per_month === -1 ? 0 : await getMonthlyOrderCount(service, merchant.id);
 
   const { data: payments } = await service
     .from("payments")

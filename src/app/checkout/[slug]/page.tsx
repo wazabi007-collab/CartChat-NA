@@ -4,7 +4,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
-import { TIER_LIMITS, showBranding, type SubscriptionTier } from "@/lib/tier-limits";
+import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
+import { isOrderLimitReached } from "@/lib/order-limit";
 import { PreviewBanner } from "@/components/storefront/preview-banner";
 import { readPreviewState } from "@/lib/preview";
 import { CheckoutForm } from "./checkout-form";
@@ -88,23 +89,8 @@ export default async function CheckoutPage({ params }: Props) {
     );
   }
 
-  // Check order limit for tier
-  const orderLimit = TIER_LIMITS[tier].orders_per_month;
-  let orderLimitReached = false;
-
-  if (orderLimit !== -1) {
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-
-    const { count } = await supabase
-      .from("orders")
-      .select("id", { count: "exact", head: true })
-      .eq("merchant_id", merchant.id)
-      .gte("created_at", startOfMonth.toISOString());
-
-    orderLimitReached = (count || 0) >= orderLimit;
-  }
+  // Shared with the storefront and product pages so the gates can't drift.
+  const orderLimitReached = await isOrderLimitReached(supabase, merchant.id, tier);
 
   if (orderLimitReached) {
     return (

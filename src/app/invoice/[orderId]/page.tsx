@@ -3,6 +3,7 @@ import Image from "next/image";
 import { createServiceClient } from "@/lib/supabase/service";
 import { formatPrice } from "@/lib/utils";
 import { calculateVatBreakdown, VAT_RATE_BPS, VAT_RATE_LABEL } from "@/lib/vat";
+import { formatNamibianDate } from "@/lib/date";
 import { SITE_NAME, SITE_URL, getPaymentMethodLabel, getEwalletProviderLabel } from "@/lib/constants";
 import { PrintButton } from "./print-button";
 import type { Metadata } from "next";
@@ -37,7 +38,7 @@ export default async function InvoicePage({ params }: Props) {
       subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_rate_bps, vat_inclusive, vat_number,
       payment_method, status, notes, created_at,
       merchants (
-        store_name, whatsapp_number, logo_url, vat_number, vat_inclusive,
+        store_name, whatsapp_number, logo_url, vat_number, vat_inclusive, town, region,
         bank_name, bank_account_number, bank_account_holder, bank_branch_code,
         momo_number, ewallet_number, ewallet_provider, pay2cell_number, paytoday_number
       ),
@@ -54,6 +55,8 @@ export default async function InvoicePage({ params }: Props) {
     logo_url: string | null;
     vat_number: string | null;
     vat_inclusive: boolean;
+    town: string | null;
+    region: string | null;
     bank_name: string | null;
     bank_account_number: string | null;
     bank_account_holder: string | null;
@@ -75,53 +78,53 @@ export default async function InvoicePage({ params }: Props) {
     .eq("order_id", orderId)
     .order("created_at");
 
-  const d = new Date(order.created_at);
-  const orderDate = `${d.getUTCDate()} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  // Namibian local date. This previously used getUTCDate/getUTCMonth, so an
+  // order placed between midnight and 02:00 local printed the PREVIOUS day —
+  // on a document customers and accountants treat as the date of supply.
+  const orderDate = formatNamibianDate(order.created_at, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   const subtotalAfterDiscount = order.subtotal_nad - (order.discount_nad ?? 0);
   const preVatTotal = subtotalAfterDiscount + (order.delivery_fee_nad ?? 0);
 
-  // VAT calculation (Namibia 15%)
-  const hasVat = !!merchant?.vat_number;
-  let vatAmount = 0;
-  let totalExclVat = preVatTotal;
-  let total = preVatTotal;
-
-  if (hasVat && merchant) {
-    if (merchant.vat_inclusive) {
-      // Prices include VAT — extract it: VAT = total - (total / 1.15)
-      vatAmount = Math.round(preVatTotal - (preVatTotal / 1.15));
-      totalExclVat = preVatTotal - vatAmount;
-      total = preVatTotal; // customer pays listed price
-    } else {
-      // Prices exclude VAT — add it: VAT = total * 0.15
-      vatAmount = Math.round(preVatTotal * 0.15);
-      totalExclVat = preVatTotal;
-      total = preVatTotal + vatAmount;
-    }
-  }
-
-  const hasVatSnapshot = Boolean(order.vat_number) || (order.vat_rate_bps || 0) > 0 || (order.vat_nad || 0) > 0;
+  // VAT — one calculation, not two. This file previously computed vatAmount,
+  // totalExclVat and total once from the merchant's live settings and then
+  // immediately recomputed all three from the order's snapshot, leaving the
+  // first block dead. Two competing sums of the same money on an invoice is
+  // where a rounding discrepancy eventually surfaces.
+  //
+  // An order snapshots its VAT position when placed; orders predating that
+  // fall back to the merchant's current settings.
+  const hasVatSnapshot =
+    Boolean(order.vat_number) || (order.vat_rate_bps || 0) > 0 || (order.vat_nad || 0) > 0;
   const invoiceVatNumber = hasVatSnapshot ? order.vat_number : merchant.vat_number;
   const invoiceVatInclusive = hasVatSnapshot ? order.vat_inclusive : merchant.vat_inclusive;
+
   const calculatedVat = calculateVatBreakdown({
     amountNad: preVatTotal,
     vatNumber: invoiceVatNumber,
     vatInclusive: invoiceVatInclusive,
     vatRateBps: hasVatSnapshot ? order.vat_rate_bps : VAT_RATE_BPS,
   });
-  const displayHasVat = calculatedVat.hasVat;
-  if (displayHasVat) {
-    vatAmount = hasVatSnapshot ? (order.vat_nad || 0) : calculatedVat.vatAmount;
-    totalExclVat = invoiceVatInclusive ? preVatTotal - vatAmount : preVatTotal;
-    total = preVatTotal + (!invoiceVatInclusive ? vatAmount : 0);
-  }
 
-  const statusConfig: Record<string, { label: string; bg: string; text: string; dot: string }> = {
-    pending: { label: "Awaiting Payment", bg: "bg-amber-50", text: "text-amber-700", dot: "bg-amber-400" },
-    confirmed: { label: "Confirmed", bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-400" },
-    completed: { label: "Paid", bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-400" },
-    cancelled: { label: "Cancelled", bg: "bg-red-50", text: "text-red-700", dot: "bg-red-400" },
+  const hasVat = calculatedVat.hasVat;
+  const vatAmount = hasVat
+    ? hasVatSnapshot
+      ? order.vat_nad || 0
+      : calculatedVat.vatAmount
+    : 0;
+  const totalExclVat = hasVat && invoiceVatInclusive ? preVatTotal - vatAmount : preVatTotal;
+  const total = hasVat && !invoiceVatInclusive ? preVatTotal + vatAmount : preVatTotal;
+
+  const statusConfig: Record<string, { label: string; className: string }> = {
+    pending: { label: "Awaiting payment", className: "bg-amber-50 text-amber-800" },
+    confirmed: { label: "Confirmed", className: "bg-blue-50 text-blue-800" },
+    ready: { label: "Ready", className: "bg-blue-50 text-blue-800" },
+    completed: { label: "Paid", className: "bg-emerald-50 text-emerald-800" },
+    cancelled: { label: "Cancelled", className: "bg-red-50 text-red-800" },
   };
   const status = statusConfig[order.status] ?? statusConfig.pending;
 
@@ -136,304 +139,313 @@ export default async function InvoicePage({ params }: Props) {
   const paymentDisplayLabel =
     order.payment_method === "cod"
       ? order.delivery_method === "delivery"
-        ? "Cash on Delivery"
-        : "Cash on Collection"
+        ? "Cash on delivery"
+        : "Cash on collection"
       : getPaymentMethodLabel(order.payment_method);
 
+  const paymentReference = order.payment_reference || `Order #${order.order_number}`;
+
+  // A VAT-registered supplier issues a tax invoice; everyone else, an invoice.
+  const documentKind = hasVat ? "Tax Invoice" : "Invoice";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 print:bg-white">
-      <div className="max-w-2xl mx-auto px-4 py-8 print:py-0 print:px-0">
-        {/* Actions bar */}
-        <div className="flex items-center justify-between mb-4 print:hidden">
-          <a href={SITE_URL} className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
-            {SITE_NAME}
-          </a>
-          <PrintButton />
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden print:shadow-none print:border-0 print:rounded-none">
-          {/* Gradient header — screen only */}
-          <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-8 sm:px-8 print:hidden">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                {merchant.logo_url ? (
-                  <Image
-                    src={merchant.logo_url}
-                    alt={merchant.store_name}
-                    width={48}
-                    height={48}
-                    className="rounded-full border-2 border-white/20"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center border-2 border-white/20">
-                    <span className="text-white font-bold text-lg">
-                      {merchant.store_name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                <div>
-                  <h1 className="text-white font-bold text-lg">{merchant.store_name}</h1>
-                  <p className="text-gray-400 text-sm">{merchant.whatsapp_number}</p>
-                  {invoiceVatNumber && (
-                    <p className="text-gray-500 text-xs mt-0.5">VAT: {invoiceVatNumber}</p>
-                  )}
+    <div className="min-h-screen bg-slate-100 px-4 py-8 print:bg-white print:p-0">
+      <div className="mx-auto w-full max-w-[820px]">
+        <article className="rounded border border-slate-200 bg-white p-8 shadow-sm sm:p-12 print:rounded-none print:border-0 print:p-0 print:shadow-none">
+          {/* Masthead */}
+          <header className="flex flex-wrap items-start justify-between gap-6 border-b-2 border-slate-900 pb-6">
+            <div className="flex items-start gap-3.5">
+              {merchant.logo_url ? (
+                <Image
+                  src={merchant.logo_url}
+                  alt=""
+                  width={46}
+                  height={46}
+                  className="h-[46px] w-[46px] shrink-0 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="grid h-[46px] w-[46px] shrink-0 place-items-center rounded-lg bg-acacia text-xl font-black text-white">
+                  {merchant.store_name.charAt(0).toUpperCase()}
                 </div>
-              </div>
-              <div className="text-right">
-                <p className="text-gray-500 text-xs uppercase tracking-widest">Invoice</p>
-                <p className="text-white font-bold text-2xl mt-0.5">#{order.order_number}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Print-only header — flat, no gradients */}
-          <div className="hidden print:block px-6 pt-6 pb-4 border-b-2 border-gray-900">
-            <div className="flex items-start justify-between">
+              )}
               <div>
-                <h1 className="text-xl font-bold text-gray-900">{merchant.store_name}</h1>
-                <p className="text-sm text-gray-600">{merchant.whatsapp_number}</p>
-                {invoiceVatNumber && (
-                  <p className="text-xs text-gray-500 mt-0.5">VAT No: {invoiceVatNumber}</p>
-                )}
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-gray-500 uppercase tracking-widest">Invoice</p>
-                <p className="text-2xl font-bold text-gray-900">#{order.order_number}</p>
-                <p className="text-sm text-gray-600 mt-0.5">{orderDate}</p>
+                <h1 className="text-lg font-bold leading-tight tracking-tight text-slate-950">
+                  {merchant.store_name}
+                </h1>
+                <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                  {merchant.town && <span className="block capitalize">{merchant.town.replace(/_/g, " ")}, Namibia</span>}
+                  <span className="block">{merchant.whatsapp_number}</span>
+                  {invoiceVatNumber && <span className="block">VAT No. {invoiceVatNumber}</span>}
+                </p>
               </div>
             </div>
-          </div>
 
-          {/* Status + date bar — screen only */}
-          <div className="flex items-center justify-between px-6 py-3 sm:px-8 bg-gray-50 border-b border-gray-100 print:hidden">
-            <div className="flex items-center gap-2">
-              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.bg} ${status.text}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${status.dot}`} />
+            <div className="ml-auto text-right">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
+                {documentKind}
+              </p>
+              <p className="mt-0.5 text-3xl font-extrabold tracking-tight tabular-nums text-slate-950">
+                #{order.order_number}
+              </p>
+              <dl className="mt-2.5 grid grid-cols-[auto_auto] justify-end gap-x-3.5 gap-y-0.5 text-sm">
+                <dt className="text-slate-400">Issued</dt>
+                <dd className="tabular-nums text-slate-900">{orderDate}</dd>
+              </dl>
+              <span
+                className={`mt-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${status.className}`}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
                 {status.label}
               </span>
-              {order.payment_reference && (
-                <span className="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                  {order.payment_reference}
-                </span>
-              )}
             </div>
-            <p className="text-xs text-gray-500">{orderDate}</p>
-          </div>
+          </header>
 
-          {/* Print-only status line */}
-          <div className="hidden print:flex items-center justify-between px-6 py-2">
-            <p className="text-sm font-semibold">Status: {status.label}</p>
-            {order.payment_reference && (
-              <p className="text-sm font-mono">Ref: {order.payment_reference}</p>
-            )}
-          </div>
+          {/* Parties */}
+          <section className="grid gap-7 border-b border-slate-200 py-6 sm:grid-cols-2">
+            <div>
+              <p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                Billed to
+              </p>
+              <p className="text-sm leading-relaxed text-slate-500">
+                <strong className="block font-semibold text-slate-900">{order.customer_name}</strong>
+                {order.customer_whatsapp}
+              </p>
+            </div>
 
-          <div className="px-6 py-6 sm:px-8 print:px-6 print:py-4 space-y-6 print:space-y-4">
-            {/* Bill To + Delivery info */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-1.5">Bill To</p>
-                <p className="font-semibold text-gray-900">{order.customer_name}</p>
-                <p className="text-sm text-gray-500">{order.customer_whatsapp}</p>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-1.5">
-                  {order.delivery_method === "delivery" ? "Delivery" : "Collection"}
-                </p>
+            <div>
+              <p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                {order.delivery_method === "delivery" ? "Delivery" : "Collection"}
+              </p>
+              <p className="text-sm leading-relaxed text-slate-500">
                 {order.delivery_method === "delivery" && order.delivery_address && (
                   <>
-                    <p className="text-sm text-gray-700">{order.delivery_address}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {deliveryProviderLabel[order.delivery_provider ?? "store"] ?? "Store delivery"}
-                      {buyerPaidCourier ? " - paid by buyer directly" : ""}
-                    </p>
+                    <strong className="block font-semibold text-slate-900">
+                      {order.delivery_address}
+                    </strong>
+                    {deliveryProviderLabel[order.delivery_provider ?? "store"] ?? "Store delivery"}
+                    {buyerPaidCourier ? " — paid by buyer directly" : ""}
+                    <br />
                   </>
                 )}
                 {order.delivery_date && (
-                  <p className="text-sm text-gray-500">
+                  <>
                     {order.delivery_date}
                     {order.delivery_time ? ` at ${order.delivery_time}` : ""}
-                  </p>
-                )}
-                {order.delivery_method !== "delivery" && !order.delivery_date && (
-                  <p className="text-sm text-gray-500">Pickup from store</p>
-                )}
-              </div>
-            </div>
-
-            {/* Items table */}
-            <div className="border border-gray-100 rounded-xl overflow-hidden print:rounded-none print:border-gray-300">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gray-50 print:bg-white print:border-b print:border-gray-300">
-                    <th className="text-left py-2.5 px-4 text-[10px] uppercase tracking-widest text-gray-500 font-semibold">Item</th>
-                    <th className="text-center py-2.5 px-2 text-[10px] uppercase tracking-widest text-gray-500 font-semibold">Qty</th>
-                    <th className="text-right py-2.5 px-4 text-[10px] uppercase tracking-widest text-gray-500 font-semibold">Price</th>
-                    <th className="text-right py-2.5 px-4 text-[10px] uppercase tracking-widest text-gray-500 font-semibold">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(items ?? []).map((item, i) => (
-                    <tr key={i} className={`${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"} print:bg-white print:border-b print:border-gray-100`}>
-                      <td className="py-3 px-4 text-gray-900 font-medium">
-                        {item.product_name}
-                        {item.variant_attributes && Object.keys(item.variant_attributes as Record<string, string>).length > 0 && (
-                          <div className="mt-1 text-xs font-normal text-gray-500">
-                            {Object.entries(item.variant_attributes as Record<string, string>)
-                              .map(([key, value]) => `${key}: ${value}`)
-                              .join(" | ")}
-                          </div>
-                        )}
-                        {item.variant_sku && (
-                          <div className="mt-0.5 text-[10px] font-normal uppercase tracking-wide text-gray-400">
-                            SKU {item.variant_sku}
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-3 px-2 text-center text-gray-500">{item.quantity}</td>
-                      <td className="py-3 px-4 text-right text-gray-500">{formatPrice(item.product_price)}</td>
-                      <td className="py-3 px-4 text-right text-gray-900 font-medium">{formatPrice(item.line_total)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Summary */}
-            <div className="flex justify-end">
-              <div className="w-full sm:w-72 print:w-72 space-y-1.5">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Subtotal</span>
-                  <span className="text-gray-900">{formatPrice(order.subtotal_nad)}</span>
-                </div>
-                {(order.discount_nad ?? 0) > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-emerald-600">Discount{coupon ? ` (${coupon.code})` : ""}</span>
-                    <span className="text-emerald-600">-{formatPrice(order.discount_nad)}</span>
-                  </div>
-                )}
-                {(order.delivery_fee_nad ?? 0) > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Delivery</span>
-                    <span className="text-gray-900">{formatPrice(order.delivery_fee_nad)}</span>
-                  </div>
-                )}
-                {displayHasVat && (
-                  <>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">
-                        {invoiceVatInclusive ? "Subtotal excl. VAT" : "Taxable subtotal"}
-                      </span>
-                      <span className="text-gray-900">{formatPrice(totalExclVat)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">VAT ({VAT_RATE_LABEL}){invoiceVatInclusive ? " included" : ""}</span>
-                      <span className="text-gray-900">{formatPrice(vatAmount)}</span>
-                    </div>
                   </>
                 )}
-                <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between">
-                  <span className="font-bold text-gray-900">
-                    Total{displayHasVat ? " (incl. VAT)" : ""}
-                  </span>
-                  <span className="font-bold text-lg text-gray-900">{formatPrice(total)}</span>
-                </div>
-              </div>
+                {order.delivery_method !== "delivery" && !order.delivery_date && "Pickup from store"}
+              </p>
             </div>
+          </section>
 
-            {/* Notes */}
-            {order.notes && (
-              <div className="bg-amber-50 border border-amber-100 rounded-lg px-4 py-3 print:bg-white print:border print:border-gray-300 print:rounded-none">
-                <p className="text-[10px] uppercase tracking-widest text-amber-600 font-semibold mb-1">Notes</p>
-                <p className="text-sm text-amber-900">{order.notes}</p>
+          {/* Items */}
+          <div className="overflow-x-auto">
+            <table className="mt-6 w-full min-w-[460px] text-sm">
+              <caption className="mb-0 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                Items
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col" className="border-b border-slate-300 pb-2.5 pr-4 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                    Description
+                  </th>
+                  <th scope="col" className="border-b border-slate-300 pb-2.5 pl-3 text-center text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                    Qty
+                  </th>
+                  <th scope="col" className="border-b border-slate-300 pb-2.5 pl-3 text-right text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                    Unit price
+                  </th>
+                  <th scope="col" className="border-b border-slate-300 pb-2.5 pl-3 text-right text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                    Amount
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {(items ?? []).map((item, i) => (
+                  <tr key={i}>
+                    <td className="border-b border-slate-200 py-3 pr-4 align-top font-semibold text-slate-900">
+                      {item.product_name}
+                      {item.variant_attributes &&
+                        Object.keys(item.variant_attributes as Record<string, string>).length > 0 && (
+                          <span className="mt-0.5 block text-[12.5px] font-normal text-slate-400">
+                            {Object.entries(item.variant_attributes as Record<string, string>)
+                              .map(([key, value]) => `${key}: ${value}`)
+                              .join(" · ")}
+                          </span>
+                        )}
+                      {item.variant_sku && (
+                        <span className="mt-0.5 block text-[12.5px] font-normal text-slate-400">
+                          SKU {item.variant_sku}
+                        </span>
+                      )}
+                    </td>
+                    <td className="border-b border-slate-200 py-3 pl-3 text-center align-top tabular-nums text-slate-500">
+                      {item.quantity}
+                    </td>
+                    <td className="border-b border-slate-200 py-3 pl-3 text-right align-top tabular-nums text-slate-500">
+                      {formatPrice(item.product_price)}
+                    </td>
+                    <td className="border-b border-slate-200 py-3 pl-3 text-right align-top font-semibold tabular-nums text-slate-900">
+                      {formatPrice(item.line_total)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Totals */}
+          <div className="mt-6 flex justify-end">
+            <dl className="grid w-full max-w-[300px] grid-cols-[1fr_auto] gap-x-6 gap-y-2.5 text-sm">
+              <dt className="text-slate-500">Subtotal</dt>
+              <dd className="text-right tabular-nums text-slate-900">
+                {formatPrice(order.subtotal_nad)}
+              </dd>
+
+              {(order.discount_nad ?? 0) > 0 && (
+                <>
+                  <dt className="text-acacia">Discount{coupon ? ` (${coupon.code})` : ""}</dt>
+                  <dd className="text-right tabular-nums text-acacia">
+                    −{formatPrice(order.discount_nad)}
+                  </dd>
+                </>
+              )}
+
+              {(order.delivery_fee_nad ?? 0) > 0 && (
+                <>
+                  <dt className="text-slate-500">Delivery</dt>
+                  <dd className="text-right tabular-nums text-slate-900">
+                    {formatPrice(order.delivery_fee_nad)}
+                  </dd>
+                </>
+              )}
+
+              {hasVat && (
+                <>
+                  <dt className="text-slate-500">
+                    VAT ({VAT_RATE_LABEL}){invoiceVatInclusive ? " included" : ""}
+                  </dt>
+                  <dd className="text-right tabular-nums text-slate-900">{formatPrice(vatAmount)}</dd>
+                </>
+              )}
+
+              <div className="col-span-2 mt-1 flex items-baseline justify-between gap-6 border-t-2 border-slate-900 pt-3">
+                <dt className="text-[15px] font-bold text-slate-950">Total due</dt>
+                <dd className="text-[22px] font-extrabold tracking-tight tabular-nums text-slate-950">
+                  {formatPrice(total)}
+                </dd>
               </div>
+
+              {hasVat && (
+                <p className="col-span-2 text-right text-xs text-slate-400">
+                  Amount excluding VAT: {formatPrice(totalExclVat)}
+                </p>
+              )}
+            </dl>
+          </div>
+
+          {/* Notes */}
+          {order.notes && (
+            <section className="mt-7 rounded border border-slate-300 p-5">
+              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">Notes</p>
+              <p className="mt-2 text-sm leading-relaxed text-slate-700">{order.notes}</p>
+            </section>
+          )}
+
+          {/* How to pay */}
+          <section className="mt-7 rounded border border-slate-300 p-5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+              How to pay — {paymentDisplayLabel}
+            </p>
+
+            {(order.payment_method === "eft" || !order.payment_method) && merchant.bank_name && (
+              <PayGrid
+                rows={[
+                  { label: "Bank", value: merchant.bank_name },
+                  ...(merchant.bank_account_holder
+                    ? [{ label: "Account name", value: merchant.bank_account_holder }]
+                    : []),
+                  { label: "Account number", value: merchant.bank_account_number ?? "—" },
+                  ...(merchant.bank_branch_code
+                    ? [{ label: "Branch code", value: merchant.bank_branch_code }]
+                    : []),
+                ]}
+              />
             )}
 
-            {/* Payment details card */}
-            <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-5 print:bg-white print:border-gray-300 print:rounded-none print:p-4">
-              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-3">
-                Payment — {paymentDisplayLabel}
+            {order.payment_method === "momo" && (
+              <PayGrid rows={[{ label: "MTC Maris number", value: merchant.momo_number ?? "—" }]} />
+            )}
+
+            {order.payment_method === "pay2cell" && (
+              <PayGrid rows={[{ label: "Pay2Cell number", value: merchant.pay2cell_number ?? "—" }]} />
+            )}
+
+            {order.payment_method === "paytoday" && (
+              <PayGrid rows={[{ label: "PayToday number", value: merchant.paytoday_number ?? "—" }]} />
+            )}
+
+            {order.payment_method === "ewallet" && (
+              <PayGrid
+                rows={[
+                  { label: "Provider", value: getEwalletProviderLabel(merchant.ewallet_provider) },
+                  { label: "Send to", value: merchant.ewallet_number ?? "—" },
+                ]}
+              />
+            )}
+
+            {order.payment_method === "cod" && (
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                {buyerPaidCourier
+                  ? `Please pay the order amount to ${merchant.store_name}. The ${
+                      deliveryProviderLabel[order.delivery_provider ?? "store"] ?? "courier"
+                    } fee is paid directly by you to the driver.`
+                  : order.delivery_method === "delivery"
+                  ? "Please have the exact amount ready when your order is delivered."
+                  : "Please pay when you collect your order from the store."}
               </p>
+            )}
 
-              {/* EFT */}
-              {(order.payment_method === "eft" || !order.payment_method) && merchant.bank_name && (
-                <div className="space-y-2">
-                  <PaymentRow label="Bank" value={merchant.bank_name} />
-                  {merchant.bank_account_holder && <PaymentRow label="Account Holder" value={merchant.bank_account_holder} />}
-                  <PaymentRow label="Account No." value={merchant.bank_account_number ?? "—"} />
-                  {merchant.bank_branch_code && <PaymentRow label="Branch Code" value={merchant.bank_branch_code} />}
-                  <PaymentRow label="Reference" value={order.payment_reference || `Order #${order.order_number}`} highlight />
-                  <PaymentRow label="Amount Due" value={formatPrice(total)} highlight />
-                </div>
-              )}
-
-              {/* COD */}
-              {order.payment_method === "cod" && (
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600 mb-2">
-                    {buyerPaidCourier
-                      ? `Please pay the order amount to the merchant. The ${deliveryProviderLabel[order.delivery_provider ?? "store"] ?? "courier"} fee is paid directly by the buyer.`
-                      : order.delivery_method === "delivery"
-                      ? "Please have exact cash ready when your order is delivered."
-                      : "Please pay when you collect your order from the store."}
-                  </p>
-                  <PaymentRow label="Amount Due" value={formatPrice(total)} highlight />
-                </div>
-              )}
-
-              {/* MTC Maris */}
-              {order.payment_method === "momo" && (
-                <div className="space-y-2">
-                  <PaymentRow label="MTC Maris Number" value={merchant.momo_number ?? "—"} />
-                  <PaymentRow label="Reference" value={order.payment_reference || `Order #${order.order_number}`} highlight />
-                  <PaymentRow label="Amount" value={formatPrice(total)} highlight />
-                </div>
-              )}
-
-              {/* Pay2Cell */}
-              {order.payment_method === "pay2cell" && (
-                <PaymentRow label="Pay2Cell Number" value={merchant.pay2cell_number ?? "—"} />
-              )}
-
-              {/* PayToday */}
-              {order.payment_method === "paytoday" && (
-                <PaymentRow label="PayToday Number" value={merchant.paytoday_number ?? "—"} />
-              )}
-
-              {/* eWallet */}
-              {order.payment_method === "ewallet" && (
-                <div className="space-y-2">
-                  <PaymentRow label="Provider" value={getEwalletProviderLabel(merchant.ewallet_provider)} />
-                  <PaymentRow label="Send to" value={merchant.ewallet_number ?? "—"} />
-                  <PaymentRow label="Reference" value={order.payment_reference || `Order #${order.order_number}`} highlight />
-                  <PaymentRow label="Amount" value={formatPrice(total)} highlight />
-                </div>
-              )}
-            </div>
-          </div>
+            {order.payment_method !== "cod" && (
+              <p className="mt-4 border-t border-slate-200 pt-3.5 text-[13.5px] leading-relaxed text-slate-600">
+                Use{" "}
+                <code className="rounded bg-acacia-soft px-1.5 py-0.5 font-mono font-semibold text-slate-900">
+                  {paymentReference}
+                </code>{" "}
+                as your payment reference so {merchant.store_name} can match your payment to this
+                order. Amount due: <strong className="text-slate-900">{formatPrice(total)}</strong>.
+              </p>
+            )}
+          </section>
 
           {/* Footer */}
-          <div className="px-6 py-4 sm:px-8 print:px-6 border-t border-gray-100 bg-gray-50 print:bg-white print:border-gray-300">
-            <div className="flex items-center justify-between text-xs text-gray-400">
-              <span>Thank you for your order</span>
-              <a href={SITE_URL} className="hover:text-gray-600 transition-colors print:text-gray-400">
-                Powered by {SITE_NAME}
-              </a>
-            </div>
-          </div>
+          <footer className="mt-7 flex flex-wrap items-baseline justify-between gap-2 border-t border-slate-200 pt-4 text-[12.5px] text-slate-400">
+            <p>Thank you for supporting a local Namibian business.</p>
+            <a href={SITE_URL} className="transition-colors hover:text-slate-600">
+              Powered by {SITE_NAME}
+            </a>
+          </footer>
+        </article>
+
+        <div className="mt-5 print:hidden">
+          <PrintButton />
         </div>
       </div>
     </div>
   );
 }
 
-function PaymentRow({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function PayGrid({ rows }: { rows: { label: string; value: string }[] }) {
   return (
-    <div className="flex items-center justify-between text-sm">
-      <span className="text-gray-500">{label}</span>
-      <span className={highlight ? "font-bold text-gray-900" : "text-gray-900 font-medium"}>
-        {value}
-      </span>
+    <div className="mt-3.5 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+      {rows.map((row) => (
+        <div key={row.label} className="text-sm">
+          <span className="mb-0.5 block text-[11px] uppercase tracking-[0.1em] text-slate-400">
+            {row.label}
+          </span>
+          <b className="font-semibold tabular-nums text-slate-900">{row.value}</b>
+        </div>
+      ))}
     </div>
   );
 }

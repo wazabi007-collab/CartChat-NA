@@ -49,3 +49,18 @@ body {
   background: var(--acacia);
   color: white;
 }
+
+/*
+ * Printed pages — chiefly the customer invoice, which merchants hand to buyers
+ * and accountants. Without a page margin the browser uses its own default and
+ * stamps a header and footer over the document.
+ */
+@media print {
+  @page {
+    margin: 14mm;
+  }
+
+  body {
+    background: #fff;
+  }
+}

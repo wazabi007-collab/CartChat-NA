@@ -5,7 +5,13 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { copyToClipboard } from "@/lib/clipboard";
-import { Plus, Trash2, Pencil, X, BadgePercent, Megaphone, TimerReset, Copy, Check } from "lucide-react";
+import { Plus, Trash2, Pencil, X, BadgePercent, Megaphone, TimerReset, Copy, Check, Sparkles } from "lucide-react";
+import {
+  COUPON_TEMPLATES,
+  templateToForm,
+  templateSummary,
+  type CouponTemplate,
+} from "@/lib/coupon-templates";
 
 interface Coupon {
   id: string;
@@ -84,9 +90,16 @@ export default function CouponsPage() {
     load();
   }, [supabase]);
 
-  function openCreate() {
+  function openCreate(template?: CouponTemplate) {
     setEditingId(null);
-    setForm(emptyForm);
+    // Templates only seed the form — nothing is saved until the merchant
+    // presses Save, and the existing codes are passed in so applying the same
+    // template twice suffixes the code instead of failing on the unique index.
+    setForm(
+      template
+        ? templateToForm(template, coupons.map((c) => c.code))
+        : emptyForm
+    );
     setError("");
     setShowForm(true);
   }
@@ -236,7 +249,7 @@ export default function CouponsPage() {
             </p>
           </div>
           <button
-            onClick={openCreate}
+            onClick={() => openCreate()}
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-acacia px-4 text-sm font-black text-white shadow-sm shadow-emerald-900/20 transition hover:bg-green-700"
           >
             <Plus size={16} />
@@ -267,6 +280,38 @@ export default function CouponsPage() {
           </div>
         </div>
       </div>
+
+      {/* Starter templates — hidden while a form is open so they can't
+          overwrite something the merchant is part-way through. */}
+      {!showForm && (
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5 sm:p-6">
+          <div className="flex items-center gap-2">
+            <Sparkles size={16} className="text-acacia" />
+            <h2 className="font-black text-slate-950">Start from a template</h2>
+          </div>
+          <p className="mt-1 text-sm text-slate-500">
+            Pick one to fill in the form. Nothing goes live until you save it.
+          </p>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {COUPON_TEMPLATES.map((template) => (
+              <button
+                key={template.id}
+                onClick={() => openCreate(template)}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:-translate-y-0.5 hover:border-acacia hover:bg-white hover:shadow-sm"
+              >
+                <p className="font-black text-slate-950">{template.name}</p>
+                <p className="mt-1 text-sm font-bold text-acacia">
+                  {templateSummary(template)}
+                </p>
+                <p className="mt-2 text-xs leading-5 text-slate-500">
+                  {template.description}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Create/Edit Form Modal */}
       {showForm && (
@@ -414,7 +459,7 @@ export default function CouponsPage() {
             Create a coupon code to offer discounts to your customers
           </p>
           <button
-            onClick={openCreate}
+            onClick={() => openCreate()}
             className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-acacia px-5 text-sm font-black text-white transition hover:bg-green-700"
           >
             <Plus size={16} />

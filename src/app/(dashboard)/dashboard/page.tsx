@@ -245,6 +245,7 @@ export default async function DashboardPage({
         merchantId={merchant.id}
         storeLinkShared={merchantExt.store_link_shared ?? false}
         compact={!isNewMerchant}
+        hasProducts={productCount > 0}
       />
 
       <DashboardCommandPanel

@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import {
   LayoutDashboard,
   Package,
+  Share2,
   ShoppingCart,
   BarChart3,
   Settings,
@@ -39,6 +40,7 @@ interface NavProps {
 const baseNavItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, requireFeature: null },
   { href: "/dashboard/products", label: "Products", icon: Package, requireFeature: null },
+  { href: "/dashboard/share", label: "Share store", icon: Share2, requireFeature: null },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart, requireFeature: null },
   { href: "/dashboard/customers", label: "Customers", icon: Users, requireFeature: null },
   { href: "/dashboard/broadcast", label: "Broadcast", icon: Megaphone, requireFeature: null },

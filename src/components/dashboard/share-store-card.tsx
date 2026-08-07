@@ -13,6 +13,8 @@ interface ShareStoreCardProps {
   merchantId: string;
   storeLinkShared: boolean;
   compact?: boolean;
+  /** Omit to assume listed; false shows the "add a product first" warning. */
+  hasProducts?: boolean;
 }
 
 export function ShareStoreCard({
@@ -21,6 +23,7 @@ export function ShareStoreCard({
   merchantId,
   storeLinkShared,
   compact,
+  hasProducts,
 }: ShareStoreCardProps) {
   const [copied, setCopied] = useState(false);
   const supabase = createClient();
@@ -82,10 +85,25 @@ export function ShareStoreCard({
     );
   }
 
+  // "Live" is only true once there is something to buy. Telling a merchant with
+  // an empty catalogue that their store is live is how stores end up shared to
+  // customers who arrive at nothing — and it hides why they aren't in Browse
+  // Stores, which needs at least one product.
+  const isListed = hasProducts !== false;
+
   return (
     <div className="bg-gradient-to-br from-emerald-50 via-white to-white rounded-2xl border border-emerald-200 p-5 mb-6 shadow-sm shadow-emerald-900/5">
-      <h3 className="font-bold text-emerald-950 mb-1">Your store is live</h3>
+      <h3 className="font-bold text-emerald-950 mb-1">
+        {isListed ? "Your store is live" : "Your store link is ready"}
+      </h3>
       <p className="text-sm text-emerald-700 mb-3 break-all">{storeUrl}</p>
+      {!isListed && (
+        <p className="mb-3 text-sm font-semibold text-amber-800">
+          Add your first product before you share this — until then your store
+          won&apos;t appear in Browse Stores, and anyone opening the link finds
+          an empty shop.
+        </p>
+      )}
       <div className="flex gap-2">
         <button
           onClick={handleCopy}

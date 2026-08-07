@@ -99,6 +99,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/app" className="hover:text-white transition-colors">
+                  Install as app
+                </Link>
+              </li>
+              <li>
                 <Link
                   href="/terms"
                   className="hover:text-white transition-colors"

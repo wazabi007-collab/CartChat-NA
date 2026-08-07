@@ -32,6 +32,14 @@ export default function HelpPage() {
           </a>
         </div>
 
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <a href="/app"
+             className="rounded-xl border border-border-warm bg-sand p-4 hover:border-acacia transition-colors">
+            <p className="font-black text-walnut">Install OshiCart as an app</p>
+            <p className="mt-1 text-sm text-walnut-2">Add your store — or your dashboard — to your phone&apos;s home screen on iPhone or Android.</p>
+          </a>
+        </div>
+
         <div className="mt-4 flex flex-wrap gap-4 text-sm font-semibold text-terracotta">
           <Link href="/prohibited-products" className="hover:underline">Selling rules</Link>
           <Link href="/terms" className="hover:underline">Terms of Service</Link>

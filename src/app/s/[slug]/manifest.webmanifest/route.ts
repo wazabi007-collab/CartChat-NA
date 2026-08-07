@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { storeShortName } from "@/lib/pwa";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -36,8 +37,7 @@ export async function GET(_request: Request, { params }: Props) {
   const manifest = {
     id: `/s/${slug}`,
     name: storeName,
-    // Home screens truncate around 12 characters anyway.
-    short_name: storeName.slice(0, 12),
+    short_name: storeShortName(storeName),
     description:
       merchant.description || `Order from ${storeName} on OshiCart.`,
     start_url: `/s/${slug}`,

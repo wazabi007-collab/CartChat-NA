@@ -4,7 +4,7 @@
  * The bar must never appear on a PC. Run after touching src/lib/pwa.ts:
  *   npx tsx scripts/check-pwa-helpers.ts
  */
-import { isMobileDevice, installDismissKey } from "../src/lib/pwa";
+import { isMobileDevice, installDismissKey, storeShortName } from "../src/lib/pwa";
 
 let failures = 0;
 
@@ -38,6 +38,15 @@ check(
   installDismissKey("sunrise-crumbs-bakery"),
   "oshicart:install-dismissed:sunrise-crumbs-bakery"
 );
+
+// Home-screen labels must break on a word, not mid-syllable.
+check("short name: real store", storeShortName("Octovia Nexus Home & Lifestyle"), "Octovia");
+check("short name: two words", storeShortName("Sunrise Crumbs Bakery"), "Sunrise");
+check("short name: fits already", storeShortName("Mother"), "Mother");
+check("short name: exactly 12", storeShortName("Namvacz Sol"), "Namvacz Sol");
+check("short name: initialism", storeShortName("W.J.V Computers"), "W.J.V");
+check("short name: one long word", storeShortName("Supercalifragilistic"), "Supercalifra");
+check("short name: trims spaces", storeShortName("  Apatchy Beard Company  "), "Apatchy");
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

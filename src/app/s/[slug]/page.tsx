@@ -20,6 +20,7 @@ import { StoreReviews, type StoreReview } from "@/components/storefront/store-re
 import { StoreCategoryGrid } from "@/components/storefront/store-category-grid";
 import { JsonLd } from "@/components/json-ld";
 import { PreviewBanner } from "@/components/storefront/preview-banner";
+import { InstallBar } from "@/components/pwa/install-bar";
 import { readPreviewState } from "@/lib/preview";
 
 const PRODUCTS_PER_PAGE = 100;
@@ -383,6 +384,8 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
         className="max-w-4xl mx-auto px-4 py-7 md:py-8"
         style={theme ? { backgroundColor: theme.bgTint } : undefined}
       >
+        <InstallBar storeName={merchant.store_name} scope={slug} />
+
         {activeTab === "orders" ? (
           <div className="max-w-lg mx-auto py-4">
             <h2 className="text-lg font-bold text-slate-950 mb-1">Track Your Order</h2>

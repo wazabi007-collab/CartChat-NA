@@ -129,23 +129,21 @@ export async function fetchStoreListData(
   const merchantIds = publicStoreList.map((m) => m.id);
   const previewMap = new Map<string, string[]>();
   if (merchantIds.length > 0) {
-    // The products image column is `images TEXT[]` — this previously selected a
-    // non-existent `image_url`, which left every store card thumbnail blank.
-    const { data: previews } = await supabase
-      .from("products")
-      .select("merchant_id, images")
-      .in("merchant_id", merchantIds)
-      .eq("is_available", true)
-      .is("deleted_at", null)
-      .order("created_at", { ascending: false });
-    for (const p of previews ?? []) {
-      const first = p.images?.[0];
-      if (!first) continue;
+    // Ranked per merchant in the database (migration 060). Selecting products
+    // for every store in one flat query hit PostgREST's 1000-row cap: a single
+    // large catalogue consumed 991 slots with un-photographed products, so the
+    // biggest stores showed no thumbnails while a 4-product store showed four.
+    const { data: previews } = await supabase.rpc("get_store_preview_images", {
+      p_merchant_ids: merchantIds,
+    });
+    for (const p of (previews ?? []) as {
+      merchant_id: string;
+      image: string;
+    }[]) {
+      if (!p.image) continue;
       const existing = previewMap.get(p.merchant_id) ?? [];
-      if (existing.length < 4) {
-        existing.push(first);
-        previewMap.set(p.merchant_id, existing);
-      }
+      existing.push(p.image);
+      previewMap.set(p.merchant_id, existing);
     }
   }
 

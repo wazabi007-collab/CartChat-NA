@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
+  CalendarDays,
   CreditCard,
   FileText,
   LayoutDashboard,
@@ -50,6 +51,7 @@ export const DASHBOARD_NAV: DashboardNavItem[] = [
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, requireFeature: null, primary: true },
 
   { href: "/dashboard/share", label: "Share store", icon: Share2, requireFeature: null },
+  { href: "/dashboard/bookings", label: "Bookings", icon: CalendarDays, requireFeature: null },
   { href: "/dashboard/customers", label: "Customers", icon: Users, requireFeature: null },
   { href: "/dashboard/broadcast", label: "Broadcast", icon: Megaphone, requireFeature: null },
   { href: "/dashboard/reviews", label: "Reviews", icon: Star, requireFeature: null },
@@ -66,6 +68,7 @@ export const SIDEBAR_ORDER = [
   "/dashboard/products",
   "/dashboard/share",
   "/dashboard/orders",
+  "/dashboard/bookings",
   "/dashboard/customers",
   "/dashboard/broadcast",
   "/dashboard/reviews",

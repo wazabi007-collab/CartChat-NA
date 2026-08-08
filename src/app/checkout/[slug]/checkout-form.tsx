@@ -22,6 +22,7 @@ import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS, getEwalletProviderL
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
 import { summariseFulfilment, fulfilmentSummary } from "@/lib/service-mode";
+import { MonthCalendar } from "@/components/storefront/month-calendar";
 import type { DeliveryMethod, DeliveryProvider, PaymentMethod } from "@/types/database";
 import { PhoneInput } from "@/components/phone-input";
 import {
@@ -1183,6 +1184,18 @@ export function CheckoutForm({
                       {fulfilment.hasServices || isService ? "Appointment Date" : "Delivery Date"}
                       <span className="text-red-500 ml-0.5">*</span>
                     </label>
+                    {/* Service baskets pick from a real month grid; goods keep
+                        the short dropdown a delivery window needs. */}
+                    {fulfilment.hasServices ? (
+                      <MonthCalendar
+                        merchantId={merchantId}
+                        value={deliveryDate}
+                        onChange={(date) => {
+                          setDeliveryDate(date);
+                          setDeliveryTime("");
+                        }}
+                      />
+                    ) : (
                     <select
                       value={deliveryDate}
                       onChange={(e) => setDeliveryDate(e.target.value)}
@@ -1196,6 +1209,7 @@ export function CheckoutForm({
                         </option>
                       ))}
                     </select>
+                    )}
                   </div>
                   {deliverySlots.times.length > 0 && (
                     <div>

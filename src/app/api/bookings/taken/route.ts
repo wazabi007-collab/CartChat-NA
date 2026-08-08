@@ -36,9 +36,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ taken: [] });
   }
 
-  const taken = [...new Set((data ?? []).map((row) => row.delivery_time).filter(Boolean))];
+  // Merchant block-outs count as taken; a NULL time blocks the whole day.
+  const { data: blocks } = await service
+    .from("booking_blocks")
+    .select("block_time")
+    .eq("merchant_id", merchantId)
+    .eq("block_date", date);
+
+  const dayBlocked = (blocks ?? []).some((b) => b.block_time === null);
+  const taken = [
+    ...new Set([
+      ...(data ?? []).map((row) => row.delivery_time).filter(Boolean),
+      ...(blocks ?? []).map((b) => b.block_time).filter(Boolean),
+    ]),
+  ];
   return NextResponse.json(
-    { taken },
+    { taken, dayBlocked },
     { headers: { "Cache-Control": "no-store" } }
   );
 }

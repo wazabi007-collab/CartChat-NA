@@ -50,6 +50,25 @@ export default function SettingsPage() {
   const [industry, setIndustry] = useState("");
   // Services are derived from the industry, never a per-product flag.
   const isServiceMerchant = getThemeConfig(industry)?.isService ?? false;
+  const [genFrom, setGenFrom] = useState("09:00");
+  const [genTo, setGenTo] = useState("17:00");
+  const [genEvery, setGenEvery] = useState("60");
+
+  // Fill the times list from opening hours and a session length, instead of
+  // typing every slot by hand. 09:00-17:00 every 60 min -> eight sessions.
+  function generateTimes() {
+    const [fh, fm] = genFrom.split(":").map(Number);
+    const [th, tm] = genTo.split(":").map(Number);
+    const step = parseInt(genEvery, 10);
+    if (!Number.isFinite(step) || step < 5) return;
+    const times: string[] = [];
+    for (let t = fh * 60 + (fm || 0); t + step <= th * 60 + (tm || 0); t += step) {
+      times.push(
+        `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`
+      );
+    }
+    if (times.length > 0) setDeliverySlots((p) => ({ ...p, times }));
+  }
   const [userId, setUserId] = useState("");
   const [newSlotStart, setNewSlotStart] = useState("");
   const [newSlotEnd, setNewSlotEnd] = useState("");
@@ -916,6 +935,39 @@ export default function SettingsPage() {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Session-time generator */}
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs font-bold text-slate-600">
+                  {isServiceMerchant
+                    ? "Generate session times"
+                    : "Generate time slots"}
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                  <input type="time" value={genFrom} onChange={(e) => setGenFrom(e.target.value)}
+                    className="min-h-10 rounded-lg border border-slate-200 px-2" />
+                  <span className="text-slate-400">to</span>
+                  <input type="time" value={genTo} onChange={(e) => setGenTo(e.target.value)}
+                    className="min-h-10 rounded-lg border border-slate-200 px-2" />
+                  <span className="text-slate-400">every</span>
+                  <select value={genEvery} onChange={(e) => setGenEvery(e.target.value)}
+                    className="min-h-10 rounded-lg border border-slate-200 bg-white px-2">
+                    <option value="15">15 min</option>
+                    <option value="30">30 min</option>
+                    <option value="45">45 min</option>
+                    <option value="60">1 hour</option>
+                    <option value="90">1.5 hours</option>
+                    <option value="120">2 hours</option>
+                  </select>
+                  <button type="button" onClick={generateTimes}
+                    className="min-h-10 rounded-lg bg-acacia px-3 text-xs font-black text-white hover:bg-green-700">
+                    Generate
+                  </button>
+                </div>
+                <p className="mt-1.5 text-[11px] text-slate-400">
+                  Replaces the list below — you can still edit it afterwards.
+                </p>
               </div>
 
               {/* Time slots */}

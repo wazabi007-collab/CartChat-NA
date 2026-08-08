@@ -546,6 +546,11 @@ export default function GuidePage() {
                 status and payment method, and every order listed.
               </Step>
               <Step n={4}>
+                Check <strong className="text-walnut">Received</strong> against
+                your bank. It shows what actually came in that month, what is
+                still outstanding, and how many orders remain unpaid.
+              </Step>
+              <Step n={5}>
                 Tap <strong className="text-walnut">Print or save as PDF</strong>{" "}
                 for a paper copy, or{" "}
                 <strong className="text-walnut">Download spreadsheet</strong> to
@@ -553,9 +558,10 @@ export default function GuidePage() {
               </Step>
             </Steps>
             <Note>
-              A statement shows what you <strong className="text-walnut">invoiced</strong>,
-              not what landed in your bank. Always check it against your bank
-              statement before filing anything.
+              Received counts payments dated in that month, whichever month the
+              order was placed — that is the figure to compare with your bank.
+              It is only as complete as your record-keeping, so mark payments as
+              they come in.
             </Note>
           </Section>
 

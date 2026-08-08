@@ -20,7 +20,7 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimit> = {
   oshi_start: { products: 20,  orders_per_month: 50,  inventory: true,  coupons: true,  branding: true,  price_nad: 0 },
   // A paid tier must never be worse than the free tier: oshi_basic previously
   // removed inventory + coupons that oshi_start gets for free.
-  oshi_basic: { products: 50,  orders_per_month: 300, inventory: true,  coupons: true,  branding: false, price_nad: 14900 },
+  oshi_basic: { products: 50,  orders_per_month: 50,  inventory: true,  coupons: true,  branding: false, price_nad: 14900 },
   oshi_grow:  { products: 200, orders_per_month: 1000, inventory: true,  coupons: true,  branding: false, price_nad: 39900 },
   oshi_pro:   { products: -1,  orders_per_month: -1,  inventory: true,  coupons: true,  branding: false, price_nad: 79900 },
 };

@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { SERVICE_MODES, isServiceMode, type ServiceMode } from "@/lib/service-mode";
 import { productSchema } from "@/lib/validations";
 import { safetyMessage, scanTextForProhibitedContent } from "@/lib/safety/prohibited-content";
 import { toCents, formatPrice, cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ export default function EditProductPage() {
 
   const [product, setProduct] = useState<Product | null>(null);
   const [itemType, setItemType] = useState<"product" | "service">("product");
+  const [serviceMode, setServiceMode] = useState<ServiceMode>("at_store");
   const [name, setName] = useState("");
   const [priceDisplay, setPriceDisplay] = useState("");
   const [description, setDescription] = useState("");
@@ -122,6 +124,9 @@ export default function EditProductPage() {
 
       setProduct(prod);
       setItemType(prod.item_type === "service" ? "service" : "product");
+      // Services created before migration 062 have no mode yet.
+      const savedMode = (prod as { service_mode?: string | null }).service_mode;
+      if (isServiceMode(savedMode)) setServiceMode(savedMode);
       setName(prod.name);
       setPriceDisplay((prod.price_nad / 100).toFixed(2));
       setDescription(prod.description || "");
@@ -289,6 +294,7 @@ export default function EditProductPage() {
         .from("products")
         .update({
           item_type: itemType,
+          service_mode: itemType === "service" ? serviceMode : null,
           name: validation.data.name,
           description: validation.data.description || null,
           price_nad: validation.data.price_nad,
@@ -470,6 +476,44 @@ export default function EditProductPage() {
               <span className="font-medium text-sm">Service</span>
             </label>
           </div>
+
+          {itemType === "service" && (
+            <div className="mt-3">
+              <p className="text-sm font-medium text-gray-700">Where does it happen?</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                This decides what checkout asks the customer for.
+              </p>
+              <div className="mt-2 space-y-2">
+                {SERVICE_MODES.map((mode) => (
+                  <label
+                    key={mode.value}
+                    className={`block border rounded-lg p-3 cursor-pointer transition-colors ${
+                      serviceMode === mode.value
+                        ? "border-green-600 bg-green-50"
+                        : "border-gray-300 hover:border-gray-400"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="serviceMode"
+                      value={mode.value}
+                      checked={serviceMode === mode.value}
+                      onChange={() => setServiceMode(mode.value)}
+                      className="sr-only"
+                    />
+                    <span
+                      className={`font-medium text-sm ${
+                        serviceMode === mode.value ? "text-green-700" : "text-gray-700"
+                      }`}
+                    >
+                      {mode.label}
+                    </span>
+                    <p className="text-xs mt-0.5 text-gray-500">{mode.hint}</p>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Name */}

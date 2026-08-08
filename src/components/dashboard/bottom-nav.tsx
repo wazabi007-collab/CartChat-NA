@@ -9,6 +9,12 @@ import {
   ShoppingCart,
   BarChart3,
   MoreHorizontal,
+  Share2,
+  Users,
+  Megaphone,
+  Star,
+  FileText,
+  CreditCard,
   Ticket,
   User,
   Settings,
@@ -128,7 +134,65 @@ export function BottomNav({ pendingOrders, industry, storeSlug }: BottomNavProps
               </button>
             </div>
 
-            <div className="py-2">
+            <div className="max-h-[60vh] overflow-y-auto py-2">
+              {/* The sidebar is hidden below md, so this sheet is the only way
+                  to reach these on a phone. Share, Customers, Broadcast,
+                  Reviews and Statements were unreachable on mobile entirely
+                  until they were listed here. */}
+              <Link
+                href="/dashboard/share"
+                onClick={() => setMoreOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
+              >
+                <Share2 size={20} className="text-gray-500" />
+                <span className="text-sm font-medium">Share store</span>
+              </Link>
+
+              <Link
+                href="/dashboard/customers"
+                onClick={() => setMoreOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
+              >
+                <Users size={20} className="text-gray-500" />
+                <span className="text-sm font-medium">Customers</span>
+              </Link>
+
+              <Link
+                href="/dashboard/broadcast"
+                onClick={() => setMoreOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
+              >
+                <Megaphone size={20} className="text-gray-500" />
+                <span className="text-sm font-medium">Broadcast</span>
+              </Link>
+
+              <Link
+                href="/dashboard/reviews"
+                onClick={() => setMoreOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
+              >
+                <Star size={20} className="text-gray-500" />
+                <span className="text-sm font-medium">Reviews</span>
+              </Link>
+
+              <Link
+                href="/dashboard/statements"
+                onClick={() => setMoreOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
+              >
+                <FileText size={20} className="text-gray-500" />
+                <span className="text-sm font-medium">Statements</span>
+              </Link>
+
+              <Link
+                href="/dashboard/subscription"
+                onClick={() => setMoreOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
+              >
+                <CreditCard size={20} className="text-gray-500" />
+                <span className="text-sm font-medium">Subscription</span>
+              </Link>
+
               <Link
                 href="/dashboard/coupons"
                 onClick={() => setMoreOpen(false)}

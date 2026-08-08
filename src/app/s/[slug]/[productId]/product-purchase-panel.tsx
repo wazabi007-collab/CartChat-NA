@@ -29,6 +29,7 @@ type Product = {
   name: string;
   price_nad: number;
   imageUrl: string | null;
+  service_mode?: ServiceMode | null;
 };
 
 function variantIsBuyable(variant: Variant) {
@@ -120,10 +121,7 @@ export function ProductPurchasePanel({
     if (!canAdd) return;
     addItem({
       productId: product.id,
-      // src/types/database.ts predates migration 062, so read the column
-      // structurally until the generated types are refreshed.
-      serviceMode:
-        ((product as { service_mode?: string | null }).service_mode as ServiceMode | null) ?? null,
+      serviceMode: product.service_mode ?? null,
       variantId: selectedVariant?.id ?? null,
       variantSku: selectedVariant?.sku ?? null,
       variantAttributes: selectedVariant?.attributes ?? undefined,

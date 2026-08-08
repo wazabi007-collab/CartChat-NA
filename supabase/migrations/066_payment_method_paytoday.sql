@@ -1,0 +1,13 @@
+-- PayToday was added to the app but never to the database enum.
+--
+-- Six active merchants offer it at checkout, and place_order casts the chosen
+-- method with p_payment_method::payment_method -- so every customer who picked
+-- PayToday got a failed order. There were zero paytoday orders in the entire
+-- history despite six stores offering it, which is what that looks like from
+-- the outside.
+--
+-- Found by generating TypeScript types from the live schema and noticing the
+-- enum did not match the app's PAYMENT_METHODS list. The hand-written
+-- PaymentMethod type had included 'paytoday' for months, so TypeScript
+-- accepted a value Postgres rejected.
+ALTER TYPE public.payment_method ADD VALUE IF NOT EXISTS 'paytoday';

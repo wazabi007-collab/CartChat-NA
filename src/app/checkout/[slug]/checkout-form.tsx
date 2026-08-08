@@ -62,6 +62,8 @@ interface Props {
   bankAccountHolder: string | null;
   bankBranchCode: string | null;
   deliverySlots: DeliverySlots | null;
+  /** Merchant sells time rather than goods — derived from their industry. */
+  isService: boolean;
   deliveryFeeNad: number;
   acceptedPaymentMethods: string[];
   momoNumber: string | null;
@@ -192,6 +194,7 @@ export function CheckoutForm({
   bankAccountHolder,
   bankBranchCode,
   deliverySlots,
+  isService,
   deliveryFeeNad,
   acceptedPaymentMethods,
   momoNumber,
@@ -1075,8 +1078,12 @@ export function CheckoutForm({
           </>
         )}
 
-        {/* Delivery scheduling */}
-        {deliveryMethod === "delivery" && deliverySlots?.enabled && (
+        {/* Scheduling.
+            Services need a date and time whether the customer comes to the
+            merchant or the merchant travels to them, so this is no longer
+            gated on choosing delivery. A salon client picking "collection"
+            previously got no date picker at all. */}
+        {(isService || deliveryMethod === "delivery") && deliverySlots?.enabled && (
           <>
             {(() => {
               const availableDates = getAvailableDates(deliverySlots.days);
@@ -1084,7 +1091,8 @@ export function CheckoutForm({
                 <>
                   <div>
                     <label className={label}>
-                      Delivery Date<span className="text-red-500 ml-0.5">*</span>
+                      {isService ? "Appointment Date" : "Delivery Date"}
+                      <span className="text-red-500 ml-0.5">*</span>
                     </label>
                     <select
                       value={deliveryDate}
@@ -1103,7 +1111,8 @@ export function CheckoutForm({
                   {deliverySlots.times.length > 0 && (
                     <div>
                       <label className={label}>
-                        Time Slot<span className="text-red-500 ml-0.5">*</span>
+                        {isService ? "Appointment Time" : "Time Slot"}
+                        <span className="text-red-500 ml-0.5">*</span>
                       </label>
                       <div className="grid grid-cols-2 gap-2">
                         {deliverySlots.times.map((slot) => (

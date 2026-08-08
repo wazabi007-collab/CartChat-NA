@@ -278,14 +278,20 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
 
   const uncategorized = categoryMap.get(null);
   if (uncategorized && uncategorized.length > 0) {
-    let fallbackName: string;
-    if (sections.length > 0) {
-      fallbackName = "More Products";
-    } else {
-      // Use theme label only if all items are services; otherwise "Products"
-      const allServices = uncategorized.every((p: { item_type?: string }) => p.item_type === "service");
-      fallbackName = allServices ? (theme?.sectionLabel ?? "Products") : "Products";
-    }
+    // A service merchant's heading comes from their archetype. Relying only on
+    // the per-product item_type flag meant genuine service businesses were
+    // headed "Products", because almost nobody sets that flag.
+    const sellsServices =
+      theme?.isService ||
+      uncategorized.every((p: { item_type?: string }) => p.item_type === "service");
+    const fallbackName =
+      sections.length > 0
+        ? sellsServices
+          ? "More Services"
+          : "More Products"
+        : sellsServices
+        ? theme?.sectionLabel ?? "Services"
+        : "Products";
     sections.push({ name: fallbackName, products: uncategorized });
   }
 

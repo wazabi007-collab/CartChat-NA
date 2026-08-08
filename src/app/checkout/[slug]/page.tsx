@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
+import { getThemeConfig } from "@/lib/industry";
 import { getOrderQuota } from "@/lib/order-limit";
 import { usablePaymentMethods } from "@/lib/payment-methods";
 import { formatNamibianDate } from "@/lib/date";
@@ -48,7 +49,7 @@ export default async function CheckoutPage({ params }: Props) {
   let merchantQuery = service
     .from("merchants")
     .select(
-      "id, user_id, store_name, town, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider, pay2cell_number, vat_number, vat_inclusive, pop_required, delivery_estimate, enabled_delivery_providers, paytoday_number, pickup_address"
+      "id, user_id, store_name, town, industry, whatsapp_number, bank_name, bank_account_number, bank_account_holder, bank_branch_code, delivery_slots, delivery_fee_nad, accepted_payment_methods, momo_number, ewallet_number, ewallet_provider, pay2cell_number, vat_number, vat_inclusive, pop_required, delivery_estimate, enabled_delivery_providers, paytoday_number, pickup_address"
     )
     .eq("store_slug", slug);
   if (!previewCookie) {
@@ -70,6 +71,9 @@ export default async function CheckoutPage({ params }: Props) {
   const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
   const isSoftSuspended = subscription?.status === "soft_suspended";
   const hasBranding = showBranding(tier);
+
+  // Services are derived from the merchant's industry, not a per-product flag.
+  const isService = getThemeConfig(merchant.industry)?.isService ?? false;
 
   // Block checkout if soft-suspended
   if (isSoftSuspended) {
@@ -169,6 +173,7 @@ export default async function CheckoutPage({ params }: Props) {
           storeSlug={slug}
           merchantTown={merchant.town ?? null}
           merchantTier={tier}
+          isService={isService}
           whatsappNumber={merchant.whatsapp_number}
           bankName={merchant.bank_name}
           bankAccountNumber={merchant.bank_account_number}

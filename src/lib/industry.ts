@@ -22,6 +22,8 @@ export interface ThemeConfig {
   bgTint: string;
   borderColor: string;
   ctaText: string;
+  /** True for archetypes that sell time rather than goods (beauty, services). */
+  isService: boolean;
   sectionLabel: string;
   layout: LayoutVariant;
   coverGradient: string;
@@ -83,6 +85,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     bgTint: "#fff7ed",
     borderColor: "#fed7aa",
     ctaText: "Order Now",
+    isService: false,
     sectionLabel: "Menu",
     layout: "menu-list",
     coverGradient: "linear-gradient(135deg, #b45309 0%, #d97706 60%, #fcd34d 100%)",
@@ -93,6 +96,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     bgTint: "#f0fdf4",
     borderColor: "#bbf7d0",
     ctaText: "Add to Basket",
+    isService: false,
     sectionLabel: "Fresh Picks",
     layout: "compact-grid",
     coverGradient: "linear-gradient(135deg, #15803d 0%, #65a30d 100%)",
@@ -103,6 +107,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     bgTint: "#f8fafc",
     borderColor: "#dbe3ee",
     ctaText: "Add to Cart",
+    isService: false,
     sectionLabel: "Products",
     layout: "product-grid",
     coverGradient: "linear-gradient(135deg, #0b1220 0%, #2b5ea7 48%, #16a34a 100%)",
@@ -113,6 +118,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     bgTint: "#f8fafc",
     borderColor: "#cbd5e1",
     ctaText: "Book Now",
+    isService: true,
     sectionLabel: "Treatments",
     layout: "horizontal-card",
     coverGradient: "linear-gradient(135deg, #475569 0%, #be185d 100%)",
@@ -123,6 +129,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     bgTint: "#eff6ff",
     borderColor: "#bfdbfe",
     ctaText: "Request",
+    isService: true,
     sectionLabel: "Our Services",
     layout: "service-list",
     coverGradient: "linear-gradient(135deg, #15803d 0%, #0f766e 100%)",
@@ -133,6 +140,7 @@ const THEME_CONFIGS: Record<IndustryArchetype, ThemeConfig> = {
     bgTint: "#fffbeb",
     borderColor: "#fde68a",
     ctaText: "Send Gift",
+    isService: false,
     sectionLabel: "Gift Collection",
     layout: "visual-gallery",
     coverGradient: "linear-gradient(135deg, #b45309 0%, #f59e0b 100%)",

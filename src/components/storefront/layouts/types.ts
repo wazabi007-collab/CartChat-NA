@@ -15,8 +15,23 @@ export interface LayoutProduct {
 }
 
 /** Returns the correct CTA text based on item_type: products always show "Add to Cart" */
+/**
+ * The button label on a storefront card.
+ *
+ * Falls back to the merchant's archetype rather than relying only on the
+ * per-product flag. `item_type` is NOT NULL DEFAULT 'product', so an existing
+ * row saying "product" cannot be told apart from one the merchant was never
+ * asked about — and in practice almost nobody sets it. Platform-wide only three
+ * products were ever marked as services, while genuine service merchants
+ * (a computer repair shop, a cleaning business) had none, so their customers
+ * saw "Add to Cart" for a repair.
+ *
+ * A stored "service" still wins, so a retailer can mark an individual item as
+ * a service.
+ */
 export function getCtaText(product: LayoutProduct, theme: ThemeConfig): string {
-  return product.item_type === "service" ? theme.ctaText : "Add to Cart";
+  const isService = product.item_type === "service" || theme.isService;
+  return isService ? theme.ctaText : "Add to Cart";
 }
 
 /** Returns formatted price or "Price on request" for zero-price products */

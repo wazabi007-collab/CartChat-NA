@@ -238,6 +238,7 @@ export function CheckoutForm({
   // A service-only basket has nothing to physically deliver, so the
   // pickup/delivery choice (and the couriers behind it) disappears entirely.
   const goodsFulfilmentNeeded = fulfilment.hasGoods || !fulfilment.hasServices;
+
   const [deliveryProvider, setDeliveryProvider] = useState<DeliveryProvider>(
     (effectiveDeliveryProviders[0] as DeliveryProvider) ?? "store"
   );
@@ -246,6 +247,35 @@ export function CheckoutForm({
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [deliveryDate, setDeliveryDate] = useState("");
   const [deliveryTime, setDeliveryTime] = useState("");
+
+  // Appointment slots already taken for the chosen day. Cosmetic only —
+  // place_order enforces one booking per slot under a lock — but greying a
+  // taken time out beats letting the customer fill the form and then fail.
+  const [takenTimes, setTakenTimes] = useState<string[]>([]);
+  useEffect(() => {
+    if (!fulfilment.hasServices || !deliveryDate) {
+      setTakenTimes([]);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/bookings/taken?merchant=${merchantId}&date=${deliveryDate}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (!cancelled) setTakenTimes(Array.isArray(json.taken) ? json.taken : []);
+      })
+      .catch(() => {
+        if (!cancelled) setTakenTimes([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fulfilment.hasServices, deliveryDate, merchantId]);
+
+  // If the chosen time was booked while the customer was filling the form,
+  // clear it so they must pick another rather than submit a known conflict.
+  useEffect(() => {
+    if (deliveryTime && takenTimes.includes(deliveryTime)) setDeliveryTime("");
+  }, [takenTimes, deliveryTime]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<CheckoutStep>("form");
@@ -1150,7 +1180,7 @@ export function CheckoutForm({
                 <>
                   <div>
                     <label className={label}>
-                      {isService ? "Appointment Date" : "Delivery Date"}
+                      {fulfilment.hasServices || isService ? "Appointment Date" : "Delivery Date"}
                       <span className="text-red-500 ml-0.5">*</span>
                     </label>
                     <select
@@ -1170,28 +1200,38 @@ export function CheckoutForm({
                   {deliverySlots.times.length > 0 && (
                     <div>
                       <label className={label}>
-                        {isService ? "Appointment Time" : "Time Slot"}
+                        {fulfilment.hasServices || isService ? "Appointment Time" : "Time Slot"}
                         <span className="text-red-500 ml-0.5">*</span>
                       </label>
                       <div className="grid grid-cols-2 gap-2">
-                        {deliverySlots.times.map((slot) => (
+                        {deliverySlots.times.map((slot) => {
+                          const isTaken =
+                            fulfilment.hasServices && takenTimes.includes(slot);
+                          return (
                           <label
                             key={slot}
                             className={`flex items-center justify-center ${radioCardBase} ${
-                              deliveryTime === slot ? radioCardSelected : radioCardUnselected
+                              isTaken
+                                ? "cursor-not-allowed border-slate-200 bg-slate-50 text-slate-400 line-through"
+                                : deliveryTime === slot
+                                ? radioCardSelected
+                                : radioCardUnselected
                             }`}
                           >
                             <input
                               type="radio"
                               name="deliveryTime"
                               value={slot}
+                              disabled={isTaken}
                               checked={deliveryTime === slot}
                               onChange={() => setDeliveryTime(slot)}
                               className="sr-only"
                             />
                             {slot}
+                            {isTaken ? " — booked" : ""}
                           </label>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}

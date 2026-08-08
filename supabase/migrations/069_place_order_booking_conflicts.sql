@@ -1,0 +1,29 @@
+-- One appointment per slot: a barber's chair takes one client at a time.
+--
+-- Checkout greys out taken times via /api/bookings/taken, but that is
+-- cosmetic -- two customers can submit the same slot in the same second. The
+-- guarantee lives in place_order:
+--
+--   1. after the items are inserted, the order is a booking if any validated
+--      item is a service and the customer chose a date and time
+--   2. a transaction-scoped advisory lock on (merchant, date, time) serialises
+--      concurrent attempts so both cannot pass the check
+--   3. if another non-cancelled service order already holds that slot, the
+--      whole order is rejected: "That time has just been booked."
+--
+-- Goods orders neither block nor are blocked -- a bread delivery window is a
+-- broad window, not a chair. Cancelling a booking frees its slot.
+--
+-- NOTE: orders.delivery_date is TEXT (legacy). The insert coerces the DATE
+-- parameter silently; the conflict comparison must cast explicitly
+-- (o.delivery_date = p_delivery_date::text) or the function fails to compile
+-- its first booking -- caught in verification before release.
+--
+-- The full function body as applied lives in the Supabase migration history
+-- (069 + the date-cast correction). Verified against production with the test
+-- store, then fully reverted:
+--   book 10:00           -> accepted
+--   book 10:00 again     -> rejected ("just been booked")
+--   book 11:00           -> accepted
+--   goods order at 10:00 -> accepted (not blocked)
+--   cancel first booking -> 10:00 accepted again

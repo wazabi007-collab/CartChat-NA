@@ -31,10 +31,38 @@ function countLines(tier: SubscriptionTier): string[] {
 }
 
 /**
- * Single source of truth for the public, sellable plans (excludes the free
- * trial). Prices and product/order counts are derived from TIER_LIMITS so a
- * price change happens in exactly one place. Consumed by the homepage pricing
- * section, the /pricing page, and the subscription checkout.
+ * Everything every plan includes, free tier included.
+ *
+ * Kept explicit because the pricing page previously advertised inventory
+ * tracking and coupons as Oshi-Automate features when TIER_LIMITS grants both
+ * on every tier — a differentiator that did not differentiate. Anything listed
+ * here must be genuinely ungated; anything genuinely gated belongs in the plan
+ * that gates it, and scripts/check-plan-features.ts enforces that both ways.
+ */
+const INCLUDED_EVERYWHERE = [
+  "Your own store link and QR code",
+  "Automated WhatsApp order updates",
+  "Local payments — EFT, cash, MTC Maris, eWallet, Pay2Cell, PayToday",
+  "Proof-of-payment upload",
+  "Products, services and appointment bookings",
+  "Inventory tracking",
+  "Coupons and discount codes",
+  "Customer list and order history",
+  "Verified-purchase reviews and ratings",
+  "WhatsApp broadcast to your customers",
+  "Bulk product import from a spreadsheet",
+  "Record payments received against orders",
+  "Tax invoices with VAT",
+  "Sales analytics",
+  "Install OshiCart as an app on your phone",
+];
+
+/**
+ * Single source of truth for the public, sellable plans (the free Oshi-Start
+ * tier is not sold here). Prices and product/order counts are derived from
+ * TIER_LIMITS so a price change happens in exactly one place. Consumed by the
+ * homepage pricing section, /pricing, the subscription checkout, and the
+ * dashboard upgrade list.
  */
 export const PUBLIC_PLANS: PublicPlan[] = [
   {
@@ -49,16 +77,9 @@ export const PUBLIC_PLANS: PublicPlan[] = [
     iconKey: "store",
     features: [
       ...countLines("oshi_basic"),
-      "OshiCart store link",
-      "Local payments (EFT, COD, MTC Maris, eWallet)",
-      "Proof-of-payment upload",
-      "Automated WhatsApp order updates",
-      "Customer list & order history",
-      "Verified-purchase reviews & ratings",
-      "WhatsApp broadcast to your customers",
-      "Bulk product import (CSV)",
-      "Sales analytics",
-      "No OshiCart branding",
+      ...INCLUDED_EVERYWHERE,
+      // The one thing paying actually buys at this tier.
+      "No OshiCart branding on your store",
     ],
   },
   {
@@ -66,17 +87,18 @@ export const PUBLIC_PLANS: PublicPlan[] = [
     name: TIER_LABELS.oshi_grow,
     priceDisplay: priceDisplay("oshi_grow"),
     period: "/month",
-    audience: "For growing sellers who want to win back lost sales",
+    audience: "For growing sellers who want lost sales back and books that balance",
     cta: "Start Automate",
     href: "/signup?tier=oshi_grow",
     highlighted: true,
     iconKey: "automate",
     features: [
       ...countLines("oshi_grow"),
-      "Everything in Storefront",
+      "Everything in Oshi-Storefront",
+      // Both genuinely gated — see CART_RECOVERY_TIERS and STATEMENT_TIERS.
       "Abandoned-checkout WhatsApp recovery",
-      "Inventory tracking",
-      "Coupon & discount codes",
+      "Monthly statements with VAT totals",
+      "Spreadsheet export for your bookkeeper",
     ],
   },
   {
@@ -92,6 +114,17 @@ export const PUBLIC_PLANS: PublicPlan[] = [
     features: [
       ...countLines("oshi_pro"),
       "Everything in Oshi-Automate",
+      "No monthly order limit",
     ],
   },
+];
+
+/**
+ * Features the pricing pages claim are exclusive to a plan, and the tier that
+ * must therefore gate them in code. Checked by scripts/check-plan-features.ts.
+ */
+export const ADVERTISED_GATES: { feature: string; lowestTier: SubscriptionTier }[] = [
+  { feature: "Abandoned-checkout WhatsApp recovery", lowestTier: "oshi_grow" },
+  { feature: "Monthly statements with VAT totals", lowestTier: "oshi_grow" },
+  { feature: "No OshiCart branding on your store", lowestTier: "oshi_basic" },
 ];

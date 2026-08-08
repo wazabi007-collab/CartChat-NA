@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getThemeConfig } from "@/lib/industry";
 import { useRouter } from "next/navigation";
 import { BANKS_NAMIBIA, BANK_BRANCH_CODES, PAYMENT_METHODS, NAMIBIA_REGIONS, townsForRegion, isCourierAvailable } from "@/lib/constants";
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
@@ -45,6 +46,9 @@ export default function SettingsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [merchantId, setMerchantId] = useState("");
+  const [industry, setIndustry] = useState("");
+  // Services are derived from the industry, never a per-product flag.
+  const isServiceMerchant = getThemeConfig(industry)?.isService ?? false;
   const [userId, setUserId] = useState("");
   const [newSlotStart, setNewSlotStart] = useState("");
   const [newSlotEnd, setNewSlotEnd] = useState("");
@@ -64,6 +68,7 @@ export default function SettingsPage() {
     bank_account_holder: "",
     bank_branch_code: "",
     delivery_fee_display: "0",
+    callout_fee_display: "0",
     delivery_estimate: "",
     accepted_payment_methods: ["eft"] as string[],
     momo_number: "",
@@ -100,6 +105,7 @@ export default function SettingsPage() {
 
       if (merchant) {
         setMerchantId(merchant.id);
+        setIndustry(merchant.industry || "");
         setUserId(user.id);
         setLogoUrl(merchant.logo_url || null);
         setForm({
@@ -113,6 +119,7 @@ export default function SettingsPage() {
           bank_account_holder: merchant.bank_account_holder || "",
           bank_branch_code: merchant.bank_branch_code || "",
           delivery_fee_display: merchant.delivery_fee_nad ? (merchant.delivery_fee_nad / 100).toFixed(2) : "0",
+          callout_fee_display: merchant.callout_fee_nad ? (merchant.callout_fee_nad / 100).toFixed(2) : "0",
           delivery_estimate: merchant.delivery_estimate ?? "",
           accepted_payment_methods: merchant.accepted_payment_methods || ["eft"],
           momo_number: merchant.momo_number || "",
@@ -150,6 +157,7 @@ export default function SettingsPage() {
     }
 
     const deliveryFeeCents = Math.round((parseFloat(form.delivery_fee_display) || 0) * 100);
+    const calloutFeeCents = Math.round((parseFloat(form.callout_fee_display) || 0) * 100);
 
     // Couriers are only valid where they operate (by town). Drop any courier the
     // town isn't served by before saving, so it can never persist as an option.
@@ -219,6 +227,7 @@ export default function SettingsPage() {
         bank_branch_code: form.bank_branch_code || null,
         delivery_slots: deliverySlots.enabled ? deliverySlots : null,
         delivery_fee_nad: deliveryFeeCents,
+        callout_fee_nad: calloutFeeCents,
         delivery_estimate: form.delivery_estimate.trim() || null,
         accepted_payment_methods: knownPaymentMethods,
         momo_number: form.momo_number || null,
@@ -740,6 +749,36 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Call-out fee. Only shown to service merchants, and kept separate
+            from the delivery fee so travel is not reported as product delivery
+            on invoices and statements. */}
+        {isServiceMerchant && (
+          <div className={`${card} space-y-4 shadow-sm shadow-slate-900/5`}>
+            <h2 className={sectionHeading}>Call-out fee</h2>
+            <p className={helperText + " !mt-0"}>
+              Charged once per booking when you travel to the customer. Only
+              applies to services you have marked as &ldquo;I travel to the
+              customer&rdquo;. Set to 0 if you do not charge for travel.
+            </p>
+            <div className="relative max-w-xs">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
+                N$
+              </span>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={form.callout_fee_display}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, callout_fee_display: e.target.value }))
+                }
+                className={`${inputBase} ${focusGreen} pl-9`}
+                placeholder="50.00"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Delivery Fee */}
         <div className={`${card} space-y-4 shadow-sm shadow-slate-900/5`}>
           <h2 className={sectionHeading}>Delivery Fee</h2>
@@ -814,13 +853,19 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {/* Delivery Scheduling */}
+        {/* Scheduling. A salon looking for its working hours would never think
+            to open a section called "Delivery Scheduling", so service
+            merchants get the same controls under their own name. */}
         <div className={`${card} space-y-4 shadow-sm shadow-slate-900/5`}>
           <div className="flex items-center justify-between">
             <div>
-              <h2 className={sectionHeading}>Delivery Scheduling</h2>
+              <h2 className={sectionHeading}>
+                {isServiceMerchant ? "Availability" : "Delivery Scheduling"}
+              </h2>
               <p className={helperText}>
-                Let customers choose a delivery date and time slot
+                {isServiceMerchant
+                  ? "The days and times customers can book you"
+                  : "Let customers choose a delivery date and time slot"}
               </p>
             </div>
             <label className="flex items-center gap-2 cursor-pointer">

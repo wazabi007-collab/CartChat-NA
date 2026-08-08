@@ -513,7 +513,7 @@ function StoreSetupForm() {
                 <textarea
                   value={form.description}
                   onChange={(e) => update("description", e.target.value)}
-                  placeholder="What do you sell?"
+                  placeholder="What products or services do you offer?"
                   rows={2}
                   className={`${textareaBase} ${focusGreen}`}
                 />
@@ -541,7 +541,7 @@ function StoreSetupForm() {
                   required
                   className={`${selectBase} ${focusGreen}`}
                 >
-                  <option value="">What do you sell?</option>
+                  <option value="">What products or services do you offer?</option>
                   {INDUSTRY_GROUP_ORDER.map((group) => (
                     <optgroup key={group} label={group}>
                       {INDUSTRIES_NAMIBIA.filter((ind) => ind.group === group).map((ind) => (

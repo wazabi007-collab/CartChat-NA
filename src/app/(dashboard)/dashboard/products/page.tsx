@@ -23,7 +23,8 @@ export default async function ProductsPage({
 
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("*")
+    // Named columns, never "*" — see the note in ../page.tsx.
+    .select("id, industry")
     .eq("user_id", user.id)
     .single();
 

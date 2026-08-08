@@ -235,6 +235,9 @@ export function CheckoutForm({
   // before service_mode existed.
   const needsSchedule = fulfilment.needsSchedule || isService;
   const serviceNeedsAddress = fulfilment.serviceNeedsAddress;
+  // A service-only basket has nothing to physically deliver, so the
+  // pickup/delivery choice (and the couriers behind it) disappears entirely.
+  const goodsFulfilmentNeeded = fulfilment.hasGoods || !fulfilment.hasServices;
   const [deliveryProvider, setDeliveryProvider] = useState<DeliveryProvider>(
     (effectiveDeliveryProviders[0] as DeliveryProvider) ?? "store"
   );
@@ -965,10 +968,17 @@ export function CheckoutForm({
         />
       </div>
 
-      {/* Delivery Method */}
+      {/* Delivery method — or, for a service-only basket, the booking. */}
       <div className={`${card} space-y-4`}>
-        <h2 className={sectionHeading}>Delivery Method</h2>
+        <h2 className={sectionHeading}>
+          {goodsFulfilmentNeeded
+            ? "Delivery Method"
+            : fulfilment.primaryMode === "online"
+            ? "Your Booking"
+            : "Your Appointment"}
+        </h2>
 
+        {goodsFulfilmentNeeded && (
         <div className="flex gap-3">
           <label
             className={`flex-1 ${radioCardBase} ${
@@ -1004,6 +1014,7 @@ export function CheckoutForm({
             Delivery
           </label>
         </div>
+        )}
 
         {fulfilmentSummary(fulfilment) && (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">
@@ -1011,7 +1022,9 @@ export function CheckoutForm({
           </div>
         )}
 
-        {deliveryMethod === "pickup" && pickupAddress?.trim() && (
+        {deliveryMethod === "pickup" &&
+          pickupAddress?.trim() &&
+          (goodsFulfilmentNeeded || fulfilment.primaryMode === "at_store") && (
           <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
             <span className="font-semibold">Collect from:</span> {pickupAddress}
           </div>

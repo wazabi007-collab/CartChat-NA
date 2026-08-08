@@ -49,9 +49,16 @@ export default async function DashboardPage({
 
   if (!user) redirect("/login");
 
+  // Named columns, never "*". merchants has column-level grants (migration
+  // 055) and no table-level SELECT, so PostgREST rejects select("*") outright:
+  // "permission denied for table merchants". That null sent every merchant
+  // back to the setup wizard on login — the bug reported by testers.
+  // scripts/check-select-star.ts fails the build if "*" comes back.
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("*")
+    .select(
+      "id, store_name, store_slug, industry, region, town, store_status, is_active, logo_url, description, whatsapp_number, store_link_shared, getting_started_dismissed, prohibited_policy_accepted_at, prohibited_policy_version, created_at"
+    )
     .eq("user_id", user.id)
     .single();
 
@@ -66,6 +73,18 @@ export default async function DashboardPage({
   };
 
   const service = createServiceClient();
+
+  // safety_notes is hidden from the authenticated role on purpose; read it via
+  // the service role for the suspension banner only.
+  let safetyNotes: string | null = null;
+  if (merchant.store_status === "suspended") {
+    const { data: notesRow } = await service
+      .from("merchants")
+      .select("safety_notes")
+      .eq("id", merchant.id)
+      .single();
+    safetyNotes = notesRow?.safety_notes ?? null;
+  }
 
   if (resumeChecklist) {
     await service
@@ -168,8 +187,8 @@ export default async function DashboardPage({
       {merchant.store_status === "suspended" && (
         <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
           <p className="font-black">Your store is suspended and not visible to customers.</p>
-          {merchant.safety_notes && (
-            <p className="mt-1 leading-5">{merchant.safety_notes}</p>
+          {safetyNotes && (
+            <p className="mt-1 leading-5">{safetyNotes}</p>
           )}
           <a
             href={`https://wa.me/264816274823?text=${encodeURIComponent(

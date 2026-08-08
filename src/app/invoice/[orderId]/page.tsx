@@ -35,7 +35,7 @@ export default async function InvoicePage({ params }: Props) {
     .select(`
       id, order_number, customer_name, customer_whatsapp, payment_reference,
       delivery_method, delivery_provider, delivery_address, delivery_date, delivery_time,
-      subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_rate_bps, vat_inclusive, vat_number,
+      subtotal_nad, delivery_fee_nad, callout_fee_nad, discount_nad, vat_nad, vat_rate_bps, vat_inclusive, vat_number,
       payment_method, status, notes, created_at,
       merchants (
         store_name, whatsapp_number, logo_url, vat_number, vat_inclusive, town, region,
@@ -88,7 +88,8 @@ export default async function InvoicePage({ params }: Props) {
   });
 
   const subtotalAfterDiscount = order.subtotal_nad - (order.discount_nad ?? 0);
-  const preVatTotal = subtotalAfterDiscount + (order.delivery_fee_nad ?? 0);
+  const preVatTotal =
+    subtotalAfterDiscount + (order.delivery_fee_nad ?? 0) + (order.callout_fee_nad ?? 0);
 
   // VAT — one calculation, not two. This file previously computed vatAmount,
   // totalExclVat and total once from the merchant's live settings and then
@@ -316,6 +317,17 @@ export default async function InvoicePage({ params }: Props) {
                   <dt className="text-slate-500">Delivery</dt>
                   <dd className="text-right tabular-nums text-slate-900">
                     {formatPrice(order.delivery_fee_nad)}
+                  </dd>
+                </>
+              )}
+
+              {/* Travel for on-site services, kept off the delivery line so a
+                  call-out is not mistaken for product delivery. */}
+              {(order.callout_fee_nad ?? 0) > 0 && (
+                <>
+                  <dt className="text-slate-500">Call-out</dt>
+                  <dd className="text-right tabular-nums text-slate-900">
+                    {formatPrice(order.callout_fee_nad)}
                   </dd>
                 </>
               )}

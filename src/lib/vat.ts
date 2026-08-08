@@ -56,20 +56,34 @@ export function calculateVatBreakdown({
   };
 }
 
+/**
+ * What the order is worth before VAT, in cents.
+ *
+ * callout_fee_nad is the merchant's own travel charge for services booked at
+ * the customer's place. It is separate from delivery_fee_nad so a plumber's
+ * call-out is not reported as product delivery, but it is just as payable —
+ * leaving it out here would understate every document that shows a total.
+ * Existing orders carry 0, so nothing historical moves.
+ */
 export function getOrderBaseTotal(order: {
   subtotal_nad?: number | null;
   delivery_fee_nad?: number | null;
+  callout_fee_nad?: number | null;
   discount_nad?: number | null;
 }) {
   return Math.max(
     0,
-    (order.subtotal_nad || 0) + (order.delivery_fee_nad || 0) - (order.discount_nad || 0)
+    (order.subtotal_nad || 0) +
+      (order.delivery_fee_nad || 0) +
+      (order.callout_fee_nad || 0) -
+      (order.discount_nad || 0)
   );
 }
 
 export function getOrderPayableTotal(order: {
   subtotal_nad?: number | null;
   delivery_fee_nad?: number | null;
+  callout_fee_nad?: number | null;
   discount_nad?: number | null;
   vat_nad?: number | null;
   vat_inclusive?: boolean | null;

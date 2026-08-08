@@ -44,6 +44,7 @@ function order(over: Partial<StatementOrder> = {}): StatementOrder {
     subtotal_nad: 10000,
     discount_nad: 0,
     delivery_fee_nad: 0,
+    callout_fee_nad: 0,
     vat_nad: 0,
     vat_inclusive: false,
     ...over,
@@ -100,6 +101,18 @@ check(
     vat_nad: 4400,
     vat_inclusive: false,
   })
+);
+
+// A call-out is the merchant's own travel charge, payable like any other line.
+check(
+  "call-out fee is payable",
+  orderTotal(order({ subtotal_nad: 50000, callout_fee_nad: 5000 })),
+  55000
+);
+check(
+  "call-out is taxed like the rest when VAT is exclusive",
+  orderTotal(order({ subtotal_nad: 50000, callout_fee_nad: 5000, vat_nad: 8250 })),
+  63250
 );
 
 // --- Statement totals ----------------------------------------------------

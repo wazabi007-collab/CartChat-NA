@@ -1,0 +1,20 @@
+-- Charge the merchant's call-out fee when a booked service happens at the
+-- customer's place.
+--
+-- Five changes from the previous definition, all marked CALL-OUT in the body:
+--   1. v_callout_fee declared
+--   2. m.callout_fee_nad read into v_merchant
+--   3. the fee derived from order_items joined to products.service_mode
+--   4. added to v_taxable_total, so VAT is charged on it
+--   5. persisted to orders.callout_fee_nad in the closing UPDATE
+--
+-- Derived from order_items rather than the request payload on purpose: this
+-- function already ignores the fee the client sends and recomputes server-side
+-- so a buyer cannot forge a cheaper order, and the same must hold for travel.
+-- The items are inserted earlier in this function, so by this point they are
+-- validated rows, not claims.
+--
+-- The full function body as applied is in the Supabase migration of the same
+-- name. Verified on the test store before release:
+--   on-site service, pickup  -> N$130 subtotal + N$60 call-out = N$190
+--   ordinary product, pickup -> call-out 0

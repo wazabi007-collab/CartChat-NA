@@ -4,10 +4,13 @@ import { TOWN_LABELS } from "@/lib/constants";
 import { INDUSTRY_LABELS, type EnrichedStore } from "@/lib/storefront/store-list";
 import { StoreThumbGrid } from "@/components/storefront/store-thumb-grid";
 import { IndustryIcon } from "@/components/industry-icon";
+import { getThemeConfig } from "@/lib/industry";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 /** One store's card on /stores and /stores/[region]. */
 export function StoreListCard({ store }: { store: EnrichedStore }) {
+  const sellsServices = getThemeConfig(store.industry)?.isService ?? false;
+
   return (
     <Link
       href={`/s/${store.store_slug}`}
@@ -37,8 +40,15 @@ export function StoreListCard({ store }: { store: EnrichedStore }) {
               </p>
             )}
             <p className="text-xs font-semibold text-walnut-2/70">
-              {INDUSTRY_LABELS[store.industry || "other"] || "General"} &middot; {store.productCount} product
-              {store.productCount !== 1 ? "s" : ""}
+              {INDUSTRY_LABELS[store.industry || "other"] || "General"} &middot;{" "}
+              {store.productCount}{" "}
+              {sellsServices
+                ? store.productCount === 1
+                  ? "service"
+                  : "services"
+                : store.productCount === 1
+                ? "product"
+                : "products"}
             </p>
           </div>
         </div>

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "../cart-provider";
 import { getCtaText, getDisplayPrice, getStockLabel, type LayoutProps } from "./types";
+import type { ServiceMode } from "@/lib/service-mode";
 
 export function ServiceList({ products, theme, slug, disabled }: LayoutProps) {
   const { addItem } = useCart();
@@ -70,6 +71,7 @@ export function ServiceList({ products, theme, slug, disabled }: LayoutProps) {
                   onClick={() =>
                     addItem({
                       productId: product.id,
+                      serviceMode: (product.service_mode as ServiceMode | null) ?? null,
                       name: product.name,
                       price: product.price_nad,
                       imageUrl,

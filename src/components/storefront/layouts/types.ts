@@ -11,6 +11,7 @@ export interface LayoutProduct {
   low_stock_threshold: number | null;
   allow_backorder: boolean;
   item_type?: string;
+  service_mode?: string | null;
   has_variants?: boolean;
 }
 

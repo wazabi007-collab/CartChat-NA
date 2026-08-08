@@ -21,6 +21,7 @@ import { track } from "@/lib/track";
 import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS, getEwalletProviderLabel, isCourierAvailable } from "@/lib/constants";
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
+import { summariseFulfilment, fulfilmentSummary } from "@/lib/service-mode";
 import type { DeliveryMethod, DeliveryProvider, PaymentMethod } from "@/types/database";
 import { PhoneInput } from "@/components/phone-input";
 import {
@@ -223,6 +224,17 @@ export function CheckoutForm({
   const [customerName, setCustomerName] = useState("");
   const [customerWhatsapp, setCustomerWhatsapp] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
+
+  // What this specific basket needs, which is not the same as what the
+  // merchant sells: a salon cart can hold an online consult, an in-salon
+  // appointment and an on-site visit, and those ask for different things.
+  const fulfilment = summariseFulfilment(
+    cartItems.map((item) => ({ serviceMode: item.serviceMode }))
+  );
+  // Fall back to the merchant's archetype for carts whose items were added
+  // before service_mode existed.
+  const needsSchedule = fulfilment.needsSchedule || isService;
+  const serviceNeedsAddress = fulfilment.serviceNeedsAddress;
   const [deliveryProvider, setDeliveryProvider] = useState<DeliveryProvider>(
     (effectiveDeliveryProviders[0] as DeliveryProvider) ?? "store"
   );
@@ -427,7 +439,7 @@ export function CheckoutForm({
       setError("Please enter a valid WhatsApp number");
       return;
     }
-    if (deliveryMethod === "delivery" && !deliveryAddress.trim()) {
+    if ((deliveryMethod === "delivery" || serviceNeedsAddress) && !deliveryAddress.trim()) {
       setError("Please enter a delivery address");
       return;
     }
@@ -536,7 +548,9 @@ export function CheckoutForm({
           p_delivery_method: deliveryMethod,
           p_subtotal_nad: subtotal,
           p_delivery_address:
-            deliveryMethod === "delivery" ? deliveryAddress.trim() : null,
+            deliveryMethod === "delivery" || serviceNeedsAddress
+              ? deliveryAddress.trim()
+              : null,
           p_delivery_date: deliveryDate || null,
           p_delivery_time: deliveryTime || null,
           p_notes: orderNotes,
@@ -637,7 +651,10 @@ export function CheckoutForm({
           payment_ref: order.payment_reference,
           delivery_method: deliveryMethod,
           delivery_provider: effectiveDeliveryProvider,
-          delivery_address: deliveryMethod === "delivery" ? deliveryAddress.trim() : null,
+          delivery_address:
+            deliveryMethod === "delivery" || serviceNeedsAddress
+              ? deliveryAddress.trim()
+              : null,
           delivery_date: deliveryDate || null,
           delivery_time: deliveryTime || null,
           notes: orderNotes,
@@ -988,6 +1005,12 @@ export function CheckoutForm({
           </label>
         </div>
 
+        {fulfilmentSummary(fulfilment) && (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">
+            {fulfilmentSummary(fulfilment)}
+          </div>
+        )}
+
         {deliveryMethod === "pickup" && pickupAddress?.trim() && (
           <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
             <span className="font-semibold">Collect from:</span> {pickupAddress}
@@ -999,6 +1022,28 @@ export function CheckoutForm({
             <Clock className="w-4 h-4 text-slate-400" />
             Usually ready in {deliveryEstimate}
           </p>
+        )}
+
+        {/* An on-site service needs an address even when the customer picked
+            collection for goods. Without this the address field stays inside
+            the delivery-only branch while validation demands one, and checkout
+            cannot be completed at all. Skipped when the delivery branch is
+            already showing its own address field. */}
+        {serviceNeedsAddress && deliveryMethod !== "delivery" && (
+          <div>
+            <label className={label}>
+              Where should we come to?<span className="text-red-500 ml-0.5">*</span>
+            </label>
+            <textarea
+              value={deliveryAddress}
+              onChange={(e) => setDeliveryAddress(e.target.value)}
+              required
+              maxLength={500}
+              rows={3}
+              className={`${textareaBase} ${focusGreen}`}
+              placeholder="Street address, suburb, and anything that helps us find you"
+            />
+          </div>
         )}
 
         {deliveryMethod === "delivery" && (
@@ -1063,7 +1108,8 @@ export function CheckoutForm({
 
             <div>
               <label className={label}>
-                Delivery Address<span className="text-red-500 ml-0.5">*</span>
+                {serviceNeedsAddress ? "Where should we come to?" : "Delivery Address"}
+                <span className="text-red-500 ml-0.5">*</span>
               </label>
               <textarea
                 value={deliveryAddress}
@@ -1083,7 +1129,7 @@ export function CheckoutForm({
             merchant or the merchant travels to them, so this is no longer
             gated on choosing delivery. A salon client picking "collection"
             previously got no date picker at all. */}
-        {(isService || deliveryMethod === "delivery") && deliverySlots?.enabled && (
+        {(needsSchedule || deliveryMethod === "delivery") && deliverySlots?.enabled && (
           <>
             {(() => {
               const availableDates = getAvailableDates(deliverySlots.days);

@@ -10,6 +10,7 @@ import {
   sortVariantOptionValues,
 } from "@/lib/industry-variant-presets";
 import { useVariantImages } from "./product-gallery";
+import type { ServiceMode } from "@/lib/service-mode";
 
 type Variant = {
   id: string;
@@ -119,6 +120,10 @@ export function ProductPurchasePanel({
     if (!canAdd) return;
     addItem({
       productId: product.id,
+      // src/types/database.ts predates migration 062, so read the column
+      // structurally until the generated types are refreshed.
+      serviceMode:
+        ((product as { service_mode?: string | null }).service_mode as ServiceMode | null) ?? null,
       variantId: selectedVariant?.id ?? null,
       variantSku: selectedVariant?.sku ?? null,
       variantAttributes: selectedVariant?.attributes ?? undefined,

@@ -8,6 +8,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import type { ServiceMode } from "@/lib/service-mode";
 
 export interface CartItem {
   productId: string;
@@ -18,6 +19,8 @@ export interface CartItem {
   price: number; // in cents
   quantity: number;
   imageUrl: string | null;
+  /** Where this service happens. Absent for ordinary goods. */
+  serviceMode?: ServiceMode | null;
 }
 
 export interface CartVatSettings {

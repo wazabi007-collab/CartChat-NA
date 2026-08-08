@@ -52,6 +52,10 @@ const INCLUDED_EVERYWHERE = [
   "WhatsApp broadcast to your customers",
   "Bulk product import from a spreadsheet",
   "Record payments received against orders",
+  "One-tap reorder for repeat customers",
+  "Yango and inDrive courier booking",
+  "Live order tracking link for customers",
+  "Listed in Browse Stores for your town",
   "Tax invoices with VAT",
   "Sales analytics",
   "Install OshiCart as an app on your phone",
@@ -98,6 +102,7 @@ export const PUBLIC_PLANS: PublicPlan[] = [
       // Both genuinely gated — see CART_RECOVERY_TIERS and STATEMENT_TIERS.
       "Abandoned-checkout WhatsApp recovery",
       "Monthly statements with VAT totals",
+      "Bank reconciliation — what came in, what is still owed",
       "Spreadsheet export for your bookkeeper",
     ],
   },
@@ -126,5 +131,6 @@ export const PUBLIC_PLANS: PublicPlan[] = [
 export const ADVERTISED_GATES: { feature: string; lowestTier: SubscriptionTier }[] = [
   { feature: "Abandoned-checkout WhatsApp recovery", lowestTier: "oshi_grow" },
   { feature: "Monthly statements with VAT totals", lowestTier: "oshi_grow" },
+  { feature: "Bank reconciliation — what came in, what is still owed", lowestTier: "oshi_grow" },
   { feature: "No OshiCart branding on your store", lowestTier: "oshi_basic" },
 ];

@@ -34,6 +34,8 @@ const RANK: Record<SubscriptionTier, number> = {
 const GATE_CHECKS: Record<string, (tier: SubscriptionTier) => boolean> = {
   "Abandoned-checkout WhatsApp recovery": hasCartRecovery,
   "Monthly statements with VAT totals": hasStatements,
+  // The received/outstanding view lives on the statements page.
+  "Bank reconciliation — what came in, what is still owed": hasStatements,
   // Branding is inverted: paying removes the badge.
   "No OshiCart branding on your store": (tier) => !showBranding(tier),
 };

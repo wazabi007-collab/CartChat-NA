@@ -22,6 +22,7 @@ import { StoreReviews, type StoreReview } from "@/components/storefront/store-re
 import { StoreCategoryGrid } from "@/components/storefront/store-category-grid";
 import { JsonLd } from "@/components/json-ld";
 import { PreviewBanner } from "@/components/storefront/preview-banner";
+import { OwnerBar } from "@/components/storefront/owner-bar";
 import { InstallBar } from "@/components/pwa/install-bar";
 import { readPreviewState } from "@/lib/preview";
 
@@ -138,7 +139,8 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   const reviewTotal = ratingRow?.total != null ? Number(ratingRow.total) : 0;
   const reviews = (reviewRows ?? []) as StoreReview[];
 
-  const isPreview = previewCookie && !!userId && merchant.user_id === userId;
+  const isOwner = !!userId && merchant.user_id === userId;
+  const isPreview = previewCookie && isOwner;
 
   const variantSearchProductIds: string[] = [];
   if (searchTerm) {
@@ -321,7 +323,8 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {isPreview && <PreviewBanner />}
+      {/* Preview mode already carries a dashboard link, so never show both. */}
+      {isPreview ? <PreviewBanner /> : isOwner && <OwnerBar />}
       <JsonLd data={breadcrumbSchema} />
       <JsonLd data={localBusinessSchema} />
       {!isPreview && <TrackView merchantId={merchant.id} />}
@@ -543,9 +546,18 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
           ) : (
             <span />
           )}
-          {!isPreview && (
-            <ReportButton merchantId={merchant.id} storeName={merchant.store_name} />
-          )}
+          <div className="flex items-center gap-4">
+            {/* The merchant's own route back in when they are signed out.
+                Deliberately quiet — shoppers have no use for it. */}
+            {!isOwner && (
+              <Link href="/login" className="transition-colors hover:text-gray-600">
+                Store owner? Sign in
+              </Link>
+            )}
+            {!isPreview && (
+              <ReportButton merchantId={merchant.id} storeName={merchant.store_name} />
+            )}
+          </div>
         </div>
       </footer>
     </div>

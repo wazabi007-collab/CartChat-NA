@@ -307,7 +307,7 @@ export default async function InvoicePage({ params }: Props) {
                 <>
                   <dt className="text-acacia">Discount{coupon ? ` (${coupon.code})` : ""}</dt>
                   <dd className="text-right tabular-nums text-acacia">
-                    −{formatPrice(order.discount_nad)}
+                    −{formatPrice(order.discount_nad ?? 0)}
                   </dd>
                 </>
               )}
@@ -316,7 +316,7 @@ export default async function InvoicePage({ params }: Props) {
                 <>
                   <dt className="text-slate-500">Delivery</dt>
                   <dd className="text-right tabular-nums text-slate-900">
-                    {formatPrice(order.delivery_fee_nad)}
+                    {formatPrice(order.delivery_fee_nad ?? 0)}
                   </dd>
                 </>
               )}
@@ -327,7 +327,7 @@ export default async function InvoicePage({ params }: Props) {
                 <>
                   <dt className="text-slate-500">Call-out</dt>
                   <dd className="text-right tabular-nums text-slate-900">
-                    {formatPrice(order.callout_fee_nad)}
+                    {formatPrice(order.callout_fee_nad ?? 0)}
                   </dd>
                 </>
               )}

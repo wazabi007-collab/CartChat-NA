@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
       merchant.store_name,
       formatPrice(total),
     ],
-    buttonParams: [order.tracking_token],
+    buttonParams: [order.tracking_token ?? ""],
   });
 
   // The buyer completed the purchase, so close any open abandoned-checkout row

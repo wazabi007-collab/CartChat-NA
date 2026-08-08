@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { TIER_LIMITS, type SubscriptionTier } from "@/lib/tier-limits";
 import { scanTextForProhibitedContent } from "@/lib/safety/prohibited-content";
+import type { ProductInsert } from "@/types/database";
 
 /**
  * POST /api/products/import — bulk-create products from a parsed CSV.
@@ -102,7 +103,7 @@ export async function POST(req: NextRequest) {
     if (created) categoryByName.set(name.toLowerCase(), created.id as string);
   }
 
-  const toInsert: Record<string, unknown>[] = [];
+  const toInsert: ProductInsert[] = [];
   const skipped: { row: number; name: string; reason: string }[] = [];
   const flaggedForReview: string[] = [];
 

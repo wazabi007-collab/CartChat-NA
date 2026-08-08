@@ -18,7 +18,7 @@ interface Coupon {
   code: string;
   discount_type: "percentage" | "fixed";
   discount_value: number;
-  min_order_nad: number;
+  min_order_nad: number | null;
   max_uses: number | null;
   current_uses: number;
   is_active: boolean;
@@ -511,8 +511,8 @@ export default function CouponsPage() {
                       {coupon.discount_type === "percentage"
                         ? `${coupon.discount_value}% off`
                         : `${formatPrice(coupon.discount_value)} off`}
-                      {coupon.min_order_nad > 0
-                        ? ` (min. order ${formatPrice(coupon.min_order_nad)})`
+                      {(coupon.min_order_nad ?? 0) > 0
+                        ? ` (min. order ${formatPrice(coupon.min_order_nad ?? 0)})`
                         : ""}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">

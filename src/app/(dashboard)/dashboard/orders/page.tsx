@@ -16,6 +16,7 @@ import { OrderItemsToggle } from "@/components/dashboard/order-items-toggle";
 import { card, statusPill } from "@/lib/ui";
 import { Bot, Clock3, FileText, ImageIcon, PackageCheck, ReceiptText, ShieldCheck } from "lucide-react";
 import { resolveProofPath, isPdfProof } from "@/lib/proof";
+import type { OrderStatus } from "@/types/database";
 
 export default async function OrdersPage({
   searchParams,
@@ -49,7 +50,7 @@ export default async function OrdersPage({
     statusFilter &&
     ["pending", "confirmed", "ready", "completed", "cancelled"].includes(statusFilter)
   ) {
-    query = query.eq("status", statusFilter);
+    query = query.eq("status", statusFilter as OrderStatus);
   }
 
   const { data: orders } = await query;
@@ -235,11 +236,11 @@ export default async function OrdersPage({
                   <p className="font-bold text-gray-900">
                     {formatPrice(orderTotal)}
                   </p>
-                  {(order.discount_nad > 0 || order.delivery_fee_nad > 0) && (
+                  {((order.discount_nad ?? 0) > 0 || (order.delivery_fee_nad ?? 0) > 0) && (
                     <p className="text-xs text-gray-400">
-                      {order.discount_nad > 0 ? `-${formatPrice(order.discount_nad)} disc` : ""}
-                      {order.discount_nad > 0 && order.delivery_fee_nad > 0 ? " · " : ""}
-                      {order.delivery_fee_nad > 0 ? `+${formatPrice(order.delivery_fee_nad)} delivery` : ""}
+                      {(order.discount_nad ?? 0) > 0 ? `-${formatPrice(order.discount_nad ?? 0)} disc` : ""}
+                      {(order.discount_nad ?? 0) > 0 && (order.delivery_fee_nad ?? 0) > 0 ? " · " : ""}
+                      {(order.delivery_fee_nad ?? 0) > 0 ? `+${formatPrice(order.delivery_fee_nad ?? 0)} delivery` : ""}
                     </p>
                   )}
                   {order.status !== "cancelled" && (

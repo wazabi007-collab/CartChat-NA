@@ -34,9 +34,12 @@ export type DeliveryProvider = "store" | "yango" | "indrive";
 /** Convenience row helpers, so callers stop redeclaring table shapes locally. */
 type Tables = Database["public"]["Tables"];
 export type Row<T extends keyof Tables> = Tables[T]["Row"];
+export type Insert<T extends keyof Tables> = Tables[T]["Insert"];
 
 export type MerchantRow = Row<"merchants">;
 export type ProductRow = Row<"products">;
 export type OrderRow = Row<"orders">;
 export type OrderItemRow = Row<"order_items">;
 export type OrderPaymentRow = Row<"order_payments">;
+
+export type ProductInsert = Insert<"products">;

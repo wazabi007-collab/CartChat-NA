@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedAdmin } from "@/lib/admin-auth";
 import { hasPermission } from "@/lib/admin-permissions";
 import { createServiceClient } from "@/lib/supabase/service";
+import type { StoreStatus } from "@/types/database";
 
 type SafetyReviewRow = {
   id: string;
@@ -88,7 +89,7 @@ export async function PATCH(request: NextRequest) {
   if (storeStatusString && ["active", "suspended", "banned"].includes(storeStatusString)) {
     const { error } = await service
       .from("merchants")
-      .update({ store_status: storeStatusString })
+      .update({ store_status: storeStatusString as StoreStatus })
       .eq("id", review.merchant_id);
 
     if (error) {

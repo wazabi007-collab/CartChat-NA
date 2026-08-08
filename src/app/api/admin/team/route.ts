@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
   const { error } = await service.from("admin_users").insert({
     user_id: targetUser.id,
-    email: targetUser.email,
+    email: targetUser.email ?? "",
     role,
     created_by: admin.adminId !== "env-fallback" ? admin.adminId : null,
   });

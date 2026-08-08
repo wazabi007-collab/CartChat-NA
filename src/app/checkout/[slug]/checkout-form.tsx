@@ -550,14 +550,14 @@ export function CheckoutForm({
           p_delivery_address:
             deliveryMethod === "delivery" || serviceNeedsAddress
               ? deliveryAddress.trim()
-              : null,
-          p_delivery_date: deliveryDate || null,
-          p_delivery_time: deliveryTime || null,
-          p_notes: orderNotes,
-          p_proof_url: null,
+              : undefined,
+          p_delivery_date: deliveryDate || undefined,
+          p_delivery_time: deliveryTime || undefined,
+          p_notes: orderNotes ?? undefined,
+          p_proof_url: undefined,
           p_items: cartItems.map((item) => ({
             productId: item.productId,
-            variantId: item.variantId || null,
+            variantId: item.variantId || undefined,
             name: item.name,
             price: item.price,
             quantity: item.quantity,
@@ -565,9 +565,9 @@ export function CheckoutForm({
           p_delivery_fee: deliveryFee,
           p_delivery_provider: effectiveDeliveryProvider,
           p_payment_method: paymentMethod,
-          p_coupon_code: couponApplied?.code || null,
+          p_coupon_code: couponApplied?.code || undefined,
           p_discount_nad: 0, // server calculates
-          p_payment_ref: paymentMethod === "eft" ? preRef : null,
+          p_payment_ref: paymentMethod === "eft" ? preRef : undefined,
         }
       );
 

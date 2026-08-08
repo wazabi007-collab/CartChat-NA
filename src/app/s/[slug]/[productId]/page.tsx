@@ -208,7 +208,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   <span className="inline-block bg-red-100 text-red-700 text-sm font-medium px-3 py-1 rounded-full">
                     Out of Stock
                   </span>
-                ) : product.stock_quantity <= (product.low_stock_threshold ?? 5) ? (
+                ) : (product.stock_quantity ?? 0) <= (product.low_stock_threshold ?? 5) ? (
                   <span className="inline-block bg-orange-100 text-orange-700 text-sm font-medium px-3 py-1 rounded-full">
                     Only {product.stock_quantity} left!
                   </span>

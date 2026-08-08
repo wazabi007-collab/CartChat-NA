@@ -29,6 +29,7 @@ import {
   alertIcon,
   alertInfo,
 } from "@/lib/ui";
+import type { Json } from "@/types/database";
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -135,7 +136,7 @@ export default function SettingsPage() {
           cart_recovery_enabled: merchant.cart_recovery_enabled ?? true,
         });
         if (merchant.delivery_slots) {
-          setDeliverySlots(merchant.delivery_slots as DeliverySlots);
+          setDeliverySlots(merchant.delivery_slots as unknown as DeliverySlots);
         }
       }
       setLoading(false);
@@ -225,7 +226,7 @@ export default function SettingsPage() {
         bank_account_number: form.bank_account_number || null,
         bank_account_holder: form.bank_account_holder || null,
         bank_branch_code: form.bank_branch_code || null,
-        delivery_slots: deliverySlots.enabled ? deliverySlots : null,
+        delivery_slots: (deliverySlots.enabled ? deliverySlots : null) as unknown as Json,
         delivery_fee_nad: deliveryFeeCents,
         callout_fee_nad: calloutFeeCents,
         delivery_estimate: form.delivery_estimate.trim() || null,

@@ -5,6 +5,7 @@ import { hasPermission } from "@/lib/admin-permissions";
 import { TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
 import { formatDateForWhatsApp, sendWhatsAppEvent } from "@/lib/whatsapp-events";
 import { z } from "zod";
+import type { Json } from "@/types/database";
 
 const subscriptionUpdateSchema = z.object({
   merchant_id: z.string().uuid(),
@@ -89,7 +90,7 @@ export async function PATCH(request: NextRequest) {
     action: tier ? "change_tier" : "change_subscription_status",
     target_type: "subscription",
     target_id: merchant_id,
-    details: { before, after: updates },
+    details: { before, after: updates } as unknown as Json,
   });
 
   const { data: merchant } = await service

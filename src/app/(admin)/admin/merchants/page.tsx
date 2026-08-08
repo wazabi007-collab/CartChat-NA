@@ -10,6 +10,7 @@ import {
   type SubscriptionStatus,
   type SubscriptionTier,
 } from "@/lib/tier-limits";
+import type { StoreStatus } from "@/types/database";
 
 export default async function MerchantsPage({
   searchParams,
@@ -26,7 +27,7 @@ export default async function MerchantsPage({
     .order("created_at", { ascending: false });
 
   if (status && ["pending", "active", "suspended", "banned"].includes(status)) {
-    query = query.eq("store_status", status);
+    query = query.eq("store_status", status as StoreStatus);
   }
 
   const { data: merchants } = await query;

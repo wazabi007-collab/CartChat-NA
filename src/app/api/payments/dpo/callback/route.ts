@@ -4,6 +4,7 @@ import { verifyToken } from "@/lib/dpo";
 import { SITE_URL } from "@/lib/constants";
 import { TIER_LABELS } from "@/lib/tier-limits";
 import { formatDateForWhatsApp, notifyAdmins, sendWhatsAppEvent } from "@/lib/whatsapp-events";
+import type { SubscriptionTier } from "@/types/database";
 
 /**
  * GET /api/payments/dpo/callback
@@ -85,7 +86,7 @@ export async function GET(req: NextRequest) {
         await supabase
           .from("subscriptions")
           .update({
-            tier: sub.pending_tier,
+            tier: sub.pending_tier as SubscriptionTier,
             status: "active",
             current_period_start: periodStart.toISOString(),
             current_period_end: periodEnd.toISOString(),

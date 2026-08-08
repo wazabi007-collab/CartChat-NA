@@ -53,5 +53,5 @@ export default async function TrackPage({
     merchants: Array.isArray(order.merchants) ? order.merchants[0] : order.merchants,
   };
 
-  return <TrackerClient initialOrder={normalized as Order} token={token} />;
+  return <TrackerClient initialOrder={normalized as unknown as Order} token={token} />;
 }

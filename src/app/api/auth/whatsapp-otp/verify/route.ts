@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check attempts (brute-force protection)
-    if (otpRow.attempts >= MAX_ATTEMPTS) {
+    if ((otpRow.attempts ?? 0) >= MAX_ATTEMPTS) {
       await supabase
         .from("phone_otp_codes")
         .update({ verified: true })
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     // Increment attempts
     await supabase
       .from("phone_otp_codes")
-      .update({ attempts: otpRow.attempts + 1 })
+      .update({ attempts: (otpRow.attempts ?? 0) + 1 })
       .eq("id", otpRow.id);
 
     // Timing-safe comparison of hashed OTP

@@ -111,7 +111,7 @@ export default async function DashboardPage({
     ]);
 
   const lowStockProducts = (lowStockResult.data || []).filter(
-    (p) => p.stock_quantity <= (p.low_stock_threshold ?? 5)
+    (p) => (p.stock_quantity ?? 0) <= (p.low_stock_threshold ?? 5)
   );
 
   const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;

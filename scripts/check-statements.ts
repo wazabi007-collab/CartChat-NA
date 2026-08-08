@@ -7,11 +7,17 @@
  *
  *   npx tsx scripts/check-statements.ts
  */
+import { getOrderPayableTotal } from "../src/lib/vat";
 import {
   orderTotal,
   buildStatement,
   statementToCsv,
+  receivedByOrder,
+  paymentState,
+  summarisePayments,
+  summariseOutstanding,
   type StatementOrder,
+  type OrderPayment,
 } from "../src/lib/statements";
 
 let failures = 0;
@@ -29,6 +35,7 @@ function check(name: string, actual: unknown, expected: unknown) {
 
 function order(over: Partial<StatementOrder> = {}): StatementOrder {
   return {
+    id: `order-${over.order_number ?? 1}`,
     order_number: 1,
     created_at: "2026-08-07T09:00:00+00:00",
     customer_name: "Test Customer",
@@ -71,6 +78,28 @@ check(
   "null money fields are treated as zero",
   orderTotal(order({ discount_nad: null, delivery_fee_nad: null, vat_nad: null })),
   10000
+);
+
+// A coupon worth more than the order floors at zero rather than going negative.
+// The dashboard and invoice both floor it, so a statement that did not would
+// drag the month's total below what the merchant actually invoiced.
+check(
+  "discount larger than the order floors at zero",
+  orderTotal(order({ subtotal_nad: 5000, delivery_fee_nad: 0, discount_nad: 9000 })),
+  0
+);
+
+// Must agree with the shared helper the dashboard and admin analytics use.
+check(
+  "matches getOrderPayableTotal",
+  orderTotal(order({ subtotal_nad: 29332, vat_nad: 4400, vat_inclusive: false })),
+  getOrderPayableTotal({
+    subtotal_nad: 29332,
+    delivery_fee_nad: 0,
+    discount_nad: 0,
+    vat_nad: 4400,
+    vat_inclusive: false,
+  })
 );
 
 // --- Statement totals ----------------------------------------------------
@@ -132,8 +161,99 @@ check("csv has a header and one row", csvLines.length, 2);
 check(
   "csv escapes quotes in names",
   csvLines[1],
-  '2026-08-07,7,"Anna ""AJ"" Shipanga",eft,completed,293.32,0.00,0.00,44.00,337.32'
+  // No payments passed, so Received is 0.00 and the whole total is outstanding.
+  '2026-08-07,7,"Anna ""AJ"" Shipanga",eft,completed,293.32,0.00,0.00,44.00,337.32,0.00,337.32'
 );
+
+// --- Payments received ---------------------------------------------------
+
+function payment(over: Partial<OrderPayment> = {}): OrderPayment {
+  return {
+    order_id: "order-1",
+    amount_nad: 10000,
+    paid_at: "2026-08-10",
+    method: "eft",
+    voided_at: null,
+    ...over,
+  };
+}
+
+// A deposit then a balance is one order and two bank lines — the case two
+// columns on `orders` could not have expressed.
+const split = [
+  payment({ order_id: "order-1", amount_nad: 4000, paid_at: "2026-08-02" }),
+  payment({ order_id: "order-1", amount_nad: 6000, paid_at: "2026-08-09" }),
+];
+check("two payments sum on one order", receivedByOrder(split).get("order-1"), 10000);
+
+// Voided payments are reversals; they must never count anywhere.
+check(
+  "voided payment ignored",
+  receivedByOrder([payment({ voided_at: "2026-08-11T00:00:00Z" })]).get("order-1"),
+  undefined
+);
+check(
+  "voided payment excluded from period total",
+  summarisePayments([payment(), payment({ voided_at: "2026-08-11T00:00:00Z" })]).total,
+  10000
+);
+
+check("unpaid", paymentState(10000, 0), "unpaid");
+check("part paid", paymentState(10000, 4000), "part");
+check("paid in full", paymentState(10000, 10000), "paid");
+check("overpaid", paymentState(10000, 12000), "over");
+
+// Money received in a period is summed by paid_at, independent of when the
+// orders were placed — a September payment can settle an August order. This is
+// the figure that has to match the bank.
+const augustPayments = [
+  payment({ order_id: "order-1", amount_nad: 25000, method: "eft" }),
+  payment({ order_id: "order-2", amount_nad: 15000, method: "cod" }),
+  payment({ order_id: "order-3", amount_nad: 5000, method: "eft" }),
+];
+const received = summarisePayments(augustPayments);
+check("payments counted", received.count, 3);
+check("payments total", received.total, 45000);
+check("payments grouped by method", received.byMethod.map((g) => [g.key, g.total]), [
+  ["eft", 30000],
+  ["cod", 15000],
+]);
+check(
+  "method breakdown reconciles to the payment total",
+  received.byMethod.reduce((sum, g) => sum + g.total, 0),
+  received.total
+);
+
+// Outstanding across a period.
+const owedOrders = [
+  order({ order_number: 1, subtotal_nad: 10000 }),
+  order({ order_number: 2, subtotal_nad: 20000 }),
+  order({ order_number: 3, subtotal_nad: 5000, status: "cancelled" }),
+];
+const owed = summariseOutstanding(owedOrders, [
+  payment({ order_id: "order-1", amount_nad: 10000 }),
+  payment({ order_id: "order-2", amount_nad: 8000 }),
+]);
+check("outstanding balance", owed.outstanding, 12000);
+check("orders still owing", owed.unpaidOrders, 1);
+// Cancelled orders never create a debt.
+check("cancelled order not counted as owing", owed.overpaid, 0);
+
+check(
+  "overpayment surfaced rather than hidden",
+  summariseOutstanding([order({ order_number: 1, subtotal_nad: 10000 })], [
+    payment({ order_id: "order-1", amount_nad: 11000 }),
+  ]),
+  { outstanding: 0, overpaid: 1000, unpaidOrders: 0 }
+);
+
+// CSV carries the reconciliation columns.
+const paidCsv = statementToCsv(
+  [order({ order_number: 1, subtotal_nad: 10000 })],
+  [payment({ order_id: "order-1", amount_nad: 4000 })]
+).split("\n");
+check("csv header has received and outstanding", paidCsv[0].endsWith("Total,Received,Outstanding"), true);
+check("csv row shows the shortfall", paidCsv[1].endsWith("100.00,40.00,60.00"), true);
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

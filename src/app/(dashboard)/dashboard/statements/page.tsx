@@ -16,7 +16,11 @@ import {
 import {
   buildStatement,
   orderTotal,
+  summarisePayments,
+  summariseOutstanding,
+  receivedByOrder,
   type StatementOrder,
+  type OrderPayment,
 } from "@/lib/statements";
 import { hasStatements, TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
 import { StatementControls } from "./statement-controls";
@@ -106,6 +110,36 @@ export default async function StatementsPage({ searchParams }: Props) {
   const orders = (orderRows ?? []) as StatementOrder[];
   const statement = buildStatement(orders);
 
+  // Two different questions, and merchants need both:
+  //  - what was invoiced this month (the orders above)
+  //  - what money actually arrived this month (below)
+  // A September payment can settle an August order, so payments are selected by
+  // paid_at, not by the order's date. This is the figure that matches the bank.
+  const service = createServiceClient();
+  const { data: paymentRows } = await service
+    .from("order_payments")
+    .select("order_id, amount_nad, paid_at, method, voided_at")
+    .eq("merchant_id", merchant.id)
+    .is("voided_at", null)
+    .gte("paid_at", startISO.slice(0, 10))
+    .lt("paid_at", endISO.slice(0, 10));
+
+  const periodPayments = (paymentRows ?? []) as OrderPayment[];
+  const receipts = summarisePayments(periodPayments);
+
+  // Outstanding is measured against this month's orders, so it needs every
+  // payment for them, including ones made in a later month.
+  const { data: allOrderPayments } = await service
+    .from("order_payments")
+    .select("order_id, amount_nad, paid_at, method, voided_at")
+    .eq("merchant_id", merchant.id)
+    .is("voided_at", null)
+    .in("order_id", orders.length > 0 ? orders.map((o) => o.id) : ["none"]);
+
+  const orderPayments = (allOrderPayments ?? []) as OrderPayment[];
+  const owed = summariseOutstanding(orders, orderPayments);
+  const receivedPerOrder = receivedByOrder(orderPayments);
+
   const periodLabel = new Date(`${selected}-01T00:00:00+02:00`).toLocaleDateString("en-GB", {
     month: "long",
     year: "numeric",
@@ -132,6 +166,7 @@ export default async function StatementsPage({ searchParams }: Props) {
         selected={selected}
         storeName={merchant.store_name}
         orders={orders}
+        payments={orderPayments}
       />
 
       {/* The statement document — styled to match the customer invoice. */}
@@ -169,6 +204,38 @@ export default async function StatementsPage({ searchParams }: Props) {
           <Figure label="Sales excl. VAT" value={formatPrice(statement.totals.excludingVat)} />
           <Figure label={`VAT (${VAT_RATE_LABEL})`} value={formatPrice(statement.totals.vat)} />
           <Figure label="Total invoiced" value={formatPrice(statement.totals.total)} strong />
+        </section>
+
+        {/* Reconciliation — what actually arrived, against what is still owed. */}
+        <section className="grid gap-4 border-b border-slate-200 py-6 sm:grid-cols-3">
+          <Figure
+            label={`Received in ${periodLabel}`}
+            value={formatPrice(receipts.total)}
+            strong
+          />
+          <Figure
+            label="Still outstanding"
+            value={formatPrice(owed.outstanding)}
+          />
+          <Figure
+            label="Unpaid orders"
+            value={String(owed.unpaidOrders)}
+          />
+          <p className="text-xs leading-5 text-slate-400 sm:col-span-3">
+            Received counts payments dated in {periodLabel}, whichever month the
+            order was placed — that is the figure to compare with your bank.
+            Outstanding is what these {periodLabel} orders still owe, including
+            anything paid later.
+            {owed.overpaid > 0 && (
+              <>
+                {" "}
+                <strong className="text-amber-700">
+                  {formatPrice(owed.overpaid)} received above the invoiced
+                  amount — worth checking for a keying error.
+                </strong>
+              </>
+            )}
+          </p>
         </section>
 
         {orders.length === 0 ? (
@@ -249,6 +316,7 @@ export default async function StatementsPage({ searchParams }: Props) {
                     <Th>Status</Th>
                     <Th align="right">VAT</Th>
                     <Th align="right">Total</Th>
+                    <Th align="right">Received</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -269,6 +337,11 @@ export default async function StatementsPage({ searchParams }: Props) {
                         <Td align="right" strong={!isCancelled}>
                           {formatPrice(orderTotal(order))}
                         </Td>
+                        <Td align="right">
+                          {isCancelled
+                            ? "—"
+                            : formatPrice(receivedPerOrder.get(order.id) ?? 0)}
+                        </Td>
                       </tr>
                     );
                   })}
@@ -280,9 +353,9 @@ export default async function StatementsPage({ searchParams }: Props) {
 
         <footer className="mt-8 border-t border-slate-200 pt-4 text-[12.5px] text-slate-400">
           <p>
-            Generated by {SITE_NAME}. Figures are the amounts invoiced to
-            customers, not payments received — check them against your bank
-            before filing.
+            Generated by {SITE_NAME}. Received figures come from payments you
+            recorded against orders, so they are only as complete as your
+            record-keeping — check them against your bank before filing.
           </p>
         </footer>
       </article>

@@ -5,6 +5,12 @@ import { getOrderPayableTotal } from "@/lib/vat";
 import { getPaymentMethodLabel } from "@/lib/constants";
 import Link from "next/link";
 import { OrderActions } from "./order-actions";
+import { RecordPayment } from "./record-payment";
+import {
+  receivedByOrder,
+  paymentState,
+  type OrderPayment,
+} from "@/lib/statements";
 import { QuickStatus } from "@/components/dashboard/quick-status";
 import { OrderItemsToggle } from "@/components/dashboard/order-items-toggle";
 import { card, statusPill } from "@/lib/ui";
@@ -48,6 +54,16 @@ export default async function OrdersPage({
 
   const { data: orders } = await query;
   const orderList = orders || [];
+
+  // Payments recorded against these orders, so each card can show what has
+  // actually been received rather than only what was invoiced.
+  const { data: paymentRows } = await supabase
+    .from("order_payments")
+    .select("order_id, amount_nad, paid_at, method, voided_at")
+    .eq("merchant_id", merchant.id)
+    .is("voided_at", null);
+
+  const receivedByOrderId = receivedByOrder((paymentRows ?? []) as OrderPayment[]);
   const proofPaths = orderList
     .map((order) => resolveProofPath(order.proof_of_payment_url))
     .filter((p): p is string => p !== null);
@@ -154,6 +170,8 @@ export default async function OrdersPage({
         <div className="space-y-4">
           {orderList.map((order) => {
             const orderTotal = getOrderPayableTotal(order);
+            const received = receivedByOrderId.get(order.id) ?? 0;
+            const payState = paymentState(orderTotal, received);
             const proofPath = resolveProofPath(order.proof_of_payment_url);
             const proofUrl = proofPath ? proofUrlByPath.get(proofPath) ?? null : null;
             const awaitingProof =
@@ -222,6 +240,24 @@ export default async function OrdersPage({
                       {order.discount_nad > 0 ? `-${formatPrice(order.discount_nad)} disc` : ""}
                       {order.discount_nad > 0 && order.delivery_fee_nad > 0 ? " · " : ""}
                       {order.delivery_fee_nad > 0 ? `+${formatPrice(order.delivery_fee_nad)} delivery` : ""}
+                    </p>
+                  )}
+                  {order.status !== "cancelled" && (
+                    <p className="mt-1 text-xs font-bold">
+                      {payState === "paid" && <span className="text-acacia">Paid</span>}
+                      {payState === "part" && (
+                        <span className="text-amber-600">
+                          {formatPrice(received)} of {formatPrice(orderTotal)}
+                        </span>
+                      )}
+                      {payState === "over" && (
+                        <span className="text-amber-600">
+                          Overpaid by {formatPrice(received - orderTotal)}
+                        </span>
+                      )}
+                      {payState === "unpaid" && (
+                        <span className="text-gray-400">Not paid</span>
+                      )}
                     </p>
                   )}
                 </div>
@@ -296,6 +332,19 @@ export default async function OrdersPage({
 
               {/* Expandable order items */}
               <OrderItemsToggle items={order.order_items || []} />
+
+              {order.status !== "cancelled" && (
+                <div className="mt-3">
+                  <RecordPayment
+                    orderId={order.id}
+                    merchantId={merchant.id}
+                    orderNumber={order.order_number}
+                    total={orderTotal}
+                    received={received}
+                    defaultMethod={order.payment_method ?? null}
+                  />
+                </div>
+              )}
 
               <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-2">
                 <OrderActions

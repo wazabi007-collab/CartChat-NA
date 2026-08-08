@@ -1,3 +1,5 @@
+import { getOrderPayableTotal } from "@/lib/vat";
+
 /**
  * Merchant statements — the arithmetic.
  *
@@ -11,6 +13,7 @@
  */
 
 export interface StatementOrder {
+  id: string;
   order_number: number;
   created_at: string;
   customer_name: string;
@@ -57,16 +60,14 @@ const EXCLUDED_STATUSES = new Set(["cancelled"]);
 /**
  * The invoice total for one order, in cents.
  *
- * VAT-inclusive pricing already contains the VAT in the line items, so it is
- * not added again — adding it would overstate every VAT-inclusive merchant's
- * turnover by 15%.
+ * Delegates to the shared helper rather than repeating the arithmetic. An
+ * earlier version of this function reimplemented it and quietly disagreed:
+ * getOrderBaseTotal floors the pre-VAT total at zero, so a coupon worth more
+ * than the order shows as N$0 on the dashboard and the invoice, while the
+ * local copy went negative and dragged the whole statement down with it.
  */
 export function orderTotal(order: StatementOrder): number {
-  const preVat =
-    order.subtotal_nad - (order.discount_nad ?? 0) + (order.delivery_fee_nad ?? 0);
-
-  if (order.vat_inclusive) return preVat;
-  return preVat + (order.vat_nad ?? 0);
+  return getOrderPayableTotal(order);
 }
 
 function emptyTotals(): StatementTotals {
@@ -141,8 +142,117 @@ export function buildStatement(orders: StatementOrder[]): Statement {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Payments received
+// ---------------------------------------------------------------------------
+
+export interface OrderPayment {
+  order_id: string;
+  amount_nad: number;
+  /** YYYY-MM-DD — the day the money landed, from the merchant's bank. */
+  paid_at: string;
+  method: string | null;
+  voided_at: string | null;
+}
+
+/** How an order stands once payments are counted. */
+export type PaymentState = "unpaid" | "part" | "paid" | "over";
+
+export interface PaymentsSummary {
+  count: number;
+  total: number;
+  byMethod: StatementGroup[];
+}
+
+/** Voided payments are mistakes the merchant reversed; they never count. */
+function live(payments: OrderPayment[]): OrderPayment[] {
+  return payments.filter((p) => !p.voided_at);
+}
+
+/** Total received per order id. */
+export function receivedByOrder(payments: OrderPayment[]): Map<string, number> {
+  const totals = new Map<string, number>();
+  for (const payment of live(payments)) {
+    totals.set(payment.order_id, (totals.get(payment.order_id) ?? 0) + payment.amount_nad);
+  }
+  return totals;
+}
+
+export function paymentState(total: number, received: number): PaymentState {
+  if (received <= 0) return "unpaid";
+  if (received < total) return "part";
+  if (received > total) return "over";
+  return "paid";
+}
+
+/**
+ * What actually arrived in the period.
+ *
+ * Summed by `paid_at`, deliberately independent of when the orders were placed:
+ * a September payment can settle an August order. Grouping payments by order
+ * date instead is why a statement would never match a bank statement.
+ */
+export function summarisePayments(payments: OrderPayment[]): PaymentsSummary {
+  const byMethod = new Map<string, StatementGroup>();
+  let total = 0;
+  let count = 0;
+
+  for (const payment of live(payments)) {
+    total += payment.amount_nad;
+    count += 1;
+
+    const key = payment.method || "unknown";
+    const group = byMethod.get(key) ?? { key, orderCount: 0, total: 0 };
+    group.orderCount += 1;
+    group.total += payment.amount_nad;
+    byMethod.set(key, group);
+  }
+
+  return { count, total, byMethod: sortGroups(byMethod) };
+}
+
+export interface OutstandingSummary {
+  /** Still owed across the period's orders. */
+  outstanding: number;
+  /** Received beyond the invoice total — usually a keying error worth seeing. */
+  overpaid: number;
+  unpaidOrders: number;
+}
+
+/** Outstanding balance across a period's orders, ignoring cancelled ones. */
+export function summariseOutstanding(
+  orders: StatementOrder[],
+  payments: OrderPayment[]
+): OutstandingSummary {
+  const received = receivedByOrder(payments);
+  let outstanding = 0;
+  let overpaid = 0;
+  let unpaidOrders = 0;
+
+  for (const order of orders) {
+    if (EXCLUDED_STATUSES.has(order.status)) continue;
+
+    const total = orderTotal(order);
+    const paid = received.get(order.id) ?? 0;
+
+    if (paid < total) {
+      outstanding += total - paid;
+      unpaidOrders += 1;
+    } else if (paid > total) {
+      overpaid += paid - total;
+    }
+  }
+
+  return { outstanding, overpaid, unpaidOrders };
+}
+
 /** CSV of every order in the period, for a bookkeeper or a spreadsheet. */
-export function statementToCsv(orders: StatementOrder[]): string {
+export function statementToCsv(
+  orders: StatementOrder[],
+  payments: OrderPayment[] = []
+): string {
+  const received = receivedByOrder(payments);
+
   const header = [
     "Date",
     "Order",
@@ -154,6 +264,8 @@ export function statementToCsv(orders: StatementOrder[]): string {
     "Delivery",
     "VAT",
     "Total",
+    "Received",
+    "Outstanding",
   ];
 
   const escape = (value: string): string =>
@@ -161,8 +273,11 @@ export function statementToCsv(orders: StatementOrder[]): string {
 
   const money = (cents: number): string => (cents / 100).toFixed(2);
 
-  const rows = orders.map((order) =>
-    [
+  const rows = orders.map((order) => {
+    const total = orderTotal(order);
+    const paid = received.get(order.id) ?? 0;
+
+    return [
       order.created_at.slice(0, 10),
       String(order.order_number),
       escape(order.customer_name ?? ""),
@@ -172,9 +287,11 @@ export function statementToCsv(orders: StatementOrder[]): string {
       money(order.discount_nad ?? 0),
       money(order.delivery_fee_nad ?? 0),
       money(order.vat_nad ?? 0),
-      money(orderTotal(order)),
-    ].join(",")
-  );
+      money(total),
+      money(paid),
+      money(Math.max(0, total - paid)),
+    ].join(",");
+  });
 
   return [header.join(","), ...rows].join("\n");
 }

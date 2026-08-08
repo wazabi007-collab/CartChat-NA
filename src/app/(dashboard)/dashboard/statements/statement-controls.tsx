@@ -2,13 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { Download, Printer } from "lucide-react";
-import { statementToCsv, type StatementOrder } from "@/lib/statements";
+import {
+  statementToCsv,
+  type StatementOrder,
+  type OrderPayment,
+} from "@/lib/statements";
 
 interface Props {
   months: string[];
   selected: string;
   storeName: string;
   orders: StatementOrder[];
+  payments: OrderPayment[];
 }
 
 function monthLabel(key: string): string {
@@ -20,13 +25,13 @@ function monthLabel(key: string): string {
 }
 
 /** Period picker, print, and spreadsheet download. Hidden when printing. */
-export function StatementControls({ months, selected, storeName, orders }: Props) {
+export function StatementControls({ months, selected, storeName, orders, payments }: Props) {
   const router = useRouter();
 
   function downloadCsv() {
     // Built in the browser from the same data the page rendered, so the
     // spreadsheet can never disagree with the statement on screen.
-    const csv = statementToCsv(orders);
+    const csv = statementToCsv(orders, payments);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");

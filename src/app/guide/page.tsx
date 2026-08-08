@@ -540,7 +540,12 @@ export default function GuidePage() {
               <Step n={1}>
                 Open <strong className="text-walnut">Statements</strong>.
               </Step>
-              <Step n={2}>Choose the month you need.</Step>
+              <Step n={2}>
+                Choose the month you need. On{" "}
+                <strong className="text-walnut">Oshi-Pro</strong> you can also
+                pick <strong className="text-walnut">Last 12 months</strong> to
+                get a whole year in one document for your accountant.
+              </Step>
               <Step n={3}>
                 You get totals for sales, VAT and delivery, a breakdown by order
                 status and payment method, and every order listed.

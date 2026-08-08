@@ -76,6 +76,31 @@ export function namibianMonthRange(monthKey: string): { startISO: string; endISO
   };
 }
 
+/**
+ * A range covering `count` whole Namibian months ending with `endMonthKey`.
+ *
+ * Used for the twelve-month statement, so the year-end document lines up
+ * exactly with the twelve monthly ones a merchant may already have filed.
+ */
+export function namibianTrailingMonthsRange(
+  count: number,
+  endMonthKey: string
+): { startISO: string; endISO: string } {
+  const [year, month] = endMonthKey.split("-").map(Number);
+
+  let startYear = year;
+  let startMonth = month - (count - 1);
+  while (startMonth <= 0) {
+    startMonth += 12;
+    startYear -= 1;
+  }
+
+  return {
+    startISO: namibianMonthRange(`${startYear}-${String(startMonth).padStart(2, "0")}`).startISO,
+    endISO: namibianMonthRange(endMonthKey).endISO,
+  };
+}
+
 /** The last `count` Namibian months, newest first, as `YYYY-MM` keys. */
 export function recentNamibianMonths(count: number, from: Date = new Date()): string[] {
   const shifted = new Date(from.getTime() + NAMIBIA_UTC_OFFSET_MINUTES * 60_000);

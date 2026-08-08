@@ -14,6 +14,7 @@ import {
   namibianMonthKey,
   namibianMonthRange,
   recentNamibianMonths,
+  namibianTrailingMonthsRange,
 } from "../src/lib/date";
 
 let failures = 0;
@@ -146,6 +147,27 @@ checkValue("recent months walk back over new year", recentNamibianMonths(3, new 
   "2025-12",
   "2025-11",
 ]);
+
+// The twelve-month statement must cover whole months and line up with the
+// twelve monthly ones, or a year-end total will not equal the months it
+// summarises.
+checkValue("twelve months ending August", namibianTrailingMonthsRange(12, "2026-08"), {
+  startISO: "2025-09-01T00:00:00+02:00",
+  endISO: "2026-09-01T00:00:00+02:00",
+});
+checkValue("twelve months ending January", namibianTrailingMonthsRange(12, "2026-01"), {
+  startISO: "2025-02-01T00:00:00+02:00",
+  endISO: "2026-02-01T00:00:00+02:00",
+});
+checkValue("three months ending February", namibianTrailingMonthsRange(3, "2026-02"), {
+  startISO: "2025-12-01T00:00:00+02:00",
+  endISO: "2026-03-01T00:00:00+02:00",
+});
+// One month must be identical to the plain month range.
+checkValue("one month equals the month range", namibianTrailingMonthsRange(1, "2026-08"), {
+  startISO: "2026-08-01T00:00:00+02:00",
+  endISO: "2026-09-01T00:00:00+02:00",
+});
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

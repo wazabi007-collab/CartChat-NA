@@ -111,7 +111,7 @@ export const PUBLIC_PLANS: PublicPlan[] = [
     name: TIER_LABELS.oshi_pro,
     priceDisplay: priceDisplay("oshi_pro"),
     period: "/month",
-    audience: "For high-volume stores that have outgrown order limits",
+    audience: "For established retailers with a big catalogue and an accountant",
     cta: "Start Pro",
     href: "/signup?tier=oshi_pro",
     highlighted: false,
@@ -119,6 +119,7 @@ export const PUBLIC_PLANS: PublicPlan[] = [
     features: [
       ...countLines("oshi_pro"),
       "Everything in Oshi-Automate",
+      "Twelve-month statement in one document for year-end",
       "No monthly order limit",
     ],
   },
@@ -133,4 +134,5 @@ export const ADVERTISED_GATES: { feature: string; lowestTier: SubscriptionTier }
   { feature: "Monthly statements with VAT totals", lowestTier: "oshi_grow" },
   { feature: "Bank reconciliation — what came in, what is still owed", lowestTier: "oshi_grow" },
   { feature: "No OshiCart branding on your store", lowestTier: "oshi_basic" },
+  { feature: "Twelve-month statement in one document for year-end", lowestTier: "oshi_pro" },
 ];

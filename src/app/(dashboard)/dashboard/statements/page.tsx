@@ -10,6 +10,7 @@ import { VAT_RATE_LABEL } from "@/lib/vat";
 import {
   namibianMonthKey,
   namibianMonthRange,
+  namibianTrailingMonthsRange,
   recentNamibianMonths,
   formatNamibianDate,
 } from "@/lib/date";
@@ -22,7 +23,12 @@ import {
   type StatementOrder,
   type OrderPayment,
 } from "@/lib/statements";
-import { hasStatements, TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
+import {
+  hasStatements,
+  hasAnnualStatement,
+  TIER_LABELS,
+  type SubscriptionTier,
+} from "@/lib/tier-limits";
 import { StatementControls } from "./statement-controls";
 
 export const metadata: Metadata = {
@@ -92,8 +98,21 @@ export default async function StatementsPage({ searchParams }: Props) {
   }
 
   const months = recentNamibianMonths(12);
-  const selected = period && months.includes(period) ? period : namibianMonthKey();
-  const { startISO, endISO } = namibianMonthRange(selected);
+  const canPullYear = hasAnnualStatement(tier);
+
+  // Oshi-Pro can pull twelve months as one document for a year-end. The range
+  // covers whole months ending with the current one, so the annual totals
+  // equal the twelve monthly statements a merchant may already have filed.
+  const wantsYear = period === "last12" && canPullYear;
+  const selected = wantsYear
+    ? namibianMonthKey()
+    : period && months.includes(period)
+    ? period
+    : namibianMonthKey();
+
+  const { startISO, endISO } = wantsYear
+    ? namibianTrailingMonthsRange(12, selected)
+    : namibianMonthRange(selected);
 
   // Service role: statements are financial records and must include every
   // order in the period regardless of row-level visibility.
@@ -140,11 +159,14 @@ export default async function StatementsPage({ searchParams }: Props) {
   const owed = summariseOutstanding(orders, orderPayments);
   const receivedPerOrder = receivedByOrder(orderPayments);
 
-  const periodLabel = new Date(`${selected}-01T00:00:00+02:00`).toLocaleDateString("en-GB", {
+  const monthLabel = new Date(`${selected}-01T00:00:00+02:00`).toLocaleDateString("en-GB", {
     month: "long",
     year: "numeric",
     timeZone: "Africa/Windhoek",
   });
+  const periodLabel = wantsYear
+    ? `${formatNamibianDate(startISO, { month: "long", year: "numeric" })} — ${monthLabel}`
+    : monthLabel;
 
   return (
     <div className="md:ml-56 space-y-6">
@@ -163,7 +185,8 @@ export default async function StatementsPage({ searchParams }: Props) {
 
       <StatementControls
         months={months}
-        selected={selected}
+        selected={wantsYear ? "last12" : selected}
+        canPullYear={canPullYear}
         storeName={merchant.store_name}
         orders={orders}
         payments={orderPayments}

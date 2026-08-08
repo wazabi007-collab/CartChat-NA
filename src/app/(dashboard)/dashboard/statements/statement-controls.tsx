@@ -14,6 +14,8 @@ interface Props {
   storeName: string;
   orders: StatementOrder[];
   payments: OrderPayment[];
+  /** Oshi-Pro can pull twelve months as one document. */
+  canPullYear: boolean;
 }
 
 function monthLabel(key: string): string {
@@ -25,7 +27,14 @@ function monthLabel(key: string): string {
 }
 
 /** Period picker, print, and spreadsheet download. Hidden when printing. */
-export function StatementControls({ months, selected, storeName, orders, payments }: Props) {
+export function StatementControls({
+  months,
+  selected,
+  storeName,
+  orders,
+  payments,
+  canPullYear,
+}: Props) {
   const router = useRouter();
 
   function downloadCsv() {
@@ -36,7 +45,8 @@ export function StatementControls({ months, selected, storeName, orders, payment
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${storeName.replace(/\s+/g, "-").toLowerCase()}-statement-${selected}.csv`;
+    const label = selected === "last12" ? "last-12-months" : selected;
+    link.download = `${storeName.replace(/\s+/g, "-").toLowerCase()}-statement-${label}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -56,6 +66,7 @@ export function StatementControls({ months, selected, storeName, orders, payment
         }
         className="min-h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-900"
       >
+        {canPullYear && <option value="last12">Last 12 months</option>}
         {months.map((month) => (
           <option key={month} value={month}>
             {monthLabel(month)}

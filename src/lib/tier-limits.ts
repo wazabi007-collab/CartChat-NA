@@ -80,6 +80,19 @@ export function hasStatements(tier: SubscriptionTier | string | null | undefined
   return !!tier && STATEMENT_TIERS.includes(tier as SubscriptionTier);
 }
 
+/**
+ * A single statement covering twelve months, for a year-end.
+ *
+ * Oshi-Pro only, and the one thing that plan owns beyond removed limits. A
+ * merchant large enough to have an accountant wants the year in one document;
+ * a home baker pulling one month at a time does not.
+ */
+export const ANNUAL_STATEMENT_TIERS: SubscriptionTier[] = ["oshi_pro"];
+
+export function hasAnnualStatement(tier: SubscriptionTier | string | null | undefined): boolean {
+  return !!tier && ANNUAL_STATEMENT_TIERS.includes(tier as SubscriptionTier);
+}
+
 export function formatTierPrice(tier: SubscriptionTier): string {
   const price = TIER_LIMITS[tier].price_nad;
   if (price === 0) return "Free";

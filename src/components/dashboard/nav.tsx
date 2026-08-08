@@ -4,28 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import {
-  LayoutDashboard,
-  FileText,
-  Package,
-  Share2,
-  ShoppingCart,
-  BarChart3,
-  Settings,
-  LogOut,
-  Ticket,
-  User,
-  Store,
-  CreditCard,
-  ExternalLink,
-  HelpCircle,
-  Users,
-  Megaphone,
-  Star,
-} from "lucide-react";
+import { ExternalLink, HelpCircle, LogOut, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
 import { getServiceLabels } from "@/lib/service-labels";
+import { sidebarItems } from "@/lib/dashboard-nav";
 
 interface NavProps {
   merchant: {
@@ -38,25 +21,10 @@ interface NavProps {
   industry?: string | null;
 }
 
-const baseNavItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, requireFeature: null },
-  { href: "/dashboard/products", label: "Products", icon: Package, requireFeature: null },
-  { href: "/dashboard/share", label: "Share store", icon: Share2, requireFeature: null },
-  { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart, requireFeature: null },
-  { href: "/dashboard/customers", label: "Customers", icon: Users, requireFeature: null },
-  { href: "/dashboard/broadcast", label: "Broadcast", icon: Megaphone, requireFeature: null },
-  { href: "/dashboard/reviews", label: "Reviews", icon: Star, requireFeature: null },
-  { href: "/dashboard/coupons", label: "Coupons", icon: Ticket, requireFeature: "coupons" as const },
-  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, requireFeature: null },
-  { href: "/dashboard/statements", label: "Statements", icon: FileText, requireFeature: null },
-  { href: "/dashboard/account", label: "Account", icon: User, requireFeature: null },
-  { href: "/dashboard/subscription", label: "Subscription", icon: CreditCard, requireFeature: null },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings, requireFeature: null },
-];
 
 export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }: NavProps) {
   const tier = (subscriptionTier || "oshi_start") as SubscriptionTier;
-  const navItems = baseNavItems.filter(
+  const navItems = sidebarItems().filter(
     (item) => !item.requireFeature || hasTierFeature(tier, item.requireFeature)
   );
   const pathname = usePathname();
@@ -109,7 +77,7 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
               const Icon = item.icon;
               const active = pathname === item.href;
               const displayLabel =
-                item.href === "/dashboard/products" ? labels.itemPlural : item.label;
+                item.usesItemWording ? labels.itemPlural : item.label;
               return (
                 <Link
                   key={item.href}

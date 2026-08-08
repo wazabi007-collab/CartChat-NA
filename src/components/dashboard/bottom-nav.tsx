@@ -25,46 +25,42 @@ import {
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { getServiceLabels } from "@/lib/service-labels";
+import { hasTierFeature, type SubscriptionTier } from "@/lib/tier-limits";
+import { primaryItems, overflowItems } from "@/lib/dashboard-nav";
 
 interface BottomNavProps {
   pendingOrders: number;
   industry?: string | null;
   storeSlug?: string | null;
+  /** Needed so tier-gated sections are hidden here exactly as in the sidebar. */
+  subscriptionTier?: string | null;
 }
 
-export function BottomNav({ pendingOrders, industry, storeSlug }: BottomNavProps) {
+export function BottomNav({
+  pendingOrders,
+  industry,
+  storeSlug,
+  subscriptionTier,
+}: BottomNavProps) {
+  const tier = (subscriptionTier || "oshi_start") as SubscriptionTier;
   const pathname = usePathname();
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
 
   const labels = getServiceLabels(industry);
 
-  const navItems = [
-    {
-      href: "/dashboard",
-      icon: LayoutDashboard,
-      label: "Home",
-      exact: true,
-    },
-    {
-      href: "/dashboard/products",
-      icon: Package,
-      label: labels.itemPlural,
-      exact: false,
-    },
-    {
-      href: "/dashboard/orders",
-      icon: ShoppingCart,
-      label: "Orders",
-      exact: false,
-    },
-    {
-      href: "/dashboard/analytics",
-      icon: BarChart3,
-      label: "Analytics",
-      exact: false,
-    },
-  ];
+  // Both this bar and the More sheet read the shared definition, so a section
+  // can no longer exist in the sidebar and be unreachable on a phone.
+  const navItems = primaryItems().map((item) => ({
+    href: item.href,
+    icon: item.icon,
+    label: item.usesItemWording ? labels.itemPlural : item.label,
+    exact: item.href === "/dashboard",
+  }));
+
+  const moreItems = overflowItems().filter(
+    (item) => !item.requireFeature || hasTierFeature(tier, item.requireFeature)
+  );
 
   function isActive(href: string, exact: boolean) {
     if (exact) return pathname === href;
@@ -135,90 +131,22 @@ export function BottomNav({ pendingOrders, industry, storeSlug }: BottomNavProps
             </div>
 
             <div className="max-h-[60vh] overflow-y-auto py-2">
-              {/* The sidebar is hidden below md, so this sheet is the only way
-                  to reach these on a phone. Share, Customers, Broadcast,
-                  Reviews and Statements were unreachable on mobile entirely
-                  until they were listed here. */}
-              <Link
-                href="/dashboard/share"
-                onClick={() => setMoreOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
-              >
-                <Share2 size={20} className="text-gray-500" />
-                <span className="text-sm font-medium">Share store</span>
-              </Link>
-
-              <Link
-                href="/dashboard/customers"
-                onClick={() => setMoreOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
-              >
-                <Users size={20} className="text-gray-500" />
-                <span className="text-sm font-medium">Customers</span>
-              </Link>
-
-              <Link
-                href="/dashboard/broadcast"
-                onClick={() => setMoreOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
-              >
-                <Megaphone size={20} className="text-gray-500" />
-                <span className="text-sm font-medium">Broadcast</span>
-              </Link>
-
-              <Link
-                href="/dashboard/reviews"
-                onClick={() => setMoreOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
-              >
-                <Star size={20} className="text-gray-500" />
-                <span className="text-sm font-medium">Reviews</span>
-              </Link>
-
-              <Link
-                href="/dashboard/statements"
-                onClick={() => setMoreOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
-              >
-                <FileText size={20} className="text-gray-500" />
-                <span className="text-sm font-medium">Statements</span>
-              </Link>
-
-              <Link
-                href="/dashboard/subscription"
-                onClick={() => setMoreOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
-              >
-                <CreditCard size={20} className="text-gray-500" />
-                <span className="text-sm font-medium">Subscription</span>
-              </Link>
-
-              <Link
-                href="/dashboard/coupons"
-                onClick={() => setMoreOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
-              >
-                <Ticket size={20} className="text-gray-500" />
-                <span className="text-sm font-medium">Coupons</span>
-              </Link>
-
-              <Link
-                href="/dashboard/account"
-                onClick={() => setMoreOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
-              >
-                <User size={20} className="text-gray-500" />
-                <span className="text-sm font-medium">Account</span>
-              </Link>
-
-              <Link
-                href="/dashboard/settings"
-                onClick={() => setMoreOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
-              >
-                <Settings size={20} className="text-gray-500" />
-                <span className="text-sm font-medium">Settings</span>
-              </Link>
+              {moreItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMoreOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50"
+                  >
+                    <Icon size={20} className="text-gray-500" />
+                    <span className="text-sm font-medium">
+                      {item.usesItemWording ? labels.itemPlural : item.label}
+                    </span>
+                  </Link>
+                );
+              })}
 
               {storeSlug && (
                 <a

@@ -88,7 +88,7 @@ export default async function DashboardLayout({
       <main className="max-w-7xl mx-auto px-4 py-6 pb-24 md:px-6 md:py-8 md:pb-8">
         {children}
       </main>
-      {merchant && <BottomNav pendingOrders={pendingCount} industry={merchant.industry} storeSlug={merchant?.store_slug ?? null} />}
+      {merchant && <BottomNav pendingOrders={pendingCount} industry={merchant.industry} storeSlug={merchant?.store_slug ?? null} subscriptionTier={subscriptionTier} />}
       {merchant && (
         <PolicyAcceptanceGate
           merchantId={merchant.id}

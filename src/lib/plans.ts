@@ -74,7 +74,7 @@ export const PUBLIC_PLANS: PublicPlan[] = [
     name: TIER_LABELS.oshi_basic,
     priceDisplay: priceDisplay("oshi_basic"),
     period: "/month",
-    audience: "For vendors, home businesses, and small shops",
+    audience: "For vendors and small shops that want to be seen first",
     cta: "Start Storefront",
     href: "/signup?tier=oshi_basic",
     highlighted: false,
@@ -82,8 +82,9 @@ export const PUBLIC_PLANS: PublicPlan[] = [
     features: [
       ...countLines("oshi_basic"),
       ...INCLUDED_EVERYWHERE,
-      // The one thing paying actually buys at this tier.
+      // What paying actually buys at this tier.
       "No OshiCart branding on your store",
+      "Priority placement in Browse Stores",
     ],
   },
   {
@@ -134,5 +135,6 @@ export const ADVERTISED_GATES: { feature: string; lowestTier: SubscriptionTier }
   { feature: "Monthly statements with VAT totals", lowestTier: "oshi_grow" },
   { feature: "Bank reconciliation — what came in, what is still owed", lowestTier: "oshi_grow" },
   { feature: "No OshiCart branding on your store", lowestTier: "oshi_basic" },
+  { feature: "Priority placement in Browse Stores", lowestTier: "oshi_basic" },
   { feature: "Twelve-month statement in one document for year-end", lowestTier: "oshi_pro" },
 ];

@@ -18,6 +18,7 @@ import {
   hasCartRecovery,
   hasStatements,
   hasAnnualStatement,
+  hasPriorityPlacement,
   showBranding,
   hasTierFeature,
   type SubscriptionTier,
@@ -40,6 +41,7 @@ const GATE_CHECKS: Record<string, (tier: SubscriptionTier) => boolean> = {
   "Twelve-month statement in one document for year-end": hasAnnualStatement,
   // Branding is inverted: paying removes the badge.
   "No OshiCart branding on your store": (tier) => !showBranding(tier),
+  "Priority placement in Browse Stores": hasPriorityPlacement,
 };
 
 let failures = 0;

@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createServiceClient } from "@/lib/supabase/service";
+import { hasPriorityPlacement } from "@/lib/tier-limits";
 
 export const INDUSTRY_LABELS: Record<string, string> = {
   restaurant: "Restaurants & Takeaways",
@@ -147,9 +149,31 @@ export async function fetchStoreListData(
     }
   }
 
-  return publicStoreList.map((merchant) => ({
+  // Paid stores list above free stores — the visibility Oshi-Storefront buys.
+  // Subscriptions are not anon-readable (billing data), so the tier lookup
+  // uses the service client; only the resulting ORDER reaches the page, never
+  // any subscription detail. Grace counts (they have paid); trials of a paid
+  // tier count too — the boost is part of what the trial demonstrates.
+  const prioritised = new Set<string>();
+  if (merchantIds.length > 0) {
+    const { data: subs } = await createServiceClient()
+      .from("subscriptions")
+      .select("merchant_id, tier, status")
+      .in("merchant_id", merchantIds)
+      .in("status", ["active", "trial", "grace"]);
+    for (const sub of subs ?? []) {
+      if (hasPriorityPlacement(sub.tier)) prioritised.add(sub.merchant_id);
+    }
+  }
+
+  const enriched = publicStoreList.map((merchant) => ({
     ...merchant,
     productCount: countMap.get(merchant.id) || 0,
     previewImages: previewMap.get(merchant.id) ?? [],
   }));
+
+  // Stable sort: two bands, newest-first preserved within each.
+  return enriched.sort(
+    (a, b) => Number(prioritised.has(b.id)) - Number(prioritised.has(a.id))
+  );
 }

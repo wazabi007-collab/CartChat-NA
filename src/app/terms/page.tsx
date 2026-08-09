@@ -80,7 +80,8 @@ export default function TermsPage() {
             </li>
             <li>
               <strong>Oshi-Storefront (N$149/month):</strong> Up to 50 products
-              and 50 orders per month. Includes automated WhatsApp order
+              and 50 orders per month, with priority placement in Browse
+              Stores. Includes automated WhatsApp order
               updates, products, services and appointment bookings, your
               customer list and order history, verified-purchase reviews,
               WhatsApp broadcast messaging to your own customers, bulk CSV
@@ -90,7 +91,7 @@ export default function TermsPage() {
             </li>
             <li>
               <strong>Oshi-Automate (N$399/month):</strong> Up to 200 products
-              and 1,000 orders per month. Includes everything in
+              and 300 orders per month. Includes everything in
               Oshi-Storefront, plus abandoned-checkout WhatsApp recovery,
               monthly statements with VAT totals, bank reconciliation showing
               payments received against amounts outstanding, and spreadsheet

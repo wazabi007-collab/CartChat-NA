@@ -23,7 +23,11 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimit> = {
   // visibly better — when both sat at 50 orders, the first paid tier bought
   // only 30 extra products and the badge removal.
   oshi_basic: { products: 50,  orders_per_month: 50,  inventory: true,  coupons: true,  branding: false, price_nad: 14900 },
-  oshi_grow:  { products: 200, orders_per_month: 1000, inventory: true,  coupons: true,  branding: false, price_nad: 39900 },
+  // Automate sat at 1,000 orders — a ceiling no Namibian store on the platform
+  // approaches, which made Pro's "no order limit" worthless as an upsell. At
+  // 300 a genuinely busy shop (10 orders a day) still fits, but a store that
+  // outgrows it has a real reason to move up rather than a theoretical one.
+  oshi_grow:  { products: 200, orders_per_month: 300, inventory: true,  coupons: true,  branding: false, price_nad: 39900 },
   oshi_pro:   { products: -1,  orders_per_month: -1,  inventory: true,  coupons: true,  branding: false, price_nad: 79900 },
 };
 
@@ -88,6 +92,23 @@ export function hasStatements(tier: SubscriptionTier | string | null | undefined
  * a home baker pulling one month at a time does not.
  */
 export const ANNUAL_STATEMENT_TIERS: SubscriptionTier[] = ["oshi_pro"];
+
+/**
+ * Paid stores list above free stores in Browse Stores.
+ *
+ * Storefront's reason to exist beyond badge removal: N$149 buys visibility,
+ * which a small merchant understands viscerally. Ordering only — there is no
+ * public "sponsored" label, so free stores are never marked as lesser.
+ */
+export const PRIORITY_PLACEMENT_TIERS: SubscriptionTier[] = [
+  "oshi_basic",
+  "oshi_grow",
+  "oshi_pro",
+];
+
+export function hasPriorityPlacement(tier: SubscriptionTier | string | null | undefined): boolean {
+  return !!tier && PRIORITY_PLACEMENT_TIERS.includes(tier as SubscriptionTier);
+}
 
 export function hasAnnualStatement(tier: SubscriptionTier | string | null | undefined): boolean {
   return !!tier && ANNUAL_STATEMENT_TIERS.includes(tier as SubscriptionTier);

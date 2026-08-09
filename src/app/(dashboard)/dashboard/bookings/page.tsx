@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { CalendarDays, ChevronLeft, ChevronRight, Lock, Unlock } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { getThemeConfig } from "@/lib/industry";
 
 interface BookingRow {
   id: string;
@@ -49,6 +50,7 @@ export default function BookingsPage() {
   const supabase = useMemo(() => createClient(), []);
   const [merchantId, setMerchantId] = useState<string | null>(null);
   const [slots, setSlots] = useState<Slots | null>(null);
+  const [industry, setIndustry] = useState<string | null>(null);
   const [month, setMonth] = useState(monthKey(new Date()));
   const [orders, setOrders] = useState<BookingRow[]>([]);
   const [blocks, setBlocks] = useState<BlockRow[]>([]);
@@ -64,12 +66,13 @@ export default function BookingsPage() {
       if (!user) return;
       const { data: merchant } = await supabase
         .from("merchants")
-        .select("id, delivery_slots")
+        .select("id, delivery_slots, industry")
         .eq("user_id", user.id)
         .single();
       if (!merchant) return;
       setMerchantId(merchant.id);
       setSlots((merchant.delivery_slots as Slots | null) ?? null);
+      setIndustry(merchant.industry ?? null);
     }
     loadMerchant();
   }, [supabase]);
@@ -173,6 +176,11 @@ export default function BookingsPage() {
   ];
 
   const selectedOrders = selectedDay ? ordersByDay.get(selectedDay) ?? [] : [];
+  // Must match the heading the settings page actually renders for this
+  // merchant, or the instruction points at something they cannot find.
+  const settingsSectionLabel = getThemeConfig(industry)?.isService
+    ? "Availability"
+    : "Delivery Scheduling";
   const configuredTimes = slots?.times ?? [];
 
   return (
@@ -193,7 +201,7 @@ export default function BookingsPage() {
           You haven&apos;t set your availability yet, so customers cannot pick a
           time. Set your days and times under{" "}
           <Link href="/dashboard/settings" className="font-black underline">
-            Settings → Availability
+            Settings → {settingsSectionLabel}
           </Link>
           .
         </div>

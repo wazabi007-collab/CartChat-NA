@@ -182,6 +182,29 @@ export default function BookingsPage() {
   const settingsSectionLabel = isServiceMerchant
     ? "Availability"
     : "Delivery Scheduling";
+
+  // Every visible string in one place. A salon has appointments and clients
+  // arriving; a shop has deliveries going out. Same calendar underneath —
+  // only the words a merchant would actually use differ.
+  const words = isServiceMerchant
+    ? {
+        blockDay: "Close this day",
+        unblockDay: "Open this day",
+        empty: "No appointments this day.",
+        holdBack: "Hold back individual times",
+        taken: " · booked",
+        held: " · held",
+        takenHint: "Already booked — cancel the order to free this time",
+      }
+    : {
+        blockDay: "No deliveries this day",
+        unblockDay: "Allow deliveries again",
+        empty: "Nothing going out this day.",
+        holdBack: "Close individual time slots",
+        taken: " · taken",
+        held: " · closed",
+        takenHint: "A customer already chose this slot — cancel the order to free it",
+      };
   const configuredTimes = slots?.times ?? [];
 
   return (
@@ -311,12 +334,12 @@ export default function BookingsPage() {
               }`}
             >
               {dayBlocks.has(selectedDay) ? <Unlock size={14} /> : <Lock size={14} />}
-              {dayBlocks.has(selectedDay) ? "Unblock this day" : "Block whole day"}
+              {dayBlocks.has(selectedDay) ? words.unblockDay : words.blockDay}
             </button>
           </div>
 
           {selectedOrders.length === 0 ? (
-            <p className="mt-3 text-sm text-slate-400">Nothing scheduled.</p>
+            <p className="mt-3 text-sm text-slate-400">{words.empty}</p>
           ) : (
             <ul className="mt-3 divide-y divide-slate-100">
               {selectedOrders.map((o) => (
@@ -341,7 +364,7 @@ export default function BookingsPage() {
           {configuredTimes.length > 0 && (
             <div className="mt-4 border-t border-slate-100 pt-3">
               <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                Hold back individual times
+                {words.holdBack}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {configuredTimes.map((time) => {
@@ -354,7 +377,7 @@ export default function BookingsPage() {
                       key={time}
                       onClick={() => toggleTimeBlock(selectedDay, time)}
                       disabled={busy || booked}
-                      title={booked ? "Already booked — cancel the order to free it" : undefined}
+                      title={booked ? words.takenHint : undefined}
                       className={`min-h-10 rounded-lg border px-3 text-xs font-bold transition-colors disabled:cursor-not-allowed ${
                         booked
                           ? "border-emerald-200 bg-emerald-50 text-emerald-700"
@@ -364,7 +387,7 @@ export default function BookingsPage() {
                       }`}
                     >
                       {time}
-                      {booked ? " · booked" : blocked ? " · held" : ""}
+                      {booked ? words.taken : blocked ? words.held : ""}
                     </button>
                   );
                 })}

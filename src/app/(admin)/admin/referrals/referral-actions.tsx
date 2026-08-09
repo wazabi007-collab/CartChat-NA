@@ -44,6 +44,31 @@ export function CreateReferrerForm() {
   );
 }
 
+export function ApproveRejectButtons({ referrerId }: { referrerId: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+
+  async function act(action: "approve_referrer" | "reject_referrer") {
+    setBusy(true);
+    await post({ action, referrer_id: referrerId });
+    setBusy(false);
+    router.refresh();
+  }
+
+  return (
+    <span className="inline-flex gap-1.5">
+      <button onClick={() => act("approve_referrer")} disabled={busy}
+        className="rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white disabled:opacity-50">
+        Approve
+      </button>
+      <button onClick={() => act("reject_referrer")} disabled={busy}
+        className="rounded-lg bg-slate-200 px-2.5 py-1 text-xs font-bold text-slate-700 disabled:opacity-50">
+        Reject
+      </button>
+    </span>
+  );
+}
+
 export function MarkPaidButton({ merchantId, referrerCode, commissionNad }: { merchantId: string; referrerCode: string; commissionNad: number }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);

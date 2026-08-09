@@ -32,6 +32,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  if (action === "approve_referrer") {
+    const { error } = await supabase
+      .from("referrers")
+      .update({ status: "active", is_active: true })
+      .eq("id", String(body.referrer_id))
+      .eq("status", "pending");
+    if (error) return NextResponse.json({ error: "Could not approve." }, { status: 400 });
+    return NextResponse.json({ ok: true });
+  }
+
+  if (action === "reject_referrer") {
+    const { error } = await supabase
+      .from("referrers")
+      .update({ status: "rejected", is_active: false })
+      .eq("id", String(body.referrer_id))
+      .eq("status", "pending");
+    if (error) return NextResponse.json({ error: "Could not reject." }, { status: 400 });
+    return NextResponse.json({ ok: true });
+  }
+
   if (action === "toggle_active") {
     const { error } = await supabase
       .from("referrers")

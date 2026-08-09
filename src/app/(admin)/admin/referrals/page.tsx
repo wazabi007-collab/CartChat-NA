@@ -1,7 +1,7 @@
 import { requireAdminPermission } from "@/lib/admin-auth";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getReferralBounty, SITE_URL } from "@/lib/constants";
-import { CreateReferrerForm, MarkPaidButton, ToggleReferrerButton } from "./referral-actions";
+import { CreateReferrerForm, MarkPaidButton, ToggleReferrerButton, ApproveRejectButtons } from "./referral-actions";
 
 export default async function AdminReferralsPage() {
   await requireAdminPermission("manage_referrals");
@@ -66,7 +66,15 @@ export default async function AdminReferralsPage() {
                     <td className="text-slate-600">{r.payout_number || "—"}</td>
                     <td className="text-slate-600">{nad(t.paid)}</td>
                     <td className="font-semibold text-emerald-700">{nad(t.outstanding)}</td>
-                    <td><ToggleReferrerButton referrerId={r.id} isActive={r.is_active} /></td>
+                    <td>
+                      {r.status === "pending" ? (
+                        <ApproveRejectButtons referrerId={r.id} />
+                      ) : r.status === "rejected" ? (
+                        <span className="text-xs font-bold text-slate-400">Rejected</span>
+                      ) : (
+                        <ToggleReferrerButton referrerId={r.id} isActive={r.is_active} />
+                      )}
+                    </td>
                   </tr>
                 );
               })}

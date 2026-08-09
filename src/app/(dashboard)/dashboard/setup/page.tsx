@@ -109,6 +109,37 @@ function StoreSetupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [manualRef, setManualRef] = useState("");
+  const [manualRefError, setManualRefError] = useState("");
+  const [manualRefBusy, setManualRefBusy] = useState(false);
+
+  // Manual entry backstop: the agent link is the normal path, but a merchant
+  // who typed oshicart.com themselves used to be un-creditable forever. Now
+  // the agent can just say: enter my code when you set up.
+  async function applyManualRef() {
+    const code = manualRef.trim().toLowerCase();
+    if (!code || manualRefBusy) return;
+    setManualRefBusy(true);
+    setManualRefError("");
+    try {
+      const r = await fetch("/api/referral/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const v = await r.json();
+      if (v?.valid) {
+        setReferralCode(code);
+        setReferrerName(v.referrerName ?? null);
+      } else {
+        setManualRefError("That code is not recognised — check it with your agent.");
+      }
+    } catch {
+      setManualRefError("Could not check the code — try again.");
+    } finally {
+      setManualRefBusy(false);
+    }
+  }
   const [referrerName, setReferrerName] = useState<string | null>(null);
 
   const [form, setForm] = useState({ ...INITIAL_FORM });
@@ -477,6 +508,31 @@ function StoreSetupForm() {
             {referrerName ? `Referred by ${referrerName} — ` : "Referred by a friend — "}
             you get a <b>35-day free trial</b> instead of 30.
           </p>
+        </div>
+      )}
+
+      {!referralCode && step === 1 && (
+        <div className="mb-4 rounded-lg border border-slate-200 bg-white px-4 py-3">
+          <p className="text-xs font-bold text-slate-600">
+            Did an OshiCart agent refer you? Enter their code for 5 extra trial days.
+          </p>
+          <div className="mt-2 flex gap-2">
+            <input
+              value={manualRef}
+              onChange={(e) => setManualRef(e.target.value)}
+              placeholder="Agent code (e.g. rehabeam)"
+              className="min-h-10 flex-1 rounded-lg border border-slate-200 px-3 text-sm"
+            />
+            <button
+              type="button"
+              onClick={applyManualRef}
+              disabled={manualRefBusy || !manualRef.trim()}
+              className="min-h-10 rounded-lg bg-slate-900 px-4 text-xs font-black text-white disabled:opacity-40"
+            >
+              {manualRefBusy ? "Checking…" : "Apply"}
+            </button>
+          </div>
+          {manualRefError && <p className="mt-1.5 text-xs font-bold text-red-600">{manualRefError}</p>}
         </div>
       )}
 

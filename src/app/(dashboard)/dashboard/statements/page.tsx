@@ -18,10 +18,12 @@ import {
   buildStatement,
   orderTotal,
   summarisePayments,
+  summariseRefunds,
   summariseOutstanding,
   receivedByOrder,
   type StatementOrder,
   type OrderPayment,
+  type OrderRefund,
 } from "@/lib/statements";
 import {
   hasStatements,
@@ -146,6 +148,19 @@ export default async function StatementsPage({ searchParams }: Props) {
   const periodPayments = (paymentRows ?? []) as OrderPayment[];
   const receipts = summarisePayments(periodPayments);
 
+  // Refunds mirror payments: selected by the bank-statement date they left,
+  // so "went back to customers" also matches the bank for the period.
+  const { data: refundRows } = await service
+    .from("order_refunds")
+    .select("order_id, amount_nad, refunded_at, method, voided_at")
+    .eq("merchant_id", merchant.id)
+    .is("voided_at", null)
+    .gte("refunded_at", startISO.slice(0, 10))
+    .lt("refunded_at", endISO.slice(0, 10));
+
+  const periodRefunds = (refundRows ?? []) as OrderRefund[];
+  const refundsOut = summariseRefunds(periodRefunds);
+
   // Outstanding is measured against this month's orders, so it needs every
   // payment for them, including ones made in a later month.
   const { data: allOrderPayments } = await service
@@ -156,7 +171,16 @@ export default async function StatementsPage({ searchParams }: Props) {
     .in("order_id", orders.length > 0 ? orders.map((o) => o.id) : ["none"]);
 
   const orderPayments = (allOrderPayments ?? []) as OrderPayment[];
-  const owed = summariseOutstanding(orders, orderPayments);
+
+  const { data: allOrderRefunds } = await service
+    .from("order_refunds")
+    .select("order_id, amount_nad, refunded_at, method, voided_at")
+    .eq("merchant_id", merchant.id)
+    .is("voided_at", null)
+    .in("order_id", orders.length > 0 ? orders.map((o) => o.id) : ["none"]);
+
+  const orderRefunds = (allOrderRefunds ?? []) as OrderRefund[];
+  const owed = summariseOutstanding(orders, orderPayments, orderRefunds);
   const receivedPerOrder = receivedByOrder(orderPayments);
 
   const monthLabel = new Date(`${selected}-01T00:00:00+02:00`).toLocaleDateString("en-GB", {
@@ -190,6 +214,7 @@ export default async function StatementsPage({ searchParams }: Props) {
         storeName={merchant.store_name}
         orders={orders}
         payments={orderPayments}
+        refunds={orderRefunds}
       />
 
       {/* The statement document — styled to match the customer invoice. */}
@@ -236,6 +261,12 @@ export default async function StatementsPage({ searchParams }: Props) {
             value={formatPrice(receipts.total)}
             strong
           />
+          {refundsOut.total > 0 && (
+            <Figure
+              label={`Refunded in ${periodLabel}`}
+              value={`− ${formatPrice(refundsOut.total)}`}
+            />
+          )}
           <Figure
             label="Still outstanding"
             value={formatPrice(owed.outstanding)}
@@ -247,6 +278,12 @@ export default async function StatementsPage({ searchParams }: Props) {
           <p className="text-xs leading-5 text-slate-400 sm:col-span-3">
             Received counts payments dated in {periodLabel}, whichever month the
             order was placed — that is the figure to compare with your bank.
+            {refundsOut.total > 0 && (
+              <>
+                {" "}Net of refunds, {formatPrice(receipts.total - refundsOut.total)} stayed with
+                you.
+              </>
+            )}
             Outstanding is what these {periodLabel} orders still owe, including
             anything paid later.
             {owed.overpaid > 0 && (

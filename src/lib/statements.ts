@@ -156,6 +156,52 @@ export interface OrderPayment {
   voided_at: string | null;
 }
 
+export interface OrderRefund {
+  order_id: string;
+  amount_nad: number;
+  /** YYYY-MM-DD — the day the money left, from the merchant's bank. */
+  refunded_at: string;
+  method: string | null;
+  voided_at: string | null;
+}
+
+/** Voided refunds are reversed mistakes, exactly like voided payments. */
+function liveRefunds(refunds: OrderRefund[]): OrderRefund[] {
+  return refunds.filter((r) => !r.voided_at);
+}
+
+/** Total refunded per order id. */
+export function refundedByOrder(refunds: OrderRefund[]): Map<string, number> {
+  const totals = new Map<string, number>();
+  for (const refund of liveRefunds(refunds)) {
+    totals.set(refund.order_id, (totals.get(refund.order_id) ?? 0) + refund.amount_nad);
+  }
+  return totals;
+}
+
+/**
+ * What went back to customers in the period, summed by refunded_at for the
+ * same reason payments sum by paid_at: the bank statement is the referee.
+ */
+export function summariseRefunds(refunds: OrderRefund[]): PaymentsSummary {
+  const byMethod = new Map<string, StatementGroup>();
+  let total = 0;
+  let count = 0;
+
+  for (const refund of liveRefunds(refunds)) {
+    total += refund.amount_nad;
+    count += 1;
+
+    const key = refund.method || "unknown";
+    const group = byMethod.get(key) ?? { key, orderCount: 0, total: 0 };
+    group.orderCount += 1;
+    group.total += refund.amount_nad;
+    byMethod.set(key, group);
+  }
+
+  return { count, total, byMethod: sortGroups(byMethod) };
+}
+
 /** How an order stands once payments are counted. */
 export type PaymentState = "unpaid" | "part" | "paid" | "over";
 
@@ -223,9 +269,11 @@ export interface OutstandingSummary {
 /** Outstanding balance across a period's orders, ignoring cancelled ones. */
 export function summariseOutstanding(
   orders: StatementOrder[],
-  payments: OrderPayment[]
+  payments: OrderPayment[],
+  refunds: OrderRefund[] = []
 ): OutstandingSummary {
   const received = receivedByOrder(payments);
+  const refunded = refundedByOrder(refunds);
   let outstanding = 0;
   let overpaid = 0;
   let unpaidOrders = 0;
@@ -234,7 +282,8 @@ export function summariseOutstanding(
     if (EXCLUDED_STATUSES.has(order.status)) continue;
 
     const total = orderTotal(order);
-    const paid = received.get(order.id) ?? 0;
+    // Refunds hand money back, so what counts is the NET the merchant kept.
+    const paid = (received.get(order.id) ?? 0) - (refunded.get(order.id) ?? 0);
 
     if (paid < total) {
       outstanding += total - paid;
@@ -250,9 +299,11 @@ export function summariseOutstanding(
 /** CSV of every order in the period, for a bookkeeper or a spreadsheet. */
 export function statementToCsv(
   orders: StatementOrder[],
-  payments: OrderPayment[] = []
+  payments: OrderPayment[] = [],
+  refunds: OrderRefund[] = []
 ): string {
   const received = receivedByOrder(payments);
+  const refunded = refundedByOrder(refunds);
 
   const header = [
     "Date",
@@ -266,6 +317,7 @@ export function statementToCsv(
     "VAT",
     "Total",
     "Received",
+    "Refunded",
     "Outstanding",
   ];
 
@@ -277,6 +329,7 @@ export function statementToCsv(
   const rows = orders.map((order) => {
     const total = orderTotal(order);
     const paid = received.get(order.id) ?? 0;
+    const back = refunded.get(order.id) ?? 0;
 
     return [
       order.created_at.slice(0, 10),
@@ -290,7 +343,8 @@ export function statementToCsv(
       money(order.vat_nad ?? 0),
       money(total),
       money(paid),
-      money(Math.max(0, total - paid)),
+      money(back),
+      money(Math.max(0, total - paid + back)),
     ].join(",");
   });
 

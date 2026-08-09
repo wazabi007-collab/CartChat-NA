@@ -6,8 +6,10 @@ import { getPaymentMethodLabel } from "@/lib/constants";
 import Link from "next/link";
 import { OrderActions } from "./order-actions";
 import { RecordPayment } from "./record-payment";
+import { RecordRefund } from "./record-refund";
 import {
   receivedByOrder,
+  refundedByOrder,
   paymentState,
   type OrderPayment,
 } from "@/lib/statements";
@@ -65,6 +67,18 @@ export default async function OrdersPage({
     .is("voided_at", null);
 
   const receivedByOrderId = receivedByOrder((paymentRows ?? []) as OrderPayment[]);
+
+  // Refunds mirror payments: shown per order, and each row is a credit note.
+  const { data: refundRows } = await supabase
+    .from("order_refunds")
+    .select("id, order_id, amount_nad, refunded_at, method, voided_at")
+    .eq("merchant_id", merchant.id)
+    .is("voided_at", null);
+  const refundList = (refundRows ?? []) as {
+    id: string; order_id: string; amount_nad: number;
+    refunded_at: string; method: string | null; voided_at: string | null;
+  }[];
+  const refundedByOrderId = refundedByOrder(refundList);
   const proofPaths = orderList
     .map((order) => resolveProofPath(order.proof_of_payment_url))
     .filter((p): p is string => p !== null);
@@ -172,7 +186,10 @@ export default async function OrdersPage({
           {orderList.map((order) => {
             const orderTotal = getOrderPayableTotal(order);
             const received = receivedByOrderId.get(order.id) ?? 0;
-            const payState = paymentState(orderTotal, received);
+            const refunded = refundedByOrderId.get(order.id) ?? 0;
+            const orderRefunds = refundList.filter((r) => r.order_id === order.id);
+            // A refunded order stands on its NET position.
+            const payState = paymentState(orderTotal, received - refunded);
             const proofPath = resolveProofPath(order.proof_of_payment_url);
             const proofUrl = proofPath ? proofUrlByPath.get(proofPath) ?? null : null;
             const awaitingProof =
@@ -335,7 +352,7 @@ export default async function OrdersPage({
               <OrderItemsToggle items={order.order_items || []} />
 
               {order.status !== "cancelled" && (
-                <div className="mt-3">
+                <div className="mt-3 flex flex-wrap gap-2">
                   <RecordPayment
                     orderId={order.id}
                     merchantId={merchant.id}
@@ -344,6 +361,31 @@ export default async function OrdersPage({
                     received={received}
                     defaultMethod={order.payment_method ?? null}
                   />
+                  <RecordRefund
+                    orderId={order.id}
+                    merchantId={merchant.id}
+                    orderNumber={order.order_number}
+                    received={received}
+                    refunded={refunded}
+                    defaultMethod={order.payment_method ?? null}
+                  />
+                </div>
+              )}
+
+              {/* Every refund is a credit note the merchant can print. */}
+              {orderRefunds.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {orderRefunds.map((r, i) => (
+                    <a
+                      key={r.id}
+                      href={`/credit-note/${r.id}`}
+                      target="_blank"
+                      className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700 hover:bg-red-100"
+                    >
+                      Credit note CN-{order.order_number}-{i + 1} ·{" "}
+                      {formatPrice(r.amount_nad)}
+                    </a>
+                  ))}
                 </div>
               )}
 

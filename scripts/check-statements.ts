@@ -16,8 +16,11 @@ import {
   paymentState,
   summarisePayments,
   summariseOutstanding,
+  summariseRefunds,
+  refundedByOrder,
   type StatementOrder,
   type OrderPayment,
+  type OrderRefund,
 } from "../src/lib/statements";
 
 let failures = 0;
@@ -174,8 +177,8 @@ check("csv has a header and one row", csvLines.length, 2);
 check(
   "csv escapes quotes in names",
   csvLines[1],
-  // No payments passed, so Received is 0.00 and the whole total is outstanding.
-  '2026-08-07,7,"Anna ""AJ"" Shipanga",eft,completed,293.32,0.00,0.00,44.00,337.32,0.00,337.32'
+  // No payments passed: Received 0.00, Refunded 0.00, all outstanding.
+  '2026-08-07,7,"Anna ""AJ"" Shipanga",eft,completed,293.32,0.00,0.00,44.00,337.32,0.00,0.00,337.32'
 );
 
 // --- Payments received ---------------------------------------------------
@@ -265,8 +268,61 @@ const paidCsv = statementToCsv(
   [order({ order_number: 1, subtotal_nad: 10000 })],
   [payment({ order_id: "order-1", amount_nad: 4000 })]
 ).split("\n");
-check("csv header has received and outstanding", paidCsv[0].endsWith("Total,Received,Outstanding"), true);
-check("csv row shows the shortfall", paidCsv[1].endsWith("100.00,40.00,60.00"), true);
+check("csv header has received and outstanding", paidCsv[0].endsWith("Total,Received,Refunded,Outstanding"), true);
+check("csv row shows the shortfall", paidCsv[1].endsWith("100.00,40.00,0.00,60.00"), true);
+
+
+// ---------------------------------------------------------------------------
+// Refunds. Money back out must subtract everywhere money in added, or the
+// statement stops matching the bank the day a merchant refunds anyone.
+// ---------------------------------------------------------------------------
+{
+  const orders: StatementOrder[] = [
+    order({ id: "r1", order_number: 1, subtotal_nad: 50000 }),
+    order({ id: "r2", order_number: 2, subtotal_nad: 30000 }),
+  ];
+  const payments: OrderPayment[] = [
+    { order_id: "r1", amount_nad: 50000, paid_at: "2026-08-03", method: "eft", voided_at: null },
+    { order_id: "r2", amount_nad: 30000, paid_at: "2026-08-03", method: "eft", voided_at: null },
+  ];
+  const refunds: OrderRefund[] = [
+    // Full refund of order 1, partial of order 2, plus a voided mistake.
+    { order_id: "r1", amount_nad: 50000, refunded_at: "2026-08-05", method: "eft", voided_at: null },
+    { order_id: "r2", amount_nad: 10000, refunded_at: "2026-08-06", method: "cash", voided_at: null },
+    { order_id: "r2", amount_nad: 99999, refunded_at: "2026-08-06", method: "eft", voided_at: "2026-08-06T12:00:00Z" },
+  ];
+
+  const summary = summariseRefunds(refunds);
+  check("voided refunds never count", [summary.total, summary.count], [60000, 2]);
+  check("refunds group by method",
+    summary.byMethod.find((g) => g.key === "cash")?.total, 10000);
+
+  const perOrder = refundedByOrder(refunds);
+  check("refundedByOrder sums live rows only",
+    [perOrder.get("r1"), perOrder.get("r2")], [50000, 10000]);
+
+  // The fully refunded order owes its whole total again; the partial one owes
+  // exactly the slice handed back.
+  const owed = summariseOutstanding(orders, payments, refunds);
+  check("outstanding counts money handed back", owed.outstanding, 60000);
+  check("both orders are open again", owed.unpaidOrders, 2);
+
+  // The old two-argument call still works: no refunds, nothing outstanding.
+  const before = summariseOutstanding(orders, payments);
+  check("no refunds, nothing outstanding",
+    [before.outstanding, before.unpaidOrders], [0, 0]);
+
+  // CSV: Refunded column present, Outstanding netted per row.
+  const csv = statementToCsv(orders, payments, refunds);
+  const csvLines = csv.split("\n");
+  check("csv header gains Refunded",
+    csvLines[0].includes("Received,Refunded,Outstanding"), true);
+  check("csv nets the fully refunded order",
+    csvLines[1].endsWith("500.00,500.00,500.00"), true);
+  check("csv nets the partial refund",
+    csvLines[2].endsWith("300.00,100.00,100.00"), true);
+}
+
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

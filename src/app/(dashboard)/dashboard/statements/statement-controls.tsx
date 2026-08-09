@@ -6,6 +6,7 @@ import {
   statementToCsv,
   type StatementOrder,
   type OrderPayment,
+  type OrderRefund,
 } from "@/lib/statements";
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
   storeName: string;
   orders: StatementOrder[];
   payments: OrderPayment[];
+  refunds: OrderRefund[];
   /** Oshi-Pro can pull twelve months as one document. */
   canPullYear: boolean;
 }
@@ -33,6 +35,7 @@ export function StatementControls({
   storeName,
   orders,
   payments,
+  refunds,
   canPullYear,
 }: Props) {
   const router = useRouter();
@@ -40,7 +43,7 @@ export function StatementControls({
   function downloadCsv() {
     // Built in the browser from the same data the page rendered, so the
     // spreadsheet can never disagree with the statement on screen.
-    const csv = statementToCsv(orders, payments);
+    const csv = statementToCsv(orders, payments, refunds);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");

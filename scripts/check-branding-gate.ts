@@ -30,9 +30,10 @@ const PROSE = ["pricing", "terms", "tier-limits.ts", "plans.ts"];
 
 // Surfaces that show the badge on EVERY tier by deliberate product decision.
 // The invoice keeps it on purpose: it is the document a merchant hands their
-// customer, and the attribution was chosen to stay on paid plans too. Listed
-// here so the choice is visible and survives — not silently ungated.
-const INTENTIONALLY_UNGATED = ["/invoice/"];
+// customer, and the attribution was chosen to stay on paid plans too. The
+// credit note mirrors the invoice — same document family, same choice. Listed
+// here so the decision is visible and survives, not silently ungated.
+const INTENTIONALLY_UNGATED = ["/invoice/", "/credit-note/"];
 
 for (const file of files) {
   const body = readFileSync(file, "utf8");

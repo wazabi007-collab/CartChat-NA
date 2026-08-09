@@ -1,53 +1,63 @@
-# Meta templates to paste in — engagement messages
+# Meta templates to paste in — engagement + reply forwarding
 
-Create these three in Meta Business Suite → WhatsApp Manager → Message
-templates, exactly as below (category **UTILITY**, language **English**).
-The cron is already deployed and sending is claim-once — the moment Meta
-approves a template, its messages start going out; until then failed sends
-are logged and never retried at the same person.
+Create these four in Meta Business Suite -> WhatsApp Manager -> Message
+templates. Category **Utility**, language **English** (code `en`) — same as
+every existing OshiCart template.
+
+House style, matched to the live templates: leading emoji, "Hi {{1}}," one
+short paragraph, "Tap below to ..." closing, links as **buttons** with fixed
+URLs, **no footers**.
+
+The cron and webhook are already deployed. The moment a template flips to
+Active its messages start flowing; until then failed sends retry quietly,
+once a day, and nobody sees anything.
 
 ---
 
 ## 1. `store_activation_nudge`
 
-**Header:** none
 **Body:**
 ```
-Hi {{1}}! Your OshiCart store is ready, but it has nothing to sell yet — so customers can't find it in Browse Stores.
-
-Adding your first product takes about 2 minutes. Step-by-step guide: {{2}}
-
-Reply here if you're stuck and we'll help you set it up.
+🛒 Hi {{1}}, your OshiCart store is live but has no products yet, so customers cannot find it in Browse Stores. Adding your first product takes about 2 minutes. Tap below for the step-by-step guide.
 ```
-**Footer:** OshiCart — zero commission
-**Sample values:** {{1}} Sunrise Crumbs Bakery · {{2}} https://oshicart.com/guide
+**Button:** Open the Guide — `https://oshicart.com/guide`
+**Sample:** {{1}} = Sunrise Crumbs Bakery
 
 ---
 
 ## 2. `store_win_back`
 
-**Header:** none
 **Body:**
 ```
-Hi {{1}}, your OshiCart store is paused — not deleted. Your products, your store link and your QR code are all still saved.
-
-Log in and it's back online in minutes: {{2}}
-
-Need a hand or have questions? Just reply to this message.
+🔓 Hi {{1}}, your OshiCart store is paused, not deleted. Your products, your store link and your QR code are all still saved. Tap below to log in and bring it back online in minutes.
 ```
-**Footer:** OshiCart — zero commission
-**Sample values:** {{1}} Kiti's Kitchen · {{2}} https://oshicart.com/login
+**Button:** Log In — `https://oshicart.com/login`
+**Sample:** {{1}} = Kiti's Kitchen
 
 ---
 
 ## 3. `booking_reminder`
 
-**Header:** none
 **Body:**
 ```
-Hi {{1}}! A reminder of your appointment at {{2}} tomorrow, {{3}} at {{4}}.
-
-If you can't make it, please let the store know on WhatsApp so the time can go to someone else.
+📅 Hi {{1}}, a reminder of your appointment at {{2}} tomorrow, {{3}} at {{4}}. If you cannot make it, tap below and let the store know on WhatsApp so the time can go to someone else.
 ```
-**Footer:** Booked through OshiCart
-**Sample values:** {{1}} Maria · {{2}} Design Today · {{3}} Tuesday 11 August · {{4}} 10:00
+**Button:** Open Store — `https://oshicart.com/s/{{1}}` (dynamic — add a
+variable to the button URL; the app sends the store's slug)
+**Samples:** {{1}} = Maria · {{2}} = Design Today · {{3}} = Tuesday 11 August
+· {{4}} = 10:00 · button {{1}} = design-today
+
+---
+
+## 4. `inbound_message_alert`
+
+Forwards replies to the OshiCart business number — which nobody attends — to
+the admin phones in `OSHICART_ADMIN_WHATSAPP_NUMBERS` (+264812384424).
+
+**Body:**
+```
+💬 New WhatsApp reply to the OshiCart number from {{1}} ({{2}}): {{3}}. Reply to them directly on their number, not to this message.
+```
+**Button:** none
+**Samples:** {{1}} = Maria N. · {{2}} = +264811234567 · {{3}} = Hi, I need
+help adding my first product

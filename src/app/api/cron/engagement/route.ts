@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isWhatsAppEnabled, sendWhatsAppTemplate } from "@/lib/whatsapp";
-import { SITE_URL } from "@/lib/constants";
 import { namibianDateString, formatNamibianDate } from "@/lib/date";
 
 /**
@@ -85,9 +84,9 @@ export async function GET(req: NextRequest) {
     if (!kind) continue;
 
     if (await claim(kind, m.id, null)) {
+      // Guide link is the template's fixed button, house style.
       const r = await sendWhatsAppTemplate(m.whatsapp_number, "store_activation_nudge", [
         m.store_name,
-        `${SITE_URL}/guide`,
       ]);
       if (r.success) results.activation++;
       else {
@@ -108,7 +107,6 @@ export async function GET(req: NextRequest) {
     if (await claim("win_back", m.id, null)) {
       const r = await sendWhatsAppTemplate(m.whatsapp_number, "store_win_back", [
         m.store_name,
-        `${SITE_URL}/login`,
       ]);
       if (r.success) results.winBack++;
       else {
@@ -123,7 +121,7 @@ export async function GET(req: NextRequest) {
   const { data: bookings } = await service
     .from("orders")
     .select(
-      "id, customer_name, customer_whatsapp, delivery_time, merchant_id, merchants!inner(store_name), order_items!inner(products!inner(item_type))"
+      "id, customer_name, customer_whatsapp, delivery_time, merchant_id, merchants!inner(store_name, store_slug), order_items!inner(products!inner(item_type))"
     )
     .eq("delivery_date", tomorrow)
     .neq("status", "cancelled")
@@ -132,15 +130,21 @@ export async function GET(req: NextRequest) {
 
   for (const b of bookings ?? []) {
     if (!b.customer_whatsapp) continue;
-    const storeName =
-      (b.merchants as unknown as { store_name: string } | null)?.store_name ?? "the store";
+    const store = b.merchants as unknown as { store_name: string; store_slug: string } | null;
+    const storeName = store?.store_name ?? "the store";
     if (await claim("booking_reminder", null, b.id)) {
-      const r = await sendWhatsAppTemplate(b.customer_whatsapp, "booking_reminder", [
-        b.customer_name,
-        storeName,
-        formatNamibianDate(`${tomorrow}T12:00:00+02:00`, { weekday: "long", day: "numeric", month: "long" }),
-        b.delivery_time as string,
-      ]);
+      // Button suffix = store slug: "let the store know" opens THEIR store.
+      const r = await sendWhatsAppTemplate(
+        b.customer_whatsapp,
+        "booking_reminder",
+        [
+          b.customer_name,
+          storeName,
+          formatNamibianDate(`${tomorrow}T12:00:00+02:00`, { weekday: "long", day: "numeric", month: "long" }),
+          b.delivery_time as string,
+        ],
+        [store?.store_slug ?? ""]
+      );
       if (r.success) results.bookingReminders++;
       else {
         results.failures.push(`booking_reminder order ${b.id}: ${r.error}`);

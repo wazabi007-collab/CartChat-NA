@@ -140,6 +140,42 @@ export const WHATSAPP_TEMPLATES = {
     bodyVariableCounts: [3],
     buttonParamCounts: [0],
   },
+  store_activation_nudge: {
+    name: "store_activation_nudge",
+    category: "utility",
+    recipientType: "merchant",
+    // {{1}} store name. Guide link is a fixed button URL, house style.
+    bodyVariableCounts: [1],
+    buttonParamCounts: [0],
+  },
+  store_win_back: {
+    name: "store_win_back",
+    category: "utility",
+    recipientType: "merchant",
+    // {{1}} store name. Login link is a fixed button URL.
+    bodyVariableCounts: [1],
+    buttonParamCounts: [0],
+  },
+  booking_reminder: {
+    name: "booking_reminder",
+    category: "utility",
+    recipientType: "customer",
+    // {{1}} customer name · {{2}} store name · {{3}} date · {{4}} time.
+    // Button param = store slug, so "let the store know" opens THEIR store,
+    // not the OshiCart number nobody attends.
+    bodyVariableCounts: [4],
+    buttonParamCounts: [1],
+  },
+  inbound_message_alert: {
+    name: "inbound_message_alert",
+    category: "utility",
+    recipientType: "admin",
+    // {{1}} sender name · {{2}} sender number · {{3}} message text.
+    // Forwards replies to the business number to the admins' own phones —
+    // the business number is not attended.
+    bodyVariableCounts: [3],
+    buttonParamCounts: [0],
+  },
   admin_new_merchant_signup: {
     name: "admin_new_merchant_signup",
     category: "utility",

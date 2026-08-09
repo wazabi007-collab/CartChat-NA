@@ -376,6 +376,53 @@ export default function GuidePage() {
 
           <Section
             n={9}
+            title="Appointments and bookings"
+            lead="For salons, barbers, and anyone who works by appointment: customers book a time from a calendar, and each time slot takes one booking."
+          >
+            <Steps>
+              <Step n={1}>
+                Set your hours: open{" "}
+                <strong className="text-walnut">Settings</strong> and find{" "}
+                <strong className="text-walnut">Availability</strong>. Tick your
+                working days, then use{" "}
+                <strong className="text-walnut">Generate</strong> — opening
+                time, closing time, and how long a session lasts. 09:00 to
+                17:00 every hour gives you eight sessions, without typing each
+                one.
+              </Step>
+              <Step n={2}>
+                When you add or edit a service, choose where it happens — at
+                your place, at the client&apos;s place, or online. That is what
+                makes checkout ask for a booking instead of a delivery.
+              </Step>
+              <Step n={3}>
+                Customers pick from a real calendar: days you are closed are
+                greyed out, full days are struck through, and times already
+                booked cannot be chosen. Two customers can never book the same
+                slot — OshiCart refuses the second one automatically.
+              </Step>
+              <Step n={4}>
+                See who is coming: open{" "}
+                <strong className="text-walnut">Bookings</strong> in your
+                dashboard. Each day shows how many bookings it has; tap a day
+                to see the names and times.
+              </Step>
+              <Step n={5}>
+                Taking a day off? Tap the day and{" "}
+                <strong className="text-walnut">Block whole day</strong>. Need
+                lunch free or a slot for walk-ins? Hold back single times
+                instead. A time that is already booked cannot be blocked —
+                cancel that order first.
+              </Step>
+            </Steps>
+            <Note>
+              Scheduled deliveries appear on the same calendar, so your whole
+              day — appointments and drop-offs — is in one place.
+            </Note>
+          </Section>
+
+          <Section
+            n={10}
             title="Invoices"
             lead="Every order has a proper invoice you can print or send."
           >
@@ -398,7 +445,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={10}
+            n={11}
             title="Your customers"
             lead="Everyone who orders from you is saved automatically."
           >
@@ -421,7 +468,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={11}
+            n={12}
             title="WhatsApp broadcasts"
             lead="Send an offer or an update to your customers from your own WhatsApp."
           >
@@ -446,7 +493,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={12}
+            n={13}
             title="Reviews"
             lead="Customers who actually bought from you can leave a rating."
           >
@@ -466,7 +513,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={13}
+            n={14}
             title="Coupons and discounts"
             lead="Run a promotion with a code customers enter at checkout."
           >
@@ -492,7 +539,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={14}
+            n={15}
             title="Adding many products at once"
             lead="If you have a long product list, you do not have to add them one by one."
           >
@@ -514,7 +561,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={15}
+            n={16}
             title="Abandoned checkout recovery"
             tier="Oshi-Automate and Oshi-Pro"
             lead="When a customer fills in checkout but does not finish, OshiCart can send them a WhatsApp reminder."
@@ -531,7 +578,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={16}
+            n={17}
             title="Statements for your books"
             tier="Oshi-Automate and Oshi-Pro"
             lead="A monthly record of every order, for your accountant or your VAT return."
@@ -571,7 +618,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={17}
+            n={18}
             title="Analytics"
             lead="See how your store is doing."
           >
@@ -587,7 +634,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={18}
+            n={19}
             title="Your plan and limits"
             lead="Every plan includes a number of products and a number of orders per month."
           >
@@ -612,7 +659,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={19}
+            n={20}
             title="Getting help"
             lead="If something is not working, talk to a real person."
           >

@@ -77,7 +77,11 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
               const Icon = item.icon;
               const active = pathname === item.href;
               const displayLabel =
-                item.usesItemWording ? labels.itemPlural : item.label;
+                item.usesItemWording
+                  ? labels.itemPlural
+                  : item.usesScheduleWording
+                  ? labels.schedule
+                  : item.label;
               return (
                 <Link
                   key={item.href}

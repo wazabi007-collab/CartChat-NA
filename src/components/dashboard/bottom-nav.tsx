@@ -54,7 +54,11 @@ export function BottomNav({
   const navItems = primaryItems().map((item) => ({
     href: item.href,
     icon: item.icon,
-    label: item.usesItemWording ? labels.itemPlural : item.label,
+    label: item.usesItemWording
+      ? labels.itemPlural
+      : item.usesScheduleWording
+      ? labels.schedule
+      : item.label,
     exact: item.href === "/dashboard",
   }));
 
@@ -142,7 +146,11 @@ export function BottomNav({
                   >
                     <Icon size={20} className="text-gray-500" />
                     <span className="text-sm font-medium">
-                      {item.usesItemWording ? labels.itemPlural : item.label}
+                      {item.usesItemWording
+                        ? labels.itemPlural
+                        : item.usesScheduleWording
+                        ? labels.schedule
+                        : item.label}
                     </span>
                   </Link>
                 );

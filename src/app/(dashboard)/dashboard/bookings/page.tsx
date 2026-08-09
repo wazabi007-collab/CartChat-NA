@@ -178,7 +178,8 @@ export default function BookingsPage() {
   const selectedOrders = selectedDay ? ordersByDay.get(selectedDay) ?? [] : [];
   // Must match the heading the settings page actually renders for this
   // merchant, or the instruction points at something they cannot find.
-  const settingsSectionLabel = getThemeConfig(industry)?.isService
+  const isServiceMerchant = getThemeConfig(industry)?.isService ?? false;
+  const settingsSectionLabel = isServiceMerchant
     ? "Availability"
     : "Delivery Scheduling";
   const configuredTimes = slots?.times ?? [];
@@ -188,22 +189,40 @@ export default function BookingsPage() {
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-acacia">Schedule</p>
         <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
-          Bookings
+          {isServiceMerchant ? "Bookings" : "Delivery schedule"}
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-          Every scheduled order in one calendar. Tap a day to see its bookings,
-          block the whole day off, or hold back individual times.
+          {isServiceMerchant
+            ? "Every appointment in one calendar. Tap a day to see who is coming, block the whole day off, or hold back individual times."
+            : "Every scheduled delivery and collection in one calendar. Tap a day to see what goes out, block a day you are closed, or hold back individual times."}
         </p>
       </div>
 
       {!slots?.enabled && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-          You haven&apos;t set your availability yet, so customers cannot pick a
-          time. Set your days and times under{" "}
-          <Link href="/dashboard/settings" className="font-black underline">
-            Settings → {settingsSectionLabel}
-          </Link>
-          .
+          {isServiceMerchant ? (
+            <>
+              You haven&apos;t set your availability yet, so customers cannot
+              pick a time. Set your working days and times under{" "}
+              <Link href="/dashboard/settings" className="font-black underline">
+                Settings → {settingsSectionLabel}
+              </Link>
+              .
+            </>
+          ) : (
+            <>
+              This calendar fills up once you let customers choose{" "}
+              <strong>when</strong> they want their order — a delivery day or a
+              collection time. Turn on{" "}
+              <Link href="/dashboard/settings" className="font-black underline">
+                Settings → {settingsSectionLabel}
+              </Link>{" "}
+              to offer day and time slots at checkout. Useful if you deliver on
+              set days, or want to stop orders landing on a day you are closed.
+              If you would rather customers just order any time, you can ignore
+              this page.
+            </>
+          )}
         </div>
       )}
 

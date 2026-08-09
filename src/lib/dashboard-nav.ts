@@ -38,6 +38,12 @@ export interface DashboardNavItem {
   /** Takes the merchant's Products/Services wording instead of `label`. */
   usesItemWording?: boolean;
   /**
+   * Takes schedule wording instead of `label`: a salon has "Bookings", a
+   * hardware shop has "Deliveries". Same calendar, same page — the word a
+   * merchant recognises is what differs.
+   */
+  usesScheduleWording?: boolean;
+  /**
    * Shown directly in the mobile bottom bar. Everything else lives under More.
    * Four is the practical limit before the bar stops being tappable at 375px.
    */
@@ -51,7 +57,7 @@ export const DASHBOARD_NAV: DashboardNavItem[] = [
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, requireFeature: null, primary: true },
 
   { href: "/dashboard/share", label: "Share store", icon: Share2, requireFeature: null },
-  { href: "/dashboard/bookings", label: "Bookings", icon: CalendarDays, requireFeature: null },
+  { href: "/dashboard/bookings", label: "Bookings", icon: CalendarDays, requireFeature: null, usesScheduleWording: true },
   { href: "/dashboard/customers", label: "Customers", icon: Users, requireFeature: null },
   { href: "/dashboard/broadcast", label: "Broadcast", icon: Megaphone, requireFeature: null },
   { href: "/dashboard/reviews", label: "Reviews", icon: Star, requireFeature: null },

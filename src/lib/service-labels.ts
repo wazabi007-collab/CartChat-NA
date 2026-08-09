@@ -5,6 +5,8 @@ const SERVICE_ARCHETYPES: IndustryArchetype[] = ["beauty", "services"];
 export interface ServiceLabels {
   item: string;
   itemPlural: string;
+  /** Sidebar/menu wording for the schedule calendar. */
+  schedule: string;
   addItem: string;
   firstItem: string;
   isService: boolean;
@@ -17,6 +19,7 @@ export function getServiceLabels(industry: string | null | undefined): ServiceLa
   return {
     item: isService ? "Service" : "Product",
     itemPlural: isService ? "Services" : "Products",
+    schedule: isService ? "Bookings" : "Deliveries",
     addItem: isService ? "Add Service" : "Add Product",
     firstItem: isService ? "Add your first service" : "Add your first product",
     isService,

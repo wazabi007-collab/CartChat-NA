@@ -179,13 +179,19 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   if (searchFilterParts.length > 0) countQuery.or(searchFilterParts.join(","));
 
   const [subRes, catRes, countRes] = await Promise.all([
-    supabase.from("subscriptions").select("tier, status").eq("merchant_id", merchant.id).single(),
+    // See the note below the Promise.all: this must not use the visitor client.
+    createServiceClient().from("subscriptions").select("tier, status").eq("merchant_id", merchant.id).single(),
     supabase.from("categories").select("*").eq("merchant_id", merchant.id).order("sort_order", { ascending: true }),
     countQuery,
   ]);
 
   const subscription = subRes.data;
   const categories = catRes.data;
+  // Service client: subscriptions has RLS with no anon policy, so a public
+  // visitor's client reads NULL and every store silently fell back to
+  // oshi_start — paid stores kept the "Powered by OshiCart" badge and, worse,
+  // were capped at the free tier's 20 orders a month. Only tier and status
+  // are read; no billing detail reaches the page.
   const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
   const isSoftSuspended = subscription?.status === "soft_suspended";
   // Same monthly order-limit gate as checkout — block ordering here too

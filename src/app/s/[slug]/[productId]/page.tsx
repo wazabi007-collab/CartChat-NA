@@ -3,9 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { formatPrice } from "@/lib/utils";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
-import { type SubscriptionTier } from "@/lib/tier-limits";
+import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { isOrderLimitReached } from "@/lib/order-limit";
 import { JsonLd } from "@/components/json-ld";
 import { PreviewBanner } from "@/components/storefront/preview-banner";
@@ -98,10 +99,15 @@ export default async function ProductDetailPage({ params }: Props) {
       .eq("product_id", product.id)
       .order("sort_order", { ascending: true })
       .order("sku", { ascending: true }),
-    supabase.from("subscriptions").select("tier, status").eq("merchant_id", merchant.id).single(),
+    createServiceClient().from("subscriptions").select("tier, status").eq("merchant_id", merchant.id).single(),
   ]);
 
   // Same blocked-store gates as the storefront and checkout pages
+  // Service client: subscriptions has RLS with no anon policy, so a public
+  // visitor's client reads NULL and every store silently fell back to
+  // oshi_start — paid stores kept the "Powered by OshiCart" badge and, worse,
+  // were capped at the free tier's 20 orders a month. Only tier and status
+  // are read; no billing detail reaches the page.
   const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
   const isSoftSuspended = subscription?.status === "soft_suspended";
   const orderingBlocked =
@@ -258,12 +264,16 @@ export default async function ProductDetailPage({ params }: Props) {
         </VariantImagesProvider>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white mt-8">
-        <div className="max-w-4xl mx-auto px-4 py-4 text-center text-xs text-slate-400">
-          Powered by {SITE_NAME}
-        </div>
-      </footer>
+      {/* Footer. The badge is what a paid plan removes — this page rendered it
+          unconditionally, so paying merchants still carried OshiCart branding
+          on every product page. scripts/check-branding-gate.ts now guards it. */}
+      {showBranding(tier) && (
+        <footer className="border-t border-slate-200 bg-white mt-8">
+          <div className="max-w-4xl mx-auto px-4 py-4 text-center text-xs text-slate-400">
+            Powered by {SITE_NAME}
+          </div>
+        </footer>
+      )}
 
       {/* Sticky mobile Add to Cart — appears when main button scrolls out of view */}
       <StickyAddToCart

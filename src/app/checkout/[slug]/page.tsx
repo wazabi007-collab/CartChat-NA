@@ -62,12 +62,17 @@ export default async function CheckoutPage({ params }: Props) {
   const isPreview = previewCookie && !!userId && merchant.user_id === userId;
 
   // Fetch subscription
-  const { data: subscription } = await supabase
+  const { data: subscription } = await service
     .from("subscriptions")
     .select("tier, status")
     .eq("merchant_id", merchant.id)
     .single();
 
+  // Service client: subscriptions has RLS with no anon policy, so a public
+  // visitor's client reads NULL and every store silently fell back to
+  // oshi_start — paid stores kept the "Powered by OshiCart" badge and, worse,
+  // were capped at the free tier's 20 orders a month. Only tier and status
+  // are read; no billing detail reaches the page.
   const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
   const isSoftSuspended = subscription?.status === "soft_suspended";
   const hasBranding = showBranding(tier);

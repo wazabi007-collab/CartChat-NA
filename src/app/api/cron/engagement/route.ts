@@ -63,13 +63,17 @@ export async function GET(req: NextRequest) {
     await query;
   }
 
-  // --- Activation: live stores with zero products, 1 and 3 days in ---------
+  // --- Activation: live stores with zero products ---------------------------
+  // Window covers the whole 35-day trial (plus slack): the stores this exists
+  // for — signed up weeks ago, still nothing to sell — must not be skipped by
+  // a lookback tuned only to brand-new signups. Dedup still caps it at one
+  // day-1 and one day-3 message per merchant, ever.
   const { data: merchants } = await service
     .from("merchants")
     .select("id, store_name, store_slug, whatsapp_number, created_at, is_active, store_status")
     .eq("is_active", true)
     .eq("store_status", "active")
-    .gte("created_at", new Date(Date.now() - 5 * 86_400_000).toISOString());
+    .gte("created_at", new Date(Date.now() - 45 * 86_400_000).toISOString());
 
   for (const m of merchants ?? []) {
     const { count } = await service

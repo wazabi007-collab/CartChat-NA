@@ -79,13 +79,13 @@ export const metadata: Metadata = {
     siteName: "OshiCart",
     locale: "en_NA",
     type: "website",
-    images: [{ url: "/og-default.png", width: 1200, height: 630, alt: "OshiCart — Your Namibian business, online in minutes" }],
+    images: [{ url: "/api/og/default", width: 1200, height: 630, alt: "OshiCart — Your Namibian business, online in minutes" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "OshiCart - Sell Online in Namibia",
     description: "Create a clean online store in minutes. Local payments, WhatsApp orders, zero commission.",
-    images: ["/og-default.png"],
+    images: ["/api/og/default"],
   },
   robots: {
     index: true,

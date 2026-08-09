@@ -55,7 +55,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     (merchant.town
       ? `Shop at ${merchant.store_name} in ${TOWN_LABELS[merchant.town] ?? merchant.town} on ${SITE_NAME}. Order via WhatsApp, pay locally.`
       : `Shop at ${merchant.store_name} on ${SITE_NAME}. Order via WhatsApp, pay locally.`);
-  const ogImage = merchant.logo_url || `${SITE_URL}/og-default.png`;
+  // Branded card, not the raw logo: an arbitrary square stretched into
+  // WhatsApp's 1200x630 frame was where the ugly previews came from.
+  const ogImage = `${SITE_URL}/api/og/store/${slug}`;
 
   return {
     title,

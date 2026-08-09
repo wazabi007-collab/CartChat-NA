@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!product) return { title: "Not Found" };
 
-  const ogImage = product.images?.[0] || `${SITE_URL}/og-default.png`;
+  const ogImage = product.images?.[0] || `${SITE_URL}/api/og/store/${slug}`;
 
   return {
     title: `${product.name} | ${merchant.store_name}`,

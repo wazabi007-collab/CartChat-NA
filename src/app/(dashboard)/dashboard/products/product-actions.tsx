@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Trash2, Pencil, CheckSquare, Square, Search, ArrowUpDown, ImagePlus, Eye, EyeOff } from "lucide-react";
+import { Trash2, Pencil, CheckSquare, Square, Search, ArrowUpDown, ImagePlus, Eye, EyeOff, Share2 } from "lucide-react";
 import { formatPrice, cn } from "@/lib/utils";
 import { ProductModerationNotice } from "@/components/dashboard/product-moderation-notice";
 
@@ -27,6 +27,34 @@ interface Product {
 
 export function ProductGrid({ products }: { products: Product[] }) {
   const router = useRouter();
+  const [sharing, setSharing] = useState<string | null>(null);
+
+  // Share a generated product card (photo + price + store link) straight to
+  // WhatsApp Status. Status is where Namibian merchants actually broadcast;
+  // this beats sharing a bare link because the card carries the price and
+  // photo even before anyone taps. navigator.share with files works on the
+  // Android phones merchants use; elsewhere the card opens for a manual save.
+  async function shareCard(product: Product) {
+    if (sharing) return;
+    setSharing(product.id);
+    try {
+      const res = await fetch(`/api/og/product/${product.id}`);
+      if (!res.ok) throw new Error("card failed");
+      const blob = await res.blob();
+      const file = new File([blob], `${product.name.replace(/\s+/g, "-").toLowerCase()}.png`, {
+        type: "image/png",
+      });
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+      } else {
+        window.open(URL.createObjectURL(blob), "_blank");
+      }
+    } catch {
+      // Cancelled shares land here too — nothing to clean up.
+    } finally {
+      setSharing(null);
+    }
+  }
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
@@ -341,6 +369,16 @@ export function ProductGrid({ products }: { products: Product[] }) {
                   <Pencil size={14} />
                   Edit
                 </Link>
+                {product.is_available && product.moderation_status === "approved" && (
+                  <button
+                    onClick={() => shareCard(product)}
+                    disabled={sharing === product.id}
+                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-green-600 transition-colors disabled:opacity-50"
+                  >
+                    <Share2 size={14} />
+                    {sharing === product.id ? "Preparing…" : "Share"}
+                  </button>
+                )}
                 <button
                   onClick={() => handleSingleDelete(product.id)}
                   disabled={deleting}

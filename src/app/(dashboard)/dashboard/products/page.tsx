@@ -32,7 +32,13 @@ export default async function ProductsPage({
 
   const labels = getServiceLabels(merchant.industry);
 
-  const [{ data: products }, { data: subscription }, totalProductsResult] = await Promise.all([
+  const [
+    { data: products },
+    { data: subscription },
+    totalProductsResult,
+    availableResult,
+    withPhotosResult,
+  ] = await Promise.all([
     supabase
       .from("products")
       .select("*, categories(name)")
@@ -50,6 +56,23 @@ export default async function ProductsPage({
       .from("products")
       .select("id", { count: "exact", head: true })
       .eq("merchant_id", merchant.id),
+    // These two must be COUNTS, not filters over the fetched page. PostgREST
+    // caps an unbounded select at 1000 rows, so counting in JS reported
+    // "772 available / 1000 with photos" to a merchant who actually had
+    // 1,976 and 3,043 — numbers they make stocking decisions on.
+    supabase
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq("merchant_id", merchant.id)
+      .is("deleted_at", null)
+      .eq("is_available", true),
+    supabase
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq("merchant_id", merchant.id)
+      .is("deleted_at", null)
+      .not("images", "is", null)
+      .neq("images", "{}"),
   ]);
 
   const productList = products || [];
@@ -63,8 +86,8 @@ export default async function ProductsPage({
   const appealedProductIds = new Set(
     (openAppeals ?? []).map((r) => r.product_id).filter((x): x is string => x !== null)
   );
-  const availableCount = productList.filter((p) => p.is_available).length;
-  const imageCount = productList.filter((p) => Array.isArray(p.images) && p.images.length > 0).length;
+  const availableCount = availableResult.count ?? 0;
+  const imageCount = withPhotosResult.count ?? 0;
 
   const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
   const productLimit = TIER_LIMITS[tier].products;

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Handshake, Wallet, QrCode, Store, ShieldCheck } from "lucide-react";
+import { Handshake, Wallet, QrCode, Store, ShieldCheck, BookOpen } from "lucide-react";
 import { PublicNavbar } from "@/components/public-navbar";
 import { AgentApplyForm } from "./apply-form";
 
@@ -109,12 +109,29 @@ export default function AgentsPage() {
             even book the demo appointment — click everything until you can
             show a shop owner how it works without hesitating.
           </p>
-          <Link
-            href="/s/oshicart-demo"
-            className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-acacia px-5 text-sm font-black text-white transition-colors hover:bg-green-700"
-          >
-            Open the demo store
-          </Link>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              href="/s/oshicart-demo"
+              className="inline-flex min-h-11 items-center rounded-xl bg-acacia px-5 text-sm font-black text-white transition-colors hover:bg-green-700"
+            >
+              Open the demo store
+            </Link>
+            {/* The handbook was only linked from the application confirmation
+                and the rules page, so an already-approved agent had nowhere to
+                find it again. It is the thing they reread most. */}
+            <a
+              href="/oshicart-referral-agent-handbook.pdf"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border-warm bg-white px-5 text-sm font-black text-walnut transition-colors hover:bg-sand-2"
+            >
+              <BookOpen size={16} className="text-acacia" />
+              Agent handbook (PDF)
+            </a>
+          </div>
+          <p className="mt-2 text-xs text-walnut-2">
+            Already an agent? The handbook is always here at{" "}
+            <span className="font-bold">oshicart.com/agents</span> — it covers
+            every feature and how to explain it.
+          </p>
         </div>
 
         {/* The rules, honestly */}

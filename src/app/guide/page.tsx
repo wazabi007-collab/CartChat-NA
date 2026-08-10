@@ -423,6 +423,42 @@ export default function GuidePage() {
 
           <Section
             n={10}
+            title="Selling online or digital services"
+            lead="Design, marketing, consulting, lessons — work with nothing to deliver and nobody to visit."
+          >
+            <Steps>
+              <Step n={1}>
+                Add it like any other item, and where it asks{" "}
+                <strong className="text-walnut">where does this happen</strong>,
+                choose <strong className="text-walnut">Online</strong>.
+              </Step>
+              <Step n={2}>
+                Checkout then changes for that customer: no delivery, no
+                collection, no courier, and no address. They only give their
+                name and WhatsApp number.
+              </Step>
+              <Step n={3}>
+                If you work by appointment — a coaching call, a lesson — set
+                your times under{" "}
+                <strong className="text-walnut">Settings → Availability</strong>{" "}
+                and the customer picks a slot.
+              </Step>
+              <Step n={4}>
+                If your work is a project rather than an appointment — a logo,
+                a website, a campaign — leave availability off. Checkout then
+                tells the customer you will contact them on WhatsApp to get
+                started, which is what really happens.
+              </Step>
+            </Steps>
+            <Note>
+              A store can mix them freely. A salon can sell in-chair haircuts,
+              call-outs to a client&apos;s home, and online consultations side by
+              side — each item carries its own setting.
+            </Note>
+          </Section>
+
+          <Section
+            n={11}
             title="Invoices"
             lead="Every order has a proper invoice you can print or send."
           >
@@ -445,7 +481,42 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={11}
+            n={12}
+            title="Refunds and credit notes"
+            lead="When you give money back, record it so your books and your bank still agree."
+          >
+            <Steps>
+              <Step n={1}>
+                Open <strong className="text-walnut">Orders</strong> and find the
+                order. <strong className="text-walnut">Record refund</strong>{" "}
+                appears next to Record payment once the customer has paid
+                something — you cannot refund money you never received.
+              </Step>
+              <Step n={2}>
+                Enter the amount, the date the money actually left your account,
+                and how you sent it back. Refund part of an order or all of it.
+              </Step>
+              <Step n={3}>
+                A <strong className="text-walnut">credit note</strong> is created
+                automatically and appears on the order. Open it to print or save
+                it as a PDF for the customer.
+              </Step>
+              <Step n={4}>
+                Your statement updates on its own: the refund shows under{" "}
+                <strong className="text-walnut">Refunded</strong>, and the order
+                counts as owing again, so Outstanding stays honest.
+              </Step>
+            </Steps>
+            <Note>
+              A credit note is the document that cancels part of an invoice. If
+              you are registered for VAT you may not simply delete an invoice
+              you have issued — you issue a credit note against it, and the VAT
+              is reversed on it too. OshiCart works this out for you.
+            </Note>
+          </Section>
+
+          <Section
+            n={13}
             title="Your customers"
             lead="Everyone who orders from you is saved automatically."
           >
@@ -468,7 +539,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={12}
+            n={14}
             title="WhatsApp broadcasts"
             lead="Send an offer or an update to your customers from your own WhatsApp."
           >
@@ -493,7 +564,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={13}
+            n={15}
             title="Reviews"
             lead="Customers who actually bought from you can leave a rating."
           >
@@ -513,7 +584,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={14}
+            n={16}
             title="Coupons and discounts"
             lead="Run a promotion with a code customers enter at checkout."
           >
@@ -539,7 +610,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={15}
+            n={17}
             title="Adding many products at once"
             lead="If you have a long product list, you do not have to add them one by one."
           >
@@ -561,7 +632,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={16}
+            n={18}
             title="Abandoned checkout recovery"
             tier="Oshi-Automate and Oshi-Pro"
             lead="When a customer fills in checkout but does not finish, OshiCart can send them a WhatsApp reminder."
@@ -578,7 +649,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={17}
+            n={19}
             title="Statements for your books"
             tier="Oshi-Automate and Oshi-Pro"
             lead="A monthly record of every order, for your accountant or your VAT return."
@@ -618,7 +689,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={18}
+            n={20}
             title="Analytics"
             lead="See how your store is doing."
           >
@@ -634,7 +705,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={19}
+            n={21}
             title="Your plan and limits"
             lead="Every plan includes a number of products and a number of orders per month."
           >
@@ -659,7 +730,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={20}
+            n={22}
             title="Getting help"
             lead="If something is not working, talk to a real person."
           >

@@ -21,7 +21,12 @@ import { track } from "@/lib/track";
 import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS, getEwalletProviderLabel, isCourierAvailable } from "@/lib/constants";
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
-import { summariseFulfilment, fulfilmentSummary } from "@/lib/service-mode";
+import {
+  summariseFulfilment,
+  fulfilmentSummary,
+  cashMethodLabel,
+  cashInstruction,
+} from "@/lib/service-mode";
 import { MonthCalendar } from "@/components/storefront/month-calendar";
 import type { DeliveryMethod, DeliveryProvider, PaymentMethod } from "@/types/database";
 import { PhoneInput } from "@/components/phone-input";
@@ -239,6 +244,14 @@ export function CheckoutForm({
   // A service-only basket has nothing to physically deliver, so the
   // pickup/delivery choice (and the couriers behind it) disappears entirely.
   const goodsFulfilmentNeeded = fulfilment.hasGoods || !fulfilment.hasServices;
+
+  // True only when the merchant publishes days AND times. Most digital
+  // sellers publish neither — their work is a project, not an appointment —
+  // so the copy must not promise a time picker that will never appear.
+  const schedulingOffered =
+    !!deliverySlots?.enabled &&
+    (deliverySlots.days?.length ?? 0) > 0 &&
+    (deliverySlots.times?.length ?? 0) > 0;
 
   const [deliveryProvider, setDeliveryProvider] = useState<DeliveryProvider>(
     (effectiveDeliveryProviders[0] as DeliveryProvider) ?? "store"
@@ -792,9 +805,7 @@ export function CheckoutForm({
         )}
         <p className="text-sm text-gray-500 mt-3">
           {paymentMethod === "cod"
-            ? deliveryMethod === "delivery"
-              ? "Please have cash ready for the order amount. Any buyer-arranged courier fee is paid separately."
-              : "Please pay when collecting your order."
+            ? cashInstruction(fulfilment, deliveryMethod)
             : "Please contact the merchant on WhatsApp to confirm your order."}
         </p>
 
@@ -1047,9 +1058,9 @@ export function CheckoutForm({
         </div>
         )}
 
-        {fulfilmentSummary(fulfilment) && (
+        {fulfilmentSummary(fulfilment, schedulingOffered) && (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">
-            {fulfilmentSummary(fulfilment)}
+            {fulfilmentSummary(fulfilment, schedulingOffered)}
           </div>
         )}
 
@@ -1289,7 +1300,14 @@ export function CheckoutForm({
                 ? EWALLET_PROVIDERS.find((p) => p.value === ewalletProvider)
                 : null;
             const visLogo = provider?.logo ?? info.logo;
-            const visLabel = provider?.label ?? info.label;
+            // "Cash on Delivery" was shown for collections, salon
+            // appointments and online design work alike — nothing is
+            // delivered in any of those.
+            const visLabel =
+              provider?.label ??
+              (method === "cod"
+                ? cashMethodLabel(fulfilment, deliveryMethod)
+                : info.label);
             return (
               <label
                 key={method}

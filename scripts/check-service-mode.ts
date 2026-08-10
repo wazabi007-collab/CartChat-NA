@@ -10,6 +10,8 @@
 import {
   summariseFulfilment,
   fulfilmentSummary,
+  cashMethodLabel,
+  cashInstruction,
   isServiceMode,
   type FulfilmentItem,
 } from "../src/lib/service-mode";
@@ -94,7 +96,29 @@ check("empty cart", summariseFulfilment([]).needsSchedule, false);
 
 check("no summary for a goods cart", fulfilmentSummary(onlyGoods), null);
 check("on-site wording", fulfilmentSummary(plumber), "We come to you. Tell us where and when below.");
-check("online wording", fulfilmentSummary(consult), "This happens online — no address needed. Just pick a time.");
+check("online wording, slots offered", fulfilmentSummary(consult, true),
+  "This happens online — nothing to deliver or collect. Just pick a time.");
+
+// ---------------------------------------------------------------------------
+// Digital services. A design agency publishes no time slots, so promising
+// "pick a time" is a lie, and nothing is ever delivered or collected — the
+// cash label has to stop saying otherwise.
+// ---------------------------------------------------------------------------
+check("online wording, no slots offered", fulfilmentSummary(consult, false),
+  "This happens online — nothing to deliver or collect. We will contact you on WhatsApp to get started.");
+check("on-site wording, no slots offered", fulfilmentSummary(plumber, false),
+  "We come to you. Tell us where below and we will agree a time on WhatsApp.");
+
+check("cash label: online service", cashMethodLabel(consult, "pickup"), "Cash");
+check("cash label: salon appointment", cashMethodLabel(salon, "pickup"), "Cash at your appointment");
+check("cash label: merchant travels", cashMethodLabel(plumber, "pickup"), "Cash on the day");
+check("cash label: goods delivered", cashMethodLabel(onlyGoods, "delivery"), "Cash on Delivery");
+check("cash label: goods collected", cashMethodLabel(onlyGoods, "pickup"), "Cash on Collection");
+
+check("cash line: online service never mentions delivery or collection",
+  /deliver|collect/i.test(cashInstruction(consult, "pickup")), false);
+check("cash line: goods delivery keeps its wording",
+  cashInstruction(onlyGoods, "delivery").startsWith("Please have cash ready"), true);
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

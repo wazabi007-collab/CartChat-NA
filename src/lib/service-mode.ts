@@ -94,18 +94,87 @@ export function summariseFulfilment(items: FulfilmentItem[]): CartFulfilment {
   };
 }
 
-/** What the customer is told will happen, in their words. */
-export function fulfilmentSummary(fulfilment: CartFulfilment): string | null {
+/**
+ * What the customer is told will happen, in their words.
+ *
+ * `schedulingOffered` is whether the merchant actually publishes time slots.
+ * Without it the copy promised "pick a time" to customers of merchants who
+ * offer none — most digital sellers, whose work is a project rather than an
+ * appointment. In that case the honest line is that the merchant will be in
+ * touch, which is what really happens.
+ */
+export function fulfilmentSummary(
+  fulfilment: CartFulfilment,
+  schedulingOffered = true
+): string | null {
   if (!fulfilment.hasServices) return null;
 
   switch (fulfilment.primaryMode) {
     case "at_client":
-      return "We come to you. Tell us where and when below.";
+      return schedulingOffered
+        ? "We come to you. Tell us where and when below."
+        : "We come to you. Tell us where below and we will agree a time on WhatsApp.";
     case "at_store":
-      return "Please come to us at the time you choose below.";
+      return schedulingOffered
+        ? "Please come to us at the time you choose below."
+        : "Please come to us — we will agree a time with you on WhatsApp.";
     case "online":
-      return "This happens online — no address needed. Just pick a time.";
+      return schedulingOffered
+        ? "This happens online — nothing to deliver or collect. Just pick a time."
+        : "This happens online — nothing to deliver or collect. We will contact you on WhatsApp to get started.";
     default:
       return null;
+  }
+}
+
+/**
+ * What to call paying cash, given what is actually happening.
+ *
+ * "Cash on Delivery" is the only cash label the platform had, and it was shown
+ * for collections, salon appointments and online design work alike — nothing
+ * is delivered in any of those. The label a customer reads has to match the
+ * transaction in front of them.
+ */
+export function cashMethodLabel(
+  fulfilment: CartFulfilment,
+  deliveryMethod: string
+): string {
+  // Goods in the basket keep the goods wording — they really do move.
+  if (fulfilment.hasGoods || !fulfilment.hasServices) {
+    return deliveryMethod === "delivery" ? "Cash on Delivery" : "Cash on Collection";
+  }
+
+  switch (fulfilment.primaryMode) {
+    case "at_client":
+      return "Cash on the day";
+    case "at_store":
+      return "Cash at your appointment";
+    case "online":
+      return "Cash";
+    default:
+      return "Cash";
+  }
+}
+
+/** The line under the payment choice, matched to the same reality. */
+export function cashInstruction(
+  fulfilment: CartFulfilment,
+  deliveryMethod: string
+): string {
+  if (fulfilment.hasGoods || !fulfilment.hasServices) {
+    return deliveryMethod === "delivery"
+      ? "Please have cash ready for the order amount. Any buyer-arranged courier fee is paid separately."
+      : "Please pay when collecting your order.";
+  }
+
+  switch (fulfilment.primaryMode) {
+    case "at_client":
+      return "Please have cash ready when we arrive.";
+    case "at_store":
+      return "Please pay at your appointment.";
+    case "online":
+      return "The merchant will arrange payment with you on WhatsApp.";
+    default:
+      return "The merchant will arrange payment with you on WhatsApp.";
   }
 }

@@ -125,34 +125,38 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
 
   if (!merchant) notFound();
 
+  // All three depend only on merchant.id, so they go together. The payment
+  // read used to await alone before the reviews pair, costing the visitor an
+  // extra serial round-trip before the first byte for no reason.
+  //
   // The payment badges must match what checkout will actually offer, or the
   // store advertises a method the buyer then cannot select. Deciding that needs
   // the payment credentials, which anon cannot read (migration 055), so this
   // one small read goes through the service role — the same reason checkout
   // does. Only the booleans derived from it ever reach the browser.
-  const { data: paymentDetails } = await createServiceClient()
-    .from("merchants")
-    .select("bank_name, bank_account_number, momo_number, ewallet_number, pay2cell_number, paytoday_number")
-    .eq("id", merchant.id)
-    .single();
+  const [{ data: paymentDetails }, { data: ratingRows }, { data: reviewRows }] =
+    await Promise.all([
+      createServiceClient()
+        .from("merchants")
+        .select("bank_name, bank_account_number, momo_number, ewallet_number, pay2cell_number, paytoday_number")
+        .eq("id", merchant.id)
+        .single(),
+      // Reviews are verified-purchase only (migration 059), so this is a real
+      // trust signal rather than anything a store can write about itself.
+      supabase.rpc("get_store_rating", { p_merchant_id: merchant.id }),
+      supabase
+        .from("reviews")
+        .select("id, customer_name, rating, comment, merchant_reply, merchant_replied_at, created_at")
+        .eq("merchant_id", merchant.id)
+        .eq("is_published", true)
+        .order("created_at", { ascending: false })
+        .limit(10),
+    ]);
 
   const advertisedPaymentMethods = usablePaymentMethods(
     merchant.accepted_payment_methods,
     paymentDetails ?? {}
   );
-
-  // Reviews are verified-purchase only (migration 059), so this is a real
-  // trust signal rather than anything a store can write about itself.
-  const [{ data: ratingRows }, { data: reviewRows }] = await Promise.all([
-    supabase.rpc("get_store_rating", { p_merchant_id: merchant.id }),
-    supabase
-      .from("reviews")
-      .select("id, customer_name, rating, comment, merchant_reply, merchant_replied_at, created_at")
-      .eq("merchant_id", merchant.id)
-      .eq("is_published", true)
-      .order("created_at", { ascending: false })
-      .limit(10),
-  ]);
   const ratingRow = Array.isArray(ratingRows) ? ratingRows[0] : ratingRows;
   const reviewAverage = ratingRow?.average != null ? Number(ratingRow.average) : null;
   const reviewTotal = ratingRow?.total != null ? Number(ratingRow.total) : 0;

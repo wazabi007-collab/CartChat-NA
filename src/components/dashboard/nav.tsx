@@ -89,7 +89,7 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
                   className={cn(
                     "flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm transition-colors",
                     active
-                      ? "bg-acacia-soft text-acacia font-bold shadow-sm shadow-emerald-900/5"
+                      ? "bg-acacia-soft text-acacia-ink font-bold shadow-sm shadow-emerald-900/5"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
                   )}
                 >

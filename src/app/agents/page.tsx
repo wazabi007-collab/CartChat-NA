@@ -33,7 +33,7 @@ export default function AgentsPage() {
 
       <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <div className="text-center">
-          <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-acacia-soft px-3 py-1 text-xs font-black uppercase tracking-wide text-acacia">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-acacia-soft px-3 py-1 text-xs font-black uppercase tracking-wide text-acacia-ink">
             <Handshake size={15} />
             Referral agents
           </span>
@@ -134,7 +134,12 @@ export default function AgentsPage() {
           <p className="mt-2 text-xs text-walnut-2">
             Already an agent? The handbook is always here at{" "}
             <span className="font-bold">oshicart.com/agents</span> — it covers
-            every feature and how to explain it.
+            every feature and how to explain it. Your link, your stores and what
+            you&apos;re owed live in your{" "}
+            <Link href="/agents/dashboard" className="font-bold text-terracotta underline">
+              agent dashboard
+            </Link>
+            .
           </p>
         </div>
 

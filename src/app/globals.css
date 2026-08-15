@@ -19,6 +19,13 @@
    */
   --acacia: #008938;
   --acacia-soft: #e7f8ee;
+  /*
+   * Acacia text ON the soft acacia tint, not on white. --acacia clears AA
+   * against white but only reaches 4.11:1 against its own tint, and no tint
+   * can fix that: with --acacia this dark, even pure white tops out at 4.53:1.
+   * Chips therefore need their own darker ink (6.31:1 on the tint).
+   */
+  --acacia-ink: #04682b;
   --walnut: #0b1220;
   --walnut-2: #526174;
   --border-warm: #dbe3ee;
@@ -38,6 +45,7 @@
   --color-terracotta: var(--terracotta);
   --color-terracotta-soft: var(--terracotta-soft);
   --color-acacia: var(--acacia);
+  --color-acacia-ink: var(--acacia-ink);
   --color-acacia-soft: var(--acacia-soft);
   --color-walnut: var(--walnut);
   --color-walnut-2: var(--walnut-2);

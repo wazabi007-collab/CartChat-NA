@@ -67,8 +67,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${merchant.store_name}${locationSuffix}`,
       description,
       url: `${SITE_URL}/s/${slug}`,
-      images: [{ url: ogImage, width: 1200, height: 630 }],
+      images: [{ url: ogImage, width: 1200, height: 630, type: "image/png" }],
       type: "website",
+    },
+    // Next only inherits twitter images from openGraph when no ancestor set
+    // them, and the root layout sets the generic brand card — so without this
+    // a shared store link unfurled as OshiCart rather than as the store.
+    twitter: {
+      card: "summary_large_image",
+      title: `${merchant.store_name}${locationSuffix}`,
+      description,
+      images: [ogImage],
     },
   };
 }

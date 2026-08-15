@@ -83,7 +83,7 @@ export default async function RegionStoresPage({ params }: Props) {
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {/* Page Title & intro */}
         <div className="mx-auto mb-8 max-w-3xl text-center">
-          <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-acacia-soft px-3 py-1 text-xs font-black uppercase tracking-wide text-acacia">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-acacia-soft px-3 py-1 text-xs font-black uppercase tracking-wide text-acacia-ink">
             <MapPin size={15} />
             {regionLabel} region
           </span>

@@ -77,3 +77,6 @@ public/hero-illustration.svg
 public/whatsapp-large.svg
 
 .vercel
+
+# QA/browser-automation scratch output — never part of the app
+/.playwright-cli/

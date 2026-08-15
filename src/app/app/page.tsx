@@ -32,7 +32,7 @@ export default function AppInstallPage() {
 
       <main className="mx-auto max-w-4xl px-4 sm:px-6 py-10">
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-acacia-soft text-acacia">
+          <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-acacia-soft text-acacia-ink">
             <Smartphone size={22} />
           </span>
           <h1 className="font-black text-3xl tracking-tight text-walnut">

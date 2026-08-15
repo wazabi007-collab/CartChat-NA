@@ -103,6 +103,14 @@ function LoginForm() {
 
   // ── Merchant routing helper ──────────────────────────────────────────────────
   async function routeAfterLogin(method: string) {
+    // Where the user was headed before we asked them to sign in. Only
+    // same-origin relative paths, so ?next= cannot bounce them off-site.
+    const requested = searchParams.get("next");
+    const next =
+      requested && requested.startsWith("/") && !requested.startsWith("//")
+        ? requested
+        : null;
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -113,9 +121,11 @@ function LoginForm() {
         .eq("user_id", user.id)
         .single();
       track("login_completed", { method, had_merchant: !!merchant });
-      window.location.href = merchant ? "/dashboard" : "/dashboard/setup";
+      // A referral agent has no merchant row, so without `next` they landed
+      // in the store setup wizard and had to find their way back by hand.
+      window.location.href = next ?? (merchant ? "/dashboard" : "/dashboard/setup");
     } else {
-      window.location.href = "/dashboard";
+      window.location.href = next ?? "/dashboard";
     }
   }
 

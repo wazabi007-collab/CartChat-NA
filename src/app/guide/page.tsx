@@ -52,7 +52,7 @@ function Section({
           {n}. {title}
         </h2>
         {tier && (
-          <span className="rounded-full bg-acacia-soft px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wide text-acacia">
+          <span className="rounded-full bg-acacia-soft px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wide text-acacia-ink">
             {tier}
           </span>
         )}
@@ -310,11 +310,17 @@ const SECTIONS: GuideSection[] = [
             the money or you are happy to go ahead.
           </Step>
           <Step n={4}>
+            Tap <strong className="text-walnut">Record payment</strong> when
+            the money arrives, with the amount and the date from your bank.
+            Part-payments are fine — record each one. This is also what stops
+            the payment reminders.
+          </Step>
+          <Step n={5}>
             Tap <strong className="text-walnut">Completed</strong> when the
             customer has it. That message carries their{" "}
             <strong className="text-walnut">invoice</strong>.
           </Step>
-          <Step n={5}>
+          <Step n={6}>
             Use <strong className="text-walnut">Cancel</strong> if the order
             falls through. Cancelled orders do not count against your monthly
             order limit.
@@ -798,7 +804,7 @@ const SECTIONS: GuideSection[] = [
     ),
   },
   {
-    title: "Getting help",
+    title: "Need help?",
     lead: "If something is not working, talk to a real person.",
     body: (
       <>

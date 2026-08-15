@@ -25,7 +25,7 @@ export default function PricingPage() {
       <main className="px-4 py-14 sm:px-6 lg:py-20">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-acacia-soft px-3 py-1 text-xs font-black uppercase tracking-wide text-acacia">
+            <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-acacia-soft px-3 py-1 text-xs font-black uppercase tracking-wide text-acacia-ink">
               <BotMessageSquare size={15} />
               WhatsApp automation available
             </span>

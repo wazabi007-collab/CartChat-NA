@@ -67,7 +67,7 @@ export default async function StoresPage({ searchParams }: Props) {
 
         {/* Page Title & Search */}
         <div className="mx-auto mb-8 max-w-3xl text-center">
-          <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-acacia-soft px-3 py-1 text-xs font-black uppercase tracking-wide text-acacia">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full bg-acacia-soft px-3 py-1 text-xs font-black uppercase tracking-wide text-acacia-ink">
             <ShieldCheck size={15} />
             Active stores with listed products
           </span>

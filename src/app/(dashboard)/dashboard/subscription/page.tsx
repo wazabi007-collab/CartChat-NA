@@ -122,7 +122,7 @@ export default async function SubscriptionPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-acacia-soft text-acacia">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-acacia-soft text-acacia-ink">
                 <CreditCard size={18} />
               </span>
               <h2 className="text-xl font-black text-slate-950">

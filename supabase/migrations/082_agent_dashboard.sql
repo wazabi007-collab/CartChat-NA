@@ -27,6 +27,19 @@
 -- The unique index makes a mislink loud instead of silent: one auth user can
 -- own at most one agent code.
 
+-- ─── 0. Drop the blanket grants FIRST, or none of the below scopes anything ─
+-- Both tables still carried Supabase's default GRANT ALL to anon and
+-- authenticated; 053 never revoked it. That was inert only while the tables
+-- had zero policies. The moment the "agent reads own row" policy below exists,
+-- a table-wide SELECT grant hands a linked agent every column of their row —
+-- payout_number (bank account), whatsapp, email, admin notes — and the
+-- INSERT/UPDATE/DELETE grants sit one permissive policy away from writable.
+-- A column allow-list is only an allow-list once the table-wide grant is gone.
+-- (Same failure mode as order_items in 081.) Every other reader of these
+-- tables is the service client, which bypasses grants, so nothing else breaks.
+REVOKE ALL ON public.referrers FROM anon, authenticated;
+REVOKE ALL ON public.referral_payouts FROM anon, authenticated;
+
 ALTER TABLE public.referrers
   ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL;
 
@@ -71,10 +84,11 @@ GRANT SELECT (
 
 -- ─── 3. Referred merchants: definer function, because grants can't do this ──
 -- An agent needs milestone state for stores that are NOT publicly visible yet
--- (a merchant who signed up but has not gone live), and merchants.
--- referred_by_code plus the whole subscriptions table are unreadable to them —
--- 055 deliberately withheld referred_by_code from every non-service role, and
--- subscriptions RLS is merchant-owner-only. Same situation as get_my_merchant():
+-- (a merchant who signed up but has not gone live), and both the
+-- merchants.referred_by_code column and the whole subscriptions table are
+-- unreadable to them — 055 deliberately withheld referred_by_code from every
+-- non-service role, and subscriptions RLS is merchant-owner-only. Same
+-- situation as get_my_merchant():
 -- per-row visibility that role-wide column grants cannot express, so the
 -- function IS the projection.
 --
@@ -98,6 +112,9 @@ SECURITY DEFINER
 SET search_path = public
 STABLE
 AS $$
+  -- Every column below stays alias-qualified: in a SQL-language function the
+  -- RETURNS TABLE names are substituted into the body, so a bare `store_name`
+  -- or `merchant_id` would collide with the output parameter of that name.
   SELECT
     m.id,
     m.store_name,

@@ -54,7 +54,12 @@ export function AgentApplyForm() {
           done.status === "active" ? (
             <p>
               You&apos;re already an approved agent! Your link is{" "}
-              <b>oshicart.com/r/{done.code}</b> — start sharing it.
+              <b>oshicart.com/r/{done.code}</b> — start sharing it, and track
+              what it earns in your{" "}
+              <Link href="/agents/dashboard" className="font-bold underline">
+                agent dashboard
+              </Link>
+              .
             </p>
           ) : (
             <p>

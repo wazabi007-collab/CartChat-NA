@@ -17,12 +17,18 @@ export default async function SharePage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: merchant } = await supabase
+  const { data: merchant, error: merchantError } = await supabase
     .from("merchants")
     .select("id, store_name, store_slug, store_link_shared")
     .eq("user_id", user.id)
     .single();
 
+  // A failed query is not "this user has no store". Reading every error as an
+  // unconfigured merchant is what sent fully set-up merchants to the setup
+  // wizard when a column grant was missing (QA-024); fail loudly instead.
+  if (merchantError && merchantError.code !== "PGRST116") {
+    throw new Error(`Could not load your store: ${merchantError.message}`);
+  }
   if (!merchant) redirect("/dashboard/setup");
 
   const { count: productCount } = await supabase

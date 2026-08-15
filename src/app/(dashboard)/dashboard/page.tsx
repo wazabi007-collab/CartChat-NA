@@ -54,13 +54,19 @@ export default async function DashboardPage({
   // "permission denied for table merchants". That null sent every merchant
   // back to the setup wizard on login — the bug reported by testers.
   // scripts/check-select-star.ts fails the build if "*" comes back.
-  const { data: merchant } = await supabase
+  const { data: merchant, error: merchantError } = await supabase
     .from("merchants")
     .select(
       "id, store_name, store_slug, industry, region, town, store_status, is_active, logo_url, description, whatsapp_number, store_link_shared, getting_started_dismissed, prohibited_policy_accepted_at, prohibited_policy_version, created_at"
     )
     .eq("user_id", user.id)
     .single();
+  // A failed query is not "this user has no store". Reading every error as an
+  // unconfigured merchant is what sent fully set-up merchants to the setup
+  // wizard when a column grant was missing (QA-024); fail loudly instead.
+  if (merchantError && merchantError.code !== "PGRST116") {
+    throw new Error(`Could not load your store: ${merchantError.message}`);
+  }
 
   if (!merchant) {
     redirect("/dashboard/setup");

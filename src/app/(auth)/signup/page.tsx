@@ -9,7 +9,7 @@ import Link from "next/link";
 import { PublicNavbar } from "@/components/public-navbar";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { PhoneInput } from "@/components/phone-input";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, MailCheck } from "lucide-react";
 import {
   inputBase,
   focusBrand,
@@ -42,6 +42,12 @@ function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [referredTrial, setReferredTrial] = useState(false);
+  // Set once the account exists and the confirmation is on its way; the page
+  // then stops being a form and becomes an instruction.
+  const [sentTo, setSentTo] = useState("");
+  const [emailDelivered, setEmailDelivered] = useState(true);
+  const [resending, setResending] = useState(false);
+  const [resendNote, setResendNote] = useState("");
   const emailCheckRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const supabase = createClient();
 
@@ -162,7 +168,13 @@ function SignupForm() {
     const res = await fetch("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, whatsapp }),
+      body: JSON.stringify({
+        email,
+        password,
+        whatsapp,
+        tier: tierParam ?? undefined,
+        ref: refParam ?? undefined,
+      }),
     });
 
     const data = await res.json();
@@ -173,26 +185,97 @@ function SignupForm() {
       return;
     }
 
-    // Establish client session
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (signInError) {
-      setError(signInError.message);
-      setLoading(false);
-      return;
-    }
-
+    // The account exists but the address is unproven, and this project
+    // requires confirmation — a password sign-in here would fail with "Email
+    // not confirmed". The link in the inbox is what establishes the session,
+    // via /auth/confirm, carrying the plan and referral code with it.
     track("signup_completed", { method: "password" });
+    setSentTo(email);
+    setEmailDelivered(data.emailSent !== false);
+    setLoading(false);
+  }
 
-    // Redirect: carry tier + referral code to setup if present
+  /** Ask Supabase to send the confirmation again. */
+  async function resendConfirmation() {
+    setResending(true);
+    setResendNote("");
     const params = new URLSearchParams();
     if (tierParam) params.set("tier", tierParam);
     if (refParam) params.set("ref", refParam);
     const qs = params.toString();
-    window.location.href = `/dashboard/setup${qs ? `?${qs}` : ""}`;
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/confirm${qs ? `?${qs}` : ""}`,
+      },
+    });
+    setResending(false);
+    setResendNote(
+      resendError
+        ? `Could not send it again: ${resendError.message}`
+        : "Sent. It can take a minute to arrive."
+    );
+  }
+
+  // Account created: the address now has to be proved before there is a
+  // session, so the page stops asking for anything and says what happens next.
+  if (sentTo) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <PublicNavbar />
+        <div className="flex items-center justify-center px-4 py-16 sm:py-24">
+          <div className="w-full max-w-sm">
+            <div className={`${card} text-center`}>
+              <MailCheck className="mx-auto h-12 w-12 text-acacia" />
+              <h1 className="mt-4 text-2xl font-bold text-gray-900">
+                Check your email
+              </h1>
+              <p className="mt-2 text-sm leading-6 text-gray-600">
+                We sent a confirmation link to{" "}
+                <strong className="text-gray-900">{sentTo}</strong>. Open it and
+                your store setup starts straight away.
+              </p>
+              {!emailDelivered && (
+                <div className={`${alertError} mt-4 text-left`}>
+                  <AlertCircle className={alertIcon} />
+                  <span>
+                    Your account was created, but we could not send the email
+                    just now. Try again below.
+                  </span>
+                </div>
+              )}
+              <p className="mt-4 text-xs leading-5 text-gray-500">
+                Not there? Check spam. The link expires, so use the most recent
+                one.
+              </p>
+              <button
+                onClick={resendConfirmation}
+                disabled={resending}
+                className="mt-4 text-sm font-bold text-acacia underline disabled:opacity-50"
+              >
+                {resending ? "Sending…" : "Send it again"}
+              </button>
+              {resendNote && (
+                <p className="mt-2 text-xs text-gray-500">{resendNote}</p>
+              )}
+              <p className="mt-6 text-sm text-gray-500">
+                Wrong address?{" "}
+                <button
+                  onClick={() => {
+                    setSentTo("");
+                    setResendNote("");
+                  }}
+                  className="font-bold text-acacia underline"
+                >
+                  Start again
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -48,6 +48,11 @@ function LoginForm() {
   const [emailStep, setEmailStep] = useState<EmailStep>("credentials");
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
+  // The address exists but was never proved, so sign-in is refused until the
+  // link in the inbox is opened. Recoverable, not an error.
+  const [needsConfirm, setNeedsConfirm] = useState(false);
+  const [confirmSending, setConfirmSending] = useState(false);
+  const [confirmNote, setConfirmNote] = useState("");
 
   // Forgot password state
   const [showForgot, setShowForgot] = useState(false);
@@ -154,15 +159,40 @@ function LoginForm() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      setEmailError(
-        error.message === "Invalid login credentials"
-          ? "Incorrect email or password. Please try again."
-          : error.message
-      );
+      // Signing up now sends a confirmation link, so "not confirmed" is a
+      // normal state with an obvious next step — offer to send it again
+      // rather than leaving the merchant staring at a Supabase string.
+      if (/not confirmed/i.test(error.message)) {
+        setNeedsConfirm(true);
+        setEmailError("");
+      } else {
+        setEmailError(
+          error.message === "Invalid login credentials"
+            ? "Incorrect email or password. Please try again."
+            : error.message
+        );
+      }
       setEmailLoading(false);
     } else {
       await routeAfterLogin("password");
     }
+  }
+
+  /** Send the signup confirmation again for an unconfirmed address. */
+  async function resendConfirmation() {
+    setConfirmSending(true);
+    setConfirmNote("");
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/confirm` },
+    });
+    setConfirmSending(false);
+    setConfirmNote(
+      resendError
+        ? `Could not send it: ${resendError.message}`
+        : "Sent. Open the link in that email to finish signing in."
+    );
   }
 
   // ── Forgot password — send reset email ───────────────────────────────────────
@@ -505,6 +535,26 @@ function LoginForm() {
                   <div className={alertError}>
                     <AlertCircle className={alertIcon} />
                     <p>{emailError}</p>
+                  </div>
+                )}
+
+                {needsConfirm && (
+                  <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+                    <p className="font-bold">Confirm your email first</p>
+                    <p className="mt-1 leading-5">
+                      We sent a link to <strong>{email}</strong> when you signed
+                      up. Open it and you are in — check spam if it is not
+                      there.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={resendConfirmation}
+                      disabled={confirmSending}
+                      className="mt-2 text-sm font-bold underline disabled:opacity-50"
+                    >
+                      {confirmSending ? "Sending…" : "Send the link again"}
+                    </button>
+                    {confirmNote && <p className="mt-1 text-xs">{confirmNote}</p>}
                   </div>
                 )}
 

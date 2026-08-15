@@ -11,7 +11,6 @@ import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { isOrderLimitReached } from "@/lib/order-limit";
 import { getThemeConfig } from "@/lib/industry";
 import { TrackView } from "@/components/storefront/track-view";
-import { ReportButton } from "@/components/storefront/report-button";
 import { StorefrontProducts } from "@/components/storefront/storefront-products";
 import { StorefrontSearch } from "@/components/storefront/search-bar";
 import { StorefrontTabs } from "@/components/storefront/storefront-tabs";
@@ -29,7 +28,10 @@ import { StoreCategoryGrid } from "@/components/storefront/store-category-grid";
 import { JsonLd } from "@/components/json-ld";
 import { PreviewBanner } from "@/components/storefront/preview-banner";
 import { OwnerBar } from "@/components/storefront/owner-bar";
-import { InstallBar } from "@/components/pwa/install-bar";
+import {
+  DeferredInstallBar,
+  DeferredReportButton,
+} from "@/components/storefront/deferred-extras";
 import { readPreviewState } from "@/lib/preview";
 
 const PRODUCTS_PER_PAGE = 100;
@@ -425,7 +427,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
         className="max-w-4xl mx-auto px-4 py-7 md:py-8"
         style={theme ? { backgroundColor: theme.bgTint } : undefined}
       >
-        <InstallBar />
+        <DeferredInstallBar />
 
         {activeTab === "orders" ? (
           <div className="max-w-lg mx-auto py-4">
@@ -584,7 +586,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
               </Link>
             )}
             {!isPreview && (
-              <ReportButton merchantId={merchant.id} storeName={merchant.store_name} />
+              <DeferredReportButton merchantId={merchant.id} storeName={merchant.store_name} />
             )}
           </div>
         </div>

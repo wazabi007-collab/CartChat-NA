@@ -470,6 +470,51 @@ export default function GuidePage() {
 
           <Section
             n={11}
+            title="Hiring things out (rentals)"
+            lead="Tents, tools, sound gear, dresses — anything customers borrow and bring back."
+          >
+            <Steps>
+              <Step n={1}>
+                Add the item and choose{" "}
+                <strong className="text-walnut">For hire</strong>. Say how many
+                you own, and the shortest and longest hire you allow.
+              </Step>
+              <Step n={2}>
+                The price you enter is <strong className="text-walnut">per
+                day</strong>. Customers pick a first and last day — both
+                included — and the price works itself out: 3 days at N$150 is
+                N$450.
+              </Step>
+              <Step n={3}>
+                OshiCart counts what is already out. If you own two tents and
+                both are hired for those dates, a third customer is told{" "}
+                <strong className="text-walnut">
+                  &quot;only 0 available for those dates&quot;
+                </strong>{" "}
+                and cannot book. Two people ordering at the same second cannot
+                both take the last one.
+              </Step>
+              <Step n={4}>
+                The day after something comes back, it can go out again. A hire
+                ending Monday and one starting Tuesday never clash — and if a
+                hire is cancelled, its dates open up immediately.
+              </Step>
+              <Step n={5}>
+                On <strong className="text-walnut">Orders</strong>, each hired
+                line shows its dates —{" "}
+                <strong className="text-walnut">Hire · 3 days · 20 – 22 Aug</strong>{" "}
+                — so you always know what is out and when it is due back.
+              </Step>
+            </Steps>
+            <Note>
+              Hiring never touches your stock number. &quot;How many you
+              own&quot; is how many can be out at the same time, not how many
+              are left to sell.
+            </Note>
+          </Section>
+
+          <Section
+            n={12}
             title="Invoices"
             lead="Every order has a proper invoice you can print or send."
           >
@@ -492,7 +537,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={12}
+            n={13}
             title="Refunds and credit notes"
             lead="When you give money back, record it so your books and your bank still agree."
           >
@@ -527,7 +572,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={13}
+            n={14}
             title="Your customers"
             lead="Everyone who orders from you is saved automatically."
           >
@@ -550,7 +595,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={14}
+            n={15}
             title="WhatsApp broadcasts"
             lead="Send an offer or an update to your customers from your own WhatsApp."
           >
@@ -575,7 +620,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={15}
+            n={16}
             title="Reviews"
             lead="Customers who actually bought from you can leave a rating."
           >
@@ -595,7 +640,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={16}
+            n={17}
             title="Coupons and discounts"
             lead="Run a promotion with a code customers enter at checkout."
           >
@@ -621,7 +666,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={17}
+            n={18}
             title="Adding many products at once"
             lead="If you have a long product list, you do not have to add them one by one."
           >
@@ -643,7 +688,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={18}
+            n={19}
             title="Abandoned checkout recovery"
             tier="Oshi-Automate and Oshi-Pro"
             lead="When a customer fills in checkout but does not finish, OshiCart can send them a WhatsApp reminder."
@@ -660,7 +705,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={19}
+            n={20}
             title="Statements for your books"
             tier="Oshi-Automate and Oshi-Pro"
             lead="A monthly record of every order, for your accountant or your VAT return."
@@ -700,7 +745,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={20}
+            n={21}
             title="Analytics"
             lead="See how your store is doing."
           >
@@ -716,7 +761,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={21}
+            n={22}
             title="Your plan and limits"
             lead="Every plan includes a number of products and a number of orders per month."
           >
@@ -741,7 +786,7 @@ export default function GuidePage() {
           </Section>
 
           <Section
-            n={22}
+            n={23}
             title="Getting help"
             lead="If something is not working, talk to a real person."
           >

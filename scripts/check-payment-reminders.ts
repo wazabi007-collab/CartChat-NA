@@ -64,6 +64,38 @@ check(
   true
 );
 
+// --- Cadence, and the coupling that makes it safe -------------------------
+// The auto-cancel gate must never be a hard-coded number. It read `>= 3` while
+// three reminders were sent; cutting to two would have meant reminder_count
+// never reached 3, so no unpaid order would EVER be cancelled and its stock
+// would stay locked forever — silent, and only visible weeks later as
+// mysteriously unavailable inventory.
+check(
+  "reminder tiers are declared in one place",
+  /const REMINDER_TIERS = \[[\d, ]+\] as const;/.test(body),
+  true
+);
+check(
+  "two reminders, at 6 and 24 hours",
+  (body.match(/const REMINDER_TIERS = \[([\d, ]+)\]/) ?? [])[1]?.replace(/\s/g, ""),
+  "6,24"
+);
+check(
+  "the send decision is driven by the tier list, not hard-coded hours",
+  /ageHours >= REMINDER_TIERS\[reminderCount\]/.test(body),
+  true
+);
+check(
+  "auto-cancel waits for every reminder, derived from the tiers",
+  /gte\("reminder_count", REMINDER_TIERS\.length\)/.test(body),
+  true
+);
+check(
+  "auto-cancel gate is NOT a hard-coded number",
+  /gte\("reminder_count", \d+\)/.test(body),
+  false
+);
+
 // And the reminder query must select it too.
 check(
   "reminder query selects proof_of_payment_url",

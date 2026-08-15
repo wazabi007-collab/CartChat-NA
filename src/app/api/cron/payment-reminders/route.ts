@@ -11,8 +11,15 @@ import { hasCartRecovery } from "@/lib/tier-limits";
  * Cron job: Payment reminders + auto-cancel unpaid orders.
  * Runs every 15 minutes via Vercel Cron.
  *
- * Schedule: pending non-COD orders get reminders at 1hr, 12hr, 48hr.
- * After 49 hours, auto-cancel and restock inventory.
+ * Schedule: pending non-COD orders get TWO reminders, at 6hr and 24hr.
+ * After 49 hours — a full day past the last reminder — the order is
+ * auto-cancelled and its stock released.
+ *
+ * The number of reminders and the auto-cancel gate are coupled: cancelling
+ * requires reminder_count >= REMINDER_TIERS.length, so an order is only ever
+ * closed after every warning has actually been sent. Change the tiers and the
+ * gate follows automatically; scripts/check-payment-reminders.ts fails if the
+ * two ever drift apart.
  *
  * A customer who has ALREADY PAID is never chased and never cancelled. Two
  * signals prove payment, and both were previously ignored here:
@@ -60,6 +67,12 @@ export async function GET(req: NextRequest) {
     .is("voided_at", null);
   const settledOrderIds = new Set((paidRows ?? []).map((r) => r.order_id));
 
+  // Hours after the order at which each reminder goes out. Two is deliberate:
+  // the first at 6 hours gives someone the working day to get to a bank, the
+  // second next morning. A third inside 48 hours read as nagging, and every
+  // template also opens a billable WhatsApp conversation.
+  const REMINDER_TIERS = [6, 24] as const;
+
   // ---- 1. Send payment reminders ----
   // Sections 1–1c are messaging; skipped entirely when WhatsApp is disabled.
   if (whatsappOn) {
@@ -92,11 +105,10 @@ export async function GET(req: NextRequest) {
       // both mean the customer has done their part.
       if (settledOrderIds.has(order.id) || order.proof_of_payment_url) continue;
 
-      let shouldRemind = false;
-
-      if (ageHours >= 1 && reminderCount === 0) shouldRemind = true;
-      else if (ageHours >= 12 && reminderCount === 1) shouldRemind = true;
-      else if (ageHours >= 48 && reminderCount === 2) shouldRemind = true;
+      // Due when this order is old enough for the next unsent reminder.
+      const shouldRemind =
+        reminderCount < REMINDER_TIERS.length &&
+        ageHours >= REMINDER_TIERS[reminderCount];
 
       if (shouldRemind && order.customer_whatsapp) {
         const total = formatPrice(getOrderPayableTotal(order));
@@ -216,7 +228,10 @@ export async function GET(req: NextRequest) {
     .eq("status", "pending")
     .neq("payment_method", "cod")
     .lte("created_at", expiredCutoff.toISOString())
-    .gte("reminder_count", 3);
+    // Never close an order before every reminder has gone out. Tied to the
+    // tier list so shortening the cadence cannot silently disable cancelling
+    // and leave stock locked up forever.
+    .gte("reminder_count", REMINDER_TIERS.length);
 
   if (expiredOrders) {
     for (const order of expiredOrders) {

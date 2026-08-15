@@ -35,6 +35,9 @@ DECLARE
   v_computed_subtotal integer := 0; v_delivery_fee integer := 0;
   v_callout_fee integer := 0;
   v_is_booking boolean := false;
+  -- RENTAL (1)
+  v_rental_start date; v_rental_end date; v_rental_days integer;
+  v_rental_out integer; v_line_total integer;
   v_taxable_total integer := 0; v_vat_nad integer := 0;
   v_vat_rate_bps integer := 1500; v_has_vat boolean := false;
 BEGIN
@@ -109,7 +112,8 @@ BEGIN
 
   FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
   LOOP
-    SELECT id, name, track_inventory, stock_quantity, allow_backorder, price_nad
+    SELECT id, name, track_inventory, stock_quantity, allow_backorder, price_nad,
+           item_type, rental_min_days, rental_max_days
     INTO v_product FROM products
     WHERE id = (v_item->>'productId')::uuid
       AND merchant_id = p_merchant_id AND is_available = true AND deleted_at IS NULL
@@ -148,7 +152,54 @@ BEGIN
       RAISE EXCEPTION 'Please select product options for "%"', v_product.name;
     END IF;
 
-    IF v_variant_id IS NULL AND v_product.track_inventory THEN
+    -- RENTAL (2): validate the range, price as rate x days, and refuse when
+    -- every unit is already out over those dates. The UI speaks inclusive
+    -- first/last day; storage is end-exclusive so touching ranges never clash.
+    v_rental_start := NULL; v_rental_end := NULL; v_rental_days := NULL;
+    IF v_product.item_type = 'rental' THEN
+      IF COALESCE(v_item->>'rentalStart', '') = '' OR COALESCE(v_item->>'rentalEnd', '') = '' THEN
+        RAISE EXCEPTION 'Please choose hire dates for "%"', v_product.name;
+      END IF;
+      v_rental_start := (v_item->>'rentalStart')::date;
+      v_rental_end := (v_item->>'rentalEnd')::date + 1;
+      IF v_rental_start < CURRENT_DATE THEN
+        RAISE EXCEPTION 'The hire for "%" cannot start in the past', v_product.name;
+      END IF;
+      IF v_rental_end <= v_rental_start THEN
+        RAISE EXCEPTION 'The return day for "%" is before the first day', v_product.name;
+      END IF;
+      v_rental_days := v_rental_end - v_rental_start;
+      IF v_rental_days < COALESCE(v_product.rental_min_days, 1) THEN
+        RAISE EXCEPTION 'Minimum hire for "%" is % day(s)', v_product.name, v_product.rental_min_days;
+      END IF;
+      IF v_rental_days > COALESCE(v_product.rental_max_days, 30) THEN
+        RAISE EXCEPTION 'Maximum hire for "%" is % day(s)', v_product.name, v_product.rental_max_days;
+      END IF;
+      IF COALESCE(v_product.stock_quantity, 0) < 1 THEN
+        RAISE EXCEPTION '"%" is not available for hire right now', v_product.name;
+      END IF;
+
+      -- Serialise per product so two carts cannot both take the last unit.
+      PERFORM pg_advisory_xact_lock(hashtext('rental|' || v_product.id::text));
+
+      SELECT COALESCE(SUM(oi.quantity), 0) INTO v_rental_out
+      FROM order_items oi
+      JOIN orders o ON o.id = oi.order_id
+      WHERE oi.product_id = v_product.id
+        AND o.id <> v_order_id
+        AND o.status <> 'cancelled'
+        AND oi.rental_start IS NOT NULL
+        AND oi.rental_start < v_rental_end
+        AND oi.rental_end_exclusive > v_rental_start;
+
+      IF v_rental_out + (v_item->>'quantity')::integer > v_product.stock_quantity THEN
+        RAISE EXCEPTION 'Only % of "%" available for those dates',
+          GREATEST(v_product.stock_quantity - v_rental_out, 0), v_product.name;
+      END IF;
+    END IF;
+
+    -- RENTAL (3): rentals come back, so they never consume stock.
+    IF v_variant_id IS NULL AND v_product.track_inventory AND v_product.item_type <> 'rental' THEN
       IF v_product.stock_quantity < (v_item->>'quantity')::integer AND NOT v_product.allow_backorder THEN
         RAISE EXCEPTION 'Insufficient stock for "%". Available: %, Requested: %', v_product.name, v_product.stock_quantity, (v_item->>'quantity')::integer;
       END IF;
@@ -160,10 +211,11 @@ BEGIN
       VALUES (v_product.id, p_merchant_id, v_prev_qty, v_prev_qty - (v_item->>'quantity')::integer, -(v_item->>'quantity')::integer, 'order', v_order_id);
     END IF;
 
-    v_computed_subtotal := v_computed_subtotal + (v_line_price * (v_item->>'quantity')::integer);
+    v_line_total := v_line_price * (v_item->>'quantity')::integer * COALESCE(v_rental_days, 1);
+    v_computed_subtotal := v_computed_subtotal + v_line_total;
 
-    INSERT INTO order_items (order_id, product_id, product_variant_id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes)
-    VALUES (v_order_id, (v_item->>'productId')::uuid, v_variant_id, v_item->>'name', v_line_price, (v_item->>'quantity')::integer, (v_line_price * (v_item->>'quantity')::integer), v_variant_sku, v_variant_attrs);
+    INSERT INTO order_items (order_id, product_id, product_variant_id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes, rental_start, rental_end_exclusive, rental_days)
+    VALUES (v_order_id, (v_item->>'productId')::uuid, v_variant_id, v_item->>'name', v_line_price, (v_item->>'quantity')::integer, v_line_total, v_variant_sku, v_variant_attrs, v_rental_start, v_rental_end, v_rental_days);
   END LOOP;
 
   -- BOOKING (2): this order books a service if any validated item is one and

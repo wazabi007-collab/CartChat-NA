@@ -124,7 +124,7 @@ export function StorefrontProducts({
                   accentColor={theme?.accent}
                   accentHover={theme?.accentHover}
                   ctaText={theme?.ctaText}
-                  itemType={product.item_type as "product" | "service" | undefined}
+                  itemType={product.item_type as "product" | "service" | "rental" | undefined}
                   whatsappNumber={whatsappNumber}
                   storeName={storeName}
                   hasVariants={product.has_variants}
@@ -171,7 +171,7 @@ export function StorefrontProducts({
                     lowStockThreshold={product.low_stock_threshold ?? undefined}
                     allowBackorder={product.allow_backorder}
                     disabled={disabled}
-                    itemType={product.item_type as "product" | "service" | undefined}
+                    itemType={product.item_type as "product" | "service" | "rental" | undefined}
                     whatsappNumber={whatsappNumber}
                     storeName={storeName}
                     hasVariants={product.has_variants}

@@ -1,0 +1,13 @@
+-- place_order learns rentals. Full body maintained in docs/db/place_order.sql
+-- (the canonical source, verified byte-identical to production by md5).
+--
+-- Summary of the change: a rental item validates its inclusive date range,
+-- prices as rate x days server-side, and is refused when every unit is
+-- already out over those dates -- checked under a per-product advisory lock
+-- so two carts cannot both take the last one. Rentals never touch
+-- stock_quantity, which for them means "how many exist".
+--
+-- Verified against production, then cleaned up: no dates/past/over-max all
+-- refused; 3-day hire priced 3 x rate; both units hireable concurrently; a
+-- third refused with "Only 0 available"; the day after return bookable
+-- (end-exclusive ranges); cancellation frees units; stock untouched.

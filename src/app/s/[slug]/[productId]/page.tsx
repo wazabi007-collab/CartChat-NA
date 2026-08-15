@@ -253,6 +253,8 @@ export default async function ProductDetailPage({ params }: Props) {
                     name: product.name,
                     price_nad: product.price_nad,
                     imageUrl: images[0] ?? null,
+                    service_mode: product.service_mode ?? null,
+                    item_type: product.item_type ?? null,
                   }}
                   variants={productVariants}
                   industry={merchant.industry}

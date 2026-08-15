@@ -45,7 +45,7 @@ export default function EditProductPage() {
   const supabase = useMemo(() => createClient(), []);
 
   const [product, setProduct] = useState<Product | null>(null);
-  const [itemType, setItemType] = useState<"product" | "service">("product");
+  const [itemType, setItemType] = useState<"product" | "service" | "rental">("product");
   const [serviceMode, setServiceMode] = useState<ServiceMode>("at_store");
   const [name, setName] = useState("");
   const [priceDisplay, setPriceDisplay] = useState("");
@@ -53,6 +53,9 @@ export default function EditProductPage() {
   const [categoryId, setCategoryId] = useState<string>("");
   const [isAvailable, setIsAvailable] = useState(true);
   const [trackInventory, setTrackInventory] = useState(false);
+  const [rentalUnitsOwned, setRentalUnitsOwned] = useState(1);
+  const [rentalMinDays, setRentalMinDays] = useState(1);
+  const [rentalMaxDays, setRentalMaxDays] = useState(30);
   const [stockQuantity, setStockQuantity] = useState(0);
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
   const [allowBackorder, setAllowBackorder] = useState(false);
@@ -123,7 +126,14 @@ export default function EditProductPage() {
       }
 
       setProduct(prod);
-      setItemType(prod.item_type === "service" ? "service" : "product");
+      setItemType(
+        prod.item_type === "service" ? "service" : prod.item_type === "rental" ? "rental" : "product"
+      );
+      if (prod.item_type === "rental") {
+        setRentalUnitsOwned(prod.stock_quantity || 1);
+        setRentalMinDays(prod.rental_min_days ?? 1);
+        setRentalMaxDays(prod.rental_max_days ?? 30);
+      }
       // Services created before migration 062 have no mode yet.
       const savedMode = (prod as { service_mode?: string | null }).service_mode;
       if (isServiceMode(savedMode)) setServiceMode(savedMode);
@@ -294,6 +304,8 @@ export default function EditProductPage() {
         .from("products")
         .update({
           item_type: itemType,
+          rental_min_days: itemType === "rental" ? rentalMinDays : 1,
+          rental_max_days: itemType === "rental" ? Math.max(rentalMaxDays, rentalMinDays) : 30,
           service_mode: itemType === "service" ? serviceMode : null,
           name: validation.data.name,
           description: validation.data.description || null,
@@ -307,7 +319,7 @@ export default function EditProductPage() {
           moderation_source: "client_rules_v1",
           images: allImages,
           track_inventory: hasInventory ? trackInventory : false,
-          stock_quantity: hasInventory && trackInventory ? stockQuantity : 0,
+          stock_quantity: itemType === "rental" ? rentalUnitsOwned : hasInventory && trackInventory ? stockQuantity : 0,
           low_stock_threshold: hasInventory ? lowStockThreshold : 5,
           allow_backorder: hasInventory ? allowBackorder : false,
           updated_at: new Date().toISOString(),
@@ -475,6 +487,27 @@ export default function EditProductPage() {
               <input type="radio" name="itemType" value="service" checked={itemType === "service"} onChange={() => { setItemType("service"); setTrackInventory(false); }} className="sr-only" />
               <span className="font-medium text-sm">Service</span>
             </label>
+            <label
+              className={`flex-1 border rounded-lg p-3 cursor-pointer text-center transition-colors ${
+                itemType === "rental"
+                  ? "border-green-600 bg-green-50 text-green-700"
+                  : "border-gray-300 text-gray-600 hover:border-gray-400"
+              }`}
+            >
+              <input
+                type="radio"
+                name="itemType"
+                value="rental"
+                checked={itemType === "rental"}
+                onChange={() => {
+                  setItemType("rental");
+                  setTrackInventory(false);
+                }}
+                className="sr-only"
+              />
+              <span className="font-medium text-sm">For hire</span>
+            </label>
+
           </div>
 
           {itemType === "service" && (
@@ -514,6 +547,30 @@ export default function EditProductPage() {
               </div>
             </div>
           )}
+          {itemType === "rental" && (
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              <label className="block">
+                <span className="block text-sm font-medium text-gray-700">How many do you own?</span>
+                <input type="number" min={1} value={rentalUnitsOwned}
+                  onChange={(e) => setRentalUnitsOwned(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="mt-1 w-full min-h-11 rounded-lg border border-gray-300 px-3 text-sm" />
+                <span className="mt-0.5 block text-xs text-gray-500">That many can be out at the same time.</span>
+              </label>
+              <label className="block">
+                <span className="block text-sm font-medium text-gray-700">Minimum days</span>
+                <input type="number" min={1} value={rentalMinDays}
+                  onChange={(e) => setRentalMinDays(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="mt-1 w-full min-h-11 rounded-lg border border-gray-300 px-3 text-sm" />
+              </label>
+              <label className="block">
+                <span className="block text-sm font-medium text-gray-700">Maximum days</span>
+                <input type="number" min={1} value={rentalMaxDays}
+                  onChange={(e) => setRentalMaxDays(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="mt-1 w-full min-h-11 rounded-lg border border-gray-300 px-3 text-sm" />
+              </label>
+            </div>
+          )}
+
         </div>
 
         {/* Name */}
@@ -546,7 +603,7 @@ export default function EditProductPage() {
             htmlFor="price"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            Price (NAD) *
+            {itemType === "rental" ? "Price per day (NAD) *" : "Price (NAD) *"}
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">

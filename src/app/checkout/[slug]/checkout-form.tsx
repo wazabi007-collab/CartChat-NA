@@ -21,6 +21,7 @@ import { track } from "@/lib/track";
 import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS, getEwalletProviderLabel, isCourierAvailable } from "@/lib/constants";
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
+import { rentalDays, rentalLineTotal, formatRentalRange } from "@/lib/rentals";
 import {
   summariseFulfilment,
   fulfilmentSummary,
@@ -245,6 +246,52 @@ export function CheckoutForm({
   // pickup/delivery choice (and the couriers behind it) disappears entirely.
   const goodsFulfilmentNeeded = fulfilment.hasGoods || !fulfilment.hasServices;
 
+  // --- Rentals: one date range for every hired line in the cart -----------
+  // Modelled per line in the database, asked once here: a marquee and chairs
+  // hired for the same weekend is the ordinary case.
+  const rentalLines = cartItems.filter((i) => i.itemType === "rental");
+  const hasRentals = rentalLines.length > 0;
+  const [rentalFirst, setRentalFirst] = useState("");
+  const [rentalLast, setRentalLast] = useState("");
+  const [rentalRemaining, setRentalRemaining] = useState<Record<string, number> | null>(null);
+  const [rentalChecking, setRentalChecking] = useState(false);
+
+  const hireDays =
+    hasRentals && rentalFirst && rentalLast && rentalLast >= rentalFirst
+      ? rentalDays(rentalFirst, rentalLast)
+      : 0;
+
+  // Courtesy availability check; place_order re-checks under a lock.
+  useEffect(() => {
+    if (!hasRentals || hireDays <= 0) {
+      setRentalRemaining(null);
+      return;
+    }
+    let cancelled = false;
+    setRentalChecking(true);
+    Promise.all(
+      rentalLines.map((line) =>
+        fetch(`/api/rentals/availability?product=${line.productId}&first=${rentalFirst}&last=${rentalLast}`)
+          .then((r) => r.json())
+          .then((j) => [line.productId, j.remaining ?? 0] as const)
+          .catch(() => [line.productId, 0] as const)
+      )
+    ).then((pairs) => {
+      if (cancelled) return;
+      setRentalRemaining(Object.fromEntries(pairs));
+      setRentalChecking(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasRentals, rentalFirst, rentalLast]);
+
+  const rentalShortage = hasRentals && rentalRemaining
+    ? rentalLines.find((l) => (rentalRemaining[l.productId] ?? 0) < l.quantity)
+    : undefined;
+  const rentalReady = !hasRentals || (hireDays > 0 && !rentalShortage && !rentalChecking);
+
   // True only when the merchant publishes days AND times. Most digital
   // sellers publish neither — their work is a project, not an appointment —
   // so the copy must not promise a time picker that will never appear.
@@ -370,7 +417,11 @@ export function CheckoutForm({
   );
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) =>
+      sum +
+      (item.itemType === "rental"
+        ? rentalLineTotal(item.price, Math.max(hireDays, 1), item.quantity)
+        : item.price * item.quantity),
     0
   );
 
@@ -608,6 +659,9 @@ export function CheckoutForm({
             name: item.name,
             price: item.price,
             quantity: item.quantity,
+            ...(item.itemType === "rental"
+              ? { rentalStart: rentalFirst, rentalEnd: rentalLast }
+              : {}),
           })),
           p_delivery_fee: deliveryFee,
           p_delivery_provider: effectiveDeliveryProvider,
@@ -1056,6 +1110,76 @@ export function CheckoutForm({
             Delivery
           </label>
         </div>
+        )}
+
+        {hasRentals && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
+            <h2 className="text-sm font-black text-slate-950">Your hire dates</h2>
+            <p className="mt-0.5 text-xs text-slate-500">
+              First and last day, both included. Price is per day.
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                  First day
+                </span>
+                <input
+                  type="date"
+                  value={rentalFirst}
+                  min={new Date().toISOString().slice(0, 10)}
+                  onChange={(e) => {
+                    setRentalFirst(e.target.value);
+                    if (rentalLast && e.target.value > rentalLast) setRentalLast(e.target.value);
+                  }}
+                  required
+                  className="min-h-11 w-full rounded-lg border border-slate-200 px-3 text-sm"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                  Last day
+                </span>
+                <input
+                  type="date"
+                  value={rentalLast}
+                  min={rentalFirst || new Date().toISOString().slice(0, 10)}
+                  onChange={(e) => setRentalLast(e.target.value)}
+                  required
+                  className="min-h-11 w-full rounded-lg border border-slate-200 px-3 text-sm"
+                />
+              </label>
+            </div>
+            {hireDays > 0 && (
+              <div className="mt-3 space-y-1 text-sm">
+                <p className="font-bold text-slate-900">{formatRentalRange(rentalFirst, rentalLast)}</p>
+                {rentalLines.map((line) => (
+                  <p key={line.productId} className="flex justify-between text-slate-600">
+                    <span>
+                      {line.name}
+                      {line.quantity > 1 ? ` ×${line.quantity}` : ""} — {hireDays} day
+                      {hireDays === 1 ? "" : "s"} × {formatPrice(line.price)}
+                    </span>
+                    <span className="font-bold tabular-nums">
+                      {formatPrice(rentalLineTotal(line.price, hireDays, line.quantity))}
+                    </span>
+                  </p>
+                ))}
+                {rentalChecking && (
+                  <p className="text-xs text-slate-400">Checking availability…</p>
+                )}
+                {!rentalChecking && rentalShortage && (
+                  <p className="text-xs font-bold text-red-600">
+                    Only {rentalRemaining?.[rentalShortage.productId] ?? 0} of “
+                    {rentalShortage.name}” available for those dates — try different
+                    dates or reduce the quantity.
+                  </p>
+                )}
+                {!rentalChecking && !rentalShortage && rentalRemaining && (
+                  <p className="text-xs font-bold text-acacia">Available for those dates ✓</p>
+                )}
+              </div>
+            )}
+          </div>
         )}
 
         {fulfilmentSummary(fulfilment, schedulingOffered) && (
@@ -1515,7 +1639,7 @@ export function CheckoutForm({
         ) : (
           <button
             type="submit"
-            disabled={submitting || cartItems.length === 0}
+            disabled={submitting || cartItems.length === 0 || !rentalReady}
             className={`${btnPrimaryGreen} flex items-center justify-center gap-2`}
           >
             {submitting ? (

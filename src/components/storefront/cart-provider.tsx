@@ -21,6 +21,8 @@ export interface CartItem {
   imageUrl: string | null;
   /** Where this service happens. Absent for ordinary goods. */
   serviceMode?: ServiceMode | null;
+  /** "rental" lines price as rate x days and pick dates at checkout. */
+  itemType?: "product" | "service" | "rental";
 }
 
 export interface CartVatSettings {

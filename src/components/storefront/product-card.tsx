@@ -21,7 +21,7 @@ interface ProductCardProps {
   accentColor?: string;
   accentHover?: string;
   ctaText?: string;
-  itemType?: "product" | "service";
+  itemType?: "product" | "service" | "rental";
   whatsappNumber?: string;
   storeName?: string;
   hasVariants?: boolean;
@@ -37,10 +37,13 @@ export function ProductCard({
   const { addItem } = useCart();
 
   const isService = itemType === "service";
+  // Rentals come back, so stock never runs out from selling; skip the goods
+  // stock states the same way services do.
+  const isRental = itemType === "rental";
   const isQuoteOnly = isService && price === 0;
-  const isOutOfStock = !isService && trackInventory && (stockQuantity ?? 0) === 0 && !allowBackorder;
-  const isLowStock = !isService && trackInventory && !isOutOfStock && (stockQuantity ?? 0) > 0 && (stockQuantity ?? 0) <= (lowStockThreshold ?? 5);
-  const stockLabel = !isService && trackInventory
+  const isOutOfStock = !isService && !isRental && trackInventory && (stockQuantity ?? 0) === 0 && !allowBackorder;
+  const isLowStock = !isService && !isRental && trackInventory && !isOutOfStock && (stockQuantity ?? 0) > 0 && (stockQuantity ?? 0) <= (lowStockThreshold ?? 5);
+  const stockLabel = !isService && !isRental && trackInventory
     ? isOutOfStock
       ? "Out of stock"
       : (stockQuantity ?? 0) <= 0 && allowBackorder
@@ -83,6 +86,11 @@ export function ProductCard({
             Only {stockQuantity} left!
           </span>
         )}
+        {isRental && (
+          <span className="absolute left-2 top-2 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-black uppercase tracking-wide text-amber-800">
+            For hire
+          </span>
+        )}
         {isService && (
           <span className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-medium px-2 py-0.5 rounded-full shadow-sm">
             Service
@@ -97,7 +105,7 @@ export function ProductCard({
           </h3>
         </Link>
         <p className={`font-bold text-base mt-1.5 ${accentColor ? "" : "text-terracotta"}`} style={accentColor ? { color: accentColor } : undefined}>
-          {isQuoteOnly ? "Request a Quote" : isService && price > 0 ? `From ${formatPrice(price)}` : price === 0 && !isService ? "Price on request" : formatPrice(price)}
+          {isQuoteOnly ? "Request a Quote" : isRental ? `${formatPrice(price)} / day` : isService && price > 0 ? `From ${formatPrice(price)}` : price === 0 && !isService ? "Price on request" : formatPrice(price)}
         </p>
         {stockLabel && !isOutOfStock && (
           <p className="mt-1 text-xs font-semibold text-emerald-700">{stockLabel}</p>

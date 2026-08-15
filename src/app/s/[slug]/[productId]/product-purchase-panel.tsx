@@ -30,6 +30,7 @@ type Product = {
   price_nad: number;
   imageUrl: string | null;
   service_mode?: ServiceMode | null;
+  item_type?: string | null;
 };
 
 function variantIsBuyable(variant: Variant) {
@@ -122,6 +123,7 @@ export function ProductPurchasePanel({
     addItem({
       productId: product.id,
       serviceMode: product.service_mode ?? null,
+      itemType: (product.item_type as "product" | "service" | "rental") ?? "product",
       variantId: selectedVariant?.id ?? null,
       variantSku: selectedVariant?.sku ?? null,
       variantAttributes: selectedVariant?.attributes ?? undefined,
@@ -233,7 +235,12 @@ export function ProductPurchasePanel({
           )}
         </button>
         <div className="text-sm text-slate-500">
-          <span className="font-black text-acacia">{formatPrice(activePrice)}</span>
+          <span className="font-black text-acacia">
+            {formatPrice(activePrice)}
+            {product.item_type === "rental" && (
+              <span className="text-sm font-bold text-slate-500"> / day</span>
+            )}
+          </span>
           {hasVariants && !selectedVariant && <span> after selecting options</span>}
         </div>
       </div>

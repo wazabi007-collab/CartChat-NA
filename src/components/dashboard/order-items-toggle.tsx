@@ -11,6 +11,9 @@ interface OrderItem {
   quantity: number;
   line_total: number;
   variant_sku?: string | null;
+  rental_start?: string | null;
+  rental_end_exclusive?: string | null;
+  rental_days?: number | null;
   variant_attributes?: Record<string, string> | null;
 }
 
@@ -45,6 +48,18 @@ export function OrderItemsToggle({ items }: OrderItemsToggleProps) {
                   {item.variant_attributes && Object.keys(item.variant_attributes).length > 0 && (
                     <span className="block truncate text-[10px] text-gray-500">
                       {Object.entries(item.variant_attributes).map(([key, value]) => `${key}: ${value}`).join(" | ")}
+                    </span>
+                  )}
+                  {item.rental_days && item.rental_start && item.rental_end_exclusive && (
+                    <span className="mt-0.5 inline-block rounded bg-amber-50 px-1.5 py-0.5 text-[11px] font-bold text-amber-700">
+                      {(() => {
+                        // Stored end-exclusive; show the inclusive last day.
+                        const last = new Date(`${item.rental_end_exclusive}T12:00:00`);
+                        last.setDate(last.getDate() - 1);
+                        const fmt = (d: Date) =>
+                          d.toLocaleDateString("en-NA", { day: "numeric", month: "short" });
+                        return `Hire · ${item.rental_days} day${item.rental_days === 1 ? "" : "s"} · ${fmt(new Date(`${item.rental_start}T12:00:00`))} – ${fmt(last)}`;
+                      })()}
                     </span>
                   )}
                   {item.variant_sku && (

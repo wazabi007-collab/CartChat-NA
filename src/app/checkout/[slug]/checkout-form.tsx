@@ -272,6 +272,13 @@ export function CheckoutForm({
     (sum, l) => sum + (l.depositNad ?? 0) * l.quantity,
     0
   );
+  const rentalDocuments = [
+    ...new Set(
+      rentalLines
+        .map((l) => l.requiredDocuments?.trim())
+        .filter((d): d is string => Boolean(d))
+    ),
+  ].join("; ");
 
   // Courtesy availability check; place_order re-checks under a lock.
   useEffect(() => {
@@ -826,6 +833,7 @@ export function CheckoutForm({
       ...(deliveryFee > 0 ? [`*Delivery Fee:* ${formatPrice(deliveryFee)}`] : []),
       ...(vatBreakdown.hasVat ? [`*VAT (${VAT_RATE_LABEL}):* ${formatPrice(vatBreakdown.vatAmount)}${vatBreakdown.vatInclusive ? " included" : ""}`] : []),
       ...(rentalDeposit > 0 ? [`*Refundable deposit:* ${formatPrice(rentalDeposit)}`] : []),
+      ...(rentalDocuments ? [`*Bring:* ${rentalDocuments}`] : []),
       `*Total:* ${formatPrice(total)}`,
       ...(paymentRef ? [`*Payment Ref:* ${paymentRef}`] : []),
       `*Payment:* ${getPaymentLabel(paymentMethod)}`,
@@ -1209,6 +1217,11 @@ export function CheckoutForm({
                   <p className="flex justify-between text-slate-600">
                     <span>Refundable deposit</span>
                     <span className="font-bold tabular-nums">{formatPrice(rentalDeposit)}</span>
+                  </p>
+                )}
+                {rentalDocuments && (
+                  <p className="text-xs font-semibold text-slate-500">
+                    You&apos;ll need to bring: {rentalDocuments}
                   </p>
                 )}
               </div>

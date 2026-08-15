@@ -33,6 +33,7 @@ type Product = {
   item_type?: string | null;
   rental_unit?: string | null;
   deposit_nad?: number | null;
+  required_documents?: string | null;
 };
 
 function variantIsBuyable(variant: Variant) {
@@ -128,6 +129,7 @@ export function ProductPurchasePanel({
       itemType: (product.item_type as "product" | "service" | "rental") ?? "product",
       rentalUnit: product.rental_unit === "night" ? "night" : "day",
       depositNad: product.deposit_nad ?? 0,
+      requiredDocuments: product.required_documents ?? undefined,
       variantId: selectedVariant?.id ?? null,
       variantSku: selectedVariant?.sku ?? null,
       variantAttributes: selectedVariant?.attributes ?? undefined,
@@ -249,6 +251,11 @@ export function ProductPurchasePanel({
           </span>
           {hasVariants && !selectedVariant && <span> after selecting options</span>}
         </div>
+        {product.item_type === "rental" && product.required_documents && (
+          <p className="w-full text-xs font-semibold text-slate-500">
+            You&apos;ll need: {product.required_documents}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -59,6 +59,8 @@ export default function EditProductPage() {
   const [rentalUnit, setRentalUnit] = useState<"day" | "night">("day");
   const [depositNad, setDepositNad] = useState(0);
   const [rentalBufferDays, setRentalBufferDays] = useState(0);
+  const [lateFeeNad, setLateFeeNad] = useState(0);
+  const [requiredDocuments, setRequiredDocuments] = useState("");
   const [stockQuantity, setStockQuantity] = useState(0);
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
   const [allowBackorder, setAllowBackorder] = useState(false);
@@ -144,6 +146,12 @@ export default function EditProductPage() {
         setRentalUnit(p2.rental_unit === "night" ? "night" : "day");
         setDepositNad(Math.round((p2.deposit_nad ?? 0) / 100));
         setRentalBufferDays(p2.rental_buffer_days ?? 0);
+        const p3 = prod as {
+          late_fee_nad?: number | null;
+          required_documents?: string | null;
+        };
+        setLateFeeNad(Math.round((p3.late_fee_nad ?? 0) / 100));
+        setRequiredDocuments(p3.required_documents ?? "");
       }
       // Services created before migration 062 have no mode yet.
       const savedMode = (prod as { service_mode?: string | null }).service_mode;
@@ -320,6 +328,9 @@ export default function EditProductPage() {
           rental_unit: itemType === "rental" ? rentalUnit : "day",
           deposit_nad: itemType === "rental" ? depositNad * 100 : 0,
           rental_buffer_days: itemType === "rental" ? rentalBufferDays : 0,
+          late_fee_nad: itemType === "rental" ? lateFeeNad * 100 : 0,
+          required_documents:
+            itemType === "rental" && requiredDocuments.trim() ? requiredDocuments.trim() : null,
           service_mode: itemType === "service" ? serviceMode : null,
           name: validation.data.name,
           description: validation.data.description || null,
@@ -620,6 +631,31 @@ export default function EditProductPage() {
                 />
                 <span className="mt-0.5 block text-xs text-gray-500">
                   Turnaround for cleaning or checks. 0 = back-to-back hires allowed.
+                </span>
+              </label>
+              <label className="block">
+                <span className="block text-sm font-medium text-gray-700">Late fee per day (N$)</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={lateFeeNad}
+                  onChange={(e) => setLateFeeNad(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="mt-1 w-full min-h-11 rounded-lg border border-gray-300 px-3 text-sm"
+                />
+                <span className="mt-0.5 block text-xs text-gray-500">
+                  Suggested when a return is recorded late. 0 = no late fee.
+                </span>
+              </label>
+              <label className="block sm:col-span-2">
+                <span className="block text-sm font-medium text-gray-700">Documents the customer must bring</span>
+                <input
+                  value={requiredDocuments}
+                  onChange={(e) => setRequiredDocuments(e.target.value)}
+                  placeholder="e.g. Driver's licence and proof of address"
+                  className="mt-1 w-full min-h-11 rounded-lg border border-gray-300 px-3 text-sm"
+                />
+                <span className="mt-0.5 block text-xs text-gray-500">
+                  Shown on the product, at checkout, and in the WhatsApp order. Leave empty if none.
                 </span>
               </label>
             </div>

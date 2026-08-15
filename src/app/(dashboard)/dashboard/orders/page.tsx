@@ -7,6 +7,7 @@ import Link from "next/link";
 import { OrderActions } from "./order-actions";
 import { RecordPayment } from "./record-payment";
 import { RecordRefund } from "./record-refund";
+import { RecordReturn } from "./record-return";
 import {
   receivedByOrder,
   refundedByOrder,
@@ -44,7 +45,7 @@ export default async function OrdersPage({
   const statusFilter = params.status;
   let query = supabase
     .from("orders")
-    .select("*, order_items(id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes, rental_start, rental_end_exclusive, rental_days)")
+    .select("*, order_items(id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes, rental_start, rental_end_exclusive, rental_days, assigned_unit, returned_at, return_notes, products(rental_unit, late_fee_nad))")
     .eq("merchant_id", merchant.id)
     .order("created_at", { ascending: false });
 
@@ -370,6 +371,39 @@ export default async function OrdersPage({
                     refunded={refunded}
                     defaultMethod={order.payment_method ?? null}
                   />
+                  {(order.order_items ?? [])
+                    .filter(
+                      (it: { rental_start?: string | null }) => it.rental_start
+                    )
+                    .map(
+                      (it: {
+                        id: string;
+                        product_name: string;
+                        quantity: number;
+                        rental_end_exclusive: string;
+                        assigned_unit?: string | null;
+                        returned_at?: string | null;
+                        return_notes?: string | null;
+                        products?: {
+                          rental_unit?: string | null;
+                          late_fee_nad?: number | null;
+                        } | null;
+                      }) => (
+                        <RecordReturn
+                          key={it.id}
+                          itemId={it.id}
+                          productName={it.product_name}
+                          quantity={it.quantity}
+                          rentalEndExclusive={it.rental_end_exclusive}
+                          unit={it.products?.rental_unit === "night" ? "night" : "day"}
+                          lateFeeNad={it.products?.late_fee_nad ?? 0}
+                          orderDepositNad={order.deposit_nad ?? 0}
+                          assignedUnit={it.assigned_unit ?? null}
+                          returnedAt={it.returned_at ?? null}
+                          returnNotes={it.return_notes ?? null}
+                        />
+                      )
+                    )}
                 </div>
               )}
 

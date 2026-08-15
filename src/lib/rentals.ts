@@ -58,6 +58,25 @@ export function validateRentalRange(
   return null;
 }
 
+/**
+ * Days late, from the stored end-exclusive bound. A 'day' hire is due back
+ * on its last inclusive day (endExclusive - 1): returning ON endExclusive is
+ * already 1 day late. A 'night' guest checks out ON endExclusive: that day
+ * is on time, the day after is 1 late. Mirrors the unit rules exactly —
+ * getting this wrong charges an on-time customer or forgives a late one.
+ */
+export function rentalLateDays(
+  endExclusive: string,
+  returnedAt: string,
+  unit: RentalUnit = "day"
+): number {
+  const end = new Date(`${endExclusive}T00:00:00`);
+  const ret = new Date(`${returnedAt}T00:00:00`);
+  if (Number.isNaN(end.getTime()) || Number.isNaN(ret.getTime())) return 0;
+  const diff = Math.round((ret.getTime() - end.getTime()) / 86_400_000);
+  return Math.max(0, unit === "day" ? diff + 1 : diff);
+}
+
 /** "3 days · 20–22 Aug" (or nights) for summaries and order lines. */
 export function formatRentalRange(
   firstDay: string,

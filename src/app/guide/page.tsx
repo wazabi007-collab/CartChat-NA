@@ -513,10 +513,26 @@ export default function GuidePage() {
                 item returns in good shape.
               </Step>
               <Step n={6}>
+                Need the customer to bring something — a driver&apos;s licence,
+                proof of address? Type it in{" "}
+                <strong className="text-walnut">Documents the customer must
+                bring</strong> and it appears on the product, at checkout, and
+                in the WhatsApp order, so nobody arrives empty-handed.
+              </Step>
+              <Step n={7}>
                 On <strong className="text-walnut">Orders</strong>, each hired
                 line shows its dates —{" "}
                 <strong className="text-walnut">Hire · 3 days · 20 – 22 Aug</strong>{" "}
                 — so you always know what is out and when it is due back.
+              </Step>
+              <Step n={8}>
+                When it comes back, tap{" "}
+                <strong className="text-walnut">Record return</strong> on the
+                order: note which unit went out (registration, asset tag, room
+                name), the date, and its condition. If it is late, OshiCart
+                counts the days and suggests the late fee you set — hold it
+                back by refunding a smaller deposit, and the credit note shows
+                it automatically.
               </Step>
             </Steps>
             <Note>

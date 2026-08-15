@@ -257,6 +257,7 @@ export default async function ProductDetailPage({ params }: Props) {
                     item_type: product.item_type ?? null,
                     rental_unit: product.rental_unit ?? null,
                     deposit_nad: product.deposit_nad ?? null,
+                    required_documents: product.required_documents ?? null,
                   }}
                   variants={productVariants}
                   industry={merchant.industry}

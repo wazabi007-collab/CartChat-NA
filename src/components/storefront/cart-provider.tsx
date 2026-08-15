@@ -26,6 +26,8 @@ export interface CartItem {
   /** Rentals only: how the range counts, and the refundable deposit per unit. */
   rentalUnit?: "day" | "night";
   depositNad?: number;
+  /** e.g. "Driver's licence and proof of address" — shown at checkout. */
+  requiredDocuments?: string;
 }
 
 export interface CartVatSettings {

@@ -11,6 +11,7 @@
  */
 import {
   rentalDays,
+  rentalLateDays,
   rentalLineTotal,
   validateRentalRange,
   formatRentalRange,
@@ -71,6 +72,16 @@ check("night label", formatRentalRange("2026-08-15", "2026-08-18", "night"),
   "3 nights · 15 Aug – 18 Aug");
 check("single night label", formatRentalRange("2026-08-15", "2026-08-16", "night"),
   "1 night · 15 Aug – 16 Aug");
+
+// Late returns. A day hire [20, 23) is due back on the 22nd (its last
+// inclusive day); a night stay checks out ON the exclusive bound.
+check("day: back on last day is on time", rentalLateDays("2026-08-23", "2026-08-22", "day"), 0);
+check("day: back the morning after is 1 late", rentalLateDays("2026-08-23", "2026-08-23", "day"), 1);
+check("day: three days after is 3 late", rentalLateDays("2026-08-23", "2026-08-25", "day"), 3);
+check("night: checkout day is on time", rentalLateDays("2026-08-18", "2026-08-18", "night"), 0);
+check("night: next day is 1 late", rentalLateDays("2026-08-18", "2026-08-19", "night"), 1);
+check("early return is never negative", rentalLateDays("2026-08-23", "2026-08-20", "day"), 0);
+check("garbage return date is 0", rentalLateDays("2026-08-23", "nope", "day"), 0);
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

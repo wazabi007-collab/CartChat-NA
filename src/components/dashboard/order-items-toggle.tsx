@@ -14,6 +14,9 @@ interface OrderItem {
   rental_start?: string | null;
   rental_end_exclusive?: string | null;
   rental_days?: number | null;
+  assigned_unit?: string | null;
+  returned_at?: string | null;
+  products?: { rental_unit?: string | null } | null;
   variant_attributes?: Record<string, string> | null;
 }
 
@@ -53,13 +56,30 @@ export function OrderItemsToggle({ items }: OrderItemsToggleProps) {
                   {item.rental_days && item.rental_start && item.rental_end_exclusive && (
                     <span className="mt-0.5 inline-block rounded bg-amber-50 px-1.5 py-0.5 text-[11px] font-bold text-amber-700">
                       {(() => {
-                        // Stored end-exclusive; show the inclusive last day.
+                        // Days show the inclusive last day; nights show the
+                        // check-out date itself (the stored exclusive bound).
+                        const night = item.products?.rental_unit === "night";
                         const last = new Date(`${item.rental_end_exclusive}T12:00:00`);
-                        last.setDate(last.getDate() - 1);
+                        if (!night) last.setDate(last.getDate() - 1);
                         const fmt = (d: Date) =>
                           d.toLocaleDateString("en-NA", { day: "numeric", month: "short" });
-                        return `Hire · ${item.rental_days} day${item.rental_days === 1 ? "" : "s"} · ${fmt(new Date(`${item.rental_start}T12:00:00`))} – ${fmt(last)}`;
+                        const word = night ? "night" : "day";
+                        return `Hire · ${item.rental_days} ${word}${item.rental_days === 1 ? "" : "s"} · ${fmt(new Date(`${item.rental_start}T12:00:00`))} – ${fmt(last)}`;
                       })()}
+                    </span>
+                  )}
+                  {item.assigned_unit && (
+                    <span className="block text-[10px] text-gray-500">
+                      Unit: {item.assigned_unit}
+                    </span>
+                  )}
+                  {item.returned_at && (
+                    <span className="mt-0.5 inline-block rounded bg-green-50 px-1.5 py-0.5 text-[10px] font-bold text-green-700">
+                      Returned{" "}
+                      {new Date(`${item.returned_at}T12:00:00`).toLocaleDateString("en-NA", {
+                        day: "numeric",
+                        month: "short",
+                      })}
                     </span>
                   )}
                   {item.variant_sku && (

@@ -109,7 +109,7 @@ export async function GET(
               style={{ objectFit: "contain", borderRadius: 20 }}
             />
           ) : (
-            <div style={{ fontSize: 190, fontWeight: 700, color: "#159947" }}>
+            <div style={{ fontSize: 190, fontWeight: 700, color: "#008938" }}>
               {(product.name.trim()[0] || "P").toUpperCase()}
             </div>
           )}
@@ -137,7 +137,7 @@ export async function GET(
               marginTop: 20,
               fontSize: 64,
               fontWeight: 700,
-              color: "#159947",
+              color: "#008938",
             }}
           >
             {price}
@@ -187,7 +187,7 @@ export async function GET(
             left: 0,
             width: "100%",
             height: 14,
-            backgroundColor: "#159947",
+            backgroundColor: "#008938",
           }}
         />
       </div>

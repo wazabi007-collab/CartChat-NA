@@ -132,7 +132,7 @@ export function AgentApplyForm() {
           checked={accepted}
           onChange={(e) => setAccepted(e.target.checked)}
           required
-          className="mt-1.5 h-4 w-4 accent-[#159947]"
+          className="mt-1.5 h-4 w-4 accent-[#008938]"
         />
         <span>
           I have read and accept the{" "}

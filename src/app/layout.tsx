@@ -99,7 +99,7 @@ export const metadata: Metadata = {
 // Next requires themeColor on the viewport export, not in `metadata`. This is
 // the colour the phone paints the status bar with once the app is installed.
 export const viewport: Viewport = {
-  themeColor: "#159947",
+  themeColor: "#008938",
 };
 
 export default function RootLayout({

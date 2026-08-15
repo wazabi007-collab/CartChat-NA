@@ -82,7 +82,7 @@ export async function GET(
               style={{
                 fontSize: 130,
                 fontWeight: 700,
-                color: "#159947",
+                color: "#008938",
               }}
             >
               {initial}
@@ -157,7 +157,7 @@ export async function GET(
             left: 0,
             width: "100%",
             height: 14,
-            backgroundColor: "#159947",
+            backgroundColor: "#008938",
           }}
         />
       </div>

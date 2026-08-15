@@ -89,7 +89,7 @@ export async function GET(
               backgroundColor: "#e7f8ee",
               fontSize: 300,
               fontWeight: 700,
-              color: "#159947",
+              color: "#008938",
             }}
           >
             {(product.name.trim()[0] || "P").toUpperCase()}
@@ -124,7 +124,7 @@ export async function GET(
               gap: 24,
             }}
           >
-            <div style={{ fontSize: 72, fontWeight: 700, color: "#159947" }}>
+            <div style={{ fontSize: 72, fontWeight: 700, color: "#008938" }}>
               {price}
             </div>
             {isService && (
@@ -152,7 +152,7 @@ export async function GET(
         <div
           style={{
             height: 110,
-            backgroundColor: "#159947",
+            backgroundColor: "#008938",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",

@@ -1,0 +1,61 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e48]: Checkout | OshiCart Demo Store | OshiCart
+  - generic [ref=e92]:
+    - banner [ref=e93]:
+      - heading "Checkout — OshiCart Demo Store" [level=1] [ref=e95]
+    - main [ref=e96]:
+      - generic [ref=e97]:
+        - link "Back to store" [ref=e98] [cursor=pointer]:
+          - /url: /s/oshicart-demo
+        - generic [ref=e101]:
+          - heading "Order Summary" [level=2] [ref=e102]
+          - list [ref=e103]:
+            - listitem [ref=e104]:
+              - paragraph [ref=e106]: Demo T-Shirt x 2
+              - generic [ref=e107]: N$360.00
+          - generic [ref=e108]:
+            - generic [ref=e109]:
+              - generic [ref=e110]: Subtotal
+              - generic [ref=e111]: N$360.00
+            - generic [ref=e112]:
+              - generic [ref=e113]: Total
+              - generic [ref=e114]: N$360.00
+        - generic [ref=e115]:
+          - heading "Discount Code" [level=2] [ref=e116]
+          - generic [ref=e120]:
+            - textbox "Enter code" [ref=e121]: EXPIRED-QA
+            - button "Apply" [ref=e122]
+          - paragraph [ref=e162]: Invalid coupon code
+        - generic [ref=e123]:
+          - heading "Your Details" [level=2] [ref=e124]
+          - generic [ref=e125]:
+            - generic [ref=e126]: Full Name*
+            - textbox "Your full name" [ref=e127]
+          - generic [ref=e128]:
+            - generic [ref=e129]: WhatsApp Number*
+            - textbox "WhatsApp Number*" [ref=e131]:
+              - /placeholder: 081 234 5678
+            - paragraph [ref=e132]: The merchant will contact you on this number
+        - generic [ref=e133]:
+          - heading "Delivery Method" [level=2] [ref=e134]
+          - generic [ref=e135]:
+            - generic [ref=e136] [cursor=pointer]:
+              - radio "Pickup" [checked] [ref=e137]
+              - text: Pickup
+            - generic [ref=e138] [cursor=pointer]:
+              - radio "Delivery" [ref=e139]
+              - text: Delivery
+          - generic [ref=e140]: "Collect from: 123 Independence Avenue, Windhoek (demo address)"
+          - generic [ref=e141]:
+            - generic [ref=e142]: Notes (optional)
+            - textbox "Any special instructions..." [ref=e143]
+        - generic [ref=e144]:
+          - heading "Payment Method" [level=2] [ref=e145]
+          - generic [ref=e147] [cursor=pointer]:
+            - radio "Cash on Collection" [checked] [ref=e148]
+            - generic [ref=e153]: Cash on Collection
+          - generic [ref=e155]:
+            - paragraph [ref=e156]: Cash on Delivery
+            - paragraph [ref=e157]: Pay N$360.00 in cash when your order is picked up.
+        - button "Place Order" [ref=e159]
+    - contentinfo [ref=e160]

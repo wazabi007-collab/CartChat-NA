@@ -1,0 +1,39 @@
+- generic [active] [ref=f16e1]:
+  - alert [ref=f16e408]
+  - generic [ref=f16e409]:
+    - banner [ref=f16e410]:
+      - generic [ref=f16e411]:
+        - link [ref=f16e412] [cursor=pointer]:
+          - /url: /
+          - img "OshiCart" [ref=f16e413]
+        - navigation [ref=f16e414]:
+          - link "Browse Stores" [ref=f16e415] [cursor=pointer]:
+            - /url: /stores
+          - link "Pricing" [ref=f16e416] [cursor=pointer]:
+            - /url: /#pricing
+          - link "Safety" [ref=f16e417] [cursor=pointer]:
+            - /url: /prohibited-products
+          - link "Sign in" [ref=f16e418] [cursor=pointer]:
+            - /url: /login
+        - link "Create Free Store" [ref=f16e420] [cursor=pointer]:
+          - /url: /signup
+    - generic [ref=f16e427]:
+      - generic [ref=f16e428]:
+        - heading "Sign in to your store" [level=1] [ref=f16e429]
+        - paragraph [ref=f16e430]: Welcome back to OshiCart
+      - generic [ref=f16e431]:
+        - button "Continue with Google" [ref=f16e432]
+        - generic [ref=f16e438]: or
+        - generic [ref=f16e456]:
+          - paragraph [ref=f16e457]: Enter your email and we'll send you a link to reset your password.
+          - generic [ref=f16e458]:
+            - generic [ref=f16e459]: Email*
+            - textbox "Email*" [ref=f16e460]:
+              - /placeholder: you@example.com
+              - text: qa.delete.me.merchant.20260815.1518@example.com
+          - button "Sending..." [disabled] [ref=f16e463]
+          - button "Back to sign in" [ref=f16e462]
+      - paragraph [ref=f16e453]:
+        - text: Don't have a store?
+        - link "Create one free" [ref=f16e454] [cursor=pointer]:
+          - /url: /signup

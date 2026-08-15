@@ -24,6 +24,7 @@ interface Product {
   low_stock_threshold: number | null;
   allow_backorder: boolean;
   item_type?: string;
+  rental_unit?: string | null;
   has_variants?: boolean;
 }
 
@@ -82,6 +83,7 @@ export function StorefrontProducts({
             />
           </div>
           <select
+            aria-label="Sort products"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             className="px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white shadow-sm shadow-slate-900/5 focus:outline-none focus:ring-2 focus:border-transparent appearance-none cursor-pointer"
@@ -125,6 +127,7 @@ export function StorefrontProducts({
                   accentHover={theme?.accentHover}
                   ctaText={theme?.ctaText}
                   itemType={product.item_type as "product" | "service" | "rental" | undefined}
+                  rentalUnit={product.rental_unit}
                   whatsappNumber={whatsappNumber}
                   storeName={storeName}
                   hasVariants={product.has_variants}
@@ -172,6 +175,7 @@ export function StorefrontProducts({
                     allowBackorder={product.allow_backorder}
                     disabled={disabled}
                     itemType={product.item_type as "product" | "service" | "rental" | undefined}
+                    rentalUnit={product.rental_unit}
                     whatsappNumber={whatsappNumber}
                     storeName={storeName}
                     hasVariants={product.has_variants}

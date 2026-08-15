@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Handshake, Wallet, QrCode, Store, ShieldCheck, BookOpen } from "lucide-react";
 import { PublicNavbar } from "@/components/public-navbar";
+import { REFERRED_TRIAL_DAYS, STANDARD_TRIAL_DAYS } from "@/lib/constants";
 import { AgentApplyForm } from "./apply-form";
 
 export const metadata: Metadata = {
@@ -63,10 +64,13 @@ export default function AgentsPage() {
               ))}
             </tbody>
           </table>
+          {/* Agents quote this number to shop owners, so it has to be the same
+              figure the setup wizard actually writes to trial_ends_at. */}
           <p className="px-5 pb-4 pt-2 text-xs leading-5 text-walnut-2">
-            Merchants you refer also get a 35-day free trial instead of 30 —
-            five extra days, because they came from you. You earn when they
-            pay for their first month.
+            Merchants you refer also get a {REFERRED_TRIAL_DAYS}-day free trial
+            instead of {STANDARD_TRIAL_DAYS} —{" "}
+            {REFERRED_TRIAL_DAYS - STANDARD_TRIAL_DAYS} extra days, because they
+            came from you. You earn when they pay for their first month.
           </p>
         </div>
 

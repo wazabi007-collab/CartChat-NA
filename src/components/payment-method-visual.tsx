@@ -4,7 +4,7 @@ import { Banknote, Landmark, Wallet, type LucideIcon } from "lucide-react";
 // glyph, so the picker reads as one cohesive set alongside the real logos.
 const BADGE: Record<string, { Icon: LucideIcon; bg: string }> = {
   eft: { Icon: Landmark, bg: "#2b5ea7" }, // Atlantic Blue
-  cod: { Icon: Banknote, bg: "#159947" }, // Acacia Green
+  cod: { Icon: Banknote, bg: "#008938" }, // Acacia Green (--acacia)
 };
 
 /**

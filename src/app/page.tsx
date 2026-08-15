@@ -13,6 +13,7 @@ import { CtaBar } from "@/components/landing/cta-bar";
 import { Footer } from "@/components/footer";
 import { SupportButton } from "@/components/support-button";
 import { createServiceClient } from "@/lib/supabase/service";
+import { unstable_cache } from "next/cache";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -37,30 +38,38 @@ const organizationSchema = {
  * products") while /stores listed 7 — the claim collapsed on the first click.
  * Internal/demo stores are excluded so the figure reflects real merchants.
  */
-async function getLiveCounts() {
-  try {
-    const service = createServiceClient();
-    const [{ data: stores }, { count: productCount }] = await Promise.all([
-      service
-        .from("merchants")
-        .select("id")
-        .eq("is_active", true)
-        .eq("store_status", "active")
-        .eq("is_demo", false),
-      service
-        .from("products")
-        .select("id", { count: "exact", head: true })
-        .eq("is_available", true)
-        .is("deleted_at", null),
-    ]);
-    return {
-      liveStoreCount: stores?.length ?? 0,
-      liveProductCount: productCount ?? 0,
-    };
-  } catch {
-    return { liveStoreCount: 0, liveProductCount: 0 };
-  }
-}
+const getLiveCounts = unstable_cache(
+  async () => {
+    try {
+      const service = createServiceClient();
+      const [{ count: storeCount }, { count: productCount }] = await Promise.all([
+        service
+          .from("merchants")
+          .select("id", { count: "exact", head: true })
+          .eq("is_active", true)
+          .eq("store_status", "active")
+          .eq("is_demo", false),
+        service
+          .from("products")
+          .select("id", { count: "exact", head: true })
+          .eq("is_available", true)
+          .is("deleted_at", null),
+      ]);
+      return {
+        liveStoreCount: storeCount ?? 0,
+        liveProductCount: productCount ?? 0,
+      };
+    } catch {
+      return { liveStoreCount: 0, liveProductCount: 0 };
+    }
+  },
+  ["landing-live-counts"],
+  // Every visitor was paying two database round-trips before the first byte
+  // of the homepage — the largest single contributor to a 4.8s LCP. These are
+  // rounded marketing figures ("14+ stores"); five minutes stale is invisible,
+  // and the store list itself was being fetched in full just to call .length.
+  { revalidate: 300, tags: ["landing-live-counts"] }
+);
 
 export default async function Home() {
   const { liveStoreCount, liveProductCount } = await getLiveCounts();

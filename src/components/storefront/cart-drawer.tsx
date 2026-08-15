@@ -165,15 +165,18 @@ export function CartDrawer({ slug }: { slug: string }) {
         {/* Footer */}
         {items.length > 0 && (
           <div className="border-t p-4 space-y-3">
+            {/* Without a VAT registration the breakdown collapses to the
+                subtotal, so a separate subtotal line above it would repeat
+                the same figure twice. */}
             <div className="space-y-1.5">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">
-                  Subtotal{vatBreakdown.hasVat && vatBreakdown.vatInclusive ? " (incl. VAT)" : ""}
-                </span>
-                <span className="font-semibold text-gray-900">{formatPrice(subtotal)}</span>
-              </div>
-              {vatBreakdown.hasVat && (
+              {vatBreakdown.hasVat ? (
                 <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">
+                      Subtotal{vatBreakdown.vatInclusive ? " (incl. VAT)" : ""}
+                    </span>
+                    <span className="font-semibold text-gray-900">{formatPrice(subtotal)}</span>
+                  </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">
                       VAT ({VAT_RATE_LABEL}){vatBreakdown.vatInclusive ? " included" : ""}
@@ -185,9 +188,8 @@ export function CartDrawer({ slug }: { slug: string }) {
                     <span className="text-terracotta">{formatPrice(vatBreakdown.payableTotal)}</span>
                   </div>
                 </>
-              )}
-              {!vatBreakdown.hasVat && (
-                <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-2">
+              ) : (
+                <div className="flex justify-between text-base font-bold">
                   <span>Subtotal</span>
                   <span className="text-terracotta">{formatPrice(subtotal)}</span>
                 </div>

@@ -151,7 +151,7 @@ export default function SettingsPage() {
           enabled_delivery_providers: merchant.enabled_delivery_providers ?? ["store", "yango", "indrive"],
           pickup_address: merchant.pickup_address || "",
           vat_number: merchant.vat_number || "",
-          vat_inclusive: false,
+          vat_inclusive: merchant.vat_inclusive ?? false,
           pop_required: merchant.pop_required ?? false,
           uses_ready_step: merchant.uses_ready_step ?? true,
           cart_recovery_enabled: merchant.cart_recovery_enabled ?? true,
@@ -260,7 +260,10 @@ export default function SettingsPage() {
         enabled_delivery_providers: savedDeliveryProviders,
         pickup_address: form.pickup_address.trim() || null,
         vat_number: form.vat_number || null,
-        vat_inclusive: false,
+        // Never hard-code this: it decides whether 15% is ADDED to every
+        // catalogue price or already inside it. Writing a constant here once
+        // silently re-priced any inclusive store on an unrelated save.
+        vat_inclusive: form.vat_number ? form.vat_inclusive : false,
         pop_required: form.pop_required,
         uses_ready_step: form.uses_ready_step,
         cart_recovery_enabled: form.cart_recovery_enabled,
@@ -606,11 +609,63 @@ export default function SettingsPage() {
             />
           </div>
           {form.vat_number && (
-            <div className={alertInfo}>
-              <p>
-                Enter product prices excluding VAT. OshiCart will add 15% VAT at checkout and show the VAT breakdown on customer invoices.
+            <>
+              <div>
+                <label className={label}>How your prices are captured</label>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {[
+                    {
+                      value: false,
+                      title: "Prices exclude VAT",
+                      body: "You enter N$100, the customer pays N$115. VAT is added at checkout.",
+                    },
+                    {
+                      value: true,
+                      title: "Prices already include VAT",
+                      body: "You enter N$115, the customer pays N$115. The invoice shows the VAT inside it.",
+                    },
+                  ].map((option) => (
+                    <label
+                      key={String(option.value)}
+                      className={`block cursor-pointer rounded-lg border p-3 transition-colors ${
+                        form.vat_inclusive === option.value
+                          ? "border-green-600 bg-green-50"
+                          : "border-gray-200 bg-white hover:bg-gray-50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="vat_inclusive"
+                        className="sr-only"
+                        checked={form.vat_inclusive === option.value}
+                        onChange={() =>
+                          setForm((p) => ({ ...p, vat_inclusive: option.value }))
+                        }
+                      />
+                      <span
+                        className={`block text-sm font-bold ${
+                          form.vat_inclusive === option.value ? "text-green-700" : "text-gray-700"
+                        }`}
+                      >
+                        {option.title}
+                      </span>
+                      <span className="mt-0.5 block text-xs text-gray-500">{option.body}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className={alertInfo}>
+                <p>
+                  {form.vat_inclusive
+                    ? "Your catalogue prices are treated as VAT-inclusive. Customers pay exactly the price shown, and invoices break out the 15% already inside it."
+                    : "Your catalogue prices are treated as VAT-exclusive. OshiCart adds 15% VAT at checkout and shows the breakdown on customer invoices."}
+                </p>
+              </div>
+              <p className={helperText}>
+                Changing this changes what customers pay for every existing
+                product. Only change it if your captured prices actually changed.
               </p>
-            </div>
+            </>
           )}
         </div>
 

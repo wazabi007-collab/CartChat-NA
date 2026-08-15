@@ -9,7 +9,15 @@
   --sand-2: #edf5ff;
   --terracotta: #2b5ea7;
   --terracotta-soft: #eaf2ff;
-  --acacia: #159947;
+  /*
+   * Acacia carries text both ways — white on green (primary buttons, the
+   * WhatsApp CTA, Install) and green on white (prices, links) — so it has to
+   * clear 4.5:1 against white. The original #159947 measured 3.70:1. Darkened
+   * in OKLCH so hue and chroma are held and only lightness moves (0.599 ->
+   * 0.550): the smallest step that reaches AA (4.53:1) while still sitting
+   * lighter than every hover green paired with it, so hover keeps darkening.
+   */
+  --acacia: #008938;
   --acacia-soft: #e7f8ee;
   --walnut: #0b1220;
   --walnut-2: #526174;

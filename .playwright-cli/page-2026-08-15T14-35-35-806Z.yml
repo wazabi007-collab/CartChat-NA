@@ -1,0 +1,752 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - banner [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - link [ref=f1e5] [cursor=pointer]:
+          - /url: /
+          - img "OshiCart" [ref=f1e6]
+        - navigation [ref=f1e7]:
+          - link "Browse Stores" [ref=f1e8] [cursor=pointer]:
+            - /url: /stores
+          - link "Pricing" [ref=f1e9] [cursor=pointer]:
+            - /url: /#pricing
+          - link "Safety" [ref=f1e10] [cursor=pointer]:
+            - /url: /prohibited-products
+          - link "Sign in" [ref=f1e11] [cursor=pointer]:
+            - /url: /login
+        - link "Create Free Store" [ref=f1e13] [cursor=pointer]:
+          - /url: /signup
+    - main [ref=f1e19]:
+      - generic [ref=f1e20]:
+        - heading "OshiCart Merchant Guide" [level=1] [ref=f1e21]
+        - paragraph [ref=f1e22]: Everything in the app, step by step — from opening your store to pulling a statement for your accountant.
+        - link "Download PDF" [ref=f1e23] [cursor=pointer]:
+          - /url: /oshicart-merchant-guide.pdf
+      - navigation [ref=f1e24]:
+        - paragraph [ref=f1e25]: What's in this guide
+        - list [ref=f1e26]:
+          - listitem [ref=f1e27]:
+            - link "1. Welcome" [ref=f1e28] [cursor=pointer]:
+              - /url: "#step-1"
+          - listitem [ref=f1e29]:
+            - link "2. Create your store" [ref=f1e30] [cursor=pointer]:
+              - /url: "#step-2"
+          - listitem [ref=f1e31]:
+            - link "3. Add your first product" [ref=f1e32] [cursor=pointer]:
+              - /url: "#step-3"
+          - listitem [ref=f1e33]:
+            - link "4. Payment methods" [ref=f1e34] [cursor=pointer]:
+              - /url: "#step-4"
+          - listitem [ref=f1e35]:
+            - link "5. Delivery and collection" [ref=f1e36] [cursor=pointer]:
+              - /url: "#step-5"
+          - listitem [ref=f1e37]:
+            - link "6. Share your store" [ref=f1e38] [cursor=pointer]:
+              - /url: "#step-6"
+          - listitem [ref=f1e39]:
+            - link "7. Use OshiCart as an app" [ref=f1e40] [cursor=pointer]:
+              - /url: "#step-7"
+          - listitem [ref=f1e41]:
+            - link "8. Handling orders" [ref=f1e42] [cursor=pointer]:
+              - /url: "#step-8"
+          - listitem [ref=f1e43]:
+            - link "9. Invoices" [ref=f1e44] [cursor=pointer]:
+              - /url: "#step-9"
+          - listitem [ref=f1e45]:
+            - link "10. Your customers" [ref=f1e46] [cursor=pointer]:
+              - /url: "#step-10"
+          - listitem [ref=f1e47]:
+            - link "11. WhatsApp broadcasts" [ref=f1e48] [cursor=pointer]:
+              - /url: "#step-11"
+          - listitem [ref=f1e49]:
+            - link "12. Reviews" [ref=f1e50] [cursor=pointer]:
+              - /url: "#step-12"
+          - listitem [ref=f1e51]:
+            - link "13. Coupons and discounts" [ref=f1e52] [cursor=pointer]:
+              - /url: "#step-13"
+          - listitem [ref=f1e53]:
+            - link "14. Adding many products at once" [ref=f1e54] [cursor=pointer]:
+              - /url: "#step-14"
+          - listitem [ref=f1e55]:
+            - link "15. Abandoned checkout recovery" [ref=f1e56] [cursor=pointer]:
+              - /url: "#step-15"
+          - listitem [ref=f1e57]:
+            - link "16. Statements for your books" [ref=f1e58] [cursor=pointer]:
+              - /url: "#step-16"
+          - listitem [ref=f1e59]:
+            - link "17. Analytics" [ref=f1e60] [cursor=pointer]:
+              - /url: "#step-17"
+          - listitem [ref=f1e61]:
+            - link "18. Your plan and limits" [ref=f1e62] [cursor=pointer]:
+              - /url: "#step-18"
+          - listitem [ref=f1e63]:
+            - link "19. Getting help" [ref=f1e64] [cursor=pointer]:
+              - /url: "#step-19"
+      - generic [ref=f1e65]:
+        - generic [ref=f1e66]:
+          - heading "1. Welcome" [level=2] [ref=f1e68]
+          - paragraph [ref=f1e69]: OshiCart is a Namibian platform for selling online. You get a store link customers can open on their phone, orders arrive on WhatsApp, and customers pay you directly — OshiCart takes no commission on your sales.
+          - paragraph [ref=f1e70]:
+            - text: You do not need a website, a domain, or a card machine. Your store link
+            - emphasis [ref=f1e71]: is
+            - text: your website.
+        - generic [ref=f1e72]:
+          - heading "2. Create your store" [level=2] [ref=f1e74]
+          - paragraph [ref=f1e75]: The setup wizard takes about two minutes.
+          - list [ref=f1e76]:
+            - listitem [ref=f1e77]:
+              - generic [ref=f1e78]: "1"
+              - generic [ref=f1e79]: Sign up, then open the setup wizard. It starts automatically the first time.
+            - listitem [ref=f1e80]:
+              - generic [ref=f1e81]: "2"
+              - generic [ref=f1e82]:
+                - text: Enter your
+                - strong [ref=f1e83]: store name
+                - text: — this is what customers see, so use your real trading name.
+            - listitem [ref=f1e84]:
+              - generic [ref=f1e85]: "3"
+              - generic [ref=f1e86]:
+                - text: Enter your
+                - strong [ref=f1e87]: WhatsApp number
+                - text: . Orders and alerts come to this number, so use the phone you actually carry.
+            - listitem [ref=f1e88]:
+              - generic [ref=f1e89]: "4"
+              - generic [ref=f1e90]:
+                - text: Pick your
+                - strong [ref=f1e91]: region and town
+                - text: . Customers filter by town when browsing, so this decides who finds you.
+            - listitem [ref=f1e92]:
+              - generic [ref=f1e93]: "5"
+              - generic [ref=f1e94]:
+                - text: Choose your
+                - strong [ref=f1e95]: industry
+                - text: . It sets your store's layout and category icons — a bakery looks different from a hardware shop.
+            - listitem [ref=f1e96]:
+              - generic [ref=f1e97]: "6"
+              - generic [ref=f1e98]: Save. Your store link is created immediately.
+        - generic [ref=f1e99]:
+          - heading "3. Add your first product" [level=2] [ref=f1e101]
+          - paragraph [ref=f1e102]: This is the step most new stores skip — and it is the one that decides whether anyone ever finds you.
+          - list [ref=f1e103]:
+            - listitem [ref=f1e104]:
+              - generic [ref=f1e105]: "1"
+              - generic [ref=f1e106]:
+                - text: Go to
+                - strong [ref=f1e107]: Products → Add product
+                - text: .
+            - listitem [ref=f1e108]:
+              - generic [ref=f1e109]: "2"
+              - generic [ref=f1e110]: Give it a clear name and a price. Prices are in Namibian dollars.
+            - listitem [ref=f1e111]:
+              - generic [ref=f1e112]: "3"
+              - generic [ref=f1e113]: Add a photo. Natural daylight, plain background, product filling the frame. Photos sell more than words do.
+            - listitem [ref=f1e114]:
+              - generic [ref=f1e115]: "4"
+              - generic [ref=f1e116]:
+                - text: If it comes in sizes or colours, add
+                - strong [ref=f1e117]: variants
+                - text: so customers choose at checkout instead of messaging you.
+            - listitem [ref=f1e118]:
+              - generic [ref=f1e119]: "5"
+              - generic [ref=f1e120]:
+                - text: Turn on
+                - strong [ref=f1e121]: stock tracking
+                - text: if you want the store to stop selling when you run out.
+            - listitem [ref=f1e122]:
+              - generic [ref=f1e123]: "6"
+              - generic [ref=f1e124]: Save, then open your store link and check it looks right.
+          - paragraph [ref=f1e125]:
+            - strong [ref=f1e126]: Your store will not appear in Browse Stores until it has at least one product.
+            - text: An empty shop is hidden on purpose — sending customers to a store with nothing to buy loses them for good.
+        - generic [ref=f1e127]:
+          - heading "4. Payment methods" [level=2] [ref=f1e129]
+          - paragraph [ref=f1e130]: Customers pay you directly. Choose the methods you actually use.
+          - list [ref=f1e131]:
+            - listitem [ref=f1e132]:
+              - generic [ref=f1e133]: "1"
+              - generic [ref=f1e134]:
+                - text: Go to
+                - strong [ref=f1e135]: Settings → Payments
+                - text: .
+            - listitem [ref=f1e136]:
+              - generic [ref=f1e137]: "2"
+              - generic [ref=f1e138]: "Tick the methods you accept: bank transfer (EFT), cash on delivery or collection, MTC Maris, eWallet, FNB Pay2Cell, or PayToday."
+            - listitem [ref=f1e139]:
+              - generic [ref=f1e140]: "3"
+              - generic [ref=f1e141]:
+                - strong [ref=f1e142]: Enter the account or number for every method you tick.
+                - text: For EFT that means the bank
+                - emphasis [ref=f1e143]: and
+                - text: the account number.
+            - listitem [ref=f1e144]:
+              - generic [ref=f1e145]: "4"
+              - generic [ref=f1e146]: Save.
+          - paragraph [ref=f1e147]: A method with no details cannot be paid, so OshiCart hides it at checkout and will not let you save it. If none of your methods are complete, your checkout closes and buyers are told to message you instead — better than taking an order nobody can pay.
+        - generic [ref=f1e148]:
+          - heading "5. Delivery and collection" [level=2] [ref=f1e150]
+          - paragraph [ref=f1e151]: Decide how orders reach your customers.
+          - list [ref=f1e152]:
+            - listitem [ref=f1e153]:
+              - generic [ref=f1e154]: "1"
+              - generic [ref=f1e155]:
+                - text: Go to
+                - strong [ref=f1e156]: Settings → Delivery
+                - text: .
+            - listitem [ref=f1e157]:
+              - generic [ref=f1e158]: "2"
+              - generic [ref=f1e159]:
+                - text: Turn on
+                - strong [ref=f1e160]: collection
+                - text: if customers can fetch orders from you, and add your pickup address.
+            - listitem [ref=f1e161]:
+              - generic [ref=f1e162]: "3"
+              - generic [ref=f1e163]:
+                - text: Turn on
+                - strong [ref=f1e164]: your own delivery
+                - text: and set a flat fee if you deliver yourself.
+            - listitem [ref=f1e165]:
+              - generic [ref=f1e166]: "4"
+              - generic [ref=f1e167]:
+                - text: Turn on
+                - strong [ref=f1e168]: Yango
+                - text: or
+                - strong [ref=f1e169]: inDrive
+                - text: if you want customers to order a courier. The buyer pays the driver directly.
+            - listitem [ref=f1e170]:
+              - generic [ref=f1e171]: "5"
+              - generic [ref=f1e172]: Set delivery days and times if you only deliver on certain days.
+          - paragraph [ref=f1e173]:
+            - text: Yango and inDrive only appear for stores in
+            - strong [ref=f1e174]: Windhoek, Swakopmund and Walvis Bay
+            - text: ", because that is where they operate. If your town isn't covered, use your own delivery or collection."
+        - generic [ref=f1e175]:
+          - heading "6. Share your store" [level=2] [ref=f1e177]
+          - paragraph [ref=f1e178]: Your store link is your shop's address on the internet. Your QR code is a picture of that link.
+          - list [ref=f1e179]:
+            - listitem [ref=f1e180]:
+              - generic [ref=f1e181]: "1"
+              - generic [ref=f1e182]:
+                - text: Open
+                - strong [ref=f1e183]: Share store
+                - text: in the menu.
+            - listitem [ref=f1e184]:
+              - generic [ref=f1e185]: "2"
+              - generic [ref=f1e186]:
+                - text: Tap
+                - strong [ref=f1e187]: Copy link
+                - text: and paste it into your WhatsApp Status, your bio, Facebook, Instagram, or TikTok.
+            - listitem [ref=f1e188]:
+              - generic [ref=f1e189]: "3"
+              - generic [ref=f1e190]:
+                - text: Tap
+                - strong [ref=f1e191]: Share on WhatsApp
+                - text: to send it straight to a customer or a group.
+            - listitem [ref=f1e192]:
+              - generic [ref=f1e193]: "4"
+              - generic [ref=f1e194]:
+                - text: Tap the
+                - strong [ref=f1e195]: QR code
+                - text: and download it. Print it on flyers, packaging, your shop door, or your market table — customers point their camera at it and your shop opens.
+          - paragraph [ref=f1e196]: There is a ready-made message on the Share page you can copy if you are not sure what to write.
+        - generic [ref=f1e197]:
+          - heading "7. Use OshiCart as an app" [level=2] [ref=f1e199]
+          - paragraph [ref=f1e200]: You can put OshiCart on your phone's home screen. No Play Store or App Store needed.
+          - list [ref=f1e201]:
+            - listitem [ref=f1e202]:
+              - generic [ref=f1e203]: "1"
+              - generic [ref=f1e204]:
+                - strong [ref=f1e205]: "On Android:"
+                - text: open your dashboard in Chrome, tap the ⋮ menu, then
+                - strong [ref=f1e206]: Install app
+                - text: .
+            - listitem [ref=f1e207]:
+              - generic [ref=f1e208]: "2"
+              - generic [ref=f1e209]:
+                - strong [ref=f1e210]: "On iPhone:"
+                - text: open your dashboard in Safari (this does not work in Chrome on iPhone), tap the Share button, then
+                - strong [ref=f1e211]: Add to Home Screen
+                - text: .
+            - listitem [ref=f1e212]:
+              - generic [ref=f1e213]: "3"
+              - generic [ref=f1e214]:
+                - text: It installs as
+                - strong [ref=f1e215]: OshiCart Dashboard
+                - text: and opens straight on your orders.
+          - paragraph [ref=f1e216]:
+            - text: Your customers can do the same from any store link — they get an OshiCart app that opens the store directory. Full instructions are at
+            - link "oshicart.com/app" [ref=f1e217] [cursor=pointer]:
+              - /url: /app
+            - text: .
+        - generic [ref=f1e218]:
+          - heading "8. Handling orders" [level=2] [ref=f1e220]
+          - paragraph [ref=f1e221]: Every order moves through the same few steps, and the customer is told automatically at each one.
+          - list [ref=f1e222]:
+            - listitem [ref=f1e223]:
+              - generic [ref=f1e224]: "1"
+              - generic [ref=f1e225]:
+                - text: A new order arrives on WhatsApp and appears under
+                - strong [ref=f1e226]: Orders
+                - text: .
+            - listitem [ref=f1e227]:
+              - generic [ref=f1e228]: "2"
+              - generic [ref=f1e229]:
+                - strong [ref=f1e230]: Awaiting payment
+                - text: — the customer has ordered but not paid yet.
+            - listitem [ref=f1e231]:
+              - generic [ref=f1e232]: "3"
+              - generic [ref=f1e233]:
+                - text: Tap
+                - strong [ref=f1e234]: Confirm
+                - text: once you have the money or you are happy to go ahead.
+            - listitem [ref=f1e235]:
+              - generic [ref=f1e236]: "4"
+              - generic [ref=f1e237]:
+                - text: Tap
+                - strong [ref=f1e238]: Completed
+                - text: when the customer has it. That message carries their
+                - strong [ref=f1e239]: invoice
+                - text: .
+            - listitem [ref=f1e240]:
+              - generic [ref=f1e241]: "5"
+              - generic [ref=f1e242]:
+                - text: Use
+                - strong [ref=f1e243]: Cancel
+                - text: if the order falls through. Cancelled orders do not count against your monthly order limit.
+          - paragraph [ref=f1e244]: "Two taps, and the customer is told at each step — three messages in all: ordered, confirmed, done. Only Cancel asks you to confirm, because it puts the stock back and tells the customer the order is off."
+          - paragraph [ref=f1e245]:
+            - text: Need a
+            - strong [ref=f1e246]: Ready
+            - text: step as well? Takeaways and shops where "your order is ready for collection" is a real moment can turn the full flow back on under
+            - strong [ref=f1e247]: Settings
+            - text: — untick "Use the simple order flow".
+          - paragraph [ref=f1e248]: Not paid? OshiCart sends two reminders, at 6 hours and the next morning, then cancels the order after about two days and puts the stock back. The moment you record a payment — or the customer uploads proof — the reminders stop.
+        - generic [ref=f1e249]:
+          - heading "9. Appointments and bookings" [level=2] [ref=f1e251]
+          - paragraph [ref=f1e252]: "For salons, barbers, and anyone who works by appointment: customers book a time from a calendar, and each time slot takes one booking."
+          - list [ref=f1e253]:
+            - listitem [ref=f1e254]:
+              - generic [ref=f1e255]: "1"
+              - generic [ref=f1e256]:
+                - text: "Set your hours: open"
+                - strong [ref=f1e257]: Settings
+                - text: and find
+                - strong [ref=f1e258]: Availability
+                - text: . Tick your working days, then use
+                - strong [ref=f1e259]: Generate
+                - text: — opening time, closing time, and how long a session lasts. 09:00 to 17:00 every hour gives you eight sessions, without typing each one.
+            - listitem [ref=f1e260]:
+              - generic [ref=f1e261]: "2"
+              - generic [ref=f1e262]: When you add or edit a service, choose where it happens — at your place, at the client's place, or online. That is what makes checkout ask for a booking instead of a delivery.
+            - listitem [ref=f1e263]:
+              - generic [ref=f1e264]: "3"
+              - generic [ref=f1e265]: "Customers pick from a real calendar: days you are closed are greyed out, full days are struck through, and times already booked cannot be chosen. Two customers can never book the same slot — OshiCart refuses the second one automatically."
+            - listitem [ref=f1e266]:
+              - generic [ref=f1e267]: "4"
+              - generic [ref=f1e268]:
+                - text: "See who is coming: open"
+                - strong [ref=f1e269]: Bookings
+                - text: in your dashboard. Each day shows how many bookings it has; tap a day to see the names and times.
+            - listitem [ref=f1e270]:
+              - generic [ref=f1e271]: "5"
+              - generic [ref=f1e272]:
+                - text: Taking a day off? Tap the day and
+                - strong [ref=f1e273]: Block whole day
+                - text: . Need lunch free or a slot for walk-ins? Hold back single times instead. A time that is already booked cannot be blocked — cancel that order first.
+          - paragraph [ref=f1e274]: Scheduled deliveries appear on the same calendar, so your whole day — appointments and drop-offs — is in one place.
+        - generic [ref=f1e275]:
+          - heading "10. Selling online or digital services" [level=2] [ref=f1e277]
+          - paragraph [ref=f1e278]: Design, marketing, consulting, lessons — work with nothing to deliver and nobody to visit.
+          - list [ref=f1e279]:
+            - listitem [ref=f1e280]:
+              - generic [ref=f1e281]: "1"
+              - generic [ref=f1e282]:
+                - text: Add it like any other item, and where it asks
+                - strong [ref=f1e283]: where does this happen
+                - text: ", choose"
+                - strong [ref=f1e284]: Online
+                - text: .
+            - listitem [ref=f1e285]:
+              - generic [ref=f1e286]: "2"
+              - generic [ref=f1e287]: "Checkout then changes for that customer: no delivery, no collection, no courier, and no address. They only give their name and WhatsApp number."
+            - listitem [ref=f1e288]:
+              - generic [ref=f1e289]: "3"
+              - generic [ref=f1e290]:
+                - text: If you work by appointment — a coaching call, a lesson — set your times under
+                - strong [ref=f1e291]: Settings → Availability
+                - text: and the customer picks a slot.
+            - listitem [ref=f1e292]:
+              - generic [ref=f1e293]: "4"
+              - generic [ref=f1e294]: If your work is a project rather than an appointment — a logo, a website, a campaign — leave availability off. Checkout then tells the customer you will contact them on WhatsApp to get started, which is what really happens.
+          - paragraph [ref=f1e295]: A store can mix them freely. A salon can sell in-chair haircuts, call-outs to a client's home, and online consultations side by side — each item carries its own setting.
+        - generic [ref=f1e296]:
+          - heading "11. Hiring things out (rentals)" [level=2] [ref=f1e298]
+          - paragraph [ref=f1e299]: Tents, tools, sound gear, dresses — anything customers borrow and bring back.
+          - list [ref=f1e300]:
+            - listitem [ref=f1e301]:
+              - generic [ref=f1e302]: "1"
+              - generic [ref=f1e303]:
+                - text: Add the item and choose
+                - strong [ref=f1e304]: For hire
+                - text: . Say how many you own, and the shortest and longest hire you allow.
+            - listitem [ref=f1e305]:
+              - generic [ref=f1e306]: "2"
+              - generic [ref=f1e307]:
+                - text: "Choose how it is charged:"
+                - strong [ref=f1e308]: per day
+                - text: "(tools, tents, dresses — first and last day both count: 3 days at N$150 is N$450) or"
+                - strong [ref=f1e309]: per night
+                - text: (rooms and accommodation — check-in to check-out, and the check-out day is free, so a new guest can arrive that same day).
+            - listitem [ref=f1e310]:
+              - generic [ref=f1e311]: "3"
+              - generic [ref=f1e312]:
+                - text: OshiCart counts what is already out. If you own two tents and both are hired for those dates, a third customer is told
+                - strong [ref=f1e313]: "\"only 0 available for those dates\""
+                - text: and cannot book. Two people ordering at the same second cannot both take the last one.
+            - listitem [ref=f1e314]:
+              - generic [ref=f1e315]: "4"
+              - generic [ref=f1e316]:
+                - text: Need time to clean or check the item between hires? Set
+                - strong [ref=f1e317]: days between hires
+                - text: and OshiCart keeps that gap free automatically. Leave it at 0 and back-to-back hires are allowed — a hire ending Monday and one starting Tuesday never clash, and a cancelled hire frees its dates immediately.
+            - listitem [ref=f1e318]:
+              - generic [ref=f1e319]: "5"
+              - generic [ref=f1e320]:
+                - text: Ask for a
+                - strong [ref=f1e321]: refundable deposit
+                - text: if you want security on the item. It is added to what the customer pays — shown as its own line at checkout and on the invoice, never taxed — and you hand it back when the item returns in good shape.
+            - listitem [ref=f1e322]:
+              - generic [ref=f1e323]: "6"
+              - generic [ref=f1e324]:
+                - text: Need the customer to bring something — a driver's licence, proof of address? Type it in
+                - strong [ref=f1e325]: Documents the customer must bring
+                - text: and it appears on the product, at checkout, and in the WhatsApp order, so nobody arrives empty-handed.
+            - listitem [ref=f1e326]:
+              - generic [ref=f1e327]: "7"
+              - generic [ref=f1e328]:
+                - text: "On"
+                - strong [ref=f1e329]: Orders
+                - text: ", each hired line shows its dates —"
+                - strong [ref=f1e330]: Hire · 3 days · 20 – 22 Aug
+                - text: — so you always know what is out and when it is due back.
+            - listitem [ref=f1e331]:
+              - generic [ref=f1e332]: "8"
+              - generic [ref=f1e333]:
+                - text: When it comes back, tap
+                - strong [ref=f1e334]: Record return
+                - text: "on the order: note which unit went out (registration, asset tag, room name), the date, and its condition. If it is late, OshiCart counts the days and suggests the late fee you set — hold it back by refunding a smaller deposit, and the credit note shows it automatically."
+          - paragraph [ref=f1e335]: Hiring never touches your stock number. "How many you own" is how many can be out at the same time, not how many are left to sell.
+        - generic [ref=f1e336]:
+          - heading "12. Invoices" [level=2] [ref=f1e338]
+          - paragraph [ref=f1e339]: Every order has a proper invoice you can print or send.
+          - list [ref=f1e340]:
+            - listitem [ref=f1e341]:
+              - generic [ref=f1e342]: "1"
+              - generic [ref=f1e343]:
+                - text: Open the order and tap
+                - strong [ref=f1e344]: View invoice
+                - text: .
+            - listitem [ref=f1e345]:
+              - generic [ref=f1e346]: "2"
+              - generic [ref=f1e347]:
+                - text: Tap
+                - strong [ref=f1e348]: Print or save as PDF
+                - text: to give the customer a copy.
+          - paragraph [ref=f1e349]:
+            - text: If you enter a VAT number in Settings, invoices become proper
+            - strong [ref=f1e350]: tax invoices
+            - text: showing VAT at 15% and your VAT number. Leave it blank and they stay plain invoices.
+        - generic [ref=f1e351]:
+          - heading "13. Refunds and credit notes" [level=2] [ref=f1e353]
+          - paragraph [ref=f1e354]: When you give money back, record it so your books and your bank still agree.
+          - list [ref=f1e355]:
+            - listitem [ref=f1e356]:
+              - generic [ref=f1e357]: "1"
+              - generic [ref=f1e358]:
+                - text: Open
+                - strong [ref=f1e359]: Orders
+                - text: and find the order.
+                - strong [ref=f1e360]: Record refund
+                - text: appears next to Record payment once the customer has paid something — you cannot refund money you never received.
+            - listitem [ref=f1e361]:
+              - generic [ref=f1e362]: "2"
+              - generic [ref=f1e363]: Enter the amount, the date the money actually left your account, and how you sent it back. Refund part of an order or all of it.
+            - listitem [ref=f1e364]:
+              - generic [ref=f1e365]: "3"
+              - generic [ref=f1e366]:
+                - text: A
+                - strong [ref=f1e367]: credit note
+                - text: is created automatically and appears on the order. Open it to print or save it as a PDF for the customer.
+            - listitem [ref=f1e368]:
+              - generic [ref=f1e369]: "4"
+              - generic [ref=f1e370]:
+                - text: "Your statement updates on its own: the refund shows under"
+                - strong [ref=f1e371]: Refunded
+                - text: ", and the order counts as owing again, so Outstanding stays honest."
+          - paragraph [ref=f1e372]: A credit note is the document that cancels part of an invoice. If you are registered for VAT you may not simply delete an invoice you have issued — you issue a credit note against it, and the VAT is reversed on it too. OshiCart works this out for you.
+        - generic [ref=f1e373]:
+          - heading "14. Your customers" [level=2] [ref=f1e375]
+          - paragraph [ref=f1e376]: Everyone who orders from you is saved automatically.
+          - list [ref=f1e377]:
+            - listitem [ref=f1e378]:
+              - generic [ref=f1e379]: "1"
+              - generic [ref=f1e380]:
+                - text: Open
+                - strong [ref=f1e381]: Customers
+                - text: .
+            - listitem [ref=f1e382]:
+              - generic [ref=f1e383]: "2"
+              - generic [ref=f1e384]: See how many times each person has ordered and what they have spent.
+            - listitem [ref=f1e385]:
+              - generic [ref=f1e386]: "3"
+              - generic [ref=f1e387]: Tap a customer to message them on WhatsApp directly.
+          - paragraph [ref=f1e388]: Your customer list is yours alone. It is never shared with other merchants.
+        - generic [ref=f1e389]:
+          - heading "15. WhatsApp broadcasts" [level=2] [ref=f1e391]
+          - paragraph [ref=f1e392]: Send an offer or an update to your customers from your own WhatsApp.
+          - list [ref=f1e393]:
+            - listitem [ref=f1e394]:
+              - generic [ref=f1e395]: "1"
+              - generic [ref=f1e396]:
+                - text: Open
+                - strong [ref=f1e397]: Broadcast
+                - text: .
+            - listitem [ref=f1e398]:
+              - generic [ref=f1e399]: "2"
+              - generic [ref=f1e400]: "Choose who to send to: everyone, repeat customers, or recent customers."
+            - listitem [ref=f1e401]:
+              - generic [ref=f1e402]: "3"
+              - generic [ref=f1e403]: Pick one of the sample messages or write your own. Sample messages already include your store link.
+            - listitem [ref=f1e404]:
+              - generic [ref=f1e405]: "4"
+              - generic [ref=f1e406]:
+                - text: Send. Messages go from
+                - strong [ref=f1e407]: your own WhatsApp number
+                - text: ", so customers recognise you."
+        - generic [ref=f1e408]:
+          - heading "16. Reviews" [level=2] [ref=f1e410]
+          - paragraph [ref=f1e411]: Customers who actually bought from you can leave a rating.
+          - list [ref=f1e412]:
+            - listitem [ref=f1e413]:
+              - generic [ref=f1e414]: "1"
+              - generic [ref=f1e415]: Reviews appear on your storefront under your products.
+            - listitem [ref=f1e416]:
+              - generic [ref=f1e417]: "2"
+              - generic [ref=f1e418]:
+                - text: Open
+                - strong [ref=f1e419]: Reviews
+                - text: to read them.
+          - paragraph [ref=f1e420]: Only verified buyers can review, so a rating on OshiCart means someone really shopped with you. That is worth more to a new customer than anything you can write about yourself.
+        - generic [ref=f1e421]:
+          - heading "17. Coupons and discounts" [level=2] [ref=f1e423]
+          - paragraph [ref=f1e424]: Run a promotion with a code customers enter at checkout.
+          - list [ref=f1e425]:
+            - listitem [ref=f1e426]:
+              - generic [ref=f1e427]: "1"
+              - generic [ref=f1e428]:
+                - text: Open
+                - strong [ref=f1e429]: Coupons
+                - text: .
+            - listitem [ref=f1e430]:
+              - generic [ref=f1e431]: "2"
+              - generic [ref=f1e432]:
+                - text: Pick one of the four
+                - strong [ref=f1e433]: starter templates
+                - text: — welcome offer, spend-and-save, launch promo, or delivery-on-us — and the form fills in for you.
+            - listitem [ref=f1e434]:
+              - generic [ref=f1e435]: "3"
+              - generic [ref=f1e436]: "Change anything you want: the code, the amount, the minimum order, how many times it can be used, and when it expires."
+            - listitem [ref=f1e437]:
+              - generic [ref=f1e438]: "4"
+              - generic [ref=f1e439]: Save. Nothing goes live until you press save.
+            - listitem [ref=f1e440]:
+              - generic [ref=f1e441]: "5"
+              - generic [ref=f1e442]: Share the code in a broadcast, on your Status, or on a flyer.
+        - generic [ref=f1e443]:
+          - heading "18. Adding many products at once" [level=2] [ref=f1e445]
+          - paragraph [ref=f1e446]: If you have a long product list, you do not have to add them one by one.
+          - list [ref=f1e447]:
+            - listitem [ref=f1e448]:
+              - generic [ref=f1e449]: "1"
+              - generic [ref=f1e450]:
+                - text: Go to
+                - strong [ref=f1e451]: Products → Import
+                - text: .
+            - listitem [ref=f1e452]:
+              - generic [ref=f1e453]: "2"
+              - generic [ref=f1e454]: Download the template spreadsheet so your columns are right.
+            - listitem [ref=f1e455]:
+              - generic [ref=f1e456]: "3"
+              - generic [ref=f1e457]: Fill in your products, save as CSV, and upload it.
+            - listitem [ref=f1e458]:
+              - generic [ref=f1e459]: "4"
+              - generic [ref=f1e460]: Check the preview, then confirm. Anything with a problem is listed so you can fix it.
+        - generic [ref=f1e461]:
+          - generic [ref=f1e462]:
+            - heading "19. Abandoned checkout recovery" [level=2] [ref=f1e463]
+            - generic [ref=f1e464]: Oshi-Automate and Oshi-Pro
+          - paragraph [ref=f1e465]: When a customer fills in checkout but does not finish, OshiCart can send them a WhatsApp reminder.
+          - list [ref=f1e466]:
+            - listitem [ref=f1e467]:
+              - generic [ref=f1e468]: "1"
+              - generic [ref=f1e469]:
+                - text: Go to
+                - strong [ref=f1e470]: Settings
+                - text: and turn on cart recovery.
+            - listitem [ref=f1e471]:
+              - generic [ref=f1e472]: "2"
+              - generic [ref=f1e473]: Reminders go out automatically. You do nothing else.
+        - generic [ref=f1e474]:
+          - generic [ref=f1e475]:
+            - heading "20. Statements for your books" [level=2] [ref=f1e476]
+            - generic [ref=f1e477]: Oshi-Automate and Oshi-Pro
+          - paragraph [ref=f1e478]: A monthly record of every order, for your accountant or your VAT return.
+          - list [ref=f1e479]:
+            - listitem [ref=f1e480]:
+              - generic [ref=f1e481]: "1"
+              - generic [ref=f1e482]:
+                - text: Open
+                - strong [ref=f1e483]: Statements
+                - text: .
+            - listitem [ref=f1e484]:
+              - generic [ref=f1e485]: "2"
+              - generic [ref=f1e486]:
+                - text: Choose the month you need. On
+                - strong [ref=f1e487]: Oshi-Pro
+                - text: you can also pick
+                - strong [ref=f1e488]: Last 12 months
+                - text: to get a whole year in one document for your accountant.
+            - listitem [ref=f1e489]:
+              - generic [ref=f1e490]: "3"
+              - generic [ref=f1e491]: You get totals for sales, VAT and delivery, a breakdown by order status and payment method, and every order listed.
+            - listitem [ref=f1e492]:
+              - generic [ref=f1e493]: "4"
+              - generic [ref=f1e494]:
+                - text: Check
+                - strong [ref=f1e495]: Received
+                - text: against your bank. It shows what actually came in that month, what is still outstanding, and how many orders remain unpaid.
+            - listitem [ref=f1e496]:
+              - generic [ref=f1e497]: "5"
+              - generic [ref=f1e498]:
+                - text: Tap
+                - strong [ref=f1e499]: Print or save as PDF
+                - text: for a paper copy, or
+                - strong [ref=f1e500]: Download spreadsheet
+                - text: to send to a bookkeeper.
+          - paragraph [ref=f1e501]: Received counts payments dated in that month, whichever month the order was placed — that is the figure to compare with your bank. It is only as complete as your record-keeping, so mark payments as they come in.
+        - generic [ref=f1e502]:
+          - heading "21. Analytics" [level=2] [ref=f1e504]
+          - paragraph [ref=f1e505]: See how your store is doing.
+          - list [ref=f1e506]:
+            - listitem [ref=f1e507]:
+              - generic [ref=f1e508]: "1"
+              - generic [ref=f1e509]:
+                - text: Open
+                - strong [ref=f1e510]: Analytics
+                - text: .
+            - listitem [ref=f1e511]:
+              - generic [ref=f1e512]: "2"
+              - generic [ref=f1e513]: See store visits, orders, revenue, and which products people look at most.
+        - generic [ref=f1e514]:
+          - heading "22. Your plan and limits" [level=2] [ref=f1e516]
+          - paragraph [ref=f1e517]: Every plan includes a number of products and a number of orders per month.
+          - list [ref=f1e518]:
+            - listitem [ref=f1e519]:
+              - generic [ref=f1e520]: "1"
+              - generic [ref=f1e521]:
+                - text: Open
+                - strong [ref=f1e522]: Subscription
+                - text: to see your plan and what you have used.
+            - listitem [ref=f1e523]:
+              - generic [ref=f1e524]: "2"
+              - generic [ref=f1e525]: Your order allowance resets every month on your billing date — the page tells you exactly when.
+            - listitem [ref=f1e526]:
+              - generic [ref=f1e527]: "3"
+              - generic [ref=f1e528]: Cancelled orders do not count. Only real orders use your allowance.
+            - listitem [ref=f1e529]:
+              - generic [ref=f1e530]: "4"
+              - generic [ref=f1e531]: Upgrade any time if you need more products, more orders, or the higher-tier features.
+        - generic [ref=f1e532]:
+          - heading "23. Getting help" [level=2] [ref=f1e534]
+          - paragraph [ref=f1e535]: If something is not working, talk to a real person.
+          - list [ref=f1e536]:
+            - listitem [ref=f1e537]:
+              - generic [ref=f1e538]: "1"
+              - generic [ref=f1e539]:
+                - text: WhatsApp support on
+                - strong [ref=f1e540]: +264 81 627 4823
+                - text: .
+            - listitem [ref=f1e541]:
+              - generic [ref=f1e542]: "2"
+              - generic [ref=f1e543]:
+                - text: Call
+                - strong [ref=f1e544]: +264 81 238 4424
+                - text: .
+            - listitem [ref=f1e545]:
+              - generic [ref=f1e546]: "3"
+              - generic [ref=f1e547]:
+                - text: Email
+                - strong [ref=f1e548]: info@octovianexus.com
+                - text: .
+          - paragraph [ref=f1e549]:
+            - text: See also the
+            - link "help page" [ref=f1e550] [cursor=pointer]:
+              - /url: /help
+            - text: ", the"
+            - link "app install guide" [ref=f1e551] [cursor=pointer]:
+              - /url: /app
+            - text: ", and the"
+            - link "selling rules" [ref=f1e552] [cursor=pointer]:
+              - /url: /prohibited-products
+            - text: .
+    - contentinfo [ref=f1e553]:
+      - generic [ref=f1e554]:
+        - generic [ref=f1e555]:
+          - generic [ref=f1e556]:
+            - img "OshiCart" [ref=f1e557]
+            - paragraph [ref=f1e558]: Online stores for Namibia's shops, vendors, services, and WhatsApp sellers.
+          - generic [ref=f1e559]:
+            - heading "About OshiCart" [level=4] [ref=f1e560]
+            - generic [ref=f1e561]:
+              - paragraph [ref=f1e562]: OshiCart is a proudly Namibian commerce platform for sellers who already run their business through WhatsApp, Facebook, Instagram, markets, and local communities.
+              - paragraph [ref=f1e563]: We help merchants publish a clean store link, receive structured orders, accept local payments, and manage products without needing a custom website.
+              - paragraph [ref=f1e564]: From local vendors and restaurants to boutiques, salons, electronics shops, and service providers, OshiCart is built for the way Namibia sells.
+          - generic [ref=f1e565]:
+            - heading "Contact & Support" [level=4] [ref=f1e566]
+            - list [ref=f1e567]:
+              - listitem [ref=f1e568]:
+                - 'link "Call: +264 81 626 2961" [ref=f1e569] [cursor=pointer]':
+                  - /url: tel:+264816262961
+              - listitem [ref=f1e570]:
+                - 'link "WhatsApp: +264 81 627 4823" [ref=f1e571] [cursor=pointer]':
+                  - /url: https://wa.me/264816274823?text=Hi%20OshiCart%2C%20I%20need%20help%20with...
+              - listitem [ref=f1e572]:
+                - link "info@octovianexus.com" [ref=f1e573] [cursor=pointer]:
+                  - /url: mailto:info@octovianexus.com
+              - listitem [ref=f1e574]:
+                - link "Browse Stores" [ref=f1e575] [cursor=pointer]:
+                  - /url: /stores
+              - listitem [ref=f1e576]:
+                - link "Help" [ref=f1e577] [cursor=pointer]:
+                  - /url: /help
+              - listitem [ref=f1e578]:
+                - link "Setup guide" [ref=f1e579] [cursor=pointer]:
+                  - /url: /guide
+              - listitem [ref=f1e580]:
+                - link "Become an Agent" [ref=f1e581] [cursor=pointer]:
+                  - /url: /agents
+              - listitem [ref=f1e582]:
+                - link "Install as app" [ref=f1e583] [cursor=pointer]:
+                  - /url: /app
+              - listitem [ref=f1e584]:
+                - link "Terms of Service" [ref=f1e585] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=f1e586]:
+                - link "Privacy Policy" [ref=f1e587] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=f1e588]:
+                - link "Prohibited Products" [ref=f1e589] [cursor=pointer]:
+                  - /url: /prohibited-products
+        - generic [ref=f1e590]:
+          - paragraph [ref=f1e591]: © 2026 OshiCart. Made in Namibia.
+          - paragraph [ref=f1e592]: OshiCart is a product of Octovia Nexus Investments CC
+  - alert [ref=f1e593]

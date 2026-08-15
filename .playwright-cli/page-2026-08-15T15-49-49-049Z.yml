@@ -1,0 +1,18 @@
+- generic [active] [ref=f4e1]:
+  - alert [ref=f4e48]: Checkout | OshiCart Demo Store | OshiCart
+  - generic [ref=f4e439]:
+    - banner [ref=f4e440]:
+      - heading "Checkout — OshiCart Demo Store" [level=1] [ref=f4e442]
+    - main [ref=f4e443]:
+      - generic [ref=f4e533]:
+        - heading "Order Confirmed!" [level=2] [ref=f4e537]
+        - paragraph [ref=f4e538]:
+          - text: Your order number is
+          - generic [ref=f4e539]: "#8"
+        - paragraph [ref=f4e540]: Please pay when collecting your order.
+        - generic [ref=f4e541]:
+          - link "Message OshiCart Demo Store on WhatsApp" [ref=f4e542] [cursor=pointer]:
+            - /url: https://wa.me/264812384424?text=Hi%20OshiCart%20Demo%20Store!%20%F0%9F%9B%92%20New%20order%20%238%0A%0A*Customer%3A*%20QA%20(delete%20me)%20Rental%20Buyer%202026-08-15%0A*WhatsApp%3A*%200819908154%0A%0A*Items%3A*%0A-%20Demo%20Camping%20Tent%20(per%20day)%20x1%20-%20N%24150.00%0A%0A*Subtotal%3A*%20N%24450.00%0A*Refundable%20deposit%3A*%20N%24500.00%0A*Bring%3A*%20ID%20or%20driver's%20licence%0A*Total%3A*%20N%24950.00%0A*Payment%20Ref%3A*%20OSHI-54C4CA85%0A*Payment%3A*%20Cash%20on%20Delivery%0A*Delivery%3A*%20Pickup%0A*Notes%3A*%20QA%20(delete%20me)%20day-rental%20order%20%E2%80%94%20approved%20production%20audit%0A%0A*Invoice%3A*%20https%3A%2F%2Foshicart.com%2Finvoice%2F54c4ca85-29f1-47dd-ac00-130c9ab4808d
+          - link "Back to Store" [ref=f4e546] [cursor=pointer]:
+            - /url: /s/oshicart-demo
+    - contentinfo [ref=f4e520]

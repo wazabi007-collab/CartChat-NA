@@ -1,0 +1,42 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img "OshiCart" [ref=e6]
+        - navigation [ref=e7]:
+          - link "Browse Stores" [ref=e8] [cursor=pointer]:
+            - /url: /stores
+          - link "Pricing" [ref=e9] [cursor=pointer]:
+            - /url: /#pricing
+          - link "Safety" [ref=e10] [cursor=pointer]:
+            - /url: /prohibited-products
+          - link "Sign in" [ref=e11] [cursor=pointer]:
+            - /url: /login
+        - link "Create Free Store" [ref=e13] [cursor=pointer]:
+          - /url: /signup
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - heading "Sign in to your store" [level=1] [ref=e22]
+        - paragraph [ref=e23]: Welcome back to OshiCart
+      - generic [ref=e24]:
+        - button "Continue with Google" [ref=e25]
+        - generic [ref=e31]: or
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - generic [ref=e38]: Email*
+            - textbox "Email*" [active] [ref=e39]:
+              - /placeholder: you@example.com
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - generic [ref=e42]: Password*
+              - button "Forgot password?" [ref=e43]
+            - textbox "Password*" [ref=e44]:
+              - /placeholder: ••••••••
+          - button "Sign In" [ref=e45]
+      - paragraph [ref=e46]:
+        - text: Don't have a store?
+        - link "Create one free" [ref=e47] [cursor=pointer]:
+          - /url: /signup
+  - alert [ref=e48]

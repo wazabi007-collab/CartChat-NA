@@ -7,6 +7,30 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:30
 
 export const NAD_CURRENCY = "NAD";
 
+// ─── Support contacts ───────────────────────────────────────────────────
+// Single source of truth for every public "contact us" surface — the footer
+// and /help had drifted onto different call numbers before this existed.
+// Call and WhatsApp are deliberately two different lines: SUPPORT_PHONE is the
+// admin phone the owner actually answers (the same number as
+// OSHICART_ADMIN_WHATSAPP_NUMBERS) and is what /guide and both PDFs print,
+// while SUPPORT_WHATSAPP is the WhatsApp support line already wired into
+// checkout, the dashboard, /privacy and the Organization JSON-LD
+// "customer support" contactPoint. +264 81 626 2961 is the *sales* line
+// (JSON-LD "sales") — not a support contact, so it does not live here.
+export const SUPPORT_PHONE = "+264 81 238 4424";
+export const SUPPORT_PHONE_E164 = "+264812384424";
+export const SUPPORT_WHATSAPP = "+264 81 627 4823";
+export const SUPPORT_WHATSAPP_E164 = "+264816274823";
+export const SUPPORT_EMAIL = "info@octovianexus.com";
+
+/** wa.me 404s on a leading "+", so the link must carry bare digits. */
+export function supportWhatsAppLink(text?: string): string {
+  const digits = SUPPORT_WHATSAPP_E164.replace(/\D/g, "");
+  return text
+    ? `https://wa.me/${digits}?text=${encodeURIComponent(text)}`
+    : `https://wa.me/${digits}`;
+}
+
 export const MAX_IMAGE_SIZE = 20 * 1024 * 1024; // 20MB upload limit (sharp compresses before storage)
 export const TARGET_IMAGE_SIZE = 300 * 1024; // 300KB after compression
 export const MAX_IMAGE_WIDTH = 1200; // px

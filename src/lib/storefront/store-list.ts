@@ -68,14 +68,17 @@ export interface EnrichedStore extends StoreListMerchant {
 
 /**
  * Fetches active, publicly-listable stores (optionally filtered by region /
- * search / category), enriched with product counts and up to 4 preview
+ * town / search / category), enriched with product counts and up to 4 preview
  * images each. Shared by /stores (full browse) and /stores/[region]
  * (SEO landing pages) so both stay in sync.
+ *
+ * `town` is applied as given — callers own the check that it belongs to
+ * `region`, since a mismatched pair silently returns nothing.
  */
 export async function fetchStoreListData(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: SupabaseClient<any>,
-  { region, q, category }: { region?: string; q?: string; category?: string }
+  { region, q, category, town }: { region?: string; q?: string; category?: string; town?: string }
 ): Promise<EnrichedStore[]> {
   let query = supabase
     .from("merchants")
@@ -90,6 +93,10 @@ export async function fetchStoreListData(
 
   if (region && region !== "all") {
     query = query.eq("region", region);
+  }
+
+  if (town && town !== "all") {
+    query = query.eq("town", town);
   }
 
   const { data: merchants } = await query;

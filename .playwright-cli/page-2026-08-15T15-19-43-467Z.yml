@@ -1,0 +1,139 @@
+- generic [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - link [ref=f1e6] [cursor=pointer]:
+          - /url: /dashboard
+          - img "OshiCart" [ref=f1e7]
+        - navigation [ref=f1e8]:
+          - link "Dashboard" [ref=f1e9] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Products" [ref=f1e16] [cursor=pointer]:
+            - /url: /dashboard/products
+          - link "Share store" [ref=f1e22] [cursor=pointer]:
+            - /url: /dashboard/share
+          - link "Orders" [ref=f1e30] [cursor=pointer]:
+            - /url: /dashboard/orders
+          - link "Deliveries" [ref=f1e36] [cursor=pointer]:
+            - /url: /dashboard/bookings
+          - link "Customers" [ref=f1e40] [cursor=pointer]:
+            - /url: /dashboard/customers
+          - link "Broadcast" [ref=f1e47] [cursor=pointer]:
+            - /url: /dashboard/broadcast
+          - link "Reviews" [ref=f1e52] [cursor=pointer]:
+            - /url: /dashboard/reviews
+          - link "Coupons" [ref=f1e56] [cursor=pointer]:
+            - /url: /dashboard/coupons
+          - link "Analytics" [ref=f1e60] [cursor=pointer]:
+            - /url: /dashboard/analytics
+          - link "Statements" [ref=f1e64] [cursor=pointer]:
+            - /url: /dashboard/statements
+          - link "Account" [ref=f1e69] [cursor=pointer]:
+            - /url: /dashboard/account
+          - link "Subscription" [ref=f1e74] [cursor=pointer]:
+            - /url: /dashboard/subscription
+          - link "Settings" [ref=f1e78] [cursor=pointer]:
+            - /url: /dashboard/settings
+          - link "Help" [ref=f1e83] [cursor=pointer]:
+            - /url: /help
+        - button "Sign out" [ref=f1e89]
+    - main [ref=f1e93]:
+      - generic [ref=f1e94]:
+        - generic [ref=f1e95]:
+          - heading "Set up your store" [level=1] [ref=f1e101]
+          - paragraph [ref=f1e102]: Takes under 2 minutes
+        - generic [ref=f1e103]:
+          - paragraph [ref=f1e104]: Did an OshiCart agent refer you? Enter their code for 5 extra trial days.
+          - generic [ref=f1e105]:
+            - textbox "Agent code (e.g. rehabeam)" [ref=f1e106]: qa20260815agent
+            - button "Apply" [ref=f1e107]
+          - paragraph [ref=f1e151]: That code is not recognised — check it with your agent.
+        - generic [ref=f1e108]:
+          - generic [ref=f1e110]:
+            - generic [ref=f1e111]: "1"
+            - generic [ref=f1e112]: Store Info
+          - generic [ref=f1e115]:
+            - generic [ref=f1e116]: "2"
+            - generic [ref=f1e117]: Delivery
+          - generic [ref=f1e120]:
+            - generic [ref=f1e121]: "3"
+            - generic [ref=f1e122]: Payments
+        - generic [ref=f1e124]:
+          - heading "Store Details" [level=2] [ref=f1e125]
+          - generic [ref=f1e126]:
+            - generic [ref=f1e127]: Store Name*
+            - textbox "e.g. Mama's Kitchen" [ref=f1e128]: QA (delete me) Merchant Store 2026-08-15
+            - paragraph [ref=f1e153]: "Your store link: oshicart.com/s/qa-delete-me-merchant-store-2026-08-15"
+          - generic [ref=f1e129]:
+            - generic [ref=f1e130]: Description
+            - textbox "What products or services do you offer?" [ref=f1e131]: QA (delete me) production platform audit store
+          - generic [ref=f1e132]:
+            - generic [ref=f1e133]: WhatsApp Number*
+            - textbox "WhatsApp Number*" [active] [ref=f1e135]:
+              - /placeholder: 081 234 5678
+              - text: "0819908151"
+            - paragraph [ref=f1e136]:
+              - generic [ref=f1e154]: Will be saved as +264819908151
+          - generic [ref=f1e137]:
+            - generic [ref=f1e138]: Industry*
+            - combobox [ref=f1e139]:
+              - option "What products or services do you offer?"
+              - option "Restaurant & Dining"
+              - option "Takeaway & Fast Food"
+              - option "Kapana & Street Food"
+              - option "Coffee Shop & Cafe"
+              - option "Bakery & Confectionery"
+              - option "Catering & Events"
+              - option "Grocery & Supermarket"
+              - option "Butchery & Meat"
+              - option "Liquor & Beverages"
+              - option "Agriculture & Farming"
+              - option "Gas & Water"
+              - option "Fashion & Clothing"
+              - option "Second-hand & Thrift"
+              - option "Salon & Beauty"
+              - option "Cosmetics & Skincare"
+              - option "Pharmacy & Health"
+              - option "Electronics & Phones"
+              - option "Airtime, Data & Tokens"
+              - option "Hardware & Building"
+              - option "Furniture & Home"
+              - option "Auto Parts & Accessories"
+              - option "Stationery & Office"
+              - option "Sports & Outdoor"
+              - option "Toys & Kids"
+              - option "Arts, Crafts & Curios"
+              - option "Pet Supplies"
+              - option "Florist & Gifts"
+              - option "General Dealer & Wholesale"
+              - option "Cleaning & Laundry"
+              - option "Printing & Signage"
+              - option "Repairs (Phone, Auto, Appliance)"
+              - option "Other Services" [selected]
+              - option "Other"
+            - paragraph [ref=f1e160]: This category badge will show on your storefront and in search.
+          - generic [ref=f1e141]:
+            - generic [ref=f1e142]: Region*
+            - combobox [ref=f1e143]:
+              - option "Where do you sell from?" [selected]
+              - option "Khomas"
+              - option "Erongo"
+              - option "Oshana"
+              - option "Oshikoto"
+              - option "Otjozondjupa"
+              - option "Omusati"
+              - option "Ohangwena"
+              - option "Kavango East"
+              - option "Kavango West"
+              - option "Hardap"
+              - option "ǁKaras"
+              - option "Kunene"
+              - option "Omaheke"
+              - option "Zambezi"
+          - generic [ref=f1e144]:
+            - generic [ref=f1e145]: Town*
+            - combobox [disabled] [ref=f1e146]:
+              - option "Choose a region first" [selected]
+            - paragraph [ref=f1e147]: Customers will see this on your store
+          - 'button "Next: Delivery Options" [ref=f1e148]'
+  - alert [ref=f1e152]

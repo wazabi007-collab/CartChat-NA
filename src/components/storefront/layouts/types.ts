@@ -12,6 +12,7 @@ export interface LayoutProduct {
   allow_backorder: boolean;
   item_type?: string;
   service_mode?: string | null;
+  rental_unit?: string | null;
   has_variants?: boolean;
 }
 
@@ -40,6 +41,11 @@ export function getDisplayPrice(product: LayoutProduct, formatPrice: (n: number)
   if (product.item_type === "service" && product.price_nad === 0) return "Request a Quote";
   if (product.item_type === "service" && product.price_nad > 0) return `From ${formatPrice(product.price_nad)}`;
   if (product.price_nad === 0) return "Price on request";
+  // A hire rate without its unit reads as the whole price of the hire, which
+  // is what a customer will hold you to. Every layout must say per what.
+  if (product.item_type === "rental") {
+    return `${formatPrice(product.price_nad)} / ${product.rental_unit === "night" ? "night" : "day"}`;
+  }
   return formatPrice(product.price_nad);
 }
 

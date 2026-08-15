@@ -1,0 +1,18 @@
+- generic [active] [ref=f43e1]:
+  - generic [ref=f43e2]:
+    - link [ref=f43e4] [cursor=pointer]:
+      - /url: /dashboard
+      - img "OshiCart" [ref=f43e5]
+    - main [ref=f43e6]
+    - navigation [ref=f43e11]:
+      - generic [ref=f43e12]:
+        - link "Dashboard" [ref=f43e13] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Services" [ref=f43e21] [cursor=pointer]:
+          - /url: /dashboard/products
+        - link "Orders" [ref=f43e28] [cursor=pointer]:
+          - /url: /dashboard/orders
+        - link "Analytics" [ref=f43e35] [cursor=pointer]:
+          - /url: /dashboard/analytics
+        - button "More" [ref=f43e40]
+  - alert [ref=f43e46]

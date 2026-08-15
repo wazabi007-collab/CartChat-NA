@@ -1,0 +1,112 @@
+- generic [active] [ref=f12e1]:
+  - generic [ref=f12e2]:
+    - complementary [ref=f12e3]:
+      - generic [ref=f12e4]:
+        - generic [ref=f12e5]:
+          - link [ref=f12e6] [cursor=pointer]:
+            - /url: /dashboard
+            - img "OshiCart" [ref=f12e7]
+          - generic [ref=f12e15]:
+            - paragraph [ref=f12e16]: QA (delete me) Merchant Store 2026-08-15
+            - paragraph [ref=f12e17]: /s/qa-delete-me-merchant-store-2026-08-15
+        - navigation [ref=f12e18]:
+          - link "Dashboard" [ref=f12e19] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Services" [ref=f12e26] [cursor=pointer]:
+            - /url: /dashboard/products
+          - link "Share store" [ref=f12e32] [cursor=pointer]:
+            - /url: /dashboard/share
+          - link "Orders" [ref=f12e40] [cursor=pointer]:
+            - /url: /dashboard/orders
+          - link "Bookings" [ref=f12e46] [cursor=pointer]:
+            - /url: /dashboard/bookings
+          - link "Customers" [ref=f12e50] [cursor=pointer]:
+            - /url: /dashboard/customers
+          - link "Broadcast" [ref=f12e57] [cursor=pointer]:
+            - /url: /dashboard/broadcast
+          - link "Reviews" [ref=f12e62] [cursor=pointer]:
+            - /url: /dashboard/reviews
+          - link "Coupons" [ref=f12e66] [cursor=pointer]:
+            - /url: /dashboard/coupons
+          - link "Analytics" [ref=f12e70] [cursor=pointer]:
+            - /url: /dashboard/analytics
+          - link "Statements" [ref=f12e74] [cursor=pointer]:
+            - /url: /dashboard/statements
+          - link "Account" [ref=f12e79] [cursor=pointer]:
+            - /url: /dashboard/account
+          - link "Subscription" [ref=f12e84] [cursor=pointer]:
+            - /url: /dashboard/subscription
+          - link "Settings" [ref=f12e88] [cursor=pointer]:
+            - /url: /dashboard/settings
+          - link "View store" [ref=f12e93] [cursor=pointer]:
+            - /url: /s/qa-delete-me-merchant-store-2026-08-15
+          - link "Help" [ref=f12e99] [cursor=pointer]:
+            - /url: /help
+        - button "Sign out" [ref=f12e105]
+    - main [ref=f12e109]:
+      - generic [ref=f12e110]:
+        - generic [ref=f12e111]:
+          - paragraph [ref=f12e112]: Schedule
+          - heading "Bookings" [level=1] [ref=f12e175]
+          - paragraph [ref=f12e114]: Every appointment in one calendar. Tap a day to see who is coming, block the whole day off, or hold back individual times.
+        - generic [ref=f12e118]:
+          - generic [ref=f12e119]:
+            - button "Previous month" [ref=f12e120]
+            - paragraph [ref=f12e123]: August 2026
+            - button "Next month" [ref=f12e126]
+          - generic [ref=f12e129]:
+            - generic [ref=f12e130]: Mo
+            - generic [ref=f12e131]: Tu
+            - generic [ref=f12e132]: We
+            - generic [ref=f12e133]: Th
+            - generic [ref=f12e134]: Fr
+            - generic [ref=f12e135]: Sa
+            - generic [ref=f12e136]: Su
+            - button "1" [ref=f12e142]
+            - button "2" [ref=f12e143]
+            - button "3" [ref=f12e144]
+            - button "4" [ref=f12e145]
+            - button "5" [ref=f12e146]
+            - button "6" [ref=f12e147]
+            - button "7" [ref=f12e148]
+            - button "8" [ref=f12e149]
+            - button "9" [ref=f12e150]
+            - button "10" [ref=f12e151]
+            - button "11" [ref=f12e152]
+            - button "12" [ref=f12e153]
+            - button "13" [ref=f12e154]
+            - button "14" [ref=f12e155]
+            - button "15" [ref=f12e156]
+            - button "16" [ref=f12e157]
+            - button "17" [ref=f12e158]
+            - button "18" [ref=f12e159]
+            - button "19" [ref=f12e160]
+            - button "20" [ref=f12e161]
+            - button "21" [ref=f12e162]
+            - button "22" [ref=f12e163]
+            - button "23" [ref=f12e164]
+            - button "24" [ref=f12e165]
+            - button "25" [ref=f12e166]
+            - button "26" [ref=f12e167]
+            - button "27" [ref=f12e168]
+            - button "28" [ref=f12e169]
+            - button "29" [ref=f12e170]
+            - button "30" [ref=f12e171]
+            - button "31" [ref=f12e172]
+          - paragraph [ref=f12e194]: Loading…
+        - generic [ref=f12e176]:
+          - generic [ref=f12e177]:
+            - heading "Monday, 17 August" [level=2] [ref=f12e178]
+            - button "Close this day" [disabled] [ref=f12e179]
+          - paragraph [ref=f12e183]: No appointments this day.
+          - generic [ref=f12e184]:
+            - paragraph [ref=f12e185]: Hold back individual times
+            - generic [ref=f12e186]:
+              - button "09:00" [disabled] [ref=f12e187]
+              - button "10:00" [disabled] [ref=f12e188]
+              - button "11:00" [disabled] [ref=f12e189]
+              - button "12:00" [disabled] [ref=f12e190]
+              - button "13:00" [disabled] [ref=f12e191]
+              - button "14:00" [disabled] [ref=f12e192]
+              - button "15:00" [disabled] [ref=f12e193]
+  - alert [ref=f12e174]

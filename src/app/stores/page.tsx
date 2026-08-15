@@ -1,25 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { Store, Search, ArrowRight, ShieldCheck } from "lucide-react";
+import { Store, Search, ArrowRight, ShieldCheck, MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { SITE_NAME, SITE_URL, NAMIBIA_REGIONS, REGION_LABELS } from "@/lib/constants";
+import { SITE_NAME, SITE_URL, NAMIBIA_REGIONS, REGION_LABELS, townsForRegion } from "@/lib/constants";
 import { fetchStoreListData, CATEGORY_ORDER } from "@/lib/storefront/store-list";
 import { PublicNavbar } from "@/components/public-navbar";
 import { StoreListCard } from "@/components/storefront/store-list-card";
 import { InstallBar } from "@/components/pwa/install-bar";
 
 interface Props {
-  searchParams: Promise<{ q?: string; category?: string; region?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; region?: string; town?: string }>;
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { q, category, region } = await searchParams;
+  const { q, category, region, town } = await searchParams;
 
-  // A region-only filter (no search/category) is the same content as the
+  // A region-only filter (no search/category/town) is the same content as the
   // dedicated /stores/[region] landing page — canonicalize to it so Google
   // doesn't see them as duplicate content.
-  const isRegionOnly = region && region !== "all" && !q && (!category || category === "All");
+  const isRegionOnly = region && region !== "all" && !q && !town && (!category || category === "All");
   if (isRegionOnly && REGION_LABELS[region]) {
     return {
       title: `Shops & Stores in ${REGION_LABELS[region]}, Namibia`,
@@ -37,10 +37,25 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function StoresPage({ searchParams }: Props) {
-  const { q, category, region } = await searchParams;
+  const { q, category, region, town } = await searchParams;
   const supabase = await createClient();
 
-  const publicStoreList = await fetchStoreListData(supabase, { region, q, category });
+  const activeRegion = region && region !== "all" ? region : "";
+  const regionTowns = townsForRegion(activeRegion);
+  // A town left over from a previously-selected region matches no store at
+  // all, so it is dropped rather than applied — see the region links below,
+  // which likewise only carry a town into the region it belongs to.
+  const activeTown = regionTowns.some((t) => t.value === town) ? town : undefined;
+  const activeTownLabel = regionTowns.find((t) => t.value === activeTown)?.label;
+
+  const publicStoreList = await fetchStoreListData(supabase, { region, q, category, town: activeTown });
+
+  // Same filters minus the town — the escape hatch offered when a town is empty.
+  const regionWideParams = new URLSearchParams();
+  if (q) regionWideParams.set("q", q);
+  if (category && category !== "All") regionWideParams.set("category", category);
+  if (activeRegion) regionWideParams.set("region", activeRegion);
+  const regionWideHref = `/stores${regionWideParams.toString() ? `?${regionWideParams.toString()}` : ""}`;
 
   return (
     <div className="min-h-screen bg-sand">
@@ -90,6 +105,7 @@ export default async function StoresPage({ searchParams }: Props) {
             if (q) params.set("q", q);
             if (cat !== "All") params.set("category", cat);
             if (region && region !== "all") params.set("region", region);
+            if (activeTown) params.set("town", activeTown);
             const href = `/stores${params.toString() ? `?${params.toString()}` : ""}`;
             return (
               <Link
@@ -115,6 +131,9 @@ export default async function StoresPage({ searchParams }: Props) {
             if (q) params.set("q", q);
             if (category && category !== "All") params.set("category", category);
             if (r.value !== "all") params.set("region", r.value);
+            // Towns belong to exactly one region, so only the region already
+            // in effect keeps its town; switching regions clears it.
+            if (activeTown && r.value === activeRegion) params.set("town", activeTown);
             const href = `/stores${params.toString() ? `?${params.toString()}` : ""}`;
             return (
               <Link
@@ -132,6 +151,34 @@ export default async function StoresPage({ searchParams }: Props) {
           })}
         </div>
 
+        {/* Town filters — only the towns of the region being browsed */}
+        {regionTowns.length > 0 && (
+          <div className="flex flex-wrap gap-2 justify-center mb-8">
+            {[{ value: "all", label: "All towns" }, ...regionTowns].map((t) => {
+              const isActive = t.value === "all" ? !activeTown : activeTown === t.value;
+              const params = new URLSearchParams();
+              if (q) params.set("q", q);
+              if (category && category !== "All") params.set("category", category);
+              params.set("region", activeRegion);
+              if (t.value !== "all") params.set("town", t.value);
+              const href = `/stores?${params.toString()}`;
+              return (
+                <Link
+                  key={t.value}
+                  href={href}
+                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                    isActive
+                      ? "bg-acacia text-white border-acacia"
+                      : "bg-white text-walnut-2 border-border-warm hover:bg-sand-2"
+                  }`}
+                >
+                  {t.label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
         {/* Results */}
         {q && (
           <p className="text-sm text-walnut-2 mb-4">
@@ -146,19 +193,40 @@ export default async function StoresPage({ searchParams }: Props) {
               <Store size={32} className="text-walnut-2/70" />
             </div>
             <h2 className="text-lg font-semibold text-walnut mb-2">
-              {q ? "No stores found" : "No stores yet"}
+              {activeTown
+                ? `No stores in ${activeTownLabel} yet`
+                : q
+                  ? "No stores found"
+                  : "No stores yet"}
             </h2>
             <p className="text-walnut-2 mb-6 max-w-sm mx-auto">
-              {q
-                ? `No stores matching "${q}". Try a different search.`
-                : "Be the first to create a store on OshiCart!"}
+              {activeTown
+                ? `No store in ${activeTownLabel} matches these filters yet. Other towns in ${REGION_LABELS[activeRegion]} may have what you're looking for.`
+                : q
+                  ? `No stores matching "${q}". Try a different search.`
+                  : "Be the first to create a store on OshiCart!"}
             </p>
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-2 bg-terracotta text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity font-medium"
-            >
-              Create Your Store
-            </Link>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {activeTown && (
+                <Link
+                  href={regionWideHref}
+                  className="inline-flex items-center gap-2 bg-terracotta text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity font-medium"
+                >
+                  <MapPin size={16} />
+                  Browse all of {REGION_LABELS[activeRegion]}
+                </Link>
+              )}
+              <Link
+                href="/signup"
+                className={
+                  activeTown
+                    ? "inline-flex items-center gap-2 rounded-lg border border-border-warm bg-white px-6 py-2.5 font-medium text-walnut-2 transition-colors hover:bg-sand-2"
+                    : "inline-flex items-center gap-2 bg-terracotta text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity font-medium"
+                }
+              >
+                Create Your Store
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -61,6 +61,7 @@ export function ProductSection({
               accentHover={theme.accentHover}
               ctaText={theme.ctaText}
               itemType={(product as unknown as Record<string, unknown>).item_type as "product" | "service" | "rental" | undefined}
+              rentalUnit={(product as unknown as Record<string, unknown>).rental_unit as string | null | undefined}
               whatsappNumber={whatsappNumber}
               storeName={storeName}
               hasVariants={(product as unknown as Record<string, unknown>).has_variants as boolean | undefined}

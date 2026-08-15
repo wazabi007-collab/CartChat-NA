@@ -1,0 +1,138 @@
+- generic [ref=f6e1]:
+  - generic [ref=f6e2]:
+    - complementary [ref=f6e3]:
+      - generic [ref=f6e4]:
+        - generic [ref=f6e5]:
+          - link [ref=f6e6] [cursor=pointer]:
+            - /url: /dashboard
+            - img "OshiCart" [ref=f6e7]
+          - generic [ref=f6e15]:
+            - paragraph [ref=f6e16]: QA (delete me) Merchant Store 2026-08-15
+            - paragraph [ref=f6e17]: /s/qa-delete-me-merchant-store-2026-08-15
+        - navigation [ref=f6e18]:
+          - link "Dashboard" [ref=f6e19] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Services" [ref=f6e26] [cursor=pointer]:
+            - /url: /dashboard/products
+          - link "Share store" [ref=f6e32] [cursor=pointer]:
+            - /url: /dashboard/share
+          - link "Orders" [ref=f6e40] [cursor=pointer]:
+            - /url: /dashboard/orders
+          - link "Bookings" [ref=f6e46] [cursor=pointer]:
+            - /url: /dashboard/bookings
+          - link "Customers" [ref=f6e50] [cursor=pointer]:
+            - /url: /dashboard/customers
+          - link "Broadcast" [ref=f6e57] [cursor=pointer]:
+            - /url: /dashboard/broadcast
+          - link "Reviews" [ref=f6e62] [cursor=pointer]:
+            - /url: /dashboard/reviews
+          - link "Coupons" [ref=f6e66] [cursor=pointer]:
+            - /url: /dashboard/coupons
+          - link "Analytics" [ref=f6e70] [cursor=pointer]:
+            - /url: /dashboard/analytics
+          - link "Statements" [ref=f6e74] [cursor=pointer]:
+            - /url: /dashboard/statements
+          - link "Account" [ref=f6e79] [cursor=pointer]:
+            - /url: /dashboard/account
+          - link "Subscription" [ref=f6e84] [cursor=pointer]:
+            - /url: /dashboard/subscription
+          - link "Settings" [ref=f6e88] [cursor=pointer]:
+            - /url: /dashboard/settings
+          - link "View store" [ref=f6e93] [cursor=pointer]:
+            - /url: /s/qa-delete-me-merchant-store-2026-08-15
+          - link "Help" [ref=f6e99] [cursor=pointer]:
+            - /url: /help
+        - button "Sign out" [ref=f6e105]
+    - main [ref=f6e109]:
+      - generic [ref=f6e110]:
+        - generic [ref=f6e114]:
+          - link "Back to products" [ref=f6e115] [cursor=pointer]:
+            - /url: /dashboard/products
+          - heading "Add Product" [level=1] [ref=f6e118]
+          - paragraph [ref=f6e119]: 3/20 items used (Oshi-Start)
+        - generic [ref=f6e120]:
+          - generic [ref=f6e121]:
+            - generic [ref=f6e122]: What are you adding?
+            - generic [ref=f6e123]:
+              - generic [ref=f6e124] [cursor=pointer]:
+                - radio "Product Physical item for sale" [ref=f6e125]
+                - text: Product
+                - paragraph [ref=f6e126]: Physical item for sale
+              - generic [ref=f6e127] [cursor=pointer]:
+                - radio "Service Service you offer" [ref=f6e128]
+                - text: Service
+                - paragraph [ref=f6e129]: Service you offer
+              - generic [ref=f6e130] [cursor=pointer]:
+                - radio "For hire Rented out and returned" [checked] [active] [ref=f6e131]
+                - text: For hire
+                - paragraph [ref=f6e132]: Rented out and returned
+            - generic [ref=f6e190]:
+              - generic [ref=f6e191]:
+                - generic [ref=f6e192]: How many do you own?
+                - spinbutton "How many do you own? That many can be out at the same time." [ref=f6e193]: "1"
+                - generic [ref=f6e194]: That many can be out at the same time.
+              - generic [ref=f6e195]:
+                - generic [ref=f6e196]: Minimum days
+                - spinbutton "Minimum days" [ref=f6e197]: "1"
+              - generic [ref=f6e198]:
+                - generic [ref=f6e199]: Maximum days
+                - spinbutton "Maximum days" [ref=f6e200]: "30"
+              - generic [ref=f6e201]:
+                - generic [ref=f6e202]: Charged per
+                - combobox "Charged per Per night, the check-out day is free and a new guest can check in that same day." [ref=f6e203]:
+                  - option "Day (tools, tents, dresses)"
+                  - option "Night (rooms, accommodation)" [selected]
+                - generic [ref=f6e204]: Per night, the check-out day is free and a new guest can check in that same day.
+              - generic [ref=f6e205]:
+                - generic [ref=f6e206]: Refundable deposit (N$)
+                - spinbutton "Refundable deposit (N$) Per unit hired. Added to the amount due, given back on return. 0 = no deposit." [ref=f6e207]: "0"
+                - generic [ref=f6e208]: Per unit hired. Added to the amount due, given back on return. 0 = no deposit.
+              - generic [ref=f6e209]:
+                - generic [ref=f6e210]: Days between hires
+                - spinbutton "Days between hires Turnaround for cleaning or checks. 0 = back-to-back hires allowed." [ref=f6e211]: "0"
+                - generic [ref=f6e212]: Turnaround for cleaning or checks. 0 = back-to-back hires allowed.
+              - generic [ref=f6e213]:
+                - generic [ref=f6e214]: Late fee per day (N$)
+                - spinbutton "Late fee per day (N$) Suggested when a return is recorded late. 0 = no late fee." [ref=f6e215]: "0"
+                - generic [ref=f6e216]: Suggested when a return is recorded late. 0 = no late fee.
+              - generic [ref=f6e217]:
+                - generic [ref=f6e218]: Documents the customer must bring
+                - textbox "Documents the customer must bring Shown on the product, at checkout, and in the WhatsApp order. Leave empty if none." [ref=f6e219]:
+                  - /placeholder: e.g. Driver's licence and proof of address
+                - generic [ref=f6e220]: Shown on the product, at checkout, and in the WhatsApp order. Leave empty if none.
+          - generic [ref=f6e133]:
+            - generic [ref=f6e134]: Product name *
+            - textbox "Product name *" [ref=f6e135]:
+              - /placeholder: e.g. Grilled Chicken Wrap
+          - generic [ref=f6e136]:
+            - generic [ref=f6e137]: Price per day (NAD) *
+            - generic [ref=f6e138]:
+              - generic [ref=f6e139]: N$
+              - spinbutton "Price per day (NAD) *" [ref=f6e221]
+          - generic [ref=f6e141]:
+            - generic [ref=f6e142]: Description
+            - textbox "Description" [ref=f6e143]:
+              - /placeholder: Describe your product...
+          - generic [ref=f6e144]:
+            - generic [ref=f6e145]: Category
+            - combobox "Category" [ref=f6e146]:
+              - option "No category" [selected]
+          - generic [ref=f6e165]:
+            - checkbox "Available for purchase" [checked] [ref=f6e166]
+            - generic [ref=f6e167]: Available for purchase
+          - generic [ref=f6e169]:
+            - generic [ref=f6e170]:
+              - paragraph [ref=f6e171]: Track Inventory
+              - paragraph [ref=f6e172]: Enable stock quantity tracking for this product
+            - checkbox [ref=f6e174]
+          - generic [ref=f6e177]:
+            - generic [ref=f6e178]: Images (up to 3)
+            - generic [ref=f6e180]:
+              - generic [ref=f6e181] [cursor=pointer]: Choose Photo
+              - generic [ref=f6e185] [cursor=pointer]: 📷 Take Photo
+            - paragraph [ref=f6e186]: Images will be compressed automatically.
+          - generic [ref=f6e187]:
+            - button "Add Product" [ref=f6e188]
+            - link "Cancel" [ref=f6e189] [cursor=pointer]:
+              - /url: /dashboard/products
+  - alert [ref=f6e113]

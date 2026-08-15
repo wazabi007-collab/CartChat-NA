@@ -21,10 +21,12 @@ import { track } from "@/lib/track";
 import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS, getEwalletProviderLabel, isCourierAvailable } from "@/lib/constants";
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
-import { rentalDays, rentalLineTotal, formatRentalRange } from "@/lib/rentals";
+import { rentalDays, rentalLineTotal, formatRentalRange, validateRentalRange } from "@/lib/rentals";
+import { namibianDateString } from "@/lib/date";
 import {
   summariseFulfilment,
   fulfilmentSummary,
+  fulfilmentNoun,
   cashMethodLabel,
   cashInstruction,
 } from "@/lib/service-mode";
@@ -236,7 +238,11 @@ export function CheckoutForm({
   // merchant sells: a salon cart can hold an online consult, an in-salon
   // appointment and an on-site visit, and those ask for different things.
   const fulfilment = summariseFulfilment(
-    cartItems.map((item) => ({ serviceMode: item.serviceMode }))
+    cartItems.map((item) => ({
+      serviceMode: item.serviceMode,
+      itemType: item.itemType,
+      rentalUnit: item.rentalUnit,
+    }))
   );
   // Fall back to the merchant's archetype for carts whose items were added
   // before service_mode existed.
@@ -244,7 +250,10 @@ export function CheckoutForm({
   const serviceNeedsAddress = fulfilment.serviceNeedsAddress;
   // A service-only basket has nothing to physically deliver, so the
   // pickup/delivery choice (and the couriers behind it) disappears entirely.
-  const goodsFulfilmentNeeded = fulfilment.hasGoods || !fulfilment.hasServices;
+  // An empty cart still defaults to the goods questions; a basket that is
+  // purely a stay or purely a service must not show them at all.
+  const goodsFulfilmentNeeded =
+    fulfilment.hasGoods || (!fulfilment.hasServices && !fulfilment.hasStay);
 
   // --- Rentals: one date range for every hired line in the cart -----------
   // Modelled per line in the database, asked once here: a marquee and chairs
@@ -280,9 +289,30 @@ export function CheckoutForm({
     ),
   ].join("; ");
 
+  // Say what is wrong with the dates BEFORE asking whether stock is free.
+  // Without this a range starting in the past still reported "Available for
+  // those dates" and left Place Order enabled, so the first refusal the
+  // customer saw came from the server.
+  const rentalIssue = (() => {
+    if (!hasRentals || !rentalFirst || !rentalLast) return null;
+    const today = namibianDateString();
+    for (const line of rentalLines) {
+      const problem = validateRentalRange(
+        rentalFirst,
+        rentalLast,
+        line.rentalMinDays ?? 1,
+        line.rentalMaxDays ?? 30,
+        today,
+        line.rentalUnit === "night" ? "night" : "day"
+      );
+      if (problem) return problem;
+    }
+    return null;
+  })();
+
   // Courtesy availability check; place_order re-checks under a lock.
   useEffect(() => {
-    if (!hasRentals || hireDays <= 0) {
+    if (!hasRentals || hireDays <= 0 || rentalIssue) {
       setRentalRemaining(null);
       return;
     }
@@ -304,12 +334,13 @@ export function CheckoutForm({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasRentals, rentalFirst, rentalLast]);
+  }, [hasRentals, rentalFirst, rentalLast, rentalIssue]);
 
   const rentalShortage = hasRentals && rentalRemaining
     ? rentalLines.find((l) => (rentalRemaining[l.productId] ?? 0) < l.quantity)
     : undefined;
-  const rentalReady = !hasRentals || (hireDays > 0 && !rentalShortage && !rentalChecking);
+  const rentalReady =
+    !hasRentals || (hireDays > 0 && !rentalIssue && !rentalShortage && !rentalChecking);
 
   // True only when the merchant publishes days AND times. Most digital
   // sellers publish neither — their work is a project, not an appointment —
@@ -814,7 +845,22 @@ export function CheckoutForm({
   // Success state
   if (step === "success") {
     const itemLines = cartItems
-      .map((item) => `- ${formatCartItemName(item)} x${item.quantity} - ${formatPrice(item.price * item.quantity)}`)
+      .map((item) => {
+        const base = `- ${formatCartItemName(item)} x${item.quantity} - ${formatPrice(
+          item.itemType === "rental"
+            ? rentalLineTotal(item.price, Math.max(lineDays(item), 1), item.quantity)
+            : item.price * item.quantity
+        )}`;
+        // Without the dates the merchant cannot tell what is out or when it
+        // is due back — the one fact a hire record exists to carry.
+        return item.itemType === "rental" && rentalFirst && rentalLast
+          ? `${base}\n  ${formatRentalRange(
+              rentalFirst,
+              rentalLast,
+              item.rentalUnit === "night" ? "night" : "day"
+            )}`
+          : base;
+      })
       .join("\n");
     const invoiceUrl = orderId
       ? `${window.location.origin}/invoice/${orderId}`
@@ -836,13 +882,17 @@ export function CheckoutForm({
       ...(rentalDocuments ? [`*Bring:* ${rentalDocuments}`] : []),
       `*Total:* ${formatPrice(total)}`,
       ...(paymentRef ? [`*Payment Ref:* ${paymentRef}`] : []),
-      `*Payment:* ${getPaymentLabel(paymentMethod)}`,
-      `*Delivery:* ${
-        deliveryMethod === "delivery"
+      `*Payment:* ${
+        paymentMethod === "cod"
+          ? cashMethodLabel(fulfilment, deliveryMethod)
+          : getPaymentLabel(paymentMethod)
+      }`,
+      `*${goodsFulfilmentNeeded ? "Delivery" : "Fulfilment"}:* ${
+        deliveryMethod === "delivery" && goodsFulfilmentNeeded
           ? buyerPaidCourier
             ? `${deliveryProviderLabel} courier arranged and paid by buyer to: ${deliveryAddress}`
             : `Store delivery to: ${deliveryAddress}`
-          : "Pickup"
+          : fulfilmentNoun(fulfilment, deliveryMethod)
       }`,
       ...(buyerPaidCourier && pickupAddress?.trim() ? [`*Pickup address (for your courier):* ${pickupAddress}`] : []),
       ...(deliveryDate ? [`*Scheduled:* ${deliveryDate}${deliveryTime ? ` — ${deliveryTime}` : ""}`] : []),
@@ -1095,13 +1145,18 @@ export function CheckoutForm({
 
       {/* Delivery method — or, for a service-only basket, the booking. */}
       <div className={`${card} space-y-4`}>
-        <h2 className={sectionHeading}>
-          {goodsFulfilmentNeeded
-            ? "Delivery Method"
-            : fulfilment.primaryMode === "online"
-            ? "Your Booking"
-            : "Your Appointment"}
-        </h2>
+        {/* A pure stay has no delivery choice to title, and the date panel
+            below already heads itself "Your stay" — two headings said the
+            same thing. */}
+        {!(fulfilment.hasStay && !fulfilment.hasServices && !goodsFulfilmentNeeded) && (
+          <h2 className={sectionHeading}>
+            {goodsFulfilmentNeeded
+              ? "Delivery Method"
+              : fulfilment.primaryMode === "online"
+              ? "Your Booking"
+              : "Your Appointment"}
+          </h2>
+        )}
 
         {goodsFulfilmentNeeded && (
         <div className="flex gap-3">
@@ -1200,17 +1255,20 @@ export function CheckoutForm({
                     </span>
                   </p>
                 ))}
-                {rentalChecking && (
+                {rentalIssue && (
+                  <p className="text-xs font-bold text-red-600">{rentalIssue}</p>
+                )}
+                {!rentalIssue && rentalChecking && (
                   <p className="text-xs text-slate-400">Checking availability…</p>
                 )}
-                {!rentalChecking && rentalShortage && (
+                {!rentalIssue && !rentalChecking && rentalShortage && (
                   <p className="text-xs font-bold text-red-600">
                     Only {rentalRemaining?.[rentalShortage.productId] ?? 0} of “
                     {rentalShortage.name}” available for those dates — try different
                     dates or reduce the quantity.
                   </p>
                 )}
-                {!rentalChecking && !rentalShortage && rentalRemaining && (
+                {!rentalIssue && !rentalChecking && !rentalShortage && rentalRemaining && (
                   <p className="text-xs font-bold text-acacia">Available for those dates ✓</p>
                 )}
                 {rentalDeposit > 0 && (
@@ -1235,11 +1293,18 @@ export function CheckoutForm({
           </div>
         )}
 
+        {/* A guest needs the property address most of all — it was being
+            hidden because a stay is neither goods nor an at_store service. */}
         {deliveryMethod === "pickup" &&
           pickupAddress?.trim() &&
-          (goodsFulfilmentNeeded || fulfilment.primaryMode === "at_store") && (
+          (goodsFulfilmentNeeded ||
+            fulfilment.primaryMode === "at_store" ||
+            fulfilment.hasStay) && (
           <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
-            <span className="font-semibold">Collect from:</span> {pickupAddress}
+            <span className="font-semibold">
+              {fulfilment.hasStay && !fulfilment.hasGoods ? "Address:" : "Collect from:"}
+            </span>{" "}
+            {pickupAddress}
           </div>
         )}
 
@@ -1542,10 +1607,10 @@ export function CheckoutForm({
         {paymentMethod === "cod" && (
           <div className={alertWarning}>
             <div>
-              <p className="font-medium">Cash on Delivery</p>
+              <p className="font-medium">{cashMethodLabel(fulfilment, deliveryMethod)}</p>
               <p className="mt-1">
-                Pay <span className="font-bold">{formatPrice(total)}</span> in cash when your order is{" "}
-                {deliveryMethod === "delivery" ? "delivered" : "picked up"}.
+                Pay <span className="font-bold">{formatPrice(total)}</span> in cash.{" "}
+                {cashInstruction(fulfilment, deliveryMethod)}
               </p>
               {buyerPaidCourier && (
                 <p className="mt-1 text-xs">

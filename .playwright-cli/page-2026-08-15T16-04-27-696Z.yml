@@ -1,0 +1,112 @@
+- generic [active] [ref=f42e1]:
+  - generic [ref=f42e2]:
+    - link [ref=f42e4] [cursor=pointer]:
+      - /url: /dashboard
+      - img "OshiCart" [ref=f42e5]
+    - main [ref=f42e6]:
+      - generic [ref=f42e7]:
+        - generic [ref=f42e8]:
+          - heading "Set up your store" [level=1] [ref=f42e14]
+          - paragraph [ref=f42e15]: Takes under 2 minutes
+        - generic [ref=f42e16]:
+          - paragraph [ref=f42e17]: Did an OshiCart agent refer you? Enter their code for 5 extra trial days.
+          - generic [ref=f42e18]:
+            - textbox "Agent code (e.g. rehabeam)" [ref=f42e19]
+            - button "Apply" [disabled] [ref=f42e20]
+        - generic [ref=f42e21]:
+          - generic [ref=f42e23]:
+            - generic [ref=f42e24]: "1"
+            - generic [ref=f42e25]: Store Info
+          - generic [ref=f42e28]:
+            - generic [ref=f42e29]: "2"
+            - generic [ref=f42e30]: Delivery
+          - generic [ref=f42e33]:
+            - generic [ref=f42e34]: "3"
+            - generic [ref=f42e35]: Payments
+        - generic [ref=f42e37]:
+          - heading "Store Details" [level=2] [ref=f42e38]
+          - generic [ref=f42e39]:
+            - generic [ref=f42e40]: Store Name*
+            - textbox "e.g. Mama's Kitchen" [ref=f42e41]
+          - generic [ref=f42e42]:
+            - generic [ref=f42e43]: Description
+            - textbox "What products or services do you offer?" [ref=f42e44]
+          - generic [ref=f42e45]:
+            - generic [ref=f42e46]: WhatsApp Number*
+            - textbox "WhatsApp Number*" [ref=f42e48]:
+              - /placeholder: 081 234 5678
+            - paragraph [ref=f42e49]: Customers will contact you on this number
+          - generic [ref=f42e50]:
+            - generic [ref=f42e51]: Industry*
+            - combobox [ref=f42e52]:
+              - option "What products or services do you offer?" [selected]
+              - option "Restaurant & Dining"
+              - option "Takeaway & Fast Food"
+              - option "Kapana & Street Food"
+              - option "Coffee Shop & Cafe"
+              - option "Bakery & Confectionery"
+              - option "Catering & Events"
+              - option "Grocery & Supermarket"
+              - option "Butchery & Meat"
+              - option "Liquor & Beverages"
+              - option "Agriculture & Farming"
+              - option "Gas & Water"
+              - option "Fashion & Clothing"
+              - option "Second-hand & Thrift"
+              - option "Salon & Beauty"
+              - option "Cosmetics & Skincare"
+              - option "Pharmacy & Health"
+              - option "Electronics & Phones"
+              - option "Airtime, Data & Tokens"
+              - option "Hardware & Building"
+              - option "Furniture & Home"
+              - option "Auto Parts & Accessories"
+              - option "Stationery & Office"
+              - option "Sports & Outdoor"
+              - option "Toys & Kids"
+              - option "Arts, Crafts & Curios"
+              - option "Pet Supplies"
+              - option "Florist & Gifts"
+              - option "General Dealer & Wholesale"
+              - option "Cleaning & Laundry"
+              - option "Printing & Signage"
+              - option "Repairs (Phone, Auto, Appliance)"
+              - option "Other Services"
+              - option "Other"
+            - paragraph [ref=f42e53]: Helps us personalise your store experience
+          - generic [ref=f42e54]:
+            - generic [ref=f42e55]: Region*
+            - combobox [ref=f42e56]:
+              - option "Where do you sell from?" [selected]
+              - option "Khomas"
+              - option "Erongo"
+              - option "Oshana"
+              - option "Oshikoto"
+              - option "Otjozondjupa"
+              - option "Omusati"
+              - option "Ohangwena"
+              - option "Kavango East"
+              - option "Kavango West"
+              - option "Hardap"
+              - option "ǁKaras"
+              - option "Kunene"
+              - option "Omaheke"
+              - option "Zambezi"
+          - generic [ref=f42e57]:
+            - generic [ref=f42e58]: Town*
+            - combobox [disabled] [ref=f42e59]:
+              - option "Choose a region first" [selected]
+            - paragraph [ref=f42e60]: Customers will see this on your store
+          - 'button "Next: Delivery Options" [ref=f42e61]'
+    - navigation [ref=f42e64]:
+      - generic [ref=f42e65]:
+        - link "Dashboard" [ref=f42e66] [cursor=pointer]:
+          - /url: /dashboard
+        - link "Services" [ref=f42e74] [cursor=pointer]:
+          - /url: /dashboard/products
+        - link "Orders" [ref=f42e81] [cursor=pointer]:
+          - /url: /dashboard/orders
+        - link "Analytics" [ref=f42e88] [cursor=pointer]:
+          - /url: /dashboard/analytics
+        - button "More" [ref=f42e93]
+  - alert [ref=f42e99]

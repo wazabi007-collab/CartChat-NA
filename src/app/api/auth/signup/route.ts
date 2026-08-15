@@ -24,25 +24,11 @@ export async function POST(req: NextRequest) {
     const normalizedPhone = normalizeNamibianPhone(whatsapp);
     const supabase = createServiceClient();
 
-    // Check if email already exists
-    const { data: { users: existing } } = await supabase.auth.admin.listUsers({
-      perPage: 1,
-    });
-    // More reliable: search by email
-    const { data: { users: allUsers } } = await supabase.auth.admin.listUsers({
-      perPage: 1000,
-    });
-    const emailExists = allUsers.some(
-      (u) => u.email?.toLowerCase() === email.toLowerCase()
-    );
-    if (emailExists) {
-      return NextResponse.json(
-        { ok: false, error: "An account with this email already exists. Please sign in." },
-        { status: 409 }
-      );
-    }
-
-    // Create user with confirmed email (skip email verification)
+    // Duplicate detection is left to Postgres' unique constraint on the email.
+    // This used to download the whole user table on every signup (two calls,
+    // the first one's result never even read) and compare in JS: a page of
+    // 1000, so past that the check silently stops finding duplicates and lets
+    // a second account through — and every signup pays for the full fetch.
     const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -53,6 +39,15 @@ export async function POST(req: NextRequest) {
     });
 
     if (createError) {
+      const alreadyRegistered =
+        createError.status === 422 ||
+        /already (been )?registered|already exists|duplicate/i.test(createError.message);
+      if (alreadyRegistered) {
+        return NextResponse.json(
+          { ok: false, error: "An account with this email already exists. Please sign in." },
+          { status: 409 }
+        );
+      }
       console.error("[Signup] Create user error:", createError);
       return NextResponse.json(
         { ok: false, error: createError.message || "Failed to create account" },

@@ -41,13 +41,23 @@ export function serviceModeLabel(mode: ServiceMode): string {
 /** Only the shape checkout needs; the cart carries more than this. */
 export interface FulfilmentItem {
   serviceMode?: ServiceMode | null;
+  itemType?: string | null;
+  rentalUnit?: string | null;
 }
 
 export interface CartFulfilment {
-  /** At least one ordinary product is in the cart. */
+  /**
+   * At least one thing physically moves — a product, or a day-unit hire like
+   * a tent, which really is collected and brought back.
+   */
   hasGoods: boolean;
   /** At least one service is in the cart. */
   hasServices: boolean;
+  /**
+   * A night-unit rental: a room. The guest travels to the property, so there
+   * is nothing to deliver or collect and the goods questions must not appear.
+   */
+  hasStay: boolean;
   /** Distinct service modes present, strongest first. */
   modes: ServiceMode[];
   /**
@@ -70,10 +80,13 @@ const MODE_PRECEDENCE: ServiceMode[] = ["at_client", "at_store", "online"];
 export function summariseFulfilment(items: FulfilmentItem[]): CartFulfilment {
   const present = new Set<ServiceMode>();
   let hasGoods = false;
+  let hasStay = false;
 
   for (const item of items) {
     if (isServiceMode(item.serviceMode)) {
       present.add(item.serviceMode);
+    } else if (item.itemType === "rental" && item.rentalUnit === "night") {
+      hasStay = true;
     } else {
       hasGoods = true;
     }
@@ -85,6 +98,7 @@ export function summariseFulfilment(items: FulfilmentItem[]): CartFulfilment {
   return {
     hasGoods,
     hasServices,
+    hasStay,
     modes,
     primaryMode: modes[0] ?? null,
     serviceNeedsAddress: present.has("at_client"),
@@ -140,7 +154,11 @@ export function cashMethodLabel(
   deliveryMethod: string
 ): string {
   // Goods in the basket keep the goods wording — they really do move.
-  if (fulfilment.hasGoods || !fulfilment.hasServices) {
+  if (fulfilment.hasGoods) {
+    return deliveryMethod === "delivery" ? "Cash on Delivery" : "Cash on Collection";
+  }
+  if (fulfilment.hasStay && !fulfilment.hasServices) return "Cash at check-in";
+  if (!fulfilment.hasServices) {
     return deliveryMethod === "delivery" ? "Cash on Delivery" : "Cash on Collection";
   }
 
@@ -161,6 +179,9 @@ export function cashInstruction(
   fulfilment: CartFulfilment,
   deliveryMethod: string
 ): string {
+  if (fulfilment.hasStay && !fulfilment.hasGoods && !fulfilment.hasServices) {
+    return "Please have cash ready when you check in.";
+  }
   if (fulfilment.hasGoods || !fulfilment.hasServices) {
     return deliveryMethod === "delivery"
       ? "Please have cash ready for the order amount. Any buyer-arranged courier fee is paid separately."
@@ -176,5 +197,32 @@ export function cashInstruction(
       return "The merchant will arrange payment with you on WhatsApp.";
     default:
       return "The merchant will arrange payment with you on WhatsApp.";
+  }
+}
+
+/**
+ * What the fulfilment row on a record should say — the one line that told an
+ * online-design customer their work was "Collection" and a guest that their
+ * room was "Pickup". Records outlive the checkout screen, so they need the
+ * same vocabulary, derived from what was actually ordered.
+ */
+export function fulfilmentNoun(
+  fulfilment: CartFulfilment,
+  deliveryMethod: string
+): string {
+  if (fulfilment.hasGoods) {
+    return deliveryMethod === "delivery" ? "Delivery" : "Collection";
+  }
+  if (fulfilment.hasStay && !fulfilment.hasServices) return "Stay at the property";
+
+  switch (fulfilment.primaryMode) {
+    case "at_client":
+      return "The merchant comes to you";
+    case "at_store":
+      return "At the merchant";
+    case "online":
+      return "Online — nothing to collect";
+    default:
+      return deliveryMethod === "delivery" ? "Delivery" : "Collection";
   }
 }

@@ -1,0 +1,47 @@
+- generic [ref=f6e1]:
+  - generic [ref=f6e2]:
+    - navigation [ref=f6e3]:
+      - generic [ref=f6e4]:
+        - link "OshiCart" [ref=f6e5] [cursor=pointer]:
+          - /url: /
+        - link "Browse Stores" [ref=f6e8] [cursor=pointer]:
+          - /url: /stores
+    - link "Back to OshiCart Demo Store" [ref=f6e11] [cursor=pointer]:
+      - /url: /s/oshicart-demo
+    - main [ref=f6e14]:
+      - generic [ref=f6e15]:
+        - generic [ref=f6e16]: D
+        - generic [ref=f6e18]:
+          - heading "Demo Guest Room (per night)" [level=1] [ref=f6e19]
+          - paragraph [ref=f6e20]: N$300.00
+          - paragraph [ref=f6e22]: "A practice NIGHTLY rental. Pick check-in and check-out: 15th to 18th is 3 nights, and the room is free again the day you leave."
+          - generic [ref=f6e25]:
+            - button "Added!" [active] [ref=f6e48]
+            - generic [ref=f6e31]: N$300.00 / night
+  - button "Open cart" [ref=f6e33]:
+    - generic [ref=f6e51]: "1"
+  - generic [ref=f6e38]:
+    - generic [ref=f6e39]:
+      - heading "Cart (1)" [level=2] [ref=f6e53]
+      - button "Close cart" [ref=f6e41]
+    - list [ref=f6e54]:
+      - listitem [ref=f6e55]:
+        - generic [ref=f6e62]:
+          - paragraph [ref=f6e63]: Demo Guest Room (per night)
+          - paragraph [ref=f6e64]: N$300.00
+          - generic [ref=f6e65]:
+            - button "Decrease quantity" [ref=f6e66]
+            - generic [ref=f6e68]: "1"
+            - button "Increase quantity" [ref=f6e69]
+            - button "Remove item" [ref=f6e71]
+        - paragraph [ref=f6e75]: N$300.00
+    - generic [ref=f6e76]:
+      - generic [ref=f6e77]:
+        - generic [ref=f6e78]:
+          - generic [ref=f6e79]: Subtotal
+          - generic [ref=f6e80]: N$300.00
+        - generic [ref=f6e81]:
+          - generic [ref=f6e82]: Subtotal
+          - generic [ref=f6e83]: N$300.00
+      - button "Checkout" [ref=f6e84]
+  - alert [ref=f6e47]

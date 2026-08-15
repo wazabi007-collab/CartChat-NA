@@ -1,0 +1,70 @@
+- generic [active] [ref=f6e1]:
+  - alert [ref=f6e47]: Checkout | OshiCart Demo Store | OshiCart
+  - generic [ref=f6e90]:
+    - banner [ref=f6e91]:
+      - heading "Checkout — OshiCart Demo Store" [level=1] [ref=f6e93]
+    - main [ref=f6e94]:
+      - generic [ref=f6e95]:
+        - link "Back to store" [ref=f6e96] [cursor=pointer]:
+          - /url: /s/oshicart-demo
+        - generic [ref=f6e99]:
+          - heading "Order Summary" [level=2] [ref=f6e100]
+          - list [ref=f6e101]:
+            - listitem [ref=f6e102]:
+              - paragraph [ref=f6e104]: Demo Guest Room (per night) x 1
+              - generic [ref=f6e105]: N$300.00
+          - generic [ref=f6e106]:
+            - generic [ref=f6e107]:
+              - generic [ref=f6e108]: Subtotal
+              - generic [ref=f6e109]: N$300.00
+            - generic [ref=f6e110]:
+              - generic [ref=f6e111]: Total
+              - generic [ref=f6e112]: N$300.00
+        - generic [ref=f6e113]:
+          - heading "Discount Code" [level=2] [ref=f6e114]
+          - generic [ref=f6e118]:
+            - textbox "Enter code" [ref=f6e119]
+            - button "Apply" [disabled] [ref=f6e120]
+        - generic [ref=f6e121]:
+          - heading "Your Details" [level=2] [ref=f6e122]
+          - generic [ref=f6e123]:
+            - generic [ref=f6e124]: Full Name*
+            - textbox "Your full name" [ref=f6e125]
+          - generic [ref=f6e126]:
+            - generic [ref=f6e127]: WhatsApp Number*
+            - textbox "WhatsApp Number*" [ref=f6e129]:
+              - /placeholder: 081 234 5678
+            - paragraph [ref=f6e130]: The merchant will contact you on this number
+        - generic [ref=f6e131]:
+          - heading "Delivery Method" [level=2] [ref=f6e132]
+          - generic [ref=f6e133]:
+            - generic [ref=f6e134] [cursor=pointer]:
+              - radio "Pickup" [checked] [ref=f6e135]
+              - text: Pickup
+            - generic [ref=f6e136] [cursor=pointer]:
+              - radio "Delivery" [ref=f6e137]
+              - text: Delivery
+          - generic [ref=f6e138]:
+            - heading "Your stay" [level=2] [ref=f6e139]
+            - paragraph [ref=f6e140]: Check-in and check-out. You pay per night; the check-out day is not charged.
+            - generic [ref=f6e141]:
+              - generic [ref=f6e142]:
+                - generic [ref=f6e143]: Check-in
+                - textbox "Check-in" [ref=f6e144]
+              - generic [ref=f6e145]:
+                - generic [ref=f6e146]: Check-out
+                - textbox "Check-out" [ref=f6e147]
+          - generic [ref=f6e148]: "Collect from: 123 Independence Avenue, Windhoek (demo address)"
+          - generic [ref=f6e149]:
+            - generic [ref=f6e150]: Notes (optional)
+            - textbox "Any special instructions..." [ref=f6e151]
+        - generic [ref=f6e152]:
+          - heading "Payment Method" [level=2] [ref=f6e153]
+          - generic [ref=f6e155] [cursor=pointer]:
+            - radio "Cash on Collection" [checked] [ref=f6e156]
+            - generic [ref=f6e161]: Cash on Collection
+          - generic [ref=f6e163]:
+            - paragraph [ref=f6e164]: Cash on Delivery
+            - paragraph [ref=f6e165]: Pay N$300.00 in cash when your order is picked up.
+        - button "Place Order" [disabled] [ref=f6e167]
+    - contentinfo [ref=f6e168]

@@ -1,0 +1,137 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - navigation [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - link "OshiCart" [ref=f1e5] [cursor=pointer]:
+          - /url: /
+        - link "Browse Stores" [ref=f1e8] [cursor=pointer]:
+          - /url: /stores
+    - banner [ref=f1e9]:
+      - generic [ref=f1e12]:
+        - generic [ref=f1e13]:
+          - generic [ref=f1e14]:
+            - generic [ref=f1e15]: O
+            - img "General & Other" [ref=f1e17]
+          - generic [ref=f1e22]:
+            - heading "OshiCart Demo Store" [level=1] [ref=f1e23]
+            - paragraph [ref=f1e24]: A practice store for OshiCart referral agents. Browse, add to cart, book the demo appointment — nothing here is a real business, so click everything.
+        - generic [ref=f1e25]:
+          - generic [ref=f1e26]: General & Other
+          - generic [ref=f1e32]: Windhoek, Khomas
+        - generic [ref=f1e36]:
+          - link "Message on WhatsApp" [ref=f1e37] [cursor=pointer]:
+            - /url: https://wa.me/264812384424
+          - button "Share store" [ref=f1e41]
+          - button "Show QR code" [ref=f1e48]: QR
+    - generic [ref=f1e56]:
+      - generic [ref=f1e57]: PAY WITH
+      - generic [ref=f1e61]: Cash on Delivery
+    - generic [ref=f1e67]:
+      - link "Products" [ref=f1e68] [cursor=pointer]:
+        - /url: /s/oshicart-demo
+      - link "Track Order" [ref=f1e73] [cursor=pointer]:
+        - /url: /s/oshicart-demo?tab=orders
+    - main [ref=f1e77]:
+      - generic [ref=f1e78]:
+        - textbox "Search name or SKU..." [ref=f1e84]
+        - combobox [ref=f1e85] [cursor=pointer]:
+          - option "Sort" [selected]
+          - option "Name A-Z"
+          - option "Name Z-A"
+          - 'option "Price: Low"'
+          - 'option "Price: High"'
+      - generic [ref=f1e87]:
+        - heading "Products" [level=2] [ref=f1e88]
+        - generic [ref=f1e89]:
+          - generic [ref=f1e90]:
+            - link [ref=f1e91] [cursor=pointer]:
+              - /url: /s/oshicart-demo/2923bc20-0620-4254-8b72-d45ed8648f7c
+            - generic [ref=f1e96]:
+              - link [ref=f1e97] [cursor=pointer]:
+                - /url: /s/oshicart-demo/2923bc20-0620-4254-8b72-d45ed8648f7c
+                - heading "Demo T-Shirt" [level=3] [ref=f1e98]
+              - paragraph [ref=f1e99]: N$180.00
+              - paragraph [ref=f1e100]: 10 in stock
+              - button "Add to Cart" [ref=f1e102]
+          - generic [ref=f1e103]:
+            - link [ref=f1e104] [cursor=pointer]:
+              - /url: /s/oshicart-demo/50807fb7-5a65-429b-ba13-6c9ec89d8410
+            - generic [ref=f1e109]:
+              - link [ref=f1e110] [cursor=pointer]:
+                - /url: /s/oshicart-demo/50807fb7-5a65-429b-ba13-6c9ec89d8410
+                - heading "Demo Phone Charger" [level=3] [ref=f1e111]
+              - paragraph [ref=f1e112]: N$95.00
+              - button "Add to Cart" [ref=f1e114]
+          - generic [ref=f1e115]:
+            - link "Only 5 left!" [ref=f1e116] [cursor=pointer]:
+              - /url: /s/oshicart-demo/855f30db-ca4c-46c2-aaff-8eacd808fe41
+            - generic [ref=f1e122]:
+              - link [ref=f1e123] [cursor=pointer]:
+                - /url: /s/oshicart-demo/855f30db-ca4c-46c2-aaff-8eacd808fe41
+                - heading "Demo Gift Hamper" [level=3] [ref=f1e124]
+              - paragraph [ref=f1e125]: N$450.00
+              - paragraph [ref=f1e126]: 5 in stock
+              - button "Add to Cart" [ref=f1e128]
+          - generic [ref=f1e129]:
+            - link "Service" [ref=f1e130] [cursor=pointer]:
+              - /url: /s/oshicart-demo/5cc2f5b1-c1a7-489f-9173-e17442d93ddc
+            - generic [ref=f1e136]:
+              - link [ref=f1e137] [cursor=pointer]:
+                - /url: /s/oshicart-demo/5cc2f5b1-c1a7-489f-9173-e17442d93ddc
+                - heading "Demo Haircut Appointment" [level=3] [ref=f1e138]
+              - paragraph [ref=f1e139]: From N$120.00
+              - button "Add to Cart" [ref=f1e141]
+          - generic [ref=f1e142]:
+            - link [ref=f1e143] [cursor=pointer]:
+              - /url: /s/oshicart-demo/c723bbfc-db94-4be5-ad85-fdb22aa4edbe
+            - generic [ref=f1e148]:
+              - link [ref=f1e149] [cursor=pointer]:
+                - /url: /s/oshicart-demo/c723bbfc-db94-4be5-ad85-fdb22aa4edbe
+                - heading "Demo Fresh Bread" [level=3] [ref=f1e150]
+              - paragraph [ref=f1e151]: N$25.00
+              - paragraph [ref=f1e152]: 25 in stock
+              - button "Add to Cart" [ref=f1e154]
+          - generic [ref=f1e155]:
+            - link "Service" [ref=f1e156] [cursor=pointer]:
+              - /url: /s/oshicart-demo/aced3399-3891-4028-88a5-fb155735abc4
+            - generic [ref=f1e162]:
+              - link [ref=f1e163] [cursor=pointer]:
+                - /url: /s/oshicart-demo/aced3399-3891-4028-88a5-fb155735abc4
+                - heading "Demo Logo Design (online)" [level=3] [ref=f1e164]
+              - paragraph [ref=f1e165]: From N$850.00
+              - button "Add to Cart" [ref=f1e167]
+          - generic [ref=f1e168]:
+            - link "For hire" [ref=f1e169] [cursor=pointer]:
+              - /url: /s/oshicart-demo/6a755651-936d-4193-a968-0a108d639a6c
+            - generic [ref=f1e175]:
+              - link [ref=f1e176] [cursor=pointer]:
+                - /url: /s/oshicart-demo/6a755651-936d-4193-a968-0a108d639a6c
+                - heading "Demo Camping Tent (per day)" [level=3] [ref=f1e177]
+              - paragraph [ref=f1e178]: N$150.00 / day
+              - button "Add to Cart" [ref=f1e180]
+          - generic [ref=f1e181]:
+            - link "For hire" [ref=f1e182] [cursor=pointer]:
+              - /url: /s/oshicart-demo/b20e86ea-098e-43dd-b7a6-70a0c9e9a5d9
+            - generic [ref=f1e188]:
+              - link [ref=f1e189] [cursor=pointer]:
+                - /url: /s/oshicart-demo/b20e86ea-098e-43dd-b7a6-70a0c9e9a5d9
+                - heading "Demo Guest Room (per night)" [level=3] [ref=f1e190]
+              - paragraph [ref=f1e191]: N$300.00 / day
+              - button "Add to Cart" [ref=f1e193]
+      - generic [ref=f1e195]:
+        - heading "Reviews" [level=2] [ref=f1e196]
+        - generic [ref=f1e197]:
+          - paragraph [ref=f1e200]: No reviews yet
+          - paragraph [ref=f1e201]: OshiCart Demo Store hasn't been reviewed yet. Reviews can only be left by customers who have completed an order.
+    - contentinfo [ref=f1e202]:
+      - generic [ref=f1e204]:
+        - link "Store owner? Sign in" [ref=f1e205] [cursor=pointer]:
+          - /url: /login
+        - button "Report Store" [ref=f1e206]
+  - button "Open cart" [ref=f1e209]
+  - generic [ref=f1e214]:
+    - generic [ref=f1e215]:
+      - heading "Cart (0)" [level=2] [ref=f1e216]
+      - button "Close cart" [ref=f1e217]
+    - paragraph [ref=f1e222]: Your cart is empty
+  - alert [ref=f1e223]

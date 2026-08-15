@@ -1,0 +1,116 @@
+- generic [ref=f4e1]:
+  - generic [ref=f4e2]:
+    - complementary [ref=f4e3]:
+      - generic [ref=f4e4]:
+        - generic [ref=f4e5]:
+          - link [ref=f4e6] [cursor=pointer]:
+            - /url: /dashboard
+            - img "OshiCart" [ref=f4e7]
+          - generic [ref=f4e15]:
+            - paragraph [ref=f4e16]: QA (delete me) Merchant Store 2026-08-15
+            - paragraph [ref=f4e17]: /s/qa-delete-me-merchant-store-2026-08-15
+        - navigation [ref=f4e18]:
+          - link "Dashboard" [ref=f4e19] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Services" [ref=f4e26] [cursor=pointer]:
+            - /url: /dashboard/products
+          - link "Share store" [ref=f4e32] [cursor=pointer]:
+            - /url: /dashboard/share
+          - link "Orders" [ref=f4e40] [cursor=pointer]:
+            - /url: /dashboard/orders
+          - link "Bookings" [ref=f4e46] [cursor=pointer]:
+            - /url: /dashboard/bookings
+          - link "Customers" [ref=f4e50] [cursor=pointer]:
+            - /url: /dashboard/customers
+          - link "Broadcast" [ref=f4e57] [cursor=pointer]:
+            - /url: /dashboard/broadcast
+          - link "Reviews" [ref=f4e62] [cursor=pointer]:
+            - /url: /dashboard/reviews
+          - link "Coupons" [ref=f4e66] [cursor=pointer]:
+            - /url: /dashboard/coupons
+          - link "Analytics" [ref=f4e70] [cursor=pointer]:
+            - /url: /dashboard/analytics
+          - link "Statements" [ref=f4e74] [cursor=pointer]:
+            - /url: /dashboard/statements
+          - link "Account" [ref=f4e79] [cursor=pointer]:
+            - /url: /dashboard/account
+          - link "Subscription" [ref=f4e84] [cursor=pointer]:
+            - /url: /dashboard/subscription
+          - link "Settings" [ref=f4e88] [cursor=pointer]:
+            - /url: /dashboard/settings
+          - link "View store" [ref=f4e93] [cursor=pointer]:
+            - /url: /s/qa-delete-me-merchant-store-2026-08-15
+          - link "Help" [ref=f4e99] [cursor=pointer]:
+            - /url: /help
+        - button "Sign out" [ref=f4e105]
+    - main [ref=f4e109]:
+      - generic [ref=f4e110]:
+        - generic [ref=f4e114]:
+          - link "Back to products" [ref=f4e115] [cursor=pointer]:
+            - /url: /dashboard/products
+          - heading "Add Service" [level=1] [ref=f4e190]
+          - paragraph [ref=f4e119]: 1/20 items used (Oshi-Start)
+        - generic [ref=f4e120]:
+          - generic [ref=f4e121]:
+            - generic [ref=f4e122]: What are you adding?
+            - generic [ref=f4e123]:
+              - generic [ref=f4e124] [cursor=pointer]:
+                - radio "Product Physical item for sale" [ref=f4e125]
+                - text: Product
+                - paragraph [ref=f4e126]: Physical item for sale
+              - generic [ref=f4e127] [cursor=pointer]:
+                - radio "Service Service you offer" [checked] [ref=f4e128]
+                - text: Service
+                - paragraph [ref=f4e129]: Service you offer
+              - generic [ref=f4e130] [cursor=pointer]:
+                - radio "For hire Rented out and returned" [ref=f4e131]
+                - text: For hire
+                - paragraph [ref=f4e132]: Rented out and returned
+            - generic [ref=f4e191]:
+              - paragraph [ref=f4e192]: Where does it happen?
+              - paragraph [ref=f4e193]: This decides what checkout asks the customer for.
+              - generic [ref=f4e194]:
+                - generic [ref=f4e195] [cursor=pointer]:
+                  - radio "At my place The customer comes to you — a salon chair, a workshop, a studio." [ref=f4e196]
+                  - text: At my place
+                  - paragraph [ref=f4e197]: The customer comes to you — a salon chair, a workshop, a studio.
+                - generic [ref=f4e198] [cursor=pointer]:
+                  - radio "I travel to the customer You go to them. Checkout asks for an address and adds your call-out fee." [ref=f4e199]
+                  - text: I travel to the customer
+                  - paragraph [ref=f4e200]: You go to them. Checkout asks for an address and adds your call-out fee.
+                - generic [ref=f4e201] [cursor=pointer]:
+                  - radio "Online Delivered remotely — a call, a design, a lesson. No address needed." [checked] [active] [ref=f4e202]
+                  - text: Online
+                  - paragraph [ref=f4e203]: Delivered remotely — a call, a design, a lesson. No address needed.
+          - generic [ref=f4e133]:
+            - generic [ref=f4e134]: Service name *
+            - textbox "Service name *" [ref=f4e204]:
+              - /placeholder: e.g. Grilled Chicken Wrap
+          - generic [ref=f4e136]:
+            - generic [ref=f4e137]: Price (NAD)
+            - paragraph [ref=f4e205]: Leave at 0 for "Request a Quote"
+            - generic [ref=f4e138]:
+              - generic [ref=f4e139]: N$
+              - spinbutton "Price (NAD)" [ref=f4e206]
+          - generic [ref=f4e141]:
+            - generic [ref=f4e142]: Description
+            - textbox "Description" [ref=f4e143]:
+              - /placeholder: Describe your service...
+          - generic [ref=f4e144]:
+            - generic [ref=f4e145]: Category
+            - combobox "Category" [ref=f4e146]:
+              - option "No category" [selected]
+          - generic [ref=f4e165]:
+            - checkbox "Available for purchase" [checked] [ref=f4e166]
+            - generic [ref=f4e167]: Available for purchase
+          - generic [ref=f4e177]:
+            - generic [ref=f4e178]: Images (up to 3)
+            - generic [ref=f4e180]:
+              - generic [ref=f4e181] [cursor=pointer]: Choose Photo
+              - generic [ref=f4e185] [cursor=pointer]: 📷 Take Photo
+            - paragraph [ref=f4e186]: Images will be compressed automatically.
+          - generic [ref=f4e187]:
+            - button "Add Service" [ref=f4e207]
+            - link "Cancel" [ref=f4e189] [cursor=pointer]:
+              - /url: /dashboard/products
+  - alert [ref=f4e113]

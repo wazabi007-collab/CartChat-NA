@@ -1,0 +1,118 @@
+- generic [active] [ref=f2e1]:
+  - alert [ref=f2e46]: Checkout | OshiCart Demo Store | OshiCart
+  - generic [ref=f2e89]:
+    - banner [ref=f2e90]:
+      - heading "Checkout — OshiCart Demo Store" [level=1] [ref=f2e92]
+    - main [ref=f2e93]:
+      - generic [ref=f2e94]:
+        - link "Back to store" [ref=f2e95] [cursor=pointer]:
+          - /url: /s/oshicart-demo
+        - generic [ref=f2e98]:
+          - heading "Order Summary" [level=2] [ref=f2e99]
+          - list [ref=f2e100]:
+            - listitem [ref=f2e101]:
+              - paragraph [ref=f2e103]: Demo Logo Design (online) x 1
+              - generic [ref=f2e104]: N$850.00
+          - generic [ref=f2e105]:
+            - generic [ref=f2e106]:
+              - generic [ref=f2e107]: Subtotal
+              - generic [ref=f2e108]: N$850.00
+            - generic [ref=f2e109]:
+              - generic [ref=f2e110]: Total
+              - generic [ref=f2e111]: N$850.00
+        - generic [ref=f2e112]:
+          - heading "Discount Code" [level=2] [ref=f2e113]
+          - generic [ref=f2e117]:
+            - textbox "Enter code" [ref=f2e118]
+            - button "Apply" [disabled] [ref=f2e119]
+        - generic [ref=f2e120]:
+          - heading "Your Details" [level=2] [ref=f2e121]
+          - generic [ref=f2e122]:
+            - generic [ref=f2e123]: Full Name*
+            - textbox "Your full name" [ref=f2e124]
+          - generic [ref=f2e125]:
+            - generic [ref=f2e126]: WhatsApp Number*
+            - textbox "WhatsApp Number*" [ref=f2e128]:
+              - /placeholder: 081 234 5678
+            - paragraph [ref=f2e129]: The merchant will contact you on this number
+        - generic [ref=f2e130]:
+          - heading "Your Booking" [level=2] [ref=f2e131]
+          - generic [ref=f2e132]: This happens online — nothing to deliver or collect. Just pick a time.
+          - generic [ref=f2e133]:
+            - generic [ref=f2e134]: Appointment Date*
+            - generic [ref=f2e135]:
+              - generic [ref=f2e136]:
+                - button "Previous month" [disabled] [ref=f2e137]
+                - paragraph [ref=f2e140]: August 2026
+                - button "Next month" [ref=f2e141]
+              - generic [ref=f2e144]:
+                - generic [ref=f2e145]: Mo
+                - generic [ref=f2e146]: Tu
+                - generic [ref=f2e147]: We
+                - generic [ref=f2e148]: Th
+                - generic [ref=f2e149]: Fr
+                - generic [ref=f2e150]: Sa
+                - generic [ref=f2e151]: Su
+                - button "1" [disabled] [ref=f2e157]
+                - button "2" [disabled] [ref=f2e158]
+                - button "3" [disabled] [ref=f2e159]
+                - button "4" [disabled] [ref=f2e160]
+                - button "5" [disabled] [ref=f2e161]
+                - button "6" [disabled] [ref=f2e162]
+                - button "7" [disabled] [ref=f2e163]
+                - button "8" [disabled] [ref=f2e164]
+                - button "9" [disabled] [ref=f2e165]
+                - button "10" [disabled] [ref=f2e166]
+                - button "11" [disabled] [ref=f2e167]
+                - button "12" [disabled] [ref=f2e168]
+                - button "13" [disabled] [ref=f2e169]
+                - button "14" [disabled] [ref=f2e170]
+                - button "15" [disabled] [ref=f2e171]
+                - button "16" [disabled] [ref=f2e172]
+                - button "17" [disabled] [ref=f2e173]
+                - button "18" [disabled] [ref=f2e174]
+                - button "19" [disabled] [ref=f2e175]
+                - button "20" [disabled] [ref=f2e176]
+                - button "21" [disabled] [ref=f2e177]
+                - button "22" [disabled] [ref=f2e178]
+                - button "23" [disabled] [ref=f2e179]
+                - button "24" [disabled] [ref=f2e180]
+                - button "25" [disabled] [ref=f2e181]
+                - button "26" [disabled] [ref=f2e182]
+                - button "27" [disabled] [ref=f2e183]
+                - button "28" [disabled] [ref=f2e184]
+                - button "29" [disabled] [ref=f2e185]
+                - button "30" [disabled] [ref=f2e186]
+                - button "31" [disabled] [ref=f2e187]
+              - paragraph [ref=f2e188]: Struck-through days are fully booked. Greyed days the store is closed.
+          - generic [ref=f2e189]:
+            - generic [ref=f2e190]: Appointment Time*
+            - generic [ref=f2e191]:
+              - generic [ref=f2e192] [cursor=pointer]:
+                - radio "09:00" [ref=f2e193]
+                - text: 09:00
+              - generic [ref=f2e194] [cursor=pointer]:
+                - radio "10:00" [ref=f2e195]
+                - text: 10:00
+              - generic [ref=f2e196] [cursor=pointer]:
+                - radio "11:00" [ref=f2e197]
+                - text: 11:00
+              - generic [ref=f2e198] [cursor=pointer]:
+                - radio "14:00" [ref=f2e199]
+                - text: 14:00
+              - generic [ref=f2e200] [cursor=pointer]:
+                - radio "15:00" [ref=f2e201]
+                - text: 15:00
+          - generic [ref=f2e202]:
+            - generic [ref=f2e203]: Notes (optional)
+            - textbox "Any special instructions..." [ref=f2e204]
+        - generic [ref=f2e205]:
+          - heading "Payment Method" [level=2] [ref=f2e206]
+          - generic [ref=f2e208] [cursor=pointer]:
+            - radio "Cash" [checked] [ref=f2e209]
+            - generic [ref=f2e214]: Cash
+          - generic [ref=f2e216]:
+            - paragraph [ref=f2e217]: Cash on Delivery
+            - paragraph [ref=f2e218]: Pay N$850.00 in cash when your order is picked up.
+        - button "Place Order" [ref=f2e220]
+    - contentinfo [ref=f2e221]

@@ -120,10 +120,13 @@ export default function AccountPage() {
         </p>
       </div>
 
+      {/* min-w-0 on the cards: a grid child defaults to min-width:auto, so an
+          unbroken email address set a min-content floor wider than a 375px
+          phone and pushed the whole document sideways. */}
       <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
 
       {/* Card 1 — Account Info */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
+      <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
         <div className="flex items-center gap-2 mb-4">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-terracotta">
             <UserIcon size={16} />
@@ -133,13 +136,13 @@ export default function AccountPage() {
         <div className="space-y-3">
           <div>
             <p className={label}>Email</p>
-            <p className="text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5">
+            <p className="text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 break-all">
               {user?.email ?? "—"}
             </p>
           </div>
           <div>
             <p className={label}>WhatsApp Number</p>
-            <p className="text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5">
+            <p className="text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 break-all">
               {user?.user_metadata?.whatsapp_number ?? "—"}
             </p>
           </div>
@@ -147,7 +150,7 @@ export default function AccountPage() {
       </div>
 
       {/* Card 2 — Password */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
+      <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-900/5">
         <div className="mb-4 flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-acacia">
             <ShieldCheck size={16} />

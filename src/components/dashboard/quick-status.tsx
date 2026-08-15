@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { statusColors, statusPill } from "@/lib/ui";
@@ -49,6 +49,12 @@ export function QuickStatus({
 }: QuickStatusProps) {
   const [confirming, setConfirming] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
+  // router.refresh() is async. Clearing the spinner before it lands let the
+  // pill snap back to the OLD status for a beat and then change again, which
+  // reads as the tap having failed. The transition keeps it pending until the
+  // server data is actually on screen.
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const supabase = createClient();
 
@@ -66,6 +72,7 @@ export function QuickStatus({
     if (!nextStatus) return;
 
     setConfirming(false);
+    setFailed(false);
     setLoading(true);
 
     track("order_status_changed", {
@@ -82,7 +89,8 @@ export function QuickStatus({
 
     if (error) {
       setLoading(false);
-      router.refresh();
+      setFailed(true);
+      startTransition(() => router.refresh());
       return;
     }
 
@@ -157,11 +165,11 @@ export function QuickStatus({
     }
 
     setLoading(false);
-    router.refresh();
+    startTransition(() => router.refresh());
   }
 
   // Loading state
-  if (loading) {
+  if (loading || isPending) {
     return (
       <span className={`${statusPill} ${statusColors[currentStatus] || ""} inline-flex items-center gap-1`}>
         <Loader2 size={10} className="animate-spin" />
@@ -196,6 +204,11 @@ export function QuickStatus({
   // Default: status pill — tappable if there's a next state
   return (
     <span className="inline-flex items-center gap-1">
+      {failed && (
+        <span className="text-[10px] font-bold text-red-600">
+          Could not update — try again
+        </span>
+      )}
       <button
         onClick={isTappable ? () => setConfirming(true) : undefined}
         disabled={!isTappable}

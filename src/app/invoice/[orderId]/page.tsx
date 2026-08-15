@@ -4,6 +4,13 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { formatPrice } from "@/lib/utils";
 import { calculateVatBreakdown, VAT_RATE_BPS, VAT_RATE_LABEL } from "@/lib/vat";
 import { formatNamibianDate } from "@/lib/date";
+import { formatStoredRentalRange } from "@/lib/rentals";
+import {
+  summariseFulfilment,
+  cashMethodLabel,
+  fulfilmentNoun,
+  type ServiceMode,
+} from "@/lib/service-mode";
 import { SITE_NAME, SITE_URL, getPaymentMethodLabel, getEwalletProviderLabel } from "@/lib/constants";
 import { PrintButton } from "./print-button";
 import type { Metadata } from "next";
@@ -74,7 +81,9 @@ export default async function InvoicePage({ params }: Props) {
 
   const { data: items } = await supabase
     .from("order_items")
-    .select("product_name, product_price, quantity, line_total, variant_sku, variant_attributes")
+    .select(
+      "product_name, product_price, quantity, line_total, variant_sku, variant_attributes, rental_start, rental_end_exclusive, rental_days, products(rental_unit, item_type, service_mode)"
+    )
     .eq("order_id", orderId)
     .order("created_at");
 
@@ -140,11 +149,25 @@ export default async function InvoicePage({ params }: Props) {
   const buyerPaidCourier =
     order.delivery_method === "delivery" &&
     ["yango", "indrive"].includes(order.delivery_provider ?? "");
+  // The invoice outlives the checkout screen, so it re-derives the same
+  // vocabulary from what was actually ordered rather than assuming goods.
+  const fulfilment = summariseFulfilment(
+    (items ?? []).map((item) => {
+      const product = item.products as unknown as {
+        rental_unit?: string | null;
+        item_type?: string | null;
+        service_mode?: string | null;
+      } | null;
+      return {
+        serviceMode: (product?.service_mode ?? null) as ServiceMode | null,
+        itemType: product?.item_type ?? null,
+        rentalUnit: product?.rental_unit ?? null,
+      };
+    })
+  );
   const paymentDisplayLabel =
     order.payment_method === "cod"
-      ? order.delivery_method === "delivery"
-        ? "Cash on delivery"
-        : "Cash on collection"
+      ? cashMethodLabel(fulfilment, order.delivery_method ?? "pickup")
       : getPaymentMethodLabel(order.payment_method);
 
   const paymentReference = order.payment_reference || `Order #${order.order_number}`;
@@ -218,7 +241,7 @@ export default async function InvoicePage({ params }: Props) {
 
             <div>
               <p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
-                {order.delivery_method === "delivery" ? "Delivery" : "Collection"}
+                {fulfilmentNoun(fulfilment, order.delivery_method ?? "pickup")}
               </p>
               <p className="text-sm leading-relaxed text-slate-500">
                 {order.delivery_method === "delivery" && order.delivery_address && (
@@ -280,6 +303,18 @@ export default async function InvoicePage({ params }: Props) {
                       {item.variant_sku && (
                         <span className="mt-0.5 block text-[12.5px] font-normal text-slate-400">
                           SKU {item.variant_sku}
+                        </span>
+                      )}
+                      {item.rental_start && item.rental_end_exclusive && (
+                        <span className="mt-0.5 block text-[12.5px] font-normal text-slate-500">
+                          {formatStoredRentalRange(
+                            item.rental_start,
+                            item.rental_end_exclusive,
+                            (item.products as unknown as { rental_unit?: string } | null)
+                              ?.rental_unit === "night"
+                              ? "night"
+                              : "day"
+                          )}
                         </span>
                       )}
                     </td>
@@ -358,10 +393,14 @@ export default async function InvoicePage({ params }: Props) {
                 </dd>
               </div>
 
-              {hasVat && (
+              {/* The deposit note is not a VAT note. Nesting it under hasVat
+                  meant non-VAT stores — most of them — printed a deposit with
+                  nothing saying the customer gets it back. */}
+              {(hasVat || deposit > 0) && (
                 <p className="col-span-2 text-right text-xs text-slate-400">
-                  Amount excluding VAT: {formatPrice(totalExclVat)}
-                  {deposit > 0 && <> · deposit refundable on return</>}
+                  {hasVat && <>Amount excluding VAT: {formatPrice(totalExclVat)}</>}
+                  {hasVat && deposit > 0 && <> · </>}
+                  {deposit > 0 && <>deposit refundable on return</>}
                 </p>
               )}
             </dl>

@@ -604,7 +604,9 @@ export default function EditProductPage() {
                   <option value="night">Night (rooms, accommodation)</option>
                 </select>
                 <span className="mt-0.5 block text-xs text-gray-500">
-                  Per night, the check-out day is free and a new guest can check in that same day.
+                  {rentalUnit === "night"
+                    ? "Per night, the check-out day is free and a new guest can check in that same day."
+                    : "Both the first and last day count, so 20–22 Aug is 3 days."}
                 </span>
               </label>
               <label className="block">
@@ -693,7 +695,12 @@ export default function EditProductPage() {
             htmlFor="price"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            {itemType === "rental" ? "Price per day (NAD) *" : "Price (NAD) *"}
+            {/* A night hire bills one less unit than the dates span, so the rate must name its unit. */}
+            {itemType === "rental"
+              ? rentalUnit === "night"
+                ? "Price per night (NAD) *"
+                : "Price per day (NAD) *"
+              : "Price (NAD) *"}
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { REFERRED_TRIAL_DAYS, STANDARD_TRIAL_DAYS } from "@/lib/constants";
 import { track } from "@/lib/track";
 import Link from "next/link";
 import { PublicNavbar } from "@/components/public-navbar";
@@ -40,6 +41,7 @@ function SignupForm() {
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [referredTrial, setReferredTrial] = useState(false);
   const emailCheckRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const supabase = createClient();
 
@@ -54,6 +56,24 @@ function SignupForm() {
     if (refParam) {
       try { localStorage.setItem("oshicart_ref", refParam); } catch { /* storage unavailable */ }
     }
+  }, [refParam]);
+
+  // Only promise the longer referral trial for a code the setup wizard will
+  // actually honour — it re-validates against this same endpoint and falls
+  // back to STANDARD_TRIAL_DAYS, so an unchecked ?ref= would promise days the
+  // merchant never gets.
+  useEffect(() => {
+    if (!refParam) return;
+    let cancelled = false;
+    fetch("/api/referral/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: refParam.toLowerCase() }),
+    })
+      .then((r) => r.json())
+      .then((v) => { if (!cancelled && v?.valid) setReferredTrial(true); })
+      .catch(() => { /* ignore — show the standard trial length */ });
+    return () => { cancelled = true; };
   }, [refParam]);
 
   // If already logged in with tier param, redirect to checkout or setup
@@ -303,7 +323,10 @@ function SignupForm() {
             </Link>
           </p>
           <div className="flex items-center gap-2 justify-center text-xs text-gray-400">
-            <span>30-day free trial</span>
+            <span>
+              {referredTrial ? REFERRED_TRIAL_DAYS : STANDARD_TRIAL_DAYS}-day
+              free trial
+            </span>
             <span>·</span>
             <span>No credit card needed</span>
           </div>

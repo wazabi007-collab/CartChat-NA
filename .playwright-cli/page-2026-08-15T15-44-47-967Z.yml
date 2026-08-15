@@ -1,0 +1,18 @@
+- generic [active] [ref=f2e1]:
+  - alert [ref=f2e46]: Checkout | OshiCart Demo Store | OshiCart
+  - generic [ref=f2e89]:
+    - banner [ref=f2e90]:
+      - heading "Checkout — OshiCart Demo Store" [level=1] [ref=f2e92]
+    - main [ref=f2e93]:
+      - generic [ref=f2e224]:
+        - heading "Order Confirmed!" [level=2] [ref=f2e228]
+        - paragraph [ref=f2e229]:
+          - text: Your order number is
+          - generic [ref=f2e230]: "#7"
+        - paragraph [ref=f2e231]: The merchant will arrange payment with you on WhatsApp.
+        - generic [ref=f2e232]:
+          - link "Message OshiCart Demo Store on WhatsApp" [ref=f2e233] [cursor=pointer]:
+            - /url: https://wa.me/264812384424?text=Hi%20OshiCart%20Demo%20Store!%20%F0%9F%9B%92%20New%20order%20%237%0A%0A*Customer%3A*%20QA%20(delete%20me)%20Service%20Buyer%202026-08-15%0A*WhatsApp%3A*%200819908153%0A%0A*Items%3A*%0A-%20Demo%20Logo%20Design%20(online)%20x1%20-%20N%24850.00%0A%0A*Subtotal%3A*%20N%24850.00%0A*Total%3A*%20N%24850.00%0A*Payment%20Ref%3A*%20OSHI-64B5FE93%0A*Payment%3A*%20Cash%20on%20Delivery%0A*Delivery%3A*%20Pickup%0A*Scheduled%3A*%202026-08-18%20%E2%80%94%2010%3A00%0A*Notes%3A*%20QA%20(delete%20me)%20online%20service%20order%20%E2%80%94%20approved%20production%20audit%0A%0A*Invoice%3A*%20https%3A%2F%2Foshicart.com%2Finvoice%2F64b5fe93-e633-4245-8998-a731aac892f6
+          - link "Back to Store" [ref=f2e237] [cursor=pointer]:
+            - /url: /s/oshicart-demo
+    - contentinfo [ref=f2e221]

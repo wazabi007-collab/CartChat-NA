@@ -47,15 +47,46 @@ export function validateRentalRange(
   lastDay: string,
   minDays: number,
   maxDays: number,
-  today: string
+  today: string,
+  unit: RentalUnit = "day"
 ): string | null {
-  if (!firstDay || !lastDay) return "Choose the first and last day of your hire.";
+  const word = unit === "night" ? "night" : "day";
+  if (!firstDay || !lastDay) {
+    return unit === "night"
+      ? "Choose your check-in and check-out dates."
+      : "Choose the first and last day of your hire.";
+  }
   if (firstDay < today) return "The hire cannot start in the past.";
   if (lastDay < firstDay) return "The last day is before the first day.";
-  const days = rentalDays(firstDay, lastDay);
-  if (days < minDays) return `Minimum hire is ${minDays} day${minDays === 1 ? "" : "s"}.`;
-  if (days > maxDays) return `Maximum hire is ${maxDays} day${maxDays === 1 ? "" : "s"}.`;
+  // Count in the product's OWN unit. Defaulting to days let a one-night stay
+  // (15th→16th, 2 calendar days) satisfy a two-night minimum.
+  const days = rentalDays(firstDay, lastDay, unit);
+  if (days < 1) return "Check-out must be after check-in.";
+  if (days < minDays) return `Minimum hire is ${minDays} ${word}${minDays === 1 ? "" : "s"}.`;
+  if (days > maxDays) return `Maximum hire is ${maxDays} ${word}${maxDays === 1 ? "" : "s"}.`;
   return null;
+}
+
+/**
+ * The customer-facing last date for a stored end-exclusive bound. A day hire
+ * ran through the day before it; a night stay's guest leaves ON it. Every
+ * surface that prints a stored range needs this, and each one that re-derived
+ * it locally got a different answer.
+ */
+export function rentalLastDay(endExclusive: string, unit: RentalUnit = "day"): string {
+  if (unit === "night") return endExclusive;
+  const d = new Date(`${endExclusive}T12:00:00`);
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/** "Hire · 3 days · 20 Aug – 22 Aug", straight from what the order stored. */
+export function formatStoredRentalRange(
+  rentalStart: string,
+  endExclusive: string,
+  unit: RentalUnit = "day"
+): string {
+  return formatRentalRange(rentalStart, rentalLastDay(endExclusive, unit), unit);
 }
 
 /**

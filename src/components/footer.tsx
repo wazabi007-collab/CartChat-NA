@@ -1,5 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import {
+  SUPPORT_EMAIL,
+  SUPPORT_PHONE,
+  SUPPORT_PHONE_E164,
+  SUPPORT_WHATSAPP,
+  supportWhatsAppLink,
+} from "@/lib/constants";
 
 export function Footer() {
   return (
@@ -26,7 +33,12 @@ export function Footer() {
 
           {/* About Us */}
           <div id="about" className="md:col-span-2">
-            <h4 className="mb-3 font-bold text-white">About OshiCart</h4>
+            {/* Column labels, not document structure. As <h4> they followed
+                whatever level the page above happened to end on (usually h2),
+                so every page failed Lighthouse's heading-order audit. The
+                footer is boilerplate on every page and nothing links to these
+                sections, so they don't belong in any page's outline. */}
+            <p className="mb-3 font-bold text-white">About OshiCart</p>
             <div className="space-y-3 text-sm leading-relaxed text-slate-300">
               <p>
                 OshiCart is a proudly Namibian commerce platform for sellers who
@@ -48,33 +60,36 @@ export function Footer() {
 
           {/* Contact & Links */}
           <div>
-            <h4 className="mb-3 font-bold text-white">Contact & Support</h4>
+            <p className="mb-3 font-bold text-white">Contact & Support</p>
             <ul className="space-y-2 text-sm">
               <li>
-                {/* Matches the "sales" contactPoint in the Organization JSON-LD
-                    on the homepage — was previously a stray personal number
-                    that matched neither the structured data nor anything
-                    else on the site. */}
-                <a href="tel:+264816262961" className="hover:text-white transition-colors">
-                  Call: +264 81 626 2961
+                {/* This used to print the "sales" contactPoint from the
+                    homepage JSON-LD, so support calls from the footer landed
+                    on a line nobody watches — and disagreed with /help, /guide
+                    and both PDFs. All of them now read from SUPPORT_PHONE. */}
+                <a
+                  href={`tel:${SUPPORT_PHONE_E164}`}
+                  className="hover:text-white transition-colors"
+                >
+                  Call: {SUPPORT_PHONE}
                 </a>
               </li>
               <li>
                 <a
-                  href="https://wa.me/264816274823?text=Hi%20OshiCart%2C%20I%20need%20help%20with..."
+                  href={supportWhatsAppLink("Hi OshiCart, I need help with...")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-white transition-colors"
                 >
-                  WhatsApp: +264 81 627 4823
+                  WhatsApp: {SUPPORT_WHATSAPP}
                 </a>
               </li>
               <li>
                 <a
-                  href="mailto:info@octovianexus.com"
+                  href={`mailto:${SUPPORT_EMAIL}`}
                   className="hover:text-white transition-colors"
                 >
-                  info@octovianexus.com
+                  {SUPPORT_EMAIL}
                 </a>
               </li>
               <li className="pt-2">

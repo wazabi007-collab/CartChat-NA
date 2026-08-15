@@ -1,0 +1,422 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "OshiCart" [ref=e6]
+      - navigation [ref=e7]:
+        - link "Browse Stores" [ref=e8] [cursor=pointer]:
+          - /url: /stores
+        - link "Pricing" [ref=e9] [cursor=pointer]:
+          - /url: /#pricing
+        - link "Safety" [ref=e10] [cursor=pointer]:
+          - /url: /prohibited-products
+        - link "Sign in" [ref=e11] [cursor=pointer]:
+          - /url: /login
+      - link "Create Free Store" [ref=e13] [cursor=pointer]:
+        - /url: /signup
+  - main [ref=e19]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]:
+          - paragraph [ref=e24]: Made in Namibia · Zero commission · N$ local payments
+          - heading "Your Namibian business, online in minutes." [level=1] [ref=e25]
+          - paragraph [ref=e26]: Turn your WhatsApp side hustle into a professional store link. Customers browse, order, and pay you directly — you get automated WhatsApp updates from confirmed to completed.
+          - generic [ref=e27]:
+            - link "Create Free Store" [ref=e28] [cursor=pointer]:
+              - /url: /signup
+            - link "Browse stores →" [ref=e31] [cursor=pointer]:
+              - /url: /stores
+          - paragraph [ref=e32]:
+            - generic [ref=e33]: 14+ stores
+            - text: ·
+            - generic [ref=e34]: 7,464+ products
+            - text: · automated WhatsApp order updates
+        - generic [ref=e35]:
+          - img "A real OshiCart storefront — Octovia Nexus Home & Lifestyle" [ref=e37]
+          - generic [ref=e40]:
+            - paragraph [ref=e41]: "New order #104"
+            - paragraph [ref=e42]: N$337.32 · confirmed
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - img "WhatsApp" [ref=e45]
+          - text: Runs on the WhatsApp Business Platform
+        - generic [ref=e46]: "|"
+        - generic [ref=e47]: A product of Octovia Nexus Investments CC — registered Namibian business
+    - generic [ref=e50]:
+      - generic [ref=e51]:
+        - paragraph [ref=e52]: Local payment confidence
+        - heading "Accept the ways Namibians already pay." [level=2] [ref=e53]
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - img "PayToday logo" [ref=e56]
+          - text: PayToday
+        - generic [ref=e57]:
+          - img "MTC Maris logo" [ref=e58]
+          - text: MTC Maris
+        - generic [ref=e59]:
+          - img "FNB eWallet logo" [ref=e60]
+          - text: FNB eWallet
+        - generic [ref=e61]:
+          - img "PayPulse logo" [ref=e62]
+          - text: PayPulse
+        - generic [ref=e63]:
+          - img "EasyWallet logo" [ref=e64]
+          - text: EasyWallet
+        - generic [ref=e65]:
+          - img "Nedbank Money logo" [ref=e66]
+          - text: Nedbank Money
+        - generic [ref=e67]: EFT & Cash on Delivery
+        - generic [ref=e70]: Zero OshiCart commission
+    - generic [ref=e75]:
+      - generic [ref=e76]:
+        - heading "How an OshiCart order moves from store link to WhatsApp update." [level=2] [ref=e77]
+        - paragraph [ref=e78]: A customer can browse a real store, choose products, select pickup or delivery, and get automatic WhatsApp updates while the merchant manages the order.
+      - generic [ref=e79]:
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - img "Octovia Nexus Home and Lifestyle products displayed with an online store preview" [ref=e82]
+            - generic [ref=e84]:
+              - generic [ref=e85]:
+                - paragraph [ref=e86]: Octovia Nexus Home & Lifestyle
+                - paragraph [ref=e87]: Customer adds a product from the store link
+              - generic [ref=e88]:
+                - paragraph [ref=e89]: Total
+                - paragraph [ref=e90]: N$337.32
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - paragraph [ref=e93]: Product
+              - paragraph [ref=e94]: Coffee set
+            - generic [ref=e95]:
+              - paragraph [ref=e96]: Delivery
+              - paragraph [ref=e97]: Yango buyer-paid
+            - generic [ref=e98]:
+              - paragraph [ref=e99]: VAT
+              - paragraph [ref=e100]: Shown on invoice
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - heading "Real order flow" [level=3] [ref=e108]
+            - generic [ref=e109]:
+              - generic [ref=e115]:
+                - paragraph [ref=e116]: Customer opens your store link
+                - paragraph [ref=e117]: They browse products with prices, stock, variants, and store payment options.
+              - generic [ref=e123]:
+                - paragraph [ref=e124]: Checkout calculates the order
+                - paragraph [ref=e125]: Subtotal, VAT, delivery choice, buyer-paid courier, and invoice total are shown before order submission.
+              - generic [ref=e133]:
+                - paragraph [ref=e134]: Merchant updates the order
+                - paragraph [ref=e135]: Move the order from pending to confirmed, ready, and completed from the dashboard.
+              - generic [ref=e141]:
+                - paragraph [ref=e142]: WhatsApp updates go out automatically
+                - paragraph [ref=e143]: The customer receives status messages without the merchant typing the same replies again.
+          - generic [ref=e144]:
+            - generic [ref=e145]:
+              - generic [ref=e146]:
+                - paragraph [ref=e147]: WhatsApp preview
+                - heading "Automated responses customers understand" [level=3] [ref=e148]
+              - generic [ref=e149]: Auto
+            - generic [ref=e150]:
+              - generic [ref=e151]: "Order #104 received from Octovia Nexus Home & Lifestyle. Total: N$337.32. Track your order from the link below."
+              - generic [ref=e157]: Your order has been confirmed. We will update you when it is ready for pickup or courier collection.
+              - generic [ref=e163]: "Order #104 is ready. Please use your selected delivery or collection option."
+      - generic [ref=e169]:
+        - generic [ref=e170]:
+          - generic [ref=e171]: "01"
+          - heading "Create your store" [level=3] [ref=e178]
+          - paragraph [ref=e179]: Add your logo, products, prices, payment options, and delivery rules from your phone.
+        - generic [ref=e180]:
+          - generic [ref=e181]: "02"
+          - heading "Share one link" [level=3] [ref=e190]
+          - paragraph [ref=e191]: Post your OshiCart link on WhatsApp Status, Facebook, Instagram, TikTok, or a printed QR code.
+        - generic [ref=e192]:
+          - generic [ref=e193]: "03"
+          - heading "Customers order themselves" [level=3] [ref=e199]
+          - paragraph [ref=e200]: They browse, add to cart, choose delivery or pickup, and submit a clean order.
+        - generic [ref=e201]:
+          - generic [ref=e202]: "04"
+          - heading "Get paid locally" [level=3] [ref=e208]
+          - paragraph [ref=e209]: Accept EFT, PayToday, Pay2Cell, eWallet, MTC Maris, or cash on delivery with zero OshiCart commission.
+        - generic [ref=e210]:
+          - generic [ref=e211]: "05"
+          - heading "Your shop, as an app" [level=3] [ref=e216]
+          - paragraph [ref=e217]: Customers add your store to their home screen — your name, your logo — and reopen it with one tap. No Play Store, no App Store.
+    - generic [ref=e219]:
+      - generic [ref=e220]:
+        - paragraph [ref=e221]: More than products
+        - heading "Whatever you sell, OshiCart speaks its language." [level=2] [ref=e222]
+        - paragraph [ref=e223]: Products, appointments, hire, or online work — the checkout, WhatsApp updates, and invoices adapt to how your business actually sells.
+      - generic [ref=e224]:
+        - generic [ref=e225]:
+          - heading "Physical products" [level=3] [ref=e230]
+          - paragraph [ref=e231]: Shops, boutiques, food sellers, farms
+          - paragraph [ref=e232]: Stock control, out-of-stock badges, delivery or collection — with courier options in Windhoek, Swakopmund, and Walvis Bay.
+        - generic [ref=e233]:
+          - heading "Services & bookings" [level=3] [ref=e239]
+          - paragraph [ref=e240]: Salons, barbers, nail techs, mechanics
+          - paragraph [ref=e241]: Customers pick a date and time slot on a calendar. You set your session times and block out days off — no double bookings.
+        - generic [ref=e242]:
+          - heading "Rentals & hire" [level=3] [ref=e247]
+          - paragraph [ref=e248]: Car hire, tents & chairs, dresses, guest rooms
+          - paragraph [ref=e249]: Customers pick their dates and the price works itself out — per day or per night. OshiCart counts what's already out, so the same unit can never be hired twice, and refundable deposits are handled for you.
+        - generic [ref=e250]:
+          - heading "Digital & online services" [level=3] [ref=e255]
+          - paragraph [ref=e256]: Designers, tutors, consultants, media
+          - paragraph [ref=e257]: No delivery step, no courier questions — the order flow speaks 'online service' from checkout to completion.
+    - generic [ref=e259]:
+      - generic [ref=e260]:
+        - generic [ref=e261]:
+          - paragraph [ref=e262]: Live marketplace proof
+          - heading "Featured Namibian stores." [level=2] [ref=e263]
+          - paragraph [ref=e264]: A curated look at stores already using OshiCart, with visuals that make the marketplace feel active, local, and ready to shop.
+        - link "Browse all stores" [ref=e265] [cursor=pointer]:
+          - /url: /stores
+      - generic [ref=e268]:
+        - link "Octovia Nexus Home & Lifestyle featured store preview Local store Octovia Nexus Home & Lifestyle 1976 products ready to order Octovia Nexus Home & Lifestyle Local store - 1976 products Home, lifestyle, and general retail catalogue from Octovia Nexus. “Orders arrive structured — items, delivery, payment — no more twenty questions in the DMs.”" [ref=e269] [cursor=pointer]:
+          - /url: /s/octovia-nexus
+          - generic [ref=e270]:
+            - img "Octovia Nexus Home & Lifestyle featured store preview" [ref=e271]
+            - generic [ref=e273]: Local store
+            - generic [ref=e274]:
+              - paragraph [ref=e275]: Octovia Nexus Home & Lifestyle
+              - paragraph [ref=e276]: 1976 products ready to order
+          - generic [ref=e277]:
+            - generic [ref=e280]:
+              - paragraph [ref=e281]: Octovia Nexus Home & Lifestyle
+              - paragraph [ref=e282]: Local store - 1976 products
+            - paragraph [ref=e283]: Home, lifestyle, and general retail catalogue from Octovia Nexus.
+            - paragraph [ref=e284]: “Orders arrive structured — items, delivery, payment — no more twenty questions in the DMs.”
+        - link "Apatchy Beard Company featured store preview Beauty Apatchy Beard Company 3 products ready to order Apatchy Beard Company Beauty - 3 products Handmade, 100% natural beard balm made from Marula and Kalahari melon seed oil, organic beeswax and shea butter. “I posted my link on WhatsApp Status and had orders the same day.”" [ref=e285] [cursor=pointer]:
+          - /url: /s/apatchy-beard-company
+          - generic [ref=e286]:
+            - img "Apatchy Beard Company featured store preview" [ref=e287]
+            - generic [ref=e289]: Beauty
+            - generic [ref=e290]:
+              - paragraph [ref=e291]: Apatchy Beard Company
+              - paragraph [ref=e292]: 3 products ready to order
+          - generic [ref=e293]:
+            - generic [ref=e296]:
+              - paragraph [ref=e297]: Apatchy Beard Company
+              - paragraph [ref=e298]: Beauty - 3 products
+            - paragraph [ref=e299]: Handmade, 100% natural beard balm made from Marula and Kalahari melon seed oil, organic beeswax and shea butter.
+            - paragraph [ref=e300]: “I posted my link on WhatsApp Status and had orders the same day.”
+        - link "Krotoa Leather Goods featured store preview Fashion Krotoa Leather Goods 10 products ready to order K Krotoa Leather Goods Fashion - 10 products Handcrafted leather goods from Namibia. “Customers see prices and stock upfront. I just confirm and ship.”" [ref=e301] [cursor=pointer]:
+          - /url: /s/krotoa-leather-goods
+          - generic [ref=e302]:
+            - img "Krotoa Leather Goods featured store preview" [ref=e303]
+            - generic [ref=e305]: Fashion
+            - generic [ref=e306]:
+              - paragraph [ref=e307]: Krotoa Leather Goods
+              - paragraph [ref=e308]: 10 products ready to order
+          - generic [ref=e309]:
+            - generic [ref=e310]:
+              - generic [ref=e311]: K
+              - generic [ref=e312]:
+                - paragraph [ref=e313]: Krotoa Leather Goods
+                - paragraph [ref=e314]: Fashion - 10 products
+            - paragraph [ref=e315]: Handcrafted leather goods from Namibia.
+            - paragraph [ref=e316]: “Customers see prices and stock upfront. I just confirm and ship.”
+    - generic [ref=e319]:
+      - generic [ref=e320]:
+        - paragraph [ref=e321]: Platform features
+        - heading "Built to replace messy DMs, notebooks, and manual totals." [level=2] [ref=e322]
+        - paragraph [ref=e323]: "OshiCart is built around Namibia's real seller workflow: local payments, mobile-first pages, simple order handling, automated WhatsApp updates, and practical trust."
+      - generic [ref=e324]:
+        - generic [ref=e325]:
+          - img "Clean WhatsApp orders — real OshiCart dashboard screenshot" [ref=e326]
+          - generic [ref=e327]:
+            - heading "Clean WhatsApp orders" [level=3] [ref=e331]
+            - paragraph [ref=e332]: Customers send complete orders with items, quantities, delivery choice, and payment proof.
+        - generic [ref=e333]:
+          - img "Automated WhatsApp replies — real OshiCart dashboard screenshot" [ref=e334]
+          - generic [ref=e335]:
+            - heading "Automated WhatsApp replies" [level=3] [ref=e340]
+            - paragraph [ref=e341]: Customers receive order confirmed, ready, and completed updates when merchants move an order forward.
+        - generic [ref=e342]:
+          - img "Stock control — real OshiCart dashboard screenshot" [ref=e343]
+          - generic [ref=e344]:
+            - heading "Stock control" [level=3] [ref=e356]
+            - paragraph [ref=e357]: Track quantities, show out-of-stock badges, and reduce the 'is this available?' messages.
+        - generic [ref=e358]:
+          - img "Coupons and promos — real OshiCart dashboard screenshot" [ref=e359]
+          - generic [ref=e360]:
+            - heading "Coupons and promos" [level=3] [ref=e366]
+            - paragraph [ref=e367]: Run launch discounts, weekend specials, and customer offers without manual calculations.
+        - generic [ref=e368]:
+          - img "Invoices and VAT — real OshiCart dashboard screenshot" [ref=e369]
+          - generic [ref=e370]:
+            - heading "Invoices and VAT" [level=3] [ref=e375]
+            - paragraph [ref=e376]: Create professional invoices with Namibia's 15% VAT support when your business needs it.
+        - generic [ref=e377]:
+          - img "Sales visibility — real OshiCart dashboard screenshot" [ref=e378]
+          - generic [ref=e379]:
+            - heading "Sales visibility" [level=3] [ref=e383]
+            - paragraph [ref=e384]: See orders, revenue, products, and low-stock warnings from one mobile-friendly dashboard.
+    - generic [ref=e386]:
+      - generic [ref=e387]:
+        - paragraph [ref=e388]: Simple pricing
+        - heading "Plans that scale with your store." [level=2] [ref=e389]
+        - paragraph [ref=e390]: OshiCart should stay local, simple, and affordable while charging properly for automation where it creates real value.
+      - generic [ref=e391]:
+        - generic [ref=e392]:
+          - generic [ref=e394]:
+            - heading "Oshi-Storefront" [level=3] [ref=e395]
+            - paragraph [ref=e396]: For vendors and small shops that want to be seen first
+          - generic [ref=e402]:
+            - generic [ref=e403]: N$149
+            - generic [ref=e404]: /month
+          - list [ref=e405]:
+            - listitem [ref=e406]: 50 products
+            - listitem [ref=e409]: 50 orders/month
+            - listitem [ref=e412]: Your own store link and QR code
+            - listitem [ref=e415]: Automated WhatsApp order updates
+            - listitem [ref=e418]: Local payments — EFT, cash, MTC Maris, eWallet, Pay2Cell, PayToday
+            - listitem [ref=e421]: Proof-of-payment upload
+            - listitem [ref=e424]: Products, services and appointment bookings
+            - listitem [ref=e427]: Inventory tracking
+            - listitem [ref=e430]: Coupons and discount codes
+            - listitem [ref=e433]: Customer list and order history
+            - listitem [ref=e436]: Verified-purchase reviews and ratings
+            - listitem [ref=e439]: WhatsApp broadcast to your customers
+            - listitem [ref=e442]: Bulk product import from a spreadsheet
+            - listitem [ref=e445]: Record payments received against orders
+            - listitem [ref=e448]: One-tap reorder for repeat customers
+            - listitem [ref=e451]: Yango and inDrive courier booking
+            - listitem [ref=e454]: Live order tracking link for customers
+            - listitem [ref=e457]: Listed in Browse Stores for your town
+            - listitem [ref=e460]: Tax invoices with VAT
+            - listitem [ref=e463]: Sales analytics
+            - listitem [ref=e466]: Install OshiCart as an app on your phone
+            - listitem [ref=e469]: No OshiCart branding on your store
+            - listitem [ref=e472]: Priority placement in Browse Stores
+          - link "Start Storefront" [ref=e475] [cursor=pointer]:
+            - /url: /signup?tier=oshi_basic
+        - generic [ref=e478]:
+          - generic [ref=e479]: Best for automation
+          - generic [ref=e481]:
+            - heading "Oshi-Automate" [level=3] [ref=e482]
+            - paragraph [ref=e483]: For growing sellers who want lost sales back and books that balance
+          - generic [ref=e488]:
+            - generic [ref=e489]: N$399
+            - generic [ref=e490]: /month
+          - list [ref=e491]:
+            - listitem [ref=e492]: 200 products
+            - listitem [ref=e495]: 300 orders/month
+            - listitem [ref=e498]: Everything in Oshi-Storefront
+            - listitem [ref=e501]: Abandoned-checkout WhatsApp recovery
+            - listitem [ref=e504]: Monthly statements with VAT totals
+            - listitem [ref=e507]: Bank reconciliation — what came in, what is still owed
+            - listitem [ref=e510]: Spreadsheet export for your bookkeeper
+          - link "Start Automate" [ref=e513] [cursor=pointer]:
+            - /url: /signup?tier=oshi_grow
+        - generic [ref=e516]:
+          - generic [ref=e518]:
+            - heading "Oshi-Pro" [level=3] [ref=e519]
+            - paragraph [ref=e520]: For established retailers with a big catalogue and an accountant
+          - generic [ref=e527]:
+            - generic [ref=e528]: N$799
+            - generic [ref=e529]: /month
+          - list [ref=e530]:
+            - listitem [ref=e531]: Unlimited products
+            - listitem [ref=e534]: Unlimited orders/month
+            - listitem [ref=e537]: Everything in Oshi-Automate
+            - listitem [ref=e540]: Twelve-month statement in one document for year-end
+            - listitem [ref=e543]: No monthly order limit
+          - link "Start Pro" [ref=e546] [cursor=pointer]:
+            - /url: /signup?tier=oshi_pro
+    - generic [ref=e550]:
+      - generic [ref=e551]:
+        - paragraph [ref=e552]: FAQ
+        - heading "Clear answers for serious sellers." [level=2] [ref=e553]
+      - generic [ref=e554]:
+        - group [ref=e555]:
+          - generic "Is OshiCart only for shops? +" [ref=e556] [cursor=pointer]:
+            - generic [ref=e557]: Is OshiCart only for shops?
+            - generic [ref=e558]: +
+        - group [ref=e559]:
+          - generic "Do you charge commission on sales? +" [ref=e560] [cursor=pointer]:
+            - generic [ref=e561]: Do you charge commission on sales?
+            - generic [ref=e562]: +
+        - group [ref=e563]:
+          - generic "Which payment methods can I offer? +" [ref=e564] [cursor=pointer]:
+            - generic [ref=e565]: Which payment methods can I offer?
+            - generic [ref=e566]: +
+        - group [ref=e567]:
+          - generic "Do customers need to install an app? +" [ref=e568] [cursor=pointer]:
+            - generic [ref=e569]: Do customers need to install an app?
+            - generic [ref=e570]: +
+        - group [ref=e571]:
+          - generic "Can I market my store on Facebook, Instagram, and TikTok? +" [ref=e572] [cursor=pointer]:
+            - generic [ref=e573]: Can I market my store on Facebook, Instagram, and TikTok?
+            - generic [ref=e574]: +
+    - generic [ref=e578]:
+      - generic [ref=e579]:
+        - generic [ref=e580]: Made for social selling
+        - heading "Show your store in Facebook, Instagram, and TikTok content." [level=2] [ref=e583]
+        - paragraph [ref=e584]: "Record simple demos from your real store link: products, checkout, proof of payment, automated WhatsApp updates, and local payment options."
+      - generic [ref=e585]:
+        - generic [ref=e586]:
+          - generic [ref=e587]: "1"
+          - generic [ref=e588]: Stop losing orders in WhatsApp DMs
+        - generic [ref=e589]:
+          - generic [ref=e590]: "2"
+          - generic [ref=e591]: Open your store in 5 minutes
+        - generic [ref=e592]:
+          - generic [ref=e593]: "3"
+          - generic [ref=e594]: Customer orders without asking price again
+    - generic [ref=e596]:
+      - heading "Open your shop today. Free to start." [level=2] [ref=e603]
+      - paragraph [ref=e604]: "Build the store link once. Use it everywhere your customers already are: WhatsApp Status, Facebook groups, Instagram bio, TikTok, flyers, and QR codes."
+      - link "Create Free Store" [ref=e605] [cursor=pointer]:
+        - /url: /signup
+  - contentinfo [ref=e608]:
+    - generic [ref=e609]:
+      - generic [ref=e610]:
+        - generic [ref=e611]:
+          - img "OshiCart" [ref=e612]
+          - paragraph [ref=e613]: Online stores for Namibia's shops, vendors, services, and WhatsApp sellers.
+        - generic [ref=e614]:
+          - heading "About OshiCart" [level=4] [ref=e615]
+          - generic [ref=e616]:
+            - paragraph [ref=e617]: OshiCart is a proudly Namibian commerce platform for sellers who already run their business through WhatsApp, Facebook, Instagram, markets, and local communities.
+            - paragraph [ref=e618]: We help merchants publish a clean store link, receive structured orders, accept local payments, and manage products without needing a custom website.
+            - paragraph [ref=e619]: From local vendors and restaurants to boutiques, salons, electronics shops, and service providers, OshiCart is built for the way Namibia sells.
+        - generic [ref=e620]:
+          - heading "Contact & Support" [level=4] [ref=e621]
+          - list [ref=e622]:
+            - listitem [ref=e623]:
+              - 'link "Call: +264 81 626 2961" [ref=e624] [cursor=pointer]':
+                - /url: tel:+264816262961
+            - listitem [ref=e625]:
+              - 'link "WhatsApp: +264 81 627 4823" [ref=e626] [cursor=pointer]':
+                - /url: https://wa.me/264816274823?text=Hi%20OshiCart%2C%20I%20need%20help%20with...
+            - listitem [ref=e627]:
+              - link "info@octovianexus.com" [ref=e628] [cursor=pointer]:
+                - /url: mailto:info@octovianexus.com
+            - listitem [ref=e629]:
+              - link "Browse Stores" [ref=e630] [cursor=pointer]:
+                - /url: /stores
+            - listitem [ref=e631]:
+              - link "Help" [ref=e632] [cursor=pointer]:
+                - /url: /help
+            - listitem [ref=e633]:
+              - link "Setup guide" [ref=e634] [cursor=pointer]:
+                - /url: /guide
+            - listitem [ref=e635]:
+              - link "Become an Agent" [ref=e636] [cursor=pointer]:
+                - /url: /agents
+            - listitem [ref=e637]:
+              - link "Install as app" [ref=e638] [cursor=pointer]:
+                - /url: /app
+            - listitem [ref=e639]:
+              - link "Terms of Service" [ref=e640] [cursor=pointer]:
+                - /url: /terms
+            - listitem [ref=e641]:
+              - link "Privacy Policy" [ref=e642] [cursor=pointer]:
+                - /url: /privacy
+            - listitem [ref=e643]:
+              - link "Prohibited Products" [ref=e644] [cursor=pointer]:
+                - /url: /prohibited-products
+      - generic [ref=e645]:
+        - paragraph [ref=e646]: © 2026 OshiCart. Made in Namibia.
+        - paragraph [ref=e647]: OshiCart is a product of Octovia Nexus Investments CC
+  - button "Contact support" [ref=e649]

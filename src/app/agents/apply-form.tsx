@@ -71,9 +71,11 @@ export function AgentApplyForm() {
               demo store
             </Link>{" "}
             and read the{" "}
-            <Link href="/oshicart-referral-agent-handbook.pdf" className="font-bold underline">
+            {/* Plain <a>: the PDF is a static asset, and <Link> made Next
+                RSC-prefetch it as if it were a route, logging a 404. */}
+            <a href="/oshicart-referral-agent-handbook.pdf" className="font-bold underline">
               agent handbook
-            </Link>
+            </a>
             .
           </p>
         )}

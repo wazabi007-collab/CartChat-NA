@@ -34,12 +34,18 @@ export default async function OrdersPage({
 
   if (!user) redirect("/login");
 
-  const { data: merchant } = await supabase
+  const { data: merchant, error: merchantError } = await supabase
     .from("merchants")
     .select("id, industry, store_name, store_slug, pop_required, uses_ready_step")
     .eq("user_id", user.id)
     .single();
 
+  // A denied column (42501) is NOT "you have no store". Reading every error as
+  // an unconfigured merchant sent fully set-up merchants to Setup and hid
+  // their orders entirely; fail loudly instead so the cause is visible.
+  if (merchantError && merchantError.code !== "PGRST116") {
+    throw new Error(`Could not load your store: ${merchantError.message}`);
+  }
   if (!merchant) redirect("/dashboard/setup");
 
   const statusFilter = params.status;

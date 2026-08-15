@@ -94,18 +94,17 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (!merchant) {
-      // No merchant with this phone — check auth users metadata as fallback
-      // NOTE: listUsers limited to 1000. For >1000 users, consider a direct
-      // SQL query on auth.users or storing phone in a searchable column.
-      const { data: { users } } = await supabase.auth.admin.listUsers({
-        perPage: 1000,
+      // No merchant with this phone — fall back to the auth user's metadata.
+      // This used to scan a 1000-row page, so a merchant registered past it
+      // was told no account existed and could not sign in.
+      const { data: matched } = await supabase.rpc("auth_user_lookup_by_phone", {
+        p_normalized: normalizedPhone,
+        p_raw: cleanPhone,
       });
-
-      const matchedUser = users.find(
-        (u) =>
-          u.user_metadata?.whatsapp_number === normalizedPhone ||
-          u.phone === cleanPhone
-      );
+      const matchedRow = Array.isArray(matched) ? matched[0] : matched;
+      const matchedUser = matchedRow
+        ? { id: matchedRow.user_id as string, email: matchedRow.email as string | null }
+        : null;
 
       if (!matchedUser) {
         return NextResponse.json({

@@ -28,6 +28,9 @@ export interface CartItem {
   depositNad?: number;
   /** e.g. "Driver's licence and proof of address" — shown at checkout. */
   requiredDocuments?: string;
+  /** Shortest and longest hire the merchant allows, in the item's own unit. */
+  rentalMinDays?: number;
+  rentalMaxDays?: number;
 }
 
 export interface CartVatSettings {

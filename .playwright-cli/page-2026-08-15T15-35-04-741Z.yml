@@ -1,0 +1,256 @@
+- generic [ref=f11e1]:
+  - generic [ref=f11e2]:
+    - complementary [ref=f11e3]:
+      - generic [ref=f11e4]:
+        - generic [ref=f11e5]:
+          - link [ref=f11e6] [cursor=pointer]:
+            - /url: /dashboard
+            - img "OshiCart" [ref=f11e7]
+          - generic [ref=f11e15]:
+            - paragraph [ref=f11e16]: QA (delete me) Merchant Store 2026-08-15
+            - paragraph [ref=f11e17]: /s/qa-delete-me-merchant-store-2026-08-15
+        - navigation [ref=f11e18]:
+          - link "Dashboard" [ref=f11e19] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Services" [ref=f11e26] [cursor=pointer]:
+            - /url: /dashboard/products
+          - link "Share store" [ref=f11e32] [cursor=pointer]:
+            - /url: /dashboard/share
+          - link "Orders" [ref=f11e40] [cursor=pointer]:
+            - /url: /dashboard/orders
+          - link "Bookings" [ref=f11e46] [cursor=pointer]:
+            - /url: /dashboard/bookings
+          - link "Customers" [ref=f11e50] [cursor=pointer]:
+            - /url: /dashboard/customers
+          - link "Broadcast" [ref=f11e57] [cursor=pointer]:
+            - /url: /dashboard/broadcast
+          - link "Reviews" [ref=f11e62] [cursor=pointer]:
+            - /url: /dashboard/reviews
+          - link "Coupons" [ref=f11e66] [cursor=pointer]:
+            - /url: /dashboard/coupons
+          - link "Analytics" [ref=f11e70] [cursor=pointer]:
+            - /url: /dashboard/analytics
+          - link "Statements" [ref=f11e74] [cursor=pointer]:
+            - /url: /dashboard/statements
+          - link "Account" [ref=f11e79] [cursor=pointer]:
+            - /url: /dashboard/account
+          - link "Subscription" [ref=f11e84] [cursor=pointer]:
+            - /url: /dashboard/subscription
+          - link "Settings" [ref=f11e88] [cursor=pointer]:
+            - /url: /dashboard/settings
+          - link "View store" [ref=f11e93] [cursor=pointer]:
+            - /url: /s/qa-delete-me-merchant-store-2026-08-15
+          - link "Help" [ref=f11e99] [cursor=pointer]:
+            - /url: /help
+        - button "Sign out" [ref=f11e105]
+    - main [ref=f11e109]:
+      - generic [ref=f11e110]:
+        - generic [ref=f11e113]:
+          - paragraph [ref=f11e114]: Store controls
+          - heading "Store Settings" [level=1] [ref=f11e115]
+          - paragraph [ref=f11e116]: Keep your storefront identity, payment details, tax information, and delivery rules ready for checkout.
+        - generic [ref=f11e117]:
+          - generic [ref=f11e118]:
+            - heading "Store Details" [level=2] [ref=f11e119]
+            - generic [ref=f11e120]:
+              - generic [ref=f11e121]: Store Logo
+              - generic [ref=f11e127]:
+                - generic [ref=f11e128] [cursor=pointer]: Upload Logo
+                - paragraph [ref=f11e132]: Square image recommended. Shows on your storefront and invoices.
+            - generic [ref=f11e133]:
+              - generic [ref=f11e134]: Store Name
+              - textbox [ref=f11e135]: QA (delete me) Merchant Store 2026-08-15
+            - generic [ref=f11e136]:
+              - generic [ref=f11e137]: Description
+              - textbox [ref=f11e138]: QA (delete me) production platform audit store
+            - generic [ref=f11e139]:
+              - generic [ref=f11e140]: WhatsApp Number
+              - textbox [ref=f11e141]: "+264819908151"
+              - paragraph [ref=f11e142]: Customers will contact you on this number
+            - generic [ref=f11e143]:
+              - generic [ref=f11e144]: Region
+              - combobox [ref=f11e145]:
+                - option "Not set"
+                - option "Khomas" [selected]
+                - option "Erongo"
+                - option "Oshana"
+                - option "Oshikoto"
+                - option "Otjozondjupa"
+                - option "Omusati"
+                - option "Ohangwena"
+                - option "Kavango East"
+                - option "Kavango West"
+                - option "Hardap"
+                - option "ǁKaras"
+                - option "Kunene"
+                - option "Omaheke"
+                - option "Zambezi"
+            - generic [ref=f11e146]:
+              - generic [ref=f11e147]: Town
+              - combobox [ref=f11e148]:
+                - option "Select your town"
+                - option "Windhoek" [selected]
+                - option "Other (Khomas)"
+              - paragraph [ref=f11e149]: Shown to customers on your store and the Browse page
+          - generic [ref=f11e150]:
+            - heading "Bank Details" [level=2] [ref=f11e151]
+            - paragraph [ref=f11e152]: Shown to customers at checkout for EFT payment
+            - generic [ref=f11e153]:
+              - generic [ref=f11e154]: Bank
+              - combobox [ref=f11e155]:
+                - option "Select bank..."
+                - option "FNB Namibia" [selected]
+                - option "Bank Windhoek"
+                - option "Standard Bank Namibia"
+                - option "Nedbank Namibia"
+                - option "Letshego"
+                - option "Other"
+            - generic [ref=f11e156]:
+              - generic [ref=f11e157]: Account Holder
+              - textbox [ref=f11e158]: QA (delete me) Account Holder
+            - generic [ref=f11e159]:
+              - generic [ref=f11e160]: Account Number
+              - textbox [ref=f11e161]: "9990008151"
+            - generic [ref=f11e162]:
+              - generic [ref=f11e163]: Branch Code
+              - textbox [ref=f11e164]: "281872"
+          - generic [ref=f11e165]:
+            - heading "VAT Registration" [level=2] [ref=f11e166]
+            - paragraph [ref=f11e167]: Only fill this in if your business is VAT-registered with NamRA. Namibia VAT rate is 15%.
+            - generic [ref=f11e168]:
+              - generic [ref=f11e169]: VAT Number
+              - textbox "e.g. 1234567-01-5" [ref=f11e170]
+          - generic [ref=f11e171]:
+            - heading "Payment Methods" [level=2] [ref=f11e172]
+            - paragraph [ref=f11e173]: Choose which payment methods customers can use at checkout
+            - generic [ref=f11e174]:
+              - generic [ref=f11e175] [cursor=pointer]:
+                - checkbox "Bank Transfer (EFT)" [checked] [ref=f11e176]
+                - generic [ref=f11e180]: Bank Transfer (EFT)
+              - generic [ref=f11e181] [cursor=pointer]:
+                - checkbox "Cash on Delivery" [checked] [ref=f11e182]
+                - generic [ref=f11e187]: Cash on Delivery
+              - generic [ref=f11e188] [cursor=pointer]:
+                - checkbox "MTC Maris logo MTC Maris" [ref=f11e189]
+                - img "MTC Maris logo" [ref=f11e190]
+                - generic [ref=f11e191]: MTC Maris
+              - generic [ref=f11e192] [cursor=pointer]:
+                - checkbox "eWallet" [checked] [ref=f11e193]
+                - generic [ref=f11e198]: eWallet
+              - generic [ref=f11e199] [cursor=pointer]:
+                - checkbox "FNB Pay2Cell logo FNB Pay2Cell" [ref=f11e200]
+                - img "FNB Pay2Cell logo" [ref=f11e201]
+                - generic [ref=f11e202]: FNB Pay2Cell
+              - generic [ref=f11e203] [cursor=pointer]:
+                - checkbox "PayToday logo PayToday" [ref=f11e204]
+                - img "PayToday logo" [ref=f11e205]
+                - generic [ref=f11e206]: PayToday
+            - generic [ref=f11e207]:
+              - generic [ref=f11e208]: eWallet Provider
+              - generic [ref=f11e209]:
+                - button "FNB eWallet logo FNB eWallet" [pressed] [ref=f11e210]:
+                  - img "FNB eWallet logo" [ref=f11e211]
+                  - generic [ref=f11e212]: FNB eWallet
+                - button "PayPulse (Standard Bank) logo PayPulse (Standard Bank)" [ref=f11e213]:
+                  - img "PayPulse (Standard Bank) logo" [ref=f11e214]
+                  - generic [ref=f11e215]: PayPulse (Standard Bank)
+                - button "EasyWallet (Bank Windhoek) logo EasyWallet (Bank Windhoek)" [ref=f11e216]:
+                  - img "EasyWallet (Bank Windhoek) logo" [ref=f11e217]
+                  - generic [ref=f11e218]: EasyWallet (Bank Windhoek)
+                - button "Nedbank Money (MobiMoney) logo Nedbank Money (MobiMoney)" [ref=f11e219]:
+                  - img "Nedbank Money (MobiMoney) logo" [ref=f11e220]
+                  - generic [ref=f11e221]: Nedbank Money (MobiMoney)
+            - generic [ref=f11e222]:
+              - generic [ref=f11e223]: eWallet Number
+              - textbox "+264 81 123 4567" [ref=f11e224]: "0819908151"
+              - paragraph [ref=f11e225]: Customers will send eWallet payment to this number
+            - generic [ref=f11e227] [cursor=pointer]:
+              - 'checkbox "Use the simple order flow Skip the \"Ready\" step: an order goes straight from confirmed to completed. Fewer taps for you, and one less WhatsApp message for your customer. Leave this off if \"your order is ready for collection\" is a moment your customers need." [checked] [ref=f11e228]'
+              - generic [ref=f11e229]:
+                - generic [ref=f11e230]: Use the simple order flow
+                - text: "Skip the \"Ready\" step: an order goes straight from confirmed to completed. Fewer taps for you, and one less WhatsApp message for your customer. Leave this off if \"your order is ready for collection\" is a moment your customers need."
+            - generic [ref=f11e232] [cursor=pointer]:
+              - checkbox "Require proof of payment for EFT Customers paying by bank transfer must upload proof before placing the order. Instant mobile payments (eWallet, Pay2Cell, MTC Maris) and Cash on Delivery are not affected." [ref=f11e233]
+              - generic [ref=f11e234]:
+                - generic [ref=f11e235]: Require proof of payment for EFT
+                - text: Customers paying by bank transfer must upload proof before placing the order. Instant mobile payments (eWallet, Pay2Cell, MTC Maris) and Cash on Delivery are not affected.
+            - generic [ref=f11e237] [cursor=pointer]:
+              - checkbox "Recover abandoned checkouts If a customer enters their details at checkout but doesn't finish, OshiCart sends them one WhatsApp reminder an hour later. Available on Oshi-Automate and Oshi-Pro." [checked] [ref=f11e238]
+              - generic [ref=f11e239]:
+                - generic [ref=f11e240]: Recover abandoned checkouts
+                - text: If a customer enters their details at checkout but doesn't finish, OshiCart sends them one WhatsApp reminder an hour later. Available on Oshi-Automate and Oshi-Pro.
+          - generic [ref=f11e241]:
+            - heading "Call-out fee" [level=2] [ref=f11e242]
+            - paragraph [ref=f11e243]: Charged once per booking when you travel to the customer. Only applies to services you have marked as “I travel to the customer”. Set to 0 if you do not charge for travel.
+            - generic [ref=f11e244]:
+              - generic [ref=f11e245]: N$
+              - spinbutton "50.00" [ref=f11e246]: "0"
+          - generic [ref=f11e247]:
+            - heading "Delivery Fee" [level=2] [ref=f11e248]
+            - paragraph [ref=f11e249]: Flat rate charged when customers choose delivery. Set to 0 for free delivery.
+            - generic [ref=f11e250]:
+              - generic [ref=f11e251]: N$
+              - spinbutton "30.00" [ref=f11e252]: "25.00"
+            - generic [ref=f11e253]:
+              - generic [ref=f11e254]: Delivery estimate
+              - textbox "e.g. 1–2 days, same-day, 30 min" [ref=f11e255]
+              - paragraph [ref=f11e256]: Optional. Shown to customers as "Usually ready in …".
+            - generic [ref=f11e257]:
+              - generic [ref=f11e258]: Delivery options shown at checkout
+              - generic [ref=f11e259]:
+                - generic [ref=f11e260] [cursor=pointer]:
+                  - checkbox "Store delivery" [checked] [ref=f11e261]
+                  - generic [ref=f11e262]: Store delivery
+                - generic [ref=f11e263] [cursor=pointer]:
+                  - checkbox "Yango" [checked] [ref=f11e264]
+                  - generic [ref=f11e265]: Yango
+                - generic [ref=f11e266] [cursor=pointer]:
+                  - checkbox "inDrive" [checked] [ref=f11e267]
+                  - generic [ref=f11e268]: inDrive
+              - paragraph [ref=f11e269]: Yango and inDrive are buyer-booked — the buyer pays the courier and you just prepare the parcel.
+            - generic [ref=f11e270]:
+              - generic [ref=f11e271]: Pickup address
+              - textbox "e.g. Shop 4, Maerua Mall, Windhoek" [ref=f11e272]: QA (delete me), 1 Test Street, Windhoek
+              - paragraph [ref=f11e273]: Where Yango/inDrive couriers collect orders. Buyers see this to book the driver.
+          - generic [ref=f11e274]:
+            - generic [ref=f11e275]:
+              - generic [ref=f11e276]:
+                - heading "Availability" [level=2] [ref=f11e277]
+                - paragraph [ref=f11e278]: The days and times customers can book you
+              - checkbox [checked] [ref=f11e281]
+            - generic [ref=f11e290]:
+              - paragraph [ref=f11e291]: Available days
+              - generic [ref=f11e292]:
+                - button "Sun" [ref=f11e293]
+                - button "Mon" [ref=f11e294]
+                - button "Tue" [active] [ref=f11e295]
+                - button "Wed" [ref=f11e296]
+                - button "Thu" [ref=f11e297]
+                - button "Fri" [ref=f11e298]
+                - button "Sat" [ref=f11e299]
+            - generic [ref=f11e300]:
+              - paragraph [ref=f11e301]: Generate session times
+              - generic [ref=f11e302]:
+                - textbox [ref=f11e303]: 09:00
+                - generic [ref=f11e304]: to
+                - textbox [ref=f11e305]: 17:00
+                - generic [ref=f11e306]: every
+                - combobox [ref=f11e307]:
+                  - option "15 min"
+                  - option "30 min"
+                  - option "45 min"
+                  - option "1 hour" [selected]
+                  - option "1.5 hours"
+                  - option "2 hours"
+                - button "Generate" [ref=f11e308]
+              - paragraph [ref=f11e309]: Replaces the list below — you can still edit it afterwards.
+            - generic [ref=f11e310]:
+              - paragraph [ref=f11e311]: Time slots
+              - generic [ref=f11e312]:
+                - textbox "Slot start time" [ref=f11e313]
+                - generic [ref=f11e314]: to
+                - textbox "Slot end time" [ref=f11e315]
+                - button "Add" [ref=f11e316]
+              - paragraph [ref=f11e318]: Customers pick one of these slots at checkout, e.g. 09:00 - 12:00
+          - button "Save Settings" [ref=f11e285]
+  - alert [ref=f11e112]

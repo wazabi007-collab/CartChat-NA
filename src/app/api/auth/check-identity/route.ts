@@ -25,29 +25,20 @@ export async function POST(req: NextRequest) {
     const email = parsed.data.email.toLowerCase();
     const supabase = createServiceClient();
 
-    // listUsers returns each user with their identities array attached — one
-    // round-trip, no custom auth schema queries needed.
-    const { data, error } = await supabase.auth.admin.listUsers({
-      perPage: 1000,
+    // Indexed lookup. This used to download a 1000-row page of users on every
+    // forgot-password attempt and match in JavaScript, which both got slower
+    // with every signup and stopped finding anyone past that page.
+    const { data, error } = await supabase.rpc("auth_user_lookup", {
+      p_email: email,
     });
 
-    if (error || !data) {
-      if (error) console.error("[CheckIdentity] listUsers error:", error);
+    if (error) {
+      console.error("[CheckIdentity] lookup error:", error);
       return NextResponse.json({ providers: [] }, { status: 200 });
     }
 
-    const user = data.users.find(
-      (u) => u.email?.toLowerCase() === email
-    );
-
-    if (!user) {
-      return NextResponse.json({ providers: [] }, { status: 200 });
-    }
-
-    const providers = Array.from(
-      new Set((user.identities ?? []).map((i) => i.provider))
-    );
-    return NextResponse.json({ providers }, { status: 200 });
+    const row = Array.isArray(data) ? data[0] : data;
+    return NextResponse.json({ providers: row?.providers ?? [] }, { status: 200 });
   } catch (err) {
     console.error("[CheckIdentity]", err);
     return NextResponse.json({ providers: [] }, { status: 200 });

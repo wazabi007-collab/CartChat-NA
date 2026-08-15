@@ -22,6 +22,7 @@ interface ProductCardProps {
   accentHover?: string;
   ctaText?: string;
   itemType?: "product" | "service" | "rental";
+  rentalUnit?: string | null;
   whatsappNumber?: string;
   storeName?: string;
   hasVariants?: boolean;
@@ -31,7 +32,7 @@ export function ProductCard({
   id, name, price, imageUrl, slug,
   trackInventory, stockQuantity, lowStockThreshold, allowBackorder,
   disabled, accentColor, accentHover, ctaText,
-  itemType, whatsappNumber, storeName,
+  itemType, rentalUnit, whatsappNumber, storeName,
   hasVariants,
 }: ProductCardProps) {
   const { addItem } = useCart();
@@ -60,7 +61,7 @@ export function ProductCard({
 
   return (
     <div className="bg-white/95 rounded-2xl border border-slate-200/80 overflow-hidden flex flex-col shadow-sm shadow-slate-900/5 hover:shadow-lg hover:shadow-slate-900/10 hover:-translate-y-0.5 transition">
-      <Link href={`/s/${slug}/${id}`} className="block relative">
+      <Link href={`/s/${slug}/${id}`} className="block relative" aria-label={`View ${name}`}>
         {imageUrl ? (
           <div className="relative aspect-square bg-slate-100">
             <Image
@@ -81,8 +82,15 @@ export function ProductCard({
             Out of Stock
           </span>
         )}
+        {/*
+          * Orange is too light to carry white text — orange-500 on white
+          * measured 2.89:1, well under AA. Inverting to dark-on-light rather
+          * than darkening the orange keeps the badge reading as a warning
+          * (a darker orange starts to look like the red out-of-stock pill)
+          * and matches the "For hire" badge directly below.
+          */}
         {isLowStock && (
-          <span className="absolute top-2 right-2 bg-orange-500 text-white text-xs font-medium px-2 py-0.5 rounded-full shadow-sm">
+          <span className="absolute top-2 right-2 bg-orange-100 text-orange-900 text-xs font-medium px-2 py-0.5 rounded-full shadow-sm">
             Only {stockQuantity} left!
           </span>
         )}
@@ -105,7 +113,7 @@ export function ProductCard({
           </h3>
         </Link>
         <p className={`font-bold text-base mt-1.5 ${accentColor ? "" : "text-terracotta"}`} style={accentColor ? { color: accentColor } : undefined}>
-          {isQuoteOnly ? "Request a Quote" : isRental ? `${formatPrice(price)} / day` : isService && price > 0 ? `From ${formatPrice(price)}` : price === 0 && !isService ? "Price on request" : formatPrice(price)}
+          {isQuoteOnly ? "Request a Quote" : isRental ? `${formatPrice(price)} / ${rentalUnit === "night" ? "night" : "day"}` : isService && price > 0 ? `From ${formatPrice(price)}` : price === 0 && !isService ? "Price on request" : formatPrice(price)}
         </p>
         {stockLabel && !isOutOfStock && (
           <p className="mt-1 text-xs font-semibold text-emerald-700">{stockLabel}</p>

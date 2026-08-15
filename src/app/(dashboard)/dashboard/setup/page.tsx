@@ -506,7 +506,7 @@ function StoreSetupForm() {
           <span>🎉</span>
           <p>
             {referrerName ? `Referred by ${referrerName} — ` : "Referred by a friend — "}
-            you get a <b>35-day free trial</b> instead of 30.
+            you get a <b>{REFERRED_TRIAL_DAYS}-day free trial</b> instead of {STANDARD_TRIAL_DAYS}.
           </p>
         </div>
       )}

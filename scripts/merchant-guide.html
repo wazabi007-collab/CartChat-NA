@@ -77,6 +77,11 @@
     margin: 0 0 4px 0;
     padding-bottom: 4px;
     border-bottom: 1px solid var(--line);
+    /* Sections 9-12 and 13-14 share one <section>, so that block is taller than
+       a page and the browser has to break inside it. Pinning the heading to the
+       text that follows stops a page starting with an orphaned heading. */
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   h2 .num {
@@ -92,7 +97,15 @@
     margin: 6px 0;
     padding-left: 20px;
   }
-  li { margin: 3px 0; }
+
+  /* A numbered instruction split over a page boundary loses its first line in
+     Chromium's print layout — page 8 used to open mid-sentence — so every item
+     is kept whole and pushed to the next page instead. */
+  li {
+    margin: 3px 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 
   strong { color: var(--ink); }
 

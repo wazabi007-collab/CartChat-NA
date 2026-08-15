@@ -1,0 +1,1 @@
+[  110030ms] [ERROR] Failed to load resource: the server responded with a status of 406 () @ https://pcseqiaqeiiaiqxqtfmw.supabase.co/rest/v1/coupons?select=code%2Cdiscount_type%2Cdiscount_value%2Cmin_order_nad%2Cmax_uses%2Ccurrent_uses%2Cstarts_at%2Cexpires_at&merchant_id=eq.9fcb7487-de46-4aba-b197-b8144123b189&code=eq.EXPIRED-QA&is_active=eq.true:0

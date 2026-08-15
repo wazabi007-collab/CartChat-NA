@@ -1,0 +1,18 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e48]: Checkout | OshiCart Demo Store | OshiCart
+  - generic [ref=e92]:
+    - banner [ref=e93]:
+      - heading "Checkout — OshiCart Demo Store" [level=1] [ref=e95]
+    - main [ref=e96]:
+      - generic [ref=e218]:
+        - heading "Order Confirmed!" [level=2] [ref=e222]
+        - paragraph [ref=e223]:
+          - text: Your order number is
+          - generic [ref=e224]: "#6"
+        - paragraph [ref=e225]: Please have cash ready for the order amount. Any buyer-arranged courier fee is paid separately.
+        - generic [ref=e226]:
+          - link "Message OshiCart Demo Store on WhatsApp" [ref=e227] [cursor=pointer]:
+            - /url: https://wa.me/264812384424?text=Hi%20OshiCart%20Demo%20Store!%20%F0%9F%9B%92%20New%20order%20%236%0A%0A*Customer%3A*%20QA%20(delete%20me)%20Product%20Buyer%202026-08-15%0A*WhatsApp%3A*%200819908152%0A%0A*Items%3A*%0A-%20Demo%20T-Shirt%20x2%20-%20N%24360.00%0A%0A*Subtotal%3A*%20N%24360.00%0A*Delivery%20Fee%3A*%20N%2430.00%0A*Total%3A*%20N%24390.00%0A*Payment%20Ref%3A*%20OSHI-A34924A7%0A*Payment%3A*%20Cash%20on%20Delivery%0A*Delivery%3A*%20Store%20delivery%20to%3A%20QA%20(delete%20me)%2C%202%20Demo%20Street%2C%20Windhoek%0A*Scheduled%3A*%202026-08-17%20%E2%80%94%2009%3A00%0A*Notes%3A*%20QA%20(delete%20me)%20product%20order%20%E2%80%94%20approved%20production%20audit%0A%0A*Invoice%3A*%20https%3A%2F%2Foshicart.com%2Finvoice%2Fa34924a7-2cce-4af5-830d-b88a12d2d028
+          - link "Back to Store" [ref=e231] [cursor=pointer]:
+            - /url: /s/oshicart-demo
+    - contentinfo [ref=e160]

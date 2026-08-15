@@ -1,0 +1,27 @@
+- generic [active] [ref=f7e1]:
+  - generic [ref=f7e2]:
+    - navigation [ref=f7e3]:
+      - generic [ref=f7e4]:
+        - link "OshiCart" [ref=f7e5] [cursor=pointer]:
+          - /url: /
+        - link "Browse Stores" [ref=f7e8] [cursor=pointer]:
+          - /url: /stores
+    - link "Back to OshiCart Demo Store" [ref=f7e11] [cursor=pointer]:
+      - /url: /s/oshicart-demo
+    - main [ref=f7e14]:
+      - generic [ref=f7e15]:
+        - generic [ref=f7e16]: D
+        - generic [ref=f7e18]:
+          - heading "Demo Haircut Appointment" [level=1] [ref=f7e19]
+          - paragraph [ref=f7e20]: N$120.00
+          - paragraph [ref=f7e22]: A practice SERVICE. Add this to see the booking calendar — pick a day and a time slot like a salon client would.
+          - generic [ref=f7e25]:
+            - button "Add to Cart" [ref=f7e26]
+            - generic [ref=f7e31]: N$120.00
+  - button "Open cart" [ref=f7e32]
+  - generic [ref=f7e37]:
+    - generic [ref=f7e38]:
+      - heading "Cart (0)" [level=2] [ref=f7e39]
+      - button "Close cart" [ref=f7e40]
+    - paragraph [ref=f7e45]: Your cart is empty
+  - alert [ref=f7e46]

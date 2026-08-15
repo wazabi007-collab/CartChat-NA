@@ -18,15 +18,11 @@ export async function POST(request: Request) {
 
   const supabase = createServiceClient();
 
-  // Targeted lookup instead of listing all users
-  const { data } = await supabase.auth.admin.listUsers({
-    page: 1,
-    perPage: 1,
-  });
-
-  const exists = (data?.users ?? []).some(
-    (u) => u.email?.toLowerCase() === email.toLowerCase()
-  );
+  // This asked the admin API for a single arbitrary user and then checked
+  // whether THAT user's address matched, so it answered "does not exist" for
+  // nearly every real address. Now an indexed lookup on the address itself.
+  const { data } = await supabase.rpc("auth_user_lookup", { p_email: email });
+  const exists = Array.isArray(data) ? data.length > 0 : Boolean(data);
 
   // Consistent response time to prevent timing attacks
   const elapsed = Date.now() - start;

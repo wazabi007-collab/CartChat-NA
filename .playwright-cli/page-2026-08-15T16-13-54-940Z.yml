@@ -1,0 +1,48 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - complementary [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - generic [ref=f2e5]:
+          - link [ref=f2e6] [cursor=pointer]:
+            - /url: /dashboard
+            - img "OshiCart" [ref=f2e7]
+          - generic [ref=f2e15]:
+            - paragraph [ref=f2e16]: QA (delete me) Merchant Store 2026-08-15
+            - paragraph [ref=f2e17]: /s/qa-delete-me-merchant-store-2026-08-15
+        - navigation [ref=f2e18]:
+          - link "Dashboard" [ref=f2e19] [cursor=pointer]:
+            - /url: /dashboard
+          - link "Services" [ref=f2e26] [cursor=pointer]:
+            - /url: /dashboard/products
+          - link "Share store" [ref=f2e32] [cursor=pointer]:
+            - /url: /dashboard/share
+          - link "Orders" [ref=f2e40] [cursor=pointer]:
+            - /url: /dashboard/orders
+          - link "Bookings" [ref=f2e46] [cursor=pointer]:
+            - /url: /dashboard/bookings
+          - link "Customers" [ref=f2e50] [cursor=pointer]:
+            - /url: /dashboard/customers
+          - link "Broadcast" [ref=f2e57] [cursor=pointer]:
+            - /url: /dashboard/broadcast
+          - link "Reviews" [ref=f2e62] [cursor=pointer]:
+            - /url: /dashboard/reviews
+          - link "Coupons" [ref=f2e66] [cursor=pointer]:
+            - /url: /dashboard/coupons
+          - link "Analytics" [ref=f2e70] [cursor=pointer]:
+            - /url: /dashboard/analytics
+          - link "Statements" [ref=f2e74] [cursor=pointer]:
+            - /url: /dashboard/statements
+          - link "Account" [ref=f2e79] [cursor=pointer]:
+            - /url: /dashboard/account
+          - link "Subscription" [ref=f2e84] [cursor=pointer]:
+            - /url: /dashboard/subscription
+          - link "Settings" [ref=f2e88] [cursor=pointer]:
+            - /url: /dashboard/settings
+          - link "View store" [ref=f2e93] [cursor=pointer]:
+            - /url: /s/qa-delete-me-merchant-store-2026-08-15
+          - link "Help" [ref=f2e99] [cursor=pointer]:
+            - /url: /help
+        - button "Sign out" [ref=f2e105]
+    - main [ref=f2e109]:
+      - paragraph [ref=f2e111]: Loading...
+  - alert [ref=f2e112]

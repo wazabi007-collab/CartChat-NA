@@ -1,0 +1,121 @@
+- generic [ref=f4e1]:
+  - alert [ref=f4e48]: Checkout | OshiCart Demo Store | OshiCart
+  - generic [ref=f4e92]:
+    - banner [ref=f4e93]:
+      - heading "Checkout — OshiCart Demo Store" [level=1] [ref=f4e95]
+    - main [ref=f4e96]:
+      - generic [ref=f4e97]:
+        - link "Back to store" [ref=f4e98] [cursor=pointer]:
+          - /url: /s/oshicart-demo
+        - generic [ref=f4e101]:
+          - heading "Order Summary" [level=2] [ref=f4e102]
+          - list [ref=f4e103]:
+            - listitem [ref=f4e104]:
+              - paragraph [ref=f4e106]: Demo T-Shirt x 2
+              - generic [ref=f4e107]: N$360.00
+          - generic [ref=f4e108]:
+            - generic [ref=f4e109]:
+              - generic [ref=f4e110]: Subtotal
+              - generic [ref=f4e111]: N$360.00
+            - generic [ref=f4e163]:
+              - generic [ref=f4e164]: Delivery Fee
+              - generic [ref=f4e165]: N$30.00
+            - generic [ref=f4e112]:
+              - generic [ref=f4e113]: Total
+              - generic [ref=f4e114]: N$390.00
+        - generic [ref=f4e115]:
+          - heading "Discount Code" [level=2] [ref=f4e116]
+          - generic [ref=f4e120]:
+            - textbox "Enter code" [ref=f4e121]: EXPIRED-QA
+            - button "Apply" [ref=f4e122]
+          - paragraph [ref=f4e162]: Invalid coupon code
+        - generic [ref=f4e123]:
+          - heading "Your Details" [level=2] [ref=f4e124]
+          - generic [ref=f4e125]:
+            - generic [ref=f4e126]: Full Name*
+            - textbox "Your full name" [ref=f4e127]
+          - generic [ref=f4e128]:
+            - generic [ref=f4e129]: WhatsApp Number*
+            - textbox "WhatsApp Number*" [ref=f4e131]:
+              - /placeholder: 081 234 5678
+            - paragraph [ref=f4e132]: The merchant will contact you on this number
+        - generic [ref=f4e133]:
+          - heading "Delivery Method" [level=2] [ref=f4e134]
+          - generic [ref=f4e135]:
+            - generic [ref=f4e136] [cursor=pointer]:
+              - radio "Pickup" [ref=f4e137]
+              - text: Pickup
+            - generic [ref=f4e138] [cursor=pointer]:
+              - radio "Delivery" [checked] [active] [ref=f4e139]
+              - text: Delivery
+          - generic [ref=f4e166]:
+            - generic [ref=f4e167]: Delivery Handling*
+            - generic [ref=f4e168]:
+              - generic [ref=f4e169] [cursor=pointer]:
+                - radio "Store delivery Store fee Merchant handles delivery and adds the store delivery fee." [checked] [ref=f4e170]
+                - generic [ref=f4e171]:
+                  - generic [ref=f4e178]: Store delivery
+                  - generic [ref=f4e179]: Store fee
+                  - generic [ref=f4e180]: Merchant handles delivery and adds the store delivery fee.
+              - generic [ref=f4e181] [cursor=pointer]:
+                - radio "Yango Yango Buyer pays Buyer arranges and pays the Yango courier directly." [ref=f4e182]
+                - generic [ref=f4e183]:
+                  - img "Yango" [ref=f4e185]
+                  - generic [ref=f4e186]: Yango
+                  - generic [ref=f4e187]: Buyer pays
+                  - generic [ref=f4e188]: Buyer arranges and pays the Yango courier directly.
+              - generic [ref=f4e189] [cursor=pointer]:
+                - radio "inDrive inDrive Buyer pays Buyer negotiates and pays the inDrive courier directly." [ref=f4e190]
+                - generic [ref=f4e191]:
+                  - img "inDrive" [ref=f4e193]
+                  - generic [ref=f4e194]: inDrive
+                  - generic [ref=f4e195]: Buyer pays
+                  - generic [ref=f4e196]: Buyer negotiates and pays the inDrive courier directly.
+          - generic [ref=f4e197]:
+            - generic [ref=f4e198]: Delivery Address*
+            - textbox "Enter your full delivery address" [ref=f4e199]
+          - generic [ref=f4e200]:
+            - generic [ref=f4e201]: Delivery Date*
+            - combobox [ref=f4e202]:
+              - option "Select a date..." [selected]
+              - option "Monday, 17 Aug"
+              - option "Tuesday, 18 Aug"
+              - option "Wednesday, 19 Aug"
+              - option "Thursday, 20 Aug"
+              - option "Friday, 21 Aug"
+              - option "Monday, 24 Aug"
+              - option "Tuesday, 25 Aug"
+              - option "Wednesday, 26 Aug"
+              - option "Thursday, 27 Aug"
+              - option "Friday, 28 Aug"
+          - generic [ref=f4e203]:
+            - generic [ref=f4e204]: Time Slot*
+            - generic [ref=f4e205]:
+              - generic [ref=f4e206] [cursor=pointer]:
+                - radio "09:00" [ref=f4e207]
+                - text: 09:00
+              - generic [ref=f4e208] [cursor=pointer]:
+                - radio "10:00" [ref=f4e209]
+                - text: 10:00
+              - generic [ref=f4e210] [cursor=pointer]:
+                - radio "11:00" [ref=f4e211]
+                - text: 11:00
+              - generic [ref=f4e212] [cursor=pointer]:
+                - radio "14:00" [ref=f4e213]
+                - text: 14:00
+              - generic [ref=f4e214] [cursor=pointer]:
+                - radio "15:00" [ref=f4e215]
+                - text: 15:00
+          - generic [ref=f4e141]:
+            - generic [ref=f4e142]: Notes (optional)
+            - textbox "Any special instructions..." [ref=f4e143]
+        - generic [ref=f4e144]:
+          - heading "Payment Method" [level=2] [ref=f4e145]
+          - generic [ref=f4e147] [cursor=pointer]:
+            - radio "Cash on Delivery" [checked] [ref=f4e216]
+            - generic [ref=f4e153]: Cash on Delivery
+          - generic [ref=f4e155]:
+            - paragraph [ref=f4e156]: Cash on Delivery
+            - paragraph [ref=f4e157]: Pay N$390.00 in cash when your order is delivered.
+        - button "Place Order" [ref=f4e159]
+    - contentinfo [ref=f4e160]

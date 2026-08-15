@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: product } = await supabase
     .from("products")
-    .select("name, description, images, price_nad")
+    .select("name, description, price_nad")
     .eq("id", productId)
     .eq("merchant_id", merchant.id)
     .eq("is_available", true)
@@ -44,18 +44,42 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!product) return { title: "Not Found" };
 
-  const ogImage = product.images?.[0] || `${SITE_URL}/api/og/store/${slug}`;
+  // Branded card, not the raw product photo: the photo's own aspect ratio was
+  // declared as 1200x630 and stretched by every unfurler, and photoless
+  // products borrowed the store card, which carries no product at all. The
+  // route renders PNG, so the declared type is PNG.
+  const ogImage = `${SITE_URL}/api/og/product/${productId}/link`;
+  const socialTitle = `${product.name} - ${formatPrice(product.price_nad)}`;
+  const socialDescription =
+    product.description || `Buy ${product.name} from ${merchant.store_name}`;
 
   return {
     title: `${product.name} | ${merchant.store_name}`,
     description: product.description || `${product.name} - ${formatPrice(product.price_nad)}, from ${merchant.store_name} on ${SITE_NAME}. Order via WhatsApp.`,
     alternates: { canonical: `${SITE_URL}/s/${slug}/${productId}` },
     openGraph: {
-      title: `${product.name} - ${formatPrice(product.price_nad)}`,
-      description: product.description || `Buy ${product.name} from ${merchant.store_name}`,
+      title: socialTitle,
+      description: socialDescription,
       url: `${SITE_URL}/s/${slug}/${productId}`,
-      images: [{ url: ogImage, width: 1200, height: 630 }],
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          type: "image/png",
+          alt: `${product.name} — ${formatPrice(product.price_nad)} at ${merchant.store_name}`,
+        },
+      ],
       type: "website",
+    },
+    // Without this the root layout's twitter image wins and the product
+    // unfurls as the generic brand card on X, Slack and Discord — Next only
+    // auto-fills twitter from openGraph when no ancestor set twitter.images.
+    twitter: {
+      card: "summary_large_image",
+      title: socialTitle,
+      description: socialDescription,
+      images: [ogImage],
     },
   };
 }
@@ -258,6 +282,8 @@ export default async function ProductDetailPage({ params }: Props) {
                     rental_unit: product.rental_unit ?? null,
                     deposit_nad: product.deposit_nad ?? null,
                     required_documents: product.required_documents ?? null,
+                    rental_min_days: product.rental_min_days ?? null,
+                    rental_max_days: product.rental_max_days ?? null,
                   }}
                   variants={productVariants}
                   industry={merchant.industry}

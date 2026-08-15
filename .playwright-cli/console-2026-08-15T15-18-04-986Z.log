@@ -1,0 +1,4 @@
+[    1374ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "new-password"): (More info: https://goo.gl/9p2vKq) %o @ https://oshicart.com/signup:0
+[    1375ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "new-password"): (More info: https://goo.gl/9p2vKq) %o @ https://oshicart.com/signup:0
+[  264114ms] [ERROR] Failed to load resource: the server responded with a status of 406 () @ https://pcseqiaqeiiaiqxqtfmw.supabase.co/rest/v1/merchants?select=id&store_slug=eq.qa-delete-me-merchant-store-2026-08-15:0
+[  266823ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://oshicart.com/api/whatsapp/notify:0

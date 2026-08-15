@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import dynamic from "next/dynamic";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft, Grid3X3 } from "lucide-react";
@@ -14,7 +15,12 @@ import { ReportButton } from "@/components/storefront/report-button";
 import { StorefrontProducts } from "@/components/storefront/storefront-products";
 import { StorefrontSearch } from "@/components/storefront/search-bar";
 import { StorefrontTabs } from "@/components/storefront/storefront-tabs";
-import { OrderTracker } from "@/components/storefront/order-tracker";
+// Only rendered on the "orders" tab, but a static import ships its JS — and
+// ReorderButton's, and eight icons — to every visitor browsing products. Split
+// out, the chunk is fetched when someone actually opens the tab.
+const OrderTracker = dynamic(() =>
+  import("@/components/storefront/order-tracker").then((m) => m.OrderTracker)
+);
 import { StoreCover } from "@/components/storefront/store-cover";
 import { StoreHeaderCard } from "@/components/storefront/store-header-card";
 import { StorePaymentStrip } from "@/components/storefront/store-payment-strip";

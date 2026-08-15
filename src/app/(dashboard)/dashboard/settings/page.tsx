@@ -273,6 +273,10 @@ export default function SettingsPage() {
     if (updateError) {
       setError(updateError.message);
     } else {
+      // The storefront caches payment configuration, so without this a
+      // merchant checks their shop, sees the old badges, and concludes the
+      // save failed. Best-effort: the cache expires on its own regardless.
+      fetch("/api/store/revalidate", { method: "POST" }).catch(() => {});
       setSuccess(true);
       router.refresh();
     }

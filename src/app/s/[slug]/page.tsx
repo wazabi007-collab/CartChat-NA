@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import dynamic from "next/dynamic";
+import { unstable_cache } from "next/cache";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft, Grid3X3 } from "lucide-react";
@@ -90,6 +91,59 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/**
+ * Slow-moving storefront data, cached so every visitor does not pay a database
+ * round-trip for it.
+ *
+ * The storefront reads cookies (preview mode), so Next renders it dynamically
+ * on every request and the route itself can never be CDN-cached. That makes
+ * each round-trip on this path a cost every visitor pays, which is why the
+ * product/stock queries stay live but these three do not:
+ *
+ *   - payment configuration only changes when a merchant edits their settings,
+ *     which busts the `store-<id>` tag immediately (see /api/store/revalidate),
+ *     so the 5-minute window is never something a merchant sits and waits out
+ *   - the rating and the reviews behind it are verified-purchase only, so they
+ *     arrive at human pace
+ *
+ * Reads go through the service client because payment credentials are outside
+ * the anon grant (migration 055) and only booleans derived from them ever
+ * reach the browser. Nothing customer-specific is cached.
+ */
+const getStorePaymentConfig = (merchantId: string) =>
+  unstable_cache(
+    async () =>
+      createServiceClient()
+        .from("merchants")
+        .select("bank_name, bank_account_number, momo_number, ewallet_number, pay2cell_number, paytoday_number")
+        .eq("id", merchantId)
+        .single(),
+    ["store-payment-config", merchantId],
+    { revalidate: 300, tags: [`store-${merchantId}`] }
+  )();
+
+const getStoreRating = (merchantId: string) =>
+  unstable_cache(
+    async () =>
+      createServiceClient().rpc("get_store_rating", { p_merchant_id: merchantId }),
+    ["store-rating", merchantId],
+    { revalidate: 120, tags: [`store-${merchantId}`] }
+  )();
+
+const getStoreReviews = (merchantId: string) =>
+  unstable_cache(
+    async () =>
+      createServiceClient()
+        .from("reviews")
+        .select("id, customer_name, rating, comment, merchant_reply, merchant_replied_at, created_at")
+        .eq("merchant_id", merchantId)
+        .eq("is_published", true)
+        .order("created_at", { ascending: false })
+        .limit(10),
+    ["store-reviews", merchantId],
+    { revalidate: 120, tags: [`store-${merchantId}`] }
+  )();
+
 export default async function StorefrontPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const normalizedSlug = slug.toLowerCase();
@@ -136,21 +190,9 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   // does. Only the booleans derived from it ever reach the browser.
   const [{ data: paymentDetails }, { data: ratingRows }, { data: reviewRows }] =
     await Promise.all([
-      createServiceClient()
-        .from("merchants")
-        .select("bank_name, bank_account_number, momo_number, ewallet_number, pay2cell_number, paytoday_number")
-        .eq("id", merchant.id)
-        .single(),
-      // Reviews are verified-purchase only (migration 059), so this is a real
-      // trust signal rather than anything a store can write about itself.
-      supabase.rpc("get_store_rating", { p_merchant_id: merchant.id }),
-      supabase
-        .from("reviews")
-        .select("id, customer_name, rating, comment, merchant_reply, merchant_replied_at, created_at")
-        .eq("merchant_id", merchant.id)
-        .eq("is_published", true)
-        .order("created_at", { ascending: false })
-        .limit(10),
+      getStorePaymentConfig(merchant.id),
+      getStoreRating(merchant.id),
+      getStoreReviews(merchant.id),
     ]);
 
   const advertisedPaymentMethods = usablePaymentMethods(

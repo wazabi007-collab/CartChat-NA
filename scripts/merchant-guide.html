@@ -77,9 +77,12 @@
     margin: 0 0 4px 0;
     padding-bottom: 4px;
     border-bottom: 1px solid var(--line);
-    /* Sections 9-12 and 13-14 share one <section>, so that block is taller than
-       a page and the browser has to break inside it. Pinning the heading to the
-       text that follows stops a page starting with an orphaned heading. */
+    /* Every numbered section is its own <section> so page-break-inside:avoid
+       is actually enforceable: a section taller than the 1002px printable band
+       makes the browser ignore it and slice a line in half, which is what put
+       a half-rendered sentence at the top of page 8. Pinning the heading to
+       the text below it also stops a page starting with an orphaned heading.
+       scripts/check-guide-pagination.mjs measures both. */
     break-after: avoid;
     page-break-after: avoid;
   }
@@ -294,6 +297,9 @@
     </ol>
     <div class="callout">Scheduled deliveries appear on the same calendar, so appointments and drop-offs live in one place.</div>
 
+  </section>
+
+  <section>
     <h2><span class="num">10</span>Selling online or digital services</h2>
     <p>Design, marketing, consulting, lessons &mdash; work with nothing to deliver and nobody to visit.</p>
     <ol>
@@ -304,6 +310,9 @@
     </ol>
     <div class="callout">A store can mix them freely: in-chair haircuts, call-outs to a client's home, and online consultations side by side. Each item carries its own setting.</div>
 
+  </section>
+
+  <section>
     <h2><span class="num">11</span>Hiring things out (rentals)</h2>
     <p>Tents, tools, sound gear, dresses &mdash; anything customers borrow and bring back.</p>
     <ol>
@@ -319,6 +328,9 @@
     </ol>
     <div class="callout">Hiring never touches your stock number. "How many you own" is how many can be out at the same time, not how many are left to sell.</div>
 
+  </section>
+
+  <section>
     <h2><span class="num">12</span>Invoices</h2>
     <p>Every order has a proper invoice. Open the order and tap <strong>View invoice</strong>, then <strong>Print or save as PDF</strong>.</p>
     <p class="callout">Enter a VAT number in Settings and invoices become proper <strong>tax invoices</strong> showing VAT at 15% and your VAT number.</p>
@@ -335,6 +347,9 @@
     </ol>
     <div class="callout">A credit note is the document that cancels part of an invoice. If you are registered for VAT you may not simply delete an invoice you have issued &mdash; you issue a credit note against it, and the VAT is reversed on it too. OshiCart works that out for you.</div>
 
+  </section>
+
+  <section>
     <h2><span class="num">14</span>Your customers</h2>
     <p>Everyone who orders is saved automatically. Open <strong>Customers</strong> to see how often each person orders and what they have spent, and to message them on WhatsApp.</p>
     <p class="callout">Your customer list is yours alone. It is never shared with other merchants.</p>
@@ -415,6 +430,9 @@
   </section>
 
   <div class="help">
+  </section>
+
+  <section>
     <h2><span class="num">24</span>Need help?</h2>
     <div class="help-grid">
       <div>

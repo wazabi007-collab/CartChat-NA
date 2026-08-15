@@ -8,6 +8,7 @@ import { formatStoredRentalRange } from "@/lib/rentals";
 import {
   summariseFulfilment,
   cashMethodLabel,
+  cashInstruction,
   fulfilmentNoun,
   type ServiceMode,
 } from "@/lib/service-mode";
@@ -260,7 +261,11 @@ export default async function InvoicePage({ params }: Props) {
                     {order.delivery_time ? ` at ${order.delivery_time}` : ""}
                   </>
                 )}
-                {order.delivery_method !== "delivery" && !order.delivery_date && "Pickup from store"}
+                {order.delivery_method !== "delivery" &&
+                  !order.delivery_date &&
+                  // Only goods are collected. A stay or an online service is
+                  // already described by the heading above this line.
+                  (fulfilment.hasGoods ? "Pickup from store" : null)}
               </p>
             </div>
           </section>
@@ -462,9 +467,12 @@ export default async function InvoicePage({ params }: Props) {
                   ? `Please pay the order amount to ${merchant.store_name}. The ${
                       deliveryProviderLabel[order.delivery_provider ?? "store"] ?? "courier"
                     } fee is paid directly by you to the driver.`
-                  : order.delivery_method === "delivery"
-                  ? "Please have the exact amount ready when your order is delivered."
-                  : "Please pay when you collect your order from the store."}
+                  : // The heading above already speaks the right vocabulary; this
+                    // line kept its own goods-only fallback, so an online service
+                    // was headed "Online — nothing to collect" and then told to
+                    // collect from the store, and a room said the same under
+                    // "Cash at check-in".
+                    cashInstruction(fulfilment, order.delivery_method ?? "pickup")}
               </p>
             )}
 

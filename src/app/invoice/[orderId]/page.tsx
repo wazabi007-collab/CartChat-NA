@@ -35,7 +35,7 @@ export default async function InvoicePage({ params }: Props) {
     .select(`
       id, order_number, customer_name, customer_whatsapp, payment_reference,
       delivery_method, delivery_provider, delivery_address, delivery_date, delivery_time,
-      subtotal_nad, delivery_fee_nad, callout_fee_nad, discount_nad, vat_nad, vat_rate_bps, vat_inclusive, vat_number,
+      subtotal_nad, delivery_fee_nad, callout_fee_nad, deposit_nad, discount_nad, vat_nad, vat_rate_bps, vat_inclusive, vat_number,
       payment_method, status, notes, created_at,
       merchants (
         store_name, whatsapp_number, logo_url, vat_number, vat_inclusive, town, region,
@@ -118,7 +118,10 @@ export default async function InvoicePage({ params }: Props) {
       : calculatedVat.vatAmount
     : 0;
   const totalExclVat = hasVat && invoiceVatInclusive ? preVatTotal - vatAmount : preVatTotal;
-  const total = hasVat && !invoiceVatInclusive ? preVatTotal + vatAmount : preVatTotal;
+  const deposit = order.deposit_nad ?? 0;
+  // The deposit is payable but refundable: outside the taxable base, shown as
+  // its own line so nobody mistakes it for revenue.
+  const total = (hasVat && !invoiceVatInclusive ? preVatTotal + vatAmount : preVatTotal) + deposit;
 
   const statusConfig: Record<string, { label: string; className: string }> = {
     pending: { label: "Awaiting payment", className: "bg-amber-50 text-amber-800" },
@@ -341,6 +344,13 @@ export default async function InvoicePage({ params }: Props) {
                 </>
               )}
 
+              {deposit > 0 && (
+                <>
+                  <dt className="text-slate-500">Refundable deposit</dt>
+                  <dd className="text-right tabular-nums text-slate-900">{formatPrice(deposit)}</dd>
+                </>
+              )}
+
               <div className="col-span-2 mt-1 flex items-baseline justify-between gap-6 border-t-2 border-slate-900 pt-3">
                 <dt className="text-[15px] font-bold text-slate-950">Total due</dt>
                 <dd className="text-[22px] font-extrabold tracking-tight tabular-nums text-slate-950">
@@ -351,6 +361,7 @@ export default async function InvoicePage({ params }: Props) {
               {hasVat && (
                 <p className="col-span-2 text-right text-xs text-slate-400">
                   Amount excluding VAT: {formatPrice(totalExclVat)}
+                  {deposit > 0 && <> · deposit refundable on return</>}
                 </p>
               )}
             </dl>

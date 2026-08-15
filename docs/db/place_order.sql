@@ -37,7 +37,7 @@ DECLARE
   v_is_booking boolean := false;
   -- RENTAL (1)
   v_rental_start date; v_rental_end date; v_rental_days integer;
-  v_rental_out integer; v_line_total integer;
+  v_rental_out integer; v_line_total integer; v_deposit_total integer := 0;
   v_taxable_total integer := 0; v_vat_nad integer := 0;
   v_vat_rate_bps integer := 1500; v_has_vat boolean := false;
 BEGIN
@@ -113,7 +113,8 @@ BEGIN
   FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
   LOOP
     SELECT id, name, track_inventory, stock_quantity, allow_backorder, price_nad,
-           item_type, rental_min_days, rental_max_days
+           item_type, rental_min_days, rental_max_days,
+           rental_unit, rental_buffer_days, deposit_nad
     INTO v_product FROM products
     WHERE id = (v_item->>'productId')::uuid
       AND merchant_id = p_merchant_id AND is_available = true AND deleted_at IS NULL
@@ -161,7 +162,14 @@ BEGIN
         RAISE EXCEPTION 'Please choose hire dates for "%"', v_product.name;
       END IF;
       v_rental_start := (v_item->>'rentalStart')::date;
-      v_rental_end := (v_item->>'rentalEnd')::date + 1;
+      -- 'day' counts inclusively (first and last day both hired days);
+      -- 'night' takes the second date as CHECK-OUT, itself not occupied, so
+      -- ranges may touch and 15th-18th is 3 nights.
+      IF COALESCE(v_product.rental_unit, 'day') = 'night' THEN
+        v_rental_end := (v_item->>'rentalEnd')::date;
+      ELSE
+        v_rental_end := (v_item->>'rentalEnd')::date + 1;
+      END IF;
       IF v_rental_start < CURRENT_DATE THEN
         RAISE EXCEPTION 'The hire for "%" cannot start in the past', v_product.name;
       END IF;
@@ -189,13 +197,19 @@ BEGIN
         AND o.id <> v_order_id
         AND o.status <> 'cancelled'
         AND oi.rental_start IS NOT NULL
-        AND oi.rental_start < v_rental_end
-        AND oi.rental_end_exclusive > v_rental_start;
+        -- Buffer: each hire blocks its turnaround days after return, so a
+        -- car gets cleaned and a dress gets washed before going out again.
+        AND oi.rental_start < v_rental_end + COALESCE(v_product.rental_buffer_days, 0)
+        AND oi.rental_end_exclusive + COALESCE(v_product.rental_buffer_days, 0) > v_rental_start;
 
       IF v_rental_out + (v_item->>'quantity')::integer > v_product.stock_quantity THEN
         RAISE EXCEPTION 'Only % of "%" available for those dates',
           GREATEST(v_product.stock_quantity - v_rental_out, 0), v_product.name;
       END IF;
+
+      -- Deposit: per unit hired, refundable, NOT revenue and NOT taxed.
+      v_deposit_total := v_deposit_total
+        + COALESCE(v_product.deposit_nad, 0) * (v_item->>'quantity')::integer;
     END IF;
 
     -- RENTAL (3): rentals come back, so they never consume stock.
@@ -320,6 +334,7 @@ BEGIN
       discount_nad = v_discount,
       coupon_id = v_coupon_id,
       callout_fee_nad = v_callout_fee,
+      deposit_nad = v_deposit_total,
       vat_nad = v_vat_nad,
       vat_rate_bps = v_vat_rate_bps,
       vat_inclusive = CASE WHEN v_has_vat THEN v_merchant.vat_inclusive ELSE false END,

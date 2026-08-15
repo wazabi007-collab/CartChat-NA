@@ -23,6 +23,9 @@ export interface CartItem {
   serviceMode?: ServiceMode | null;
   /** "rental" lines price as rate x days and pick dates at checkout. */
   itemType?: "product" | "service" | "rental";
+  /** Rentals only: how the range counts, and the refundable deposit per unit. */
+  rentalUnit?: "day" | "night";
+  depositNad?: number;
 }
 
 export interface CartVatSettings {

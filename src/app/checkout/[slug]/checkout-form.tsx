@@ -256,10 +256,22 @@ export function CheckoutForm({
   const [rentalRemaining, setRentalRemaining] = useState<Record<string, number> | null>(null);
   const [rentalChecking, setRentalChecking] = useState(false);
 
+  // Any nightly line switches the whole panel to check-in/check-out wording;
+  // each line still counts by ITS OWN unit, so a cart mixing a tent (days)
+  // and a room (nights) prices both correctly.
+  const nightMode = rentalLines.some((l) => l.rentalUnit === "night");
+  const lineDays = (l: (typeof rentalLines)[number]) =>
+    rentalFirst && rentalLast && rentalLast >= rentalFirst
+      ? rentalDays(rentalFirst, rentalLast, l.rentalUnit === "night" ? "night" : "day")
+      : 0;
   const hireDays =
     hasRentals && rentalFirst && rentalLast && rentalLast >= rentalFirst
-      ? rentalDays(rentalFirst, rentalLast)
+      ? rentalDays(rentalFirst, rentalLast, nightMode ? "night" : "day")
       : 0;
+  const rentalDeposit = rentalLines.reduce(
+    (sum, l) => sum + (l.depositNad ?? 0) * l.quantity,
+    0
+  );
 
   // Courtesy availability check; place_order re-checks under a lock.
   useEffect(() => {
@@ -420,7 +432,7 @@ export function CheckoutForm({
     (sum, item) =>
       sum +
       (item.itemType === "rental"
-        ? rentalLineTotal(item.price, Math.max(hireDays, 1), item.quantity)
+        ? rentalLineTotal(item.price, Math.max(lineDays(item), 1), item.quantity)
         : item.price * item.quantity),
     0
   );
@@ -436,7 +448,9 @@ export function CheckoutForm({
     vatNumber,
     vatInclusive,
   });
-  const total = vatBreakdown.payableTotal;
+  // Deposits ride OUTSIDE the taxable base but inside the amount due, so the
+  // total shown here matches the invoice's exactly (getOrderPayableTotal).
+  const total = vatBreakdown.payableTotal + rentalDeposit;
 
   const hasBankDetails = bankName && bankAccountNumber;
   const needsProof = paymentMethod !== "cod";
@@ -811,6 +825,7 @@ export function CheckoutForm({
       ...(discount > 0 ? [`*Discount:* -${formatPrice(discount)}${couponApplied ? ` (${couponApplied.code})` : ""}`] : []),
       ...(deliveryFee > 0 ? [`*Delivery Fee:* ${formatPrice(deliveryFee)}`] : []),
       ...(vatBreakdown.hasVat ? [`*VAT (${VAT_RATE_LABEL}):* ${formatPrice(vatBreakdown.vatAmount)}${vatBreakdown.vatInclusive ? " included" : ""}`] : []),
+      ...(rentalDeposit > 0 ? [`*Refundable deposit:* ${formatPrice(rentalDeposit)}`] : []),
       `*Total:* ${formatPrice(total)}`,
       ...(paymentRef ? [`*Payment Ref:* ${paymentRef}`] : []),
       `*Payment:* ${getPaymentLabel(paymentMethod)}`,
@@ -976,6 +991,12 @@ export function CheckoutForm({
                   </div>
                 </>
               )}
+              {rentalDeposit > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Refundable deposit</span>
+                  <span className="text-gray-900">{formatPrice(rentalDeposit)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-bold pt-2 border-t border-gray-100">
                 <span>{vatBreakdown.hasVat ? "Total incl. VAT" : "Total"}</span>
                 <span className="text-green-600">{formatPrice(total)}</span>
@@ -1114,14 +1135,18 @@ export function CheckoutForm({
 
         {hasRentals && (
           <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
-            <h2 className="text-sm font-black text-slate-950">Your hire dates</h2>
+            <h2 className="text-sm font-black text-slate-950">
+              {nightMode ? "Your stay" : "Your hire dates"}
+            </h2>
             <p className="mt-0.5 text-xs text-slate-500">
-              First and last day, both included. Price is per day.
+              {nightMode
+                ? "Check-in and check-out. You pay per night; the check-out day is not charged."
+                : "First and last day, both included. Price is per day."}
             </p>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <label className="block">
                 <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
-                  First day
+                  {nightMode ? "Check-in" : "First day"}
                 </span>
                 <input
                   type="date"
@@ -1137,7 +1162,7 @@ export function CheckoutForm({
               </label>
               <label className="block">
                 <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
-                  Last day
+                  {nightMode ? "Check-out" : "Last day"}
                 </span>
                 <input
                   type="date"
@@ -1151,16 +1176,19 @@ export function CheckoutForm({
             </div>
             {hireDays > 0 && (
               <div className="mt-3 space-y-1 text-sm">
-                <p className="font-bold text-slate-900">{formatRentalRange(rentalFirst, rentalLast)}</p>
+                <p className="font-bold text-slate-900">
+                  {formatRentalRange(rentalFirst, rentalLast, nightMode ? "night" : "day")}
+                </p>
                 {rentalLines.map((line) => (
                   <p key={line.productId} className="flex justify-between text-slate-600">
                     <span>
                       {line.name}
-                      {line.quantity > 1 ? ` ×${line.quantity}` : ""} — {hireDays} day
-                      {hireDays === 1 ? "" : "s"} × {formatPrice(line.price)}
+                      {line.quantity > 1 ? ` ×${line.quantity}` : ""} — {lineDays(line)}{" "}
+                      {line.rentalUnit === "night" ? "night" : "day"}
+                      {lineDays(line) === 1 ? "" : "s"} × {formatPrice(line.price)}
                     </span>
                     <span className="font-bold tabular-nums">
-                      {formatPrice(rentalLineTotal(line.price, hireDays, line.quantity))}
+                      {formatPrice(rentalLineTotal(line.price, lineDays(line), line.quantity))}
                     </span>
                   </p>
                 ))}
@@ -1176,6 +1204,12 @@ export function CheckoutForm({
                 )}
                 {!rentalChecking && !rentalShortage && rentalRemaining && (
                   <p className="text-xs font-bold text-acacia">Available for those dates ✓</p>
+                )}
+                {rentalDeposit > 0 && (
+                  <p className="flex justify-between text-slate-600">
+                    <span>Refundable deposit</span>
+                    <span className="font-bold tabular-nums">{formatPrice(rentalDeposit)}</span>
+                  </p>
                 )}
               </div>
             )}

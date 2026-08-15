@@ -87,7 +87,16 @@ export function getOrderPayableTotal(order: {
   discount_nad?: number | null;
   vat_nad?: number | null;
   vat_inclusive?: boolean | null;
+  deposit_nad?: number | null;
 }) {
   const baseTotal = getOrderBaseTotal(order);
-  return baseTotal + (!order.vat_inclusive ? (order.vat_nad || 0) : 0);
+  // A rental deposit is money the customer must hand over, so it belongs in
+  // what is PAYABLE — but it is not revenue and carries no VAT, so it sits
+  // outside the taxable base and is refunded through order_refunds when the
+  // item comes back.
+  return (
+    baseTotal +
+    (!order.vat_inclusive ? (order.vat_nad || 0) : 0) +
+    (order.deposit_nad || 0)
+  );
 }

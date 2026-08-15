@@ -96,10 +96,16 @@ check(
   false
 );
 
-// And the reminder query must select it too.
+// And the reminder query must select it too — along with deposit_nad, or
+// getOrderPayableTotal quotes a rental customer less than they owe.
 check(
   "reminder query selects proof_of_payment_url",
-  /vat_inclusive, payment_method, proof_of_payment_url/.test(body),
+  /vat_inclusive, deposit_nad, payment_method, proof_of_payment_url/.test(body),
+  true
+);
+check(
+  "both money queries select deposit_nad",
+  (body.match(/vat_inclusive, deposit_nad/g) ?? []).length >= 2,
   true
 );
 

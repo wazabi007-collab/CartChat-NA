@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
     .from("orders")
     .select(`
       id, order_number, customer_name, customer_whatsapp,
-      created_at, reminder_count, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, payment_method, proof_of_payment_url,
+      created_at, reminder_count, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, deposit_nad, payment_method, proof_of_payment_url,
       merchant_id, tracking_token,
       merchants!inner(store_name, store_slug)
     `)
@@ -151,7 +151,7 @@ export async function GET(req: NextRequest) {
   const { data: staleOrders } = await supabase
     .from("orders")
     .select(`
-      id, order_number, customer_name, created_at, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive,
+      id, order_number, customer_name, created_at, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, deposit_nad,
       merchant_id,
       merchants!inner(store_name, whatsapp_number)
     `)

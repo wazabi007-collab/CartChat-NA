@@ -1,7 +1,7 @@
 const FAQS = [
   {
     q: "Is OshiCart only for shops?",
-    a: "No. It works for shops, vendors, food sellers, salons, services, farms, home businesses, and anyone selling through WhatsApp or social media.",
+    a: "No. It works for shops, vendors, food sellers, salons and bookings, rental and hire businesses (car hire, tents, dresses, guest rooms), digital services, farms, home businesses, and anyone selling through WhatsApp or social media.",
   },
   {
     q: "Do you charge commission on sales?",

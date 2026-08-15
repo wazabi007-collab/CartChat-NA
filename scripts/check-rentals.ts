@@ -36,6 +36,15 @@ check("month boundary", rentalDays("2026-08-30", "2026-09-02"), 4);
 check("year boundary", rentalDays("2026-12-30", "2027-01-02"), 4);
 check("garbage dates are 0 days", rentalDays("nope", "2026-08-20"), 0);
 
+// Nightly counting — the second date is CHECK-OUT, not a charged day.
+// Verified against production place_order on 15 Aug 2026: 15th→18th stored
+// [15,18), charged 3 nights (N$900 at N$300), and a guest checking in on the
+// 18th was accepted (touching stays never clash).
+check("15th to 18th is 3 nights", rentalDays("2026-08-15", "2026-08-18", "night"), 3);
+check("one night", rentalDays("2026-08-15", "2026-08-16", "night"), 1);
+check("same-day night range is 0", rentalDays("2026-08-15", "2026-08-15", "night"), 0);
+check("night month boundary", rentalDays("2026-08-30", "2026-09-02", "night"), 3);
+
 // Price mirrors the server: rate x days x quantity.
 check("3 days x N$150", rentalLineTotal(15000, 3, 1), 45000);
 check("40 chairs x 3 days x N$8", rentalLineTotal(800, 3, 40), 96000);
@@ -58,6 +67,10 @@ check("today is allowed", validateRentalRange(T, T, 1, 30, T), null);
 // Labels.
 check("range label", formatRentalRange("2026-08-20", "2026-08-22"), "3 days · 20 Aug – 22 Aug");
 check("single day label", formatRentalRange("2026-08-20", "2026-08-20"), "1 day · 20 Aug");
+check("night label", formatRentalRange("2026-08-15", "2026-08-18", "night"),
+  "3 nights · 15 Aug – 18 Aug");
+check("single night label", formatRentalRange("2026-08-15", "2026-08-16", "night"),
+  "1 night · 15 Aug – 16 Aug");
 
 console.log(failures === 0 ? "\nALL PASS" : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
   const { data: product } = await service
     .from("products")
-    .select("stock_quantity, item_type, merchants!inner(is_active, store_status)")
+    .select("stock_quantity, item_type, rental_unit, rental_buffer_days, merchants!inner(is_active, store_status)")
     .eq("id", productId)
     .is("deleted_at", null)
     .single();
@@ -45,11 +45,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ remaining: 0 });
   }
 
-  // Inclusive last day from the customer becomes an exclusive bound, matching
-  // place_order exactly: [first, last+1) overlaps [start, end).
+  // Mirror place_order exactly: 'day' treats the last date as inclusive
+  // (+1 for the exclusive bound); 'night' treats it as check-out, already
+  // exclusive. The turnaround buffer widens the window on both sides.
+  const buffer = product.rental_buffer_days ?? 0;
   const endExclusive = new Date(`${last}T00:00:00Z`);
-  endExclusive.setUTCDate(endExclusive.getUTCDate() + 1);
+  if (product.rental_unit !== "night") {
+    endExclusive.setUTCDate(endExclusive.getUTCDate() + 1);
+  }
+  endExclusive.setUTCDate(endExclusive.getUTCDate() + buffer);
   const endStr = endExclusive.toISOString().slice(0, 10);
+  const firstWide = new Date(`${first}T00:00:00Z`);
+  firstWide.setUTCDate(firstWide.getUTCDate() - buffer);
+  const firstStr = firstWide.toISOString().slice(0, 10);
 
   const { data: rows } = await service
     .from("order_items")
@@ -57,7 +65,7 @@ export async function GET(request: NextRequest) {
     .eq("product_id", productId)
     .not("rental_start", "is", null)
     .lt("rental_start", endStr)
-    .gt("rental_end_exclusive", first)
+    .gt("rental_end_exclusive", firstStr)
     .neq("orders.status", "cancelled");
 
   const out = (rows ?? []).reduce((sum, r) => sum + (r.quantity ?? 0), 0);

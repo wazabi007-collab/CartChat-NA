@@ -4,6 +4,7 @@ import { JsonLd } from "@/components/json-ld";
 import { Hero } from "@/components/landing/hero";
 import { PaymentTrustBar } from "@/components/landing/payment-trust-bar";
 import { HowItWorks } from "@/components/landing/how-it-works";
+import { SellAnything } from "@/components/landing/sell-anything";
 import { StorefrontGallery } from "@/components/landing/storefront-gallery";
 import { FeatureBlocks } from "@/components/landing/feature-blocks";
 import { Pricing } from "@/components/landing/pricing";
@@ -71,6 +72,7 @@ export default async function Home() {
         <Hero liveStoreCount={liveStoreCount} liveProductCount={liveProductCount} />
         <PaymentTrustBar />
         <HowItWorks />
+        <SellAnything />
         <StorefrontGallery />
         <FeatureBlocks />
         <Pricing />

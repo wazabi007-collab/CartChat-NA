@@ -23,6 +23,7 @@ export interface StatementOrder {
   discount_nad: number | null;
   delivery_fee_nad: number | null;
   callout_fee_nad?: number | null;
+  deposit_nad?: number | null;
   vat_nad: number | null;
   vat_inclusive: boolean | null;
 }

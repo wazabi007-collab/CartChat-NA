@@ -121,7 +121,7 @@ export default async function StatementsPage({ searchParams }: Props) {
   const { data: orderRows } = await createServiceClient()
     .from("orders")
     .select(
-      "id, order_number, created_at, customer_name, payment_method, status, subtotal_nad, discount_nad, delivery_fee_nad, callout_fee_nad, vat_nad, vat_inclusive"
+      "id, order_number, created_at, customer_name, payment_method, status, subtotal_nad, discount_nad, delivery_fee_nad, callout_fee_nad, deposit_nad, vat_nad, vat_inclusive"
     )
     .eq("merchant_id", merchant.id)
     .gte("created_at", startISO)

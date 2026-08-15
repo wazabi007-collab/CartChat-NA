@@ -56,6 +56,9 @@ export default function EditProductPage() {
   const [rentalUnitsOwned, setRentalUnitsOwned] = useState(1);
   const [rentalMinDays, setRentalMinDays] = useState(1);
   const [rentalMaxDays, setRentalMaxDays] = useState(30);
+  const [rentalUnit, setRentalUnit] = useState<"day" | "night">("day");
+  const [depositNad, setDepositNad] = useState(0);
+  const [rentalBufferDays, setRentalBufferDays] = useState(0);
   const [stockQuantity, setStockQuantity] = useState(0);
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
   const [allowBackorder, setAllowBackorder] = useState(false);
@@ -133,6 +136,14 @@ export default function EditProductPage() {
         setRentalUnitsOwned(prod.stock_quantity || 1);
         setRentalMinDays(prod.rental_min_days ?? 1);
         setRentalMaxDays(prod.rental_max_days ?? 30);
+        const p2 = prod as {
+          rental_unit?: string | null;
+          deposit_nad?: number | null;
+          rental_buffer_days?: number | null;
+        };
+        setRentalUnit(p2.rental_unit === "night" ? "night" : "day");
+        setDepositNad(Math.round((p2.deposit_nad ?? 0) / 100));
+        setRentalBufferDays(p2.rental_buffer_days ?? 0);
       }
       // Services created before migration 062 have no mode yet.
       const savedMode = (prod as { service_mode?: string | null }).service_mode;
@@ -306,6 +317,9 @@ export default function EditProductPage() {
           item_type: itemType,
           rental_min_days: itemType === "rental" ? rentalMinDays : 1,
           rental_max_days: itemType === "rental" ? Math.max(rentalMaxDays, rentalMinDays) : 30,
+          rental_unit: itemType === "rental" ? rentalUnit : "day",
+          deposit_nad: itemType === "rental" ? depositNad * 100 : 0,
+          rental_buffer_days: itemType === "rental" ? rentalBufferDays : 0,
           service_mode: itemType === "service" ? serviceMode : null,
           name: validation.data.name,
           description: validation.data.description || null,
@@ -567,6 +581,46 @@ export default function EditProductPage() {
                 <input type="number" min={1} value={rentalMaxDays}
                   onChange={(e) => setRentalMaxDays(Math.max(1, parseInt(e.target.value) || 1))}
                   className="mt-1 w-full min-h-11 rounded-lg border border-gray-300 px-3 text-sm" />
+              </label>
+              <label className="block">
+                <span className="block text-sm font-medium text-gray-700">Charged per</span>
+                <select
+                  value={rentalUnit}
+                  onChange={(e) => setRentalUnit(e.target.value === "night" ? "night" : "day")}
+                  className="mt-1 w-full min-h-11 rounded-lg border border-gray-300 px-3 text-sm bg-white"
+                >
+                  <option value="day">Day (tools, tents, dresses)</option>
+                  <option value="night">Night (rooms, accommodation)</option>
+                </select>
+                <span className="mt-0.5 block text-xs text-gray-500">
+                  Per night, the check-out day is free and a new guest can check in that same day.
+                </span>
+              </label>
+              <label className="block">
+                <span className="block text-sm font-medium text-gray-700">Refundable deposit (N$)</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={depositNad}
+                  onChange={(e) => setDepositNad(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="mt-1 w-full min-h-11 rounded-lg border border-gray-300 px-3 text-sm"
+                />
+                <span className="mt-0.5 block text-xs text-gray-500">
+                  Per unit hired. Added to the amount due, given back on return. 0 = no deposit.
+                </span>
+              </label>
+              <label className="block">
+                <span className="block text-sm font-medium text-gray-700">Days between hires</span>
+                <input
+                  type="number"
+                  min={0}
+                  value={rentalBufferDays}
+                  onChange={(e) => setRentalBufferDays(Math.max(0, parseInt(e.target.value) || 0))}
+                  className="mt-1 w-full min-h-11 rounded-lg border border-gray-300 px-3 text-sm"
+                />
+                <span className="mt-0.5 block text-xs text-gray-500">
+                  Turnaround for cleaning or checks. 0 = back-to-back hires allowed.
+                </span>
               </label>
             </div>
           )}

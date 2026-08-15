@@ -1,0 +1,39 @@
+-- place_order: rentals phase 2 — nightly counting, turnaround buffers,
+-- and per-unit refundable deposits. Applied to production 15 Aug 2026.
+--
+-- The full function body lives in docs/db/place_order.sql (the canonical
+-- copy, kept byte-identical to production — verify with
+--   select md5(pg_get_functiondef('public.place_order(...)'::regprocedure));
+-- core overload md5 at this migration: 7eab227ccd105c848475588db5afeac8).
+--
+-- What changed inside the RENTAL blocks:
+--
+--  RENTAL(1) day count   'night' products use the raw date difference
+--                        (checkout date IS the exclusive end); 'day'
+--                        products keep inclusive counting (+1). Minimum
+--                        and maximum hire validate against that count.
+--
+--  RENTAL(2) overlap     the availability query widens each existing
+--                        hire by rental_buffer_days on both sides:
+--                          oi.rental_start        < v_end + buffer
+--                          oi.rental_end_exclusive + buffer > v_start
+--                        so turnaround days are never double-booked,
+--                        still under the per-product advisory lock
+--                        hashtext('rental|' || product_id).
+--
+--  RENTAL(3) deposit     v_deposit_total accumulates deposit_nad ×
+--                        quantity per rental line; the final UPDATE
+--                        writes orders.deposit_nad. Deposits are NOT
+--                        added to subtotal_nad and NOT taxed — payable
+--                        = base + VAT + deposit, mirrored client-side
+--                        by getOrderPayableTotal (src/lib/vat.ts).
+--
+-- Behaviours verified on production before this file was written:
+--   * tent + N$500 deposit: subtotal 45000, orders.deposit_nad 50000
+--   * buffer 1: second tent refused on the touching day ("Only 1
+--     available"), accepted one day later
+--   * nights: 15th→18th charged 3 nights (90000); a second guest
+--     checking in on the 18th succeeds; 17th→19th refused ("Only 0")
+--
+-- This stub records intent; to reapply, run the canonical file:
+-- \i docs/db/place_order.sql

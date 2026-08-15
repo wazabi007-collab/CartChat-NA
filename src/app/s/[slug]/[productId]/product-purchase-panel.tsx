@@ -31,6 +31,8 @@ type Product = {
   imageUrl: string | null;
   service_mode?: ServiceMode | null;
   item_type?: string | null;
+  rental_unit?: string | null;
+  deposit_nad?: number | null;
 };
 
 function variantIsBuyable(variant: Variant) {
@@ -124,6 +126,8 @@ export function ProductPurchasePanel({
       productId: product.id,
       serviceMode: product.service_mode ?? null,
       itemType: (product.item_type as "product" | "service" | "rental") ?? "product",
+      rentalUnit: product.rental_unit === "night" ? "night" : "day",
+      depositNad: product.deposit_nad ?? 0,
       variantId: selectedVariant?.id ?? null,
       variantSku: selectedVariant?.sku ?? null,
       variantAttributes: selectedVariant?.attributes ?? undefined,
@@ -238,7 +242,9 @@ export function ProductPurchasePanel({
           <span className="font-black text-acacia">
             {formatPrice(activePrice)}
             {product.item_type === "rental" && (
-              <span className="text-sm font-bold text-slate-500"> / day</span>
+              <span className="text-sm font-bold text-slate-500">
+                {product.rental_unit === "night" ? " / night" : " / day"}
+              </span>
             )}
           </span>
           {hasVariants && !selectedVariant && <span> after selecting options</span>}

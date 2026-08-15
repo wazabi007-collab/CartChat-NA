@@ -23,6 +23,7 @@ import {
   type ReferredMerchant,
 } from "@/lib/referrals";
 import { ShareLinkCard } from "./share-link";
+import { PracticeStoreCard } from "./practice-store";
 
 export const metadata: Metadata = {
   title: "Agent Dashboard",
@@ -91,12 +92,24 @@ export default async function AgentDashboardPage() {
 
   // Fetched for every linked agent, including one who was later paused or
   // rejected: someone who is owed money must still be able to see what is owed.
-  const [{ data: merchantRows }, { data: payoutRows }] = await Promise.all([
-    supabase.rpc("get_my_referred_merchants"),
-    supabase
-      .from("referral_payouts")
-      .select("merchant_id, commission_nad, paid_reference, paid_at"),
-  ]);
+  const [{ data: merchantRows }, { data: payoutRows }, { data: ownMerchantRows }] =
+    await Promise.all([
+      supabase.rpc("get_my_referred_merchants"),
+      supabase
+        .from("referral_payouts")
+        .select("merchant_id, commission_nad, paid_reference, paid_at"),
+      // Their own store, if any — one login owns at most one (unique_user),
+      // so this decides whether a practice store can exist for them.
+      // Through the owner RPC rather than a direct select: is_demo is outside
+      // the merchants column grant, and get_my_merchant() is already the way
+      // this codebase reads the caller's own row.
+      supabase.rpc("get_my_merchant"),
+    ]);
+
+  // get_my_merchant() returns a set, so it arrives as an array of one.
+  const ownMerchant = (
+    Array.isArray(ownMerchantRows) ? ownMerchantRows[0] : ownMerchantRows
+  ) as { store_slug?: string; is_demo?: boolean } | null | undefined;
 
   const ledger = buildReferralLedger(
     (merchantRows as ReferredMerchant[] | null) ?? [],
@@ -169,6 +182,14 @@ export default async function AgentDashboardPage() {
 
         {/* 2. The link, only once it actually credits anything */}
         {approved && <ShareLinkCard code={referrer.code} url={link} />}
+
+        {/* 2b. Somewhere to rehearse before using that link on a real shop */}
+        {approved && (
+          <PracticeStoreCard
+            existingSlug={ownMerchant?.store_slug ?? null}
+            existingIsPractice={ownMerchant?.is_demo ?? false}
+          />
+        )}
 
         {/* 3. Money, before the detail — it is the reason they opened the page */}
         <div className="mt-8 grid gap-4 sm:grid-cols-3">

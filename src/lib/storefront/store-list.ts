@@ -85,6 +85,9 @@ export async function fetchStoreListData(
     .select("id, store_name, store_slug, description, logo_url, whatsapp_number, industry, region, town, created_at")
     .eq("is_active", true)
     .eq("store_status", "active")
+    // A practice store is not a business a shopper should be able to order
+    // from, so it stays out of the marketplace listing.
+    .eq("is_demo", false)
     .order("created_at", { ascending: false });
 
   if (q && q.trim()) {

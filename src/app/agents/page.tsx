@@ -108,10 +108,12 @@ export default function AgentsPage() {
             Practice before you pitch
           </h3>
           <p className="mt-1 text-sm leading-6 text-walnut-2">
-            The demo store is a real OshiCart storefront that isn&apos;t a real
-            business. Browse it, add things to the cart, go through checkout,
-            even book the demo appointment — click everything until you can
-            show a shop owner how it works without hesitating.
+            Once you&apos;re approved you get a practice store of your own —
+            a real shop with a product, a service and a hire already in it.
+            Order from your own shop link, then move the order along in your
+            dashboard and watch the WhatsApp arrive on your phone. Nobody can
+            find it in Browse Stores. Until then, the demo store below shows
+            you what a customer sees.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Link

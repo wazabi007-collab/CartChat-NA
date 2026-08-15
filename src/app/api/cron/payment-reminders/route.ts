@@ -86,10 +86,14 @@ export async function GET(req: NextRequest) {
       id, order_number, customer_name, customer_whatsapp,
       created_at, reminder_count, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, deposit_nad, payment_method, proof_of_payment_url,
       merchant_id, tracking_token,
-      merchants!inner(store_name, store_slug)
+      merchants!inner(store_name, store_slug, is_demo)
     `)
     .eq("status", "pending")
     .neq("payment_method", "cod")
+    // A practice order's "customer" is a number an agent typed to see what
+    // happens. Chasing it sends a real "please pay" WhatsApp to whoever owns
+    // that number, and then cancels an order nobody placed.
+    .eq("merchants.is_demo", false)
     .gte("created_at", threeDaysAgo.toISOString())
     .order("created_at", { ascending: true });
 
@@ -153,9 +157,10 @@ export async function GET(req: NextRequest) {
     .select(`
       id, order_number, customer_name, created_at, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, deposit_nad,
       merchant_id,
-      merchants!inner(store_name, whatsapp_number)
+      merchants!inner(store_name, whatsapp_number, is_demo)
     `)
     .eq("status", "pending")
+    .eq("merchants.is_demo", false)
     .lte("created_at", stalePendingCutoff.toISOString())
     .order("created_at", { ascending: true })
     .limit(100);
@@ -183,7 +188,8 @@ export async function GET(req: NextRequest) {
 
   const { data: lowStockProducts } = await supabase
     .from("products")
-    .select("id, merchant_id, name, stock_quantity, merchants!inner(store_name, whatsapp_number)")
+    .select("id, merchant_id, name, stock_quantity, merchants!inner(store_name, whatsapp_number, is_demo)")
+    .eq("merchants.is_demo", false)
     .eq("track_inventory", true)
     .eq("is_available", true)
     .lte("stock_quantity", 3)
@@ -223,10 +229,14 @@ export async function GET(req: NextRequest) {
     .select(`
       id, order_number, customer_name, customer_whatsapp,
       merchant_id, reminder_count, proof_of_payment_url,
-      merchants!inner(store_name)
+      merchants!inner(store_name, is_demo)
     `)
     .eq("status", "pending")
     .neq("payment_method", "cod")
+    // Practice orders never receive reminders, so the gate below would hold
+    // them pending forever anyway — and a cancellation WhatsApp would reach a
+    // number an agent invented. They are cleared by the purge instead.
+    .eq("merchants.is_demo", false)
     .lte("created_at", expiredCutoff.toISOString())
     // Never close an order before every reminder has gone out. Tied to the
     // tier list so shortening the cadence cannot silently disable cancelling
@@ -286,8 +296,9 @@ export async function GET(req: NextRequest) {
     const { data: abandoned } = await supabase
       .from("abandoned_checkouts")
       .select(
-        "id, merchant_id, customer_name, customer_whatsapp, cart_item_count, cart_total_nad, merchants!inner(store_name, store_slug, cart_recovery_enabled, subscriptions(tier, status))"
+        "id, merchant_id, customer_name, customer_whatsapp, cart_item_count, cart_total_nad, merchants!inner(store_name, store_slug, cart_recovery_enabled, is_demo, subscriptions(tier, status))"
       )
+      .eq("merchants.is_demo", false)
       .is("reminder_sent_at", null)
       .is("recovered_at", null)
       .lte("created_at", abandonedCutoff)
@@ -342,6 +353,28 @@ export async function GET(req: NextRequest) {
   const purgeCutoff = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
   await supabase.from("abandoned_checkouts").delete().lt("created_at", purgeCutoff);
 
+  // ---- 5. Clear out old practice orders -------------------------------------
+  // Practice stores exist to be clicked through, so they fill up with orders
+  // nobody placed. Nothing ever removed them: the shared demo store had
+  // accumulated months of them, skewing its own analytics and — for hires —
+  // holding rental dates against availability forever. Thirty days is long
+  // enough to show a prospect what an order looks like.
+  const practiceCutoff = new Date(now.getTime() - 30 * 86_400_000).toISOString();
+  const { data: practiceStores } = await supabase
+    .from("merchants")
+    .select("id")
+    .eq("is_demo", true);
+  let practiceOrdersPurged = 0;
+  if (practiceStores?.length) {
+    const { data: purged } = await supabase
+      .from("orders")
+      .delete()
+      .in("merchant_id", practiceStores.map((m) => m.id))
+      .lt("created_at", practiceCutoff)
+      .select("id");
+    practiceOrdersPurged = purged?.length ?? 0;
+  }
+
   return NextResponse.json({
     ok: true,
     remindersSent,
@@ -349,6 +382,7 @@ export async function GET(req: NextRequest) {
     lowStockAlertsSent,
     ordersCancelled,
     cartRemindersSent,
+    practiceOrdersPurged,
     timestamp: now.toISOString(),
   });
 }

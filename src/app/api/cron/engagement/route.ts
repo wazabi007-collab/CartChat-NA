@@ -73,6 +73,9 @@ export async function GET(req: NextRequest) {
     .select("id, store_name, store_slug, whatsapp_number, created_at, is_active, store_status")
     .eq("is_active", true)
     .eq("store_status", "active")
+    // Practice stores are not businesses — nudging an agent to "add your first
+    // product" on a store they made to rehearse with is noise.
+    .eq("is_demo", false)
     .gte("created_at", new Date(Date.now() - 45 * 86_400_000).toISOString());
 
   for (const m of merchants ?? []) {
@@ -104,6 +107,7 @@ export async function GET(req: NextRequest) {
   const { data: suspended } = await service
     .from("merchants")
     .select("id, store_name, store_slug, whatsapp_number, store_status")
+    .eq("is_demo", false)
     .in("store_status", ["soft_suspended", "hard_suspended"]);
 
   for (const m of suspended ?? []) {
@@ -125,7 +129,7 @@ export async function GET(req: NextRequest) {
   const { data: bookings } = await service
     .from("orders")
     .select(
-      "id, customer_name, customer_whatsapp, delivery_time, merchant_id, merchants!inner(store_name, store_slug), order_items!inner(products!inner(item_type))"
+      "id, customer_name, customer_whatsapp, delivery_time, merchant_id, merchants!inner(store_name, store_slug, is_demo), order_items!inner(products!inner(item_type))"
     )
     .eq("delivery_date", tomorrow)
     .neq("status", "cancelled")

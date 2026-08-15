@@ -11,8 +11,18 @@ import { hasCartRecovery } from "@/lib/tier-limits";
  * Cron job: Payment reminders + auto-cancel unpaid orders.
  * Runs every 15 minutes via Vercel Cron.
  *
- * Schedule: pending non-COD orders get reminders at 2hr, 24hr, 3 days.
- * After 3 days + 1 hour, auto-cancel and restock inventory.
+ * Schedule: pending non-COD orders get reminders at 1hr, 12hr, 48hr.
+ * After 49 hours, auto-cancel and restock inventory.
+ *
+ * A customer who has ALREADY PAID is never chased and never cancelled. Two
+ * signals prove payment, and both were previously ignored here:
+ *
+ *   - a live row in order_payments (the merchant recorded the money)
+ *   - proof_of_payment_url on the order (the customer uploaded a slip)
+ *
+ * Without those checks this cron chased customers who had paid, and then
+ * cancelled their order at 49 hours with the money already in the merchant's
+ * bank -- punishing exactly the people who did the right thing.
  */
 export async function GET(req: NextRequest) {
   // Reject if CRON_SECRET is not properly configured (fail closed)
@@ -42,6 +52,14 @@ export async function GET(req: NextRequest) {
   let merchantOrderAlertsSent = 0;
   let lowStockAlertsSent = 0;
 
+  // Orders that are settled in the merchant's eyes, however the status reads.
+  // Recording a payment or receiving proof must silence this cron.
+  const { data: paidRows } = await supabase
+    .from("order_payments")
+    .select("order_id")
+    .is("voided_at", null);
+  const settledOrderIds = new Set((paidRows ?? []).map((r) => r.order_id));
+
   // ---- 1. Send payment reminders ----
   // Sections 1–1c are messaging; skipped entirely when WhatsApp is disabled.
   if (whatsappOn) {
@@ -53,7 +71,7 @@ export async function GET(req: NextRequest) {
     .from("orders")
     .select(`
       id, order_number, customer_name, customer_whatsapp,
-      created_at, reminder_count, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, payment_method,
+      created_at, reminder_count, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, payment_method, proof_of_payment_url,
       merchant_id, tracking_token,
       merchants!inner(store_name, store_slug)
     `)
@@ -69,6 +87,10 @@ export async function GET(req: NextRequest) {
       const ageHours = ageMs / (1000 * 60 * 60);
       const reminderCount = order.reminder_count || 0;
       const merchant = order.merchants as unknown as { store_name: string; store_slug: string };
+
+      // Paid already? Say nothing. A recorded payment or an uploaded slip
+      // both mean the customer has done their part.
+      if (settledOrderIds.has(order.id) || order.proof_of_payment_url) continue;
 
       let shouldRemind = false;
 
@@ -188,7 +210,7 @@ export async function GET(req: NextRequest) {
     .from("orders")
     .select(`
       id, order_number, customer_name, customer_whatsapp,
-      merchant_id, reminder_count,
+      merchant_id, reminder_count, proof_of_payment_url,
       merchants!inner(store_name)
     `)
     .eq("status", "pending")
@@ -198,6 +220,11 @@ export async function GET(req: NextRequest) {
 
   if (expiredOrders) {
     for (const order of expiredOrders) {
+      // Never cancel an order the customer has paid for or sent proof of.
+      // The merchant may simply be slow to confirm; cancelling here would
+      // restock goods that are already sold and refund nothing.
+      if (settledOrderIds.has(order.id) || order.proof_of_payment_url) continue;
+
       const merchant = order.merchants as unknown as { store_name: string };
 
       // Cancel the order. This update fires the trg_restock_on_cancel

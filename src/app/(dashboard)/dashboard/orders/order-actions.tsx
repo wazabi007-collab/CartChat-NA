@@ -28,6 +28,8 @@ interface OrderActionsProps {
   currentStatus: string;
   merchantId: string;
   merchantIndustry: string;
+  /** False = two-step flow: confirmed goes straight to completed. */
+  usesReadyStep: boolean;
   merchantStoreName: string;
   merchantStoreSlug: string;
   customerName: string;
@@ -44,6 +46,7 @@ export function OrderActions({
   currentStatus,
   merchantId,
   merchantIndustry,
+  usesReadyStep,
   merchantStoreName,
   merchantStoreSlug,
   customerName,
@@ -122,7 +125,10 @@ export function OrderActions({
         }
         case "completed":
           variables = [customerName || "Customer", String(orderNumber), merchantStoreName, orderTotal || "N$0.00"];
-          buttonParams = [trackingToken];
+          // The order is finished, so a tracking link tells the customer
+          // nothing. Send the invoice instead — until now customers never
+          // received one at all, which a VAT-registered store's buyer needs.
+          buttonParams = [`invoice/${orderId}`];
           break;
         case "cancelled":
           variables = [customerName || "Customer", String(orderNumber), merchantStoreName];
@@ -247,7 +253,11 @@ export function OrderActions({
     );
   }
 
-  const validNext = VALID_TRANSITIONS[currentStatus] || [];
+  // A merchant on the simple flow never sees "ready": one less tap for them
+  // and one less WhatsApp message for the customer.
+  const validNext = (VALID_TRANSITIONS[currentStatus] || []).filter(
+    (next) => usesReadyStep || next !== "ready"
+  );
 
   if (validNext.length === 0) {
     return (
@@ -259,9 +269,12 @@ export function OrderActions({
 
   return (
     <>
+      {/* Forward steps apply straight away — they are routine and reversible
+          by moving on. Only cancelling asks, because it restocks and tells the
+          customer their order is off. */}
       {validNext.includes("confirmed") && (
         <button
-          onClick={() => setConfirmAction("confirmed")}
+          onClick={() => updateStatus("confirmed")}
           className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           {confirmLabel}
@@ -269,7 +282,7 @@ export function OrderActions({
       )}
       {validNext.includes("ready") && (
         <button
-          onClick={() => setConfirmAction("ready")}
+          onClick={() => updateStatus("ready")}
           className="px-3 py-1.5 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
         >
           Mark Ready
@@ -277,7 +290,7 @@ export function OrderActions({
       )}
       {validNext.includes("completed") && (
         <button
-          onClick={() => setConfirmAction("completed")}
+          onClick={() => updateStatus("completed")}
           className="px-3 py-1.5 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
         >
           Mark Completed

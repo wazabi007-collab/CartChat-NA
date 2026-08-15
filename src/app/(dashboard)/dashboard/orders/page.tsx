@@ -35,7 +35,7 @@ export default async function OrdersPage({
 
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("id, industry, store_name, store_slug, pop_required")
+    .select("id, industry, store_name, store_slug, pop_required, uses_ready_step")
     .eq("user_id", user.id)
     .single();
 
@@ -213,6 +213,7 @@ export default async function OrdersPage({
                       currentStatus={order.status}
                       merchantId={merchant.id}
                       merchantIndustry={merchant.industry ?? ""}
+                  usesReadyStep={merchant.uses_ready_step ?? true}
                       merchantStoreName={merchant.store_name}
                       customerName={order.customer_name}
                       customerWhatsapp={order.customer_whatsapp}
@@ -395,6 +396,7 @@ export default async function OrdersPage({
                   currentStatus={order.status}
                   merchantId={merchant.id}
                   merchantIndustry={merchant.industry ?? ""}
+                  usesReadyStep={merchant.uses_ready_step ?? true}
                   merchantStoreName={merchant.store_name}
                   merchantStoreSlug={merchant.store_slug}
                   customerName={order.customer_name}

@@ -31,9 +31,12 @@ interface QuickStatusProps {
   orderNumber: number;
   trackingToken: string;
   deliveryMethod: string;
+  /** False = confirmed advances straight to completed. */
+  usesReadyStep?: boolean;
 }
 
 export function QuickStatus({
+  usesReadyStep = true,
   orderId,
   currentStatus,
   merchantId,
@@ -49,7 +52,13 @@ export function QuickStatus({
   const router = useRouter();
   const supabase = createClient();
 
-  const nextStatus = NEXT_STATUS[currentStatus];
+  // A merchant on the simple flow skips "ready" entirely: one tap takes a
+  // confirmed order straight to completed, and the customer gets one message
+  // fewer.
+  const nextStatus =
+    currentStatus === "confirmed" && !usesReadyStep
+      ? "completed"
+      : NEXT_STATUS[currentStatus];
   const nextLabel = NEXT_LABEL[currentStatus];
   const isTappable = Boolean(nextStatus);
 

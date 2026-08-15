@@ -101,6 +101,7 @@ export default function SettingsPage() {
     vat_number: "",
     vat_inclusive: false,
     pop_required: false,
+    uses_ready_step: true,
     cart_recovery_enabled: true,
   });
 
@@ -152,6 +153,7 @@ export default function SettingsPage() {
           vat_number: merchant.vat_number || "",
           vat_inclusive: false,
           pop_required: merchant.pop_required ?? false,
+          uses_ready_step: merchant.uses_ready_step ?? true,
           cart_recovery_enabled: merchant.cart_recovery_enabled ?? true,
         });
         if (merchant.delivery_slots) {
@@ -260,6 +262,7 @@ export default function SettingsPage() {
         vat_number: form.vat_number || null,
         vat_inclusive: false,
         pop_required: form.pop_required,
+        uses_ready_step: form.uses_ready_step,
         cart_recovery_enabled: form.cart_recovery_enabled,
       })
       .eq("id", merchantId);
@@ -719,6 +722,31 @@ export default function SettingsPage() {
               </p>
             </div>
           )}
+
+          <div className="border-t border-gray-100 pt-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={!form.uses_ready_step}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, uses_ready_step: !e.target.checked }))
+                }
+                className="mt-0.5 w-4 h-4 text-green-600 rounded focus:ring-green-500"
+              />
+              <span>
+                <span className="block text-sm font-medium text-gray-700">
+                  Use the simple order flow
+                </span>
+                <span className={helperText}>
+                  Skip the &quot;Ready&quot; step: an order goes straight from
+                  confirmed to completed. Fewer taps for you, and one less
+                  WhatsApp message for your customer. Leave this off if
+                  &quot;your order is ready for collection&quot; is a moment
+                  your customers need.
+                </span>
+              </span>
+            </label>
+          </div>
 
           {form.accepted_payment_methods.includes("eft") && (
             <div className="border-t border-gray-100 pt-4">

@@ -102,7 +102,13 @@ export async function fetchStoreListData(
     query = query.eq("town", town);
   }
 
-  const { data: merchants } = await query;
+  const { data: merchants, error: listError } = await query;
+  // Swallowing this turned a denied column into an empty marketplace: the page
+  // rendered "No stores yet" to every shopper, and nothing anywhere said why.
+  // An empty list is a real answer; a failed query is not.
+  if (listError) {
+    throw new Error(`Could not load the store list: ${listError.message}`);
+  }
   let storeList: StoreListMerchant[] = merchants || [];
 
   if (category && category !== "All") {

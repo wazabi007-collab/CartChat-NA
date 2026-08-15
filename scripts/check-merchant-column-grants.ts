@@ -25,7 +25,7 @@ import { join, relative } from "path";
  * granted since. Verified against information_schema.column_privileges on
  * 15 Aug 2026. Deliberately EXCLUDED (credentials, PII, internal flags):
  * api_key, bank_account_*, bank_branch_code, callout_fee_nad, ewallet_number,
- * is_demo, momo_number, pay2cell_number, paytoday_number,
+ * momo_number, pay2cell_number, paytoday_number,
  * prohibited_policy_accepted_ip, referred_by_code, safety_notes.
  * Those reach the owner through get_my_merchant(), which filters on auth.uid().
  */
@@ -35,7 +35,7 @@ const GRANTED = new Set([
   "enabled_delivery_providers", "ewallet_provider", "getting_started_dismissed",
   "id", "industry", "is_active", "logo_url", "pickup_address", "pop_required",
   "prohibited_policy_accepted_at", "prohibited_policy_version", "region",
-  "store_link_shared", "store_name", "store_slug", "store_status",
+  "is_demo", "store_link_shared", "store_name", "store_slug", "store_status",
   "suspended_reason", "tos_accepted_at", "town", "updated_at", "user_id",
   "uses_ready_step", "vat_inclusive", "vat_number", "whatsapp_number",
 ]);
@@ -52,7 +52,6 @@ const SERVICE_CLIENT_FILES = [
   "src/app/api/admin",
   "src/app/sitemap.ts",
   "src/lib/api-auth.ts",
-  "src/lib/storefront/store-list.ts",
   "src/components/landing/storefront-gallery.tsx",
   "src/app/page.tsx",
 ];

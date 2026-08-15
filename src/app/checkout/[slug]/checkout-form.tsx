@@ -262,6 +262,7 @@ export function CheckoutForm({
   const hasRentals = rentalLines.length > 0;
   const [rentalFirst, setRentalFirst] = useState("");
   const [rentalLast, setRentalLast] = useState("");
+  const [hirerIdNumber, setHirerIdNumber] = useState("");
   const [rentalRemaining, setRentalRemaining] = useState<Record<string, number> | null>(null);
   const [rentalChecking, setRentalChecking] = useState(false);
 
@@ -281,6 +282,8 @@ export function CheckoutForm({
     (sum, l) => sum + (l.depositNad ?? 0) * l.quantity,
     0
   );
+  // One person is taking the hire, so ask once even if several lines need it.
+  const needsHirerId = rentalLines.some((l) => l.requiresIdNumber);
   const rentalDocuments = [
     ...new Set(
       rentalLines
@@ -340,7 +343,12 @@ export function CheckoutForm({
     ? rentalLines.find((l) => (rentalRemaining[l.productId] ?? 0) < l.quantity)
     : undefined;
   const rentalReady =
-    !hasRentals || (hireDays > 0 && !rentalIssue && !rentalShortage && !rentalChecking);
+    !hasRentals ||
+    (hireDays > 0 &&
+      !rentalIssue &&
+      !rentalShortage &&
+      !rentalChecking &&
+      (!needsHirerId || hirerIdNumber.trim().length > 0));
 
   // True only when the merchant publishes days AND times. Most digital
   // sellers publish neither — their work is a project, not an appointment —
@@ -712,7 +720,13 @@ export function CheckoutForm({
             price: item.price,
             quantity: item.quantity,
             ...(item.itemType === "rental"
-              ? { rentalStart: rentalFirst, rentalEnd: rentalLast }
+              ? {
+                  rentalStart: rentalFirst,
+                  rentalEnd: rentalLast,
+                  ...(item.requiresIdNumber
+                    ? { hirerIdNumber: hirerIdNumber.trim() }
+                    : {}),
+                }
               : {}),
           })),
           p_delivery_fee: deliveryFee,
@@ -1281,6 +1295,26 @@ export function CheckoutForm({
                   <p className="text-xs font-semibold text-slate-500">
                     You&apos;ll need to bring: {rentalDocuments}
                   </p>
+                )}
+                {needsHirerId && (
+                  <label className="block">
+                    <span className="mb-1 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                      ID or passport number *
+                    </span>
+                    <input
+                      value={hirerIdNumber}
+                      onChange={(e) => setHirerIdNumber(e.target.value)}
+                      maxLength={40}
+                      autoComplete="off"
+                      inputMode="text"
+                      placeholder="As it appears on your ID"
+                      className="min-h-11 w-full rounded-lg border border-slate-200 px-3 text-sm"
+                    />
+                    <span className="mt-1 block text-xs text-slate-500">
+                      The store keeps this with this hire only, so they know who has
+                      the item. It is not shown on your invoice or your tracking page.
+                    </span>
+                  </label>
                 )}
               </div>
             )}

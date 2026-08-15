@@ -284,6 +284,7 @@ export default async function ProductDetailPage({ params }: Props) {
                     required_documents: product.required_documents ?? null,
                     rental_min_days: product.rental_min_days ?? null,
                     rental_max_days: product.rental_max_days ?? null,
+                    requires_id_number: product.requires_id_number ?? null,
                   }}
                   variants={productVariants}
                   industry={merchant.industry}

@@ -36,7 +36,7 @@ DECLARE
   v_callout_fee integer := 0;
   v_is_booking boolean := false;
   -- RENTAL (1)
-  v_rental_start date; v_rental_end date; v_rental_days integer;
+  v_rental_start date; v_rental_end date; v_rental_days integer; v_hirer_id text;
   v_rental_out integer; v_line_total integer; v_deposit_total integer := 0;
   v_taxable_total integer := 0; v_vat_nad integer := 0;
   v_vat_rate_bps integer := 1500; v_has_vat boolean := false;
@@ -114,7 +114,7 @@ BEGIN
   LOOP
     SELECT id, name, track_inventory, stock_quantity, allow_backorder, price_nad,
            item_type, rental_min_days, rental_max_days,
-           rental_unit, rental_buffer_days, deposit_nad
+           rental_unit, rental_buffer_days, deposit_nad, requires_id_number
     INTO v_product FROM products
     WHERE id = (v_item->>'productId')::uuid
       AND merchant_id = p_merchant_id AND is_available = true AND deleted_at IS NULL
@@ -156,7 +156,7 @@ BEGIN
     -- RENTAL (2): validate the range, price as rate x days, and refuse when
     -- every unit is already out over those dates. The UI speaks inclusive
     -- first/last day; storage is end-exclusive so touching ranges never clash.
-    v_rental_start := NULL; v_rental_end := NULL; v_rental_days := NULL;
+    v_rental_start := NULL; v_rental_end := NULL; v_rental_days := NULL; v_hirer_id := NULL;
     IF v_product.item_type = 'rental' THEN
       IF COALESCE(v_item->>'rentalStart', '') = '' OR COALESCE(v_item->>'rentalEnd', '') = '' THEN
         RAISE EXCEPTION 'Please choose hire dates for "%"', v_product.name;
@@ -182,6 +182,17 @@ BEGIN
       END IF;
       IF v_rental_days > COALESCE(v_product.rental_max_days, 30) THEN
         RAISE EXCEPTION 'Maximum hire for "%" is % day(s)', v_product.name, v_product.rental_max_days;
+      END IF;
+
+      -- The hirer's ID, when this product asks for one. Enforced here rather
+      -- than in the form, because the form is the customer's copy of the rules
+      -- and not the rules. Trimmed, so whitespace cannot pass as an answer.
+      v_hirer_id := NULLIF(BTRIM(COALESCE(v_item->>'hirerIdNumber', '')), '');
+      IF COALESCE(v_product.requires_id_number, false) AND v_hirer_id IS NULL THEN
+        RAISE EXCEPTION 'An ID number is required to hire "%"', v_product.name;
+      END IF;
+      IF v_hirer_id IS NOT NULL AND length(v_hirer_id) > 40 THEN
+        RAISE EXCEPTION 'That ID number looks too long for "%"', v_product.name;
       END IF;
       IF COALESCE(v_product.stock_quantity, 0) < 1 THEN
         RAISE EXCEPTION '"%" is not available for hire right now', v_product.name;
@@ -228,8 +239,8 @@ BEGIN
     v_line_total := v_line_price * (v_item->>'quantity')::integer * COALESCE(v_rental_days, 1);
     v_computed_subtotal := v_computed_subtotal + v_line_total;
 
-    INSERT INTO order_items (order_id, product_id, product_variant_id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes, rental_start, rental_end_exclusive, rental_days)
-    VALUES (v_order_id, (v_item->>'productId')::uuid, v_variant_id, v_item->>'name', v_line_price, (v_item->>'quantity')::integer, v_line_total, v_variant_sku, v_variant_attrs, v_rental_start, v_rental_end, v_rental_days);
+    INSERT INTO order_items (order_id, product_id, product_variant_id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes, rental_start, rental_end_exclusive, rental_days, hirer_id_number)
+    VALUES (v_order_id, (v_item->>'productId')::uuid, v_variant_id, v_item->>'name', v_line_price, (v_item->>'quantity')::integer, v_line_total, v_variant_sku, v_variant_attrs, v_rental_start, v_rental_end, v_rental_days, v_hirer_id);
   END LOOP;
 
   -- BOOKING (2): this order books a service if any validated item is one and

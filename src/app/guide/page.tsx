@@ -485,12 +485,22 @@ const SECTIONS: GuideSection[] = [
             in the WhatsApp order, so nobody arrives empty-handed.
           </Step>
           <Step n={7}>
+            For higher-value hires you can also tick{" "}
+            <strong className="text-walnut">Ask for the hirer&apos;s ID
+            number</strong>. The customer types it at checkout, you see it on
+            the order, and it appears nowhere else — not on their invoice, not
+            on their tracking page. When you record the return, OshiCart offers
+            to delete it, because once the item is back the number is a risk to
+            hold rather than a record worth keeping. Only ask for it when you
+            genuinely need it.
+          </Step>
+          <Step n={8}>
             On <strong className="text-walnut">Orders</strong>, each hired
             line shows its dates —{" "}
             <strong className="text-walnut">Hire · 3 days · 20 – 22 Aug</strong>{" "}
             — so you always know what is out and when it is due back.
           </Step>
-          <Step n={8}>
+          <Step n={9}>
             When it comes back, tap{" "}
             <strong className="text-walnut">Record return</strong> on the
             order: note which unit went out (registration, asset tag, room

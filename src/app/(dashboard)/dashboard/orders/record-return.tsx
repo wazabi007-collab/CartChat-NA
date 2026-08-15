@@ -22,6 +22,8 @@ interface Props {
   assignedUnit: string | null;
   returnedAt: string | null;
   returnNotes: string | null;
+  /** Present only while the hire is out; offered for deletion on return. */
+  hirerIdNumber: string | null;
 }
 
 /**
@@ -41,6 +43,7 @@ export function RecordReturn({
   assignedUnit,
   returnedAt,
   returnNotes,
+  hirerIdNumber,
 }: Props) {
   const router = useRouter();
   const supabase = createClient();
@@ -51,6 +54,10 @@ export function RecordReturn({
   const [unitLabel, setUnitLabel] = useState(assignedUnit ?? "");
   const [date, setDate] = useState(returnedAt ?? namibianDateString());
   const [notes, setNotes] = useState(returnNotes ?? "");
+  // The ID was collected so the merchant knew who had the item. Once it is
+  // back, keeping it is a liability rather than a record, so clearing is the
+  // default and staying is the deliberate choice.
+  const [clearId, setClearId] = useState(true);
 
   const lateDays = date ? rentalLateDays(rentalEndExclusive, date, unit) : 0;
   const suggestedFee = lateDays * lateFeeNad * quantity;
@@ -68,6 +75,7 @@ export function RecordReturn({
         assigned_unit: unitLabel.trim() || null,
         returned_at: date,
         return_notes: notes.trim() || null,
+        ...(hirerIdNumber && clearId ? { hirer_id_number: null } : {}),
       })
       .eq("id", itemId);
     setSaving(false);
@@ -165,6 +173,21 @@ export function RecordReturn({
           <strong>Record refund</strong> once you&apos;re happy with the
           condition.
         </p>
+      )}
+
+      {hirerIdNumber && (
+        <label className="mt-3 flex items-start gap-2 text-xs text-slate-600">
+          <input
+            type="checkbox"
+            checked={clearId}
+            onChange={(e) => setClearId(e.target.checked)}
+            className="mt-0.5 h-4 w-4 accent-[#008938]"
+          />
+          <span>
+            Delete the hirer&apos;s ID number ({hirerIdNumber}) now that the item is
+            back. Untick only if you still need it for a dispute.
+          </span>
+        </label>
       )}
 
       {error && <p className="mt-3 text-sm font-semibold text-red-600">{error}</p>}

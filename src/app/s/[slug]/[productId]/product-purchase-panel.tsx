@@ -36,6 +36,7 @@ type Product = {
   required_documents?: string | null;
   rental_min_days?: number | null;
   rental_max_days?: number | null;
+  requires_id_number?: boolean | null;
 };
 
 function variantIsBuyable(variant: Variant) {
@@ -134,6 +135,7 @@ export function ProductPurchasePanel({
       requiredDocuments: product.required_documents ?? undefined,
       rentalMinDays: product.rental_min_days ?? 1,
       rentalMaxDays: product.rental_max_days ?? 30,
+      requiresIdNumber: product.requires_id_number ?? false,
       variantId: selectedVariant?.id ?? null,
       variantSku: selectedVariant?.sku ?? null,
       variantAttributes: selectedVariant?.attributes ?? undefined,

@@ -31,6 +31,8 @@ export interface CartItem {
   /** Shortest and longest hire the merchant allows, in the item's own unit. */
   rentalMinDays?: number;
   rentalMaxDays?: number;
+  /** This hire needs the hirer's ID number captured at checkout. */
+  requiresIdNumber?: boolean;
 }
 
 export interface CartVatSettings {

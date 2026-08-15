@@ -51,7 +51,7 @@ export default async function OrdersPage({
   const statusFilter = params.status;
   let query = supabase
     .from("orders")
-    .select("*, order_items(id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes, rental_start, rental_end_exclusive, rental_days, assigned_unit, returned_at, return_notes, products(rental_unit, late_fee_nad))")
+    .select("*, order_items(id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes, rental_start, rental_end_exclusive, rental_days, assigned_unit, returned_at, return_notes, hirer_id_number, products(rental_unit, late_fee_nad))")
     .eq("merchant_id", merchant.id)
     .order("created_at", { ascending: false });
 
@@ -390,6 +390,7 @@ export default async function OrdersPage({
                         assigned_unit?: string | null;
                         returned_at?: string | null;
                         return_notes?: string | null;
+                        hirer_id_number?: string | null;
                         products?: {
                           rental_unit?: string | null;
                           late_fee_nad?: number | null;
@@ -407,6 +408,7 @@ export default async function OrdersPage({
                           assignedUnit={it.assigned_unit ?? null}
                           returnedAt={it.returned_at ?? null}
                           returnNotes={it.return_notes ?? null}
+                          hirerIdNumber={it.hirer_id_number ?? null}
                         />
                       )
                     )}

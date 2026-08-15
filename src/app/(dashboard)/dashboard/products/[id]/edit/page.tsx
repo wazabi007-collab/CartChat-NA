@@ -61,6 +61,7 @@ export default function EditProductPage() {
   const [rentalBufferDays, setRentalBufferDays] = useState(0);
   const [lateFeeNad, setLateFeeNad] = useState(0);
   const [requiredDocuments, setRequiredDocuments] = useState("");
+  const [requiresIdNumber, setRequiresIdNumber] = useState(false);
   const [stockQuantity, setStockQuantity] = useState(0);
   const [lowStockThreshold, setLowStockThreshold] = useState(5);
   const [allowBackorder, setAllowBackorder] = useState(false);
@@ -152,6 +153,9 @@ export default function EditProductPage() {
         };
         setLateFeeNad(Math.round((p3.late_fee_nad ?? 0) / 100));
         setRequiredDocuments(p3.required_documents ?? "");
+        setRequiresIdNumber(
+          (prod as { requires_id_number?: boolean | null }).requires_id_number ?? false
+        );
       }
       // Services created before migration 062 have no mode yet.
       const savedMode = (prod as { service_mode?: string | null }).service_mode;
@@ -331,6 +335,7 @@ export default function EditProductPage() {
           late_fee_nad: itemType === "rental" ? lateFeeNad * 100 : 0,
           required_documents:
             itemType === "rental" && requiredDocuments.trim() ? requiredDocuments.trim() : null,
+          requires_id_number: itemType === "rental" ? requiresIdNumber : false,
           service_mode: itemType === "service" ? serviceMode : null,
           name: validation.data.name,
           description: validation.data.description || null,
@@ -658,6 +663,26 @@ export default function EditProductPage() {
                 />
                 <span className="mt-0.5 block text-xs text-gray-500">
                   Shown on the product, at checkout, and in the WhatsApp order. Leave empty if none.
+                </span>
+              </label>
+              <label className="block sm:col-span-2">
+                <span className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={requiresIdNumber}
+                    onChange={(e) => setRequiresIdNumber(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 accent-[#008938]"
+                  />
+                  <span>
+                    <span className="block text-sm font-medium text-gray-700">
+                      Ask for the hirer&apos;s ID number at checkout
+                    </span>
+                    <span className="mt-0.5 block text-xs text-gray-500">
+                      Recorded against this hire only, visible to you on the order, and
+                      never shown to anyone else. Leave off unless you genuinely need it —
+                      it is personal information you then have to look after.
+                    </span>
+                  </span>
                 </span>
               </label>
             </div>

@@ -16,6 +16,7 @@ interface OrderItem {
   rental_days?: number | null;
   assigned_unit?: string | null;
   returned_at?: string | null;
+  hirer_id_number?: string | null;
   products?: { rental_unit?: string | null } | null;
   variant_attributes?: Record<string, string> | null;
 }
@@ -66,6 +67,11 @@ export function OrderItemsToggle({ items }: OrderItemsToggleProps) {
                         const word = night ? "night" : "day";
                         return `Hire · ${item.rental_days} ${word}${item.rental_days === 1 ? "" : "s"} · ${fmt(new Date(`${item.rental_start}T12:00:00`))} – ${fmt(last)}`;
                       })()}
+                    </span>
+                  )}
+                  {item.hirer_id_number && (
+                    <span className="block text-[10px] text-gray-500">
+                      Hirer ID: {item.hirer_id_number}
                     </span>
                   )}
                   {item.assigned_unit && (

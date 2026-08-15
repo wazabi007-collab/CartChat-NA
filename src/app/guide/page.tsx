@@ -480,10 +480,13 @@ export default function GuidePage() {
                 you own, and the shortest and longest hire you allow.
               </Step>
               <Step n={2}>
-                The price you enter is <strong className="text-walnut">per
-                day</strong>. Customers pick a first and last day — both
-                included — and the price works itself out: 3 days at N$150 is
-                N$450.
+                Choose how it is charged:{" "}
+                <strong className="text-walnut">per day</strong> (tools, tents,
+                dresses — first and last day both count: 3 days at N$150 is
+                N$450) or <strong className="text-walnut">per night</strong>{" "}
+                (rooms and accommodation — check-in to check-out, and the
+                check-out day is free, so a new guest can arrive that same
+                day).
               </Step>
               <Step n={3}>
                 OshiCart counts what is already out. If you own two tents and
@@ -495,11 +498,21 @@ export default function GuidePage() {
                 both take the last one.
               </Step>
               <Step n={4}>
-                The day after something comes back, it can go out again. A hire
-                ending Monday and one starting Tuesday never clash — and if a
-                hire is cancelled, its dates open up immediately.
+                Need time to clean or check the item between hires? Set{" "}
+                <strong className="text-walnut">days between hires</strong> and
+                OshiCart keeps that gap free automatically. Leave it at 0 and
+                back-to-back hires are allowed — a hire ending Monday and one
+                starting Tuesday never clash, and a cancelled hire frees its
+                dates immediately.
               </Step>
               <Step n={5}>
+                Ask for a <strong className="text-walnut">refundable
+                deposit</strong> if you want security on the item. It is added
+                to what the customer pays — shown as its own line at checkout
+                and on the invoice, never taxed — and you hand it back when the
+                item returns in good shape.
+              </Step>
+              <Step n={6}>
                 On <strong className="text-walnut">Orders</strong>, each hired
                 line shows its dates —{" "}
                 <strong className="text-walnut">Hire · 3 days · 20 – 22 Aug</strong>{" "}

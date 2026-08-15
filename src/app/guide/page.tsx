@@ -350,27 +350,38 @@ export default function GuidePage() {
                 customer has ordered but not paid yet.
               </Step>
               <Step n={3}>
-                Mark it <strong className="text-walnut">Confirmed</strong> once you
-                have the money or you are happy to proceed.
+                Tap <strong className="text-walnut">Confirm</strong> once you have
+                the money or you are happy to go ahead.
               </Step>
               <Step n={4}>
-                Mark it <strong className="text-walnut">Ready</strong> when it is
-                packed and waiting for collection or delivery.
+                Tap <strong className="text-walnut">Completed</strong> when the
+                customer has it. That message carries their{" "}
+                <strong className="text-walnut">invoice</strong>.
               </Step>
               <Step n={5}>
-                Mark it <strong className="text-walnut">Completed</strong> when the
-                customer has it.
-              </Step>
-              <Step n={6}>
                 Use <strong className="text-walnut">Cancel</strong> if the order
                 falls through. Cancelled orders do not count against your monthly
                 order limit.
               </Step>
             </Steps>
             <Note>
-              Customers get a WhatsApp message at each step, so you do not have to
-              type the same replies over and over. Unpaid orders are cancelled
-              automatically after about two days.
+              Two taps, and the customer is told at each step — three messages in
+              all: ordered, confirmed, done. Only Cancel asks you to confirm,
+              because it puts the stock back and tells the customer the order is
+              off.
+            </Note>
+            <Note>
+              Need a <strong className="text-walnut">Ready</strong> step as well?
+              Takeaways and shops where &quot;your order is ready for
+              collection&quot; is a real moment can turn the full flow back on
+              under <strong className="text-walnut">Settings</strong> — untick
+              &quot;Use the simple order flow&quot;.
+            </Note>
+            <Note>
+              Not paid? OshiCart sends two reminders, at 6 hours and the next
+              morning, then cancels the order after about two days and puts the
+              stock back. The moment you record a payment — or the customer
+              uploads proof — the reminders stop.
             </Note>
           </Section>
 

@@ -2,6 +2,7 @@
 
 import type { ThemeConfig } from "@/lib/industry";
 import { ProductCard } from "./product-card";
+import { cartItemFromProduct } from "./cart-provider";
 import { MenuList } from "./layouts/menu-list";
 import { CompactGrid } from "./layouts/compact-grid";
 import { HorizontalCard } from "./layouts/horizontal-card";
@@ -65,6 +66,7 @@ export function ProductSection({
               whatsappNumber={whatsappNumber}
               storeName={storeName}
               hasVariants={(product as unknown as Record<string, unknown>).has_variants as boolean | undefined}
+              cartPayload={cartItemFromProduct(product)}
             />
           ))}
         </div>

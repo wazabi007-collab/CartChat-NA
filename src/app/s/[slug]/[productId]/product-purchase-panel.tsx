@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Check, ShoppingCart } from "lucide-react";
-import { useCart } from "@/components/storefront/cart-provider";
+import { useCart, cartItemFromProduct } from "@/components/storefront/cart-provider";
 import { formatPrice } from "@/lib/utils";
 import {
   displayVariantAttributeName,
@@ -126,23 +126,17 @@ export function ProductPurchasePanel({
 
   function handleAdd() {
     if (!canAdd) return;
-    addItem({
-      productId: product.id,
-      serviceMode: product.service_mode ?? null,
-      itemType: (product.item_type as "product" | "service" | "rental") ?? "product",
-      rentalUnit: product.rental_unit === "night" ? "night" : "day",
-      depositNad: product.deposit_nad ?? 0,
-      requiredDocuments: product.required_documents ?? undefined,
-      rentalMinDays: product.rental_min_days ?? 1,
-      rentalMaxDays: product.rental_max_days ?? 30,
-      requiresIdNumber: product.requires_id_number ?? false,
-      variantId: selectedVariant?.id ?? null,
-      variantSku: selectedVariant?.sku ?? null,
-      variantAttributes: selectedVariant?.attributes ?? undefined,
-      name: product.name,
-      price: activePrice,
-      imageUrl: activeImage,
-    });
+    // Same builder as every storefront card: the variant and the active
+    // price/image are the only things this page knows better.
+    addItem(
+      cartItemFromProduct(product, {
+        variantId: selectedVariant?.id ?? null,
+        variantSku: selectedVariant?.sku ?? null,
+        variantAttributes: selectedVariant?.attributes ?? undefined,
+        price: activePrice,
+        imageUrl: activeImage,
+      })
+    );
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   }

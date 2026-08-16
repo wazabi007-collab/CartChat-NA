@@ -2,18 +2,22 @@
 
 import { useState, useEffect } from "react";
 import { ShoppingCart, Check } from "lucide-react";
-import { useCart } from "@/components/storefront/cart-provider";
+import { useCart, type CartItem } from "@/components/storefront/cart-provider";
 import { formatPrice } from "@/lib/utils";
 
 interface Props {
-  productId: string;
   name: string;
   price: number;
-  imageUrl: string | null;
   isOutOfStock: boolean;
+  /**
+   * Built by the page with cartItemFromProduct. This bar is the mobile add
+   * path, and it used to hand-write {productId, name, price, imageUrl} — so a
+   * hire added from a phone lost its itemType and was refused at checkout.
+   */
+  cartPayload: Omit<CartItem, "quantity">;
 }
 
-export function StickyAddToCart({ productId, name, price, imageUrl, isOutOfStock }: Props) {
+export function StickyAddToCart({ name, price, isOutOfStock, cartPayload }: Props) {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -37,7 +41,7 @@ export function StickyAddToCart({ productId, name, price, imageUrl, isOutOfStock
   if (isOutOfStock) return null;
 
   const handleAdd = () => {
-    addItem({ productId, name, price, imageUrl });
+    addItem(cartPayload);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };

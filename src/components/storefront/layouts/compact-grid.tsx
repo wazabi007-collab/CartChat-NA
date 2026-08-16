@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import { useCart } from "../cart-provider";
+import { useCart, cartItemFromProduct } from "../cart-provider";
 import { getCtaText, getDisplayPrice, getStockLabel, type LayoutProps } from "./types";
 import type { ServiceMode } from "@/lib/service-mode";
 
@@ -73,13 +73,7 @@ export function CompactGrid({ products, theme, slug, disabled }: LayoutProps) {
                 ) : (
                   <button
                     onClick={() =>
-                      addItem({
-                        productId: product.id,
-                        serviceMode: (product.service_mode as ServiceMode | null) ?? null,
-                        name: product.name,
-                        price: product.price_nad,
-                        imageUrl,
-                      })
+                      addItem(cartItemFromProduct(product, { imageUrl }))
                     }
                     className="w-full min-h-[40px] flex items-center justify-center text-white text-xs font-medium py-1.5 px-2 rounded-md transition-colors"
                     style={{ backgroundColor: theme.accent }}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
 import { formatPrice, normalizeNamibianPhone } from "@/lib/utils";
-import { useCart } from "./cart-provider";
+import { useCart, type CartItem } from "./cart-provider";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 interface ProductCardProps {
@@ -26,6 +26,12 @@ interface ProductCardProps {
   whatsappNumber?: string;
   storeName?: string;
   hasVariants?: boolean;
+  /**
+   * Built by the parent with cartItemFromProduct, so the card never has to
+   * know which fields a hire or a booking needs — the omission that made
+   * every storefront add a rental with no dates and no deposit.
+   */
+  cartPayload?: Omit<CartItem, "quantity">;
 }
 
 export function ProductCard({
@@ -33,7 +39,7 @@ export function ProductCard({
   trackInventory, stockQuantity, lowStockThreshold, allowBackorder,
   disabled, accentColor, accentHover, ctaText,
   itemType, rentalUnit, whatsappNumber, storeName,
-  hasVariants,
+  hasVariants, cartPayload,
 }: ProductCardProps) {
   const { addItem } = useCart();
 
@@ -145,7 +151,9 @@ export function ProductCard({
           ) : (
             <button
               onClick={() =>
-                addItem({ productId: id, name, price, imageUrl })
+                addItem(
+                  cartPayload ?? { productId: id, name, price, imageUrl }
+                )
               }
               className={`w-full text-white text-sm font-medium py-2.5 px-3 rounded-lg transition-colors ${accentColor ? "" : "bg-terracotta hover:opacity-90"}`}
               style={accentColor ? { backgroundColor: accentColor } : undefined}

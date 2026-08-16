@@ -14,6 +14,7 @@ import { readPreviewState } from "@/lib/preview";
 import { ProductPurchasePanel } from "./product-purchase-panel";
 import { ProductGallery, VariantImagesProvider } from "./product-gallery";
 import { StickyAddToCart } from "./sticky-add-to-cart";
+import { cartItemFromProduct } from "@/components/storefront/cart-provider";
 
 interface Props {
   params: Promise<{ slug: string; productId: string }>;
@@ -309,11 +310,10 @@ export default async function ProductDetailPage({ params }: Props) {
 
       {/* Sticky mobile Add to Cart — appears when main button scrolls out of view */}
       <StickyAddToCart
-        productId={product.id}
         name={product.name}
         price={product.price_nad}
-        imageUrl={images[0] ?? null}
         isOutOfStock={isOutOfStock || productVariants.length > 0 || orderingBlocked}
+        cartPayload={cartItemFromProduct(product, { imageUrl: images[0] ?? null })}
       />
     </div>
   );

@@ -13,6 +13,13 @@ export interface LayoutProduct {
   item_type?: string;
   service_mode?: string | null;
   rental_unit?: string | null;
+  // Read by cartItemFromProduct — without these a hire reaches checkout with
+  // no deposit and no hire limits.
+  deposit_nad?: number | null;
+  required_documents?: string | null;
+  rental_min_days?: number | null;
+  rental_max_days?: number | null;
+  requires_id_number?: boolean | null;
   has_variants?: boolean;
 }
 

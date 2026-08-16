@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ThemeConfig } from "@/lib/industry";
 import { ProductCard } from "./product-card";
+import { cartItemFromProduct } from "./cart-provider";
 import { ProductSection } from "./product-section";
 import { StorefrontSearch } from "./search-bar";
 
@@ -24,7 +25,13 @@ interface Product {
   low_stock_threshold: number | null;
   allow_backorder: boolean;
   item_type?: string;
+  service_mode?: string | null;
   rental_unit?: string | null;
+  deposit_nad?: number | null;
+  required_documents?: string | null;
+  rental_min_days?: number | null;
+  rental_max_days?: number | null;
+  requires_id_number?: boolean | null;
   has_variants?: boolean;
 }
 
@@ -131,6 +138,7 @@ export function StorefrontProducts({
                   whatsappNumber={whatsappNumber}
                   storeName={storeName}
                   hasVariants={product.has_variants}
+                  cartPayload={cartItemFromProduct(product)}
                 />
               ))}
             </div>
@@ -179,6 +187,7 @@ export function StorefrontProducts({
                     whatsappNumber={whatsappNumber}
                     storeName={storeName}
                     hasVariants={product.has_variants}
+                    cartPayload={cartItemFromProduct(product)}
                   />
                 ))}
               </div>

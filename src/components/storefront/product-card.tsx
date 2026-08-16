@@ -1,11 +1,9 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
-import { formatPrice, normalizeNamibianPhone } from "@/lib/utils";
-import { useCart, type CartItem } from "./cart-provider";
-import { WhatsAppIcon } from "@/components/whatsapp-icon";
+import { formatPrice } from "@/lib/utils";
+import type { CartItem } from "./cart-provider";
+import { AddToCartButton } from "./add-to-cart-button";
 
 interface ProductCardProps {
   id: string;
@@ -41,7 +39,8 @@ export function ProductCard({
   itemType, rentalUnit, whatsappNumber, storeName,
   hasVariants, cartPayload,
 }: ProductCardProps) {
-  const { addItem } = useCart();
+  const payload: Omit<CartItem, "quantity"> =
+    cartPayload ?? { productId: id, name, price, imageUrl };
 
   const isService = itemType === "service";
   // Rentals come back, so stock never runs out from selling; skip the goods
@@ -57,13 +56,6 @@ export function ProductCard({
         ? "Available on backorder"
         : `${(stockQuantity ?? 0).toLocaleString("en-NA")} in stock`
     : null;
-
-  function handleQuoteClick() {
-    if (!whatsappNumber) return;
-    const cleanPhone = normalizeNamibianPhone(whatsappNumber).replace(/\D/g, "");
-    const msg = `Hi ${storeName || ""}! I'd like to enquire about your service: ${name}`;
-    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, "_blank");
-  }
 
   return (
     <div className="bg-white/95 rounded-2xl border border-slate-200/80 overflow-hidden flex flex-col shadow-sm shadow-slate-900/5 hover:shadow-lg hover:shadow-slate-900/10 hover:-translate-y-0.5 transition">
@@ -133,13 +125,14 @@ export function ProductCard({
               {isOutOfStock ? "Out of Stock" : "Unavailable"}
             </button>
           ) : isQuoteOnly ? (
-            <button
-              onClick={handleQuoteClick}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5"
-            >
-              <WhatsAppIcon size={14} />
-              Request Quote
-            </button>
+            <AddToCartButton
+              quoteOnly
+              cartPayload={payload}
+              label="Request Quote"
+              productName={name}
+              whatsappNumber={whatsappNumber}
+              storeName={storeName}
+            />
           ) : hasVariants ? (
             <Link
               href={`/s/${slug}/${id}`}
@@ -149,19 +142,13 @@ export function ProductCard({
               Select Options
             </Link>
           ) : (
-            <button
-              onClick={() =>
-                addItem(
-                  cartPayload ?? { productId: id, name, price, imageUrl }
-                )
-              }
-              className={`w-full text-white text-sm font-medium py-2.5 px-3 rounded-lg transition-colors ${accentColor ? "" : "bg-terracotta hover:opacity-90"}`}
-              style={accentColor ? { backgroundColor: accentColor } : undefined}
-              onMouseEnter={accentHover ? (e) => { e.currentTarget.style.backgroundColor = accentHover; } : undefined}
-              onMouseLeave={accentColor ? (e) => { e.currentTarget.style.backgroundColor = accentColor; } : undefined}
-            >
-              {isService ? (ctaText ?? "Book Now") : "Add to Cart"}
-            </button>
+            <AddToCartButton
+              cartPayload={payload}
+              label={isService ? (ctaText ?? "Book Now") : "Add to Cart"}
+              accentColor={accentColor}
+              accentHover={accentHover}
+              productName={name}
+            />
           )}
         </div>
       </div>

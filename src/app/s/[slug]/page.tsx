@@ -34,6 +34,7 @@ import {
   DeferredReportButton,
 } from "@/components/storefront/deferred-extras";
 import { readPreviewState } from "@/lib/preview";
+import { normalizeSort } from "@/lib/product-sort";
 
 const PRODUCTS_PER_PAGE = 100;
 const MAX_SEARCH_PRODUCT_IDS = 300;
@@ -159,6 +160,8 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
     sortParam ? `sort=${encodeURIComponent(sortParam)}` : "",
   ].filter(Boolean).join("&");
   const activeTab = tab === "orders" ? "orders" : "products";
+  // Sorting is a URL parameter so the grid can render on the server.
+  const activeSort = normalizeSort(sortParam);
   const currentPage = Math.max(1, parseInt(pageParam || "1") || 1);
   const supabase = await createClient();
   const { previewCookie, userId } = await readPreviewState(supabase);
@@ -546,6 +549,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
             whatsappNumber={merchant.whatsapp_number}
             storeName={merchant.store_name}
             searchQuery={searchTerm}
+            sort={activeSort}
           />
 
           {/* Pagination */}

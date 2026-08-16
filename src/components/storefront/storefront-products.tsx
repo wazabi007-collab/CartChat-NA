@@ -1,11 +1,10 @@
-"use client";
-
-import { useState } from "react";
 import type { ThemeConfig } from "@/lib/industry";
 import { ProductCard } from "./product-card";
 import { cartItemFromProduct } from "./cart-provider";
 import { ProductSection } from "./product-section";
 import { StorefrontSearch } from "./search-bar";
+import { SortSelect } from "./sort-select";
+import { sortProducts, type SortValue } from "@/lib/product-sort";
 
 interface Section {
   name: string;
@@ -44,6 +43,8 @@ interface StorefrontProductsProps {
   whatsappNumber?: string;
   storeName?: string;
   searchQuery?: string;
+  /** Applied on the server; the select below only reflects and changes it. */
+  sort: SortValue;
 }
 
 export function StorefrontProducts({
@@ -55,28 +56,14 @@ export function StorefrontProducts({
   whatsappNumber,
   storeName,
   searchQuery = "",
+  sort,
 }: StorefrontProductsProps) {
-  const [sortBy, setSortBy] = useState("default");
+  const searchResults = searchQuery ? sortProducts(allProducts, sort) : null;
 
-  function sortProducts(list: Product[]): Product[] {
-    if (sortBy === "default") return list;
-    return [...list].sort((a, b) => {
-      switch (sortBy) {
-        case "name_asc": return a.name.localeCompare(b.name);
-        case "name_desc": return b.name.localeCompare(a.name);
-        case "price_asc": return a.price_nad - b.price_nad;
-        case "price_desc": return b.price_nad - a.price_nad;
-        default: return 0;
-      }
-    });
-  }
-
-  const searchResults = searchQuery ? sortProducts(allProducts) : null;
-
-  // Sort sections when not searching
-  const sortedSections = sortBy !== "default"
-    ? sections.map((s) => ({ ...s, products: sortProducts(s.products) }))
-    : sections;
+  const sortedSections =
+    sort !== "default"
+      ? sections.map((s) => ({ ...s, products: sortProducts(s.products, sort) }))
+      : sections;
 
   return (
     <>
@@ -89,19 +76,7 @@ export function StorefrontProducts({
               initialQuery={searchQuery}
             />
           </div>
-          <select
-            aria-label="Sort products"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white shadow-sm shadow-slate-900/5 focus:outline-none focus:ring-2 focus:border-transparent appearance-none cursor-pointer"
-            style={theme ? { "--tw-ring-color": theme.accent } as React.CSSProperties : undefined}
-          >
-            <option value="default">Sort</option>
-            <option value="name_asc">Name A-Z</option>
-            <option value="name_desc">Name Z-A</option>
-            <option value="price_asc">Price: Low</option>
-            <option value="price_desc">Price: High</option>
-          </select>
+          <SortSelect value={sort} accentColor={theme?.accent} />
         </div>
       )}
 

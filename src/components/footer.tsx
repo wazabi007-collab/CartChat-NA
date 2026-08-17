@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Phone, Mail } from "lucide-react";
+import { WhatsAppIcon } from "@/components/whatsapp-icon";
 import {
   SUPPORT_EMAIL,
   SUPPORT_PHONE,
@@ -8,154 +10,127 @@ import {
   supportWhatsAppLink,
 } from "@/lib/constants";
 
+/* Column labels are <p>, not headings — as <h4> they followed whatever level
+   the page above ended on and failed Lighthouse's heading-order audit. */
+const columnLabel =
+  "mb-3 text-xs font-black uppercase tracking-[0.15em] text-acacia";
+const footerLink =
+  "inline-block py-0.5 text-slate-300 transition-colors hover:text-white";
+
+const EXPLORE_LINKS = [
+  { href: "/stores", label: "Browse Stores" },
+  { href: "/#pricing", label: "Pricing" },
+  { href: "/help", label: "Help Centre" },
+  { href: "/guide", label: "Setup Guide" },
+  { href: "/app", label: "Install as App" },
+  { href: "/agents", label: "Become an Agent" },
+];
+
+const LEGAL_LINKS = [
+  { href: "/terms", label: "Terms of Service" },
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/prohibited-products", label: "Prohibited Products" },
+];
+
 export function Footer() {
   return (
-    <footer
-      id="contact"
-      className="bg-walnut px-4 py-12 text-slate-300 sm:px-6"
-    >
-      <div className="max-w-6xl mx-auto">
-        <div className="grid gap-8 md:grid-cols-4 md:items-start">
+    <footer id="contact" className="bg-walnut px-4 py-10 text-slate-300 sm:px-6">
+      <div className="mx-auto max-w-6xl">
+        {/* On phones Explore and Legal sit side by side — two short lists
+            stacked full-width doubled the footer's height for nothing. */}
+        <div className="grid grid-cols-2 gap-8 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
           {/* Brand */}
-          <div>
+          <div id="about" className="col-span-2 lg:col-span-1">
             <Image
               src="/oshicart-logo-v3-dark.webp"
               alt="OshiCart"
-              width={170}
-              height={24}
-              style={{ width: 170, height: "auto" }}
+              width={150}
+              height={21}
+              style={{ width: 150, height: "auto" }}
             />
-            <p className="mt-3 text-sm text-slate-400">
-              Online stores for Namibia&apos;s shops, vendors, services, and
-              WhatsApp sellers.
+            <p className="mt-3 max-w-xs text-sm leading-6 text-slate-400">
+              Proudly Namibian. One store link, structured WhatsApp orders,
+              local payments — built for the way Namibia sells.
+            </p>
+            <p className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-slate-300">
+              <span aria-hidden>🇳🇦</span> Made in Namibia · Zero commission
             </p>
           </div>
 
-          {/* About Us */}
-          <div id="about" className="md:col-span-2">
-            {/* Column labels, not document structure. As <h4> they followed
-                whatever level the page above happened to end on (usually h2),
-                so every page failed Lighthouse's heading-order audit. The
-                footer is boilerplate on every page and nothing links to these
-                sections, so they don't belong in any page's outline. */}
-            <p className="mb-3 font-bold text-white">About OshiCart</p>
-            <div className="space-y-3 text-sm leading-relaxed text-slate-300">
-              <p>
-                OshiCart is a proudly Namibian commerce platform for sellers who
-                already run their business through WhatsApp, Facebook,
-                Instagram, markets, and local communities.
-              </p>
-              <p>
-                We help merchants publish a clean store link, receive structured
-                orders, accept local payments, and manage products without
-                needing a custom website.
-              </p>
-              <p>
-                From local vendors and restaurants to boutiques, salons,
-                electronics shops, and service providers, OshiCart is built for
-                the way Namibia sells.
-              </p>
-            </div>
+          {/* Explore */}
+          <div>
+            <p className={columnLabel}>Explore</p>
+            <ul className="space-y-2 text-sm">
+              {EXPLORE_LINKS.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className={footerLink}>
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Contact & Links */}
+          {/* Legal */}
           <div>
-            <p className="mb-3 font-bold text-white">Contact & Support</p>
+            <p className={columnLabel}>Legal</p>
             <ul className="space-y-2 text-sm">
-              <li>
-                {/* This used to print the "sales" contactPoint from the
-                    homepage JSON-LD, so support calls from the footer landed
-                    on a line nobody watches — and disagreed with /help, /guide
-                    and both PDFs. All of them now read from SUPPORT_PHONE. */}
-                <a
-                  href={`tel:${SUPPORT_PHONE_E164}`}
-                  className="hover:text-white transition-colors"
-                >
-                  Call: {SUPPORT_PHONE}
-                </a>
-              </li>
+              {LEGAL_LINKS.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className={footerLink}>
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div className="col-span-2 lg:col-span-1">
+            <p className={columnLabel}>Talk to us</p>
+            <ul className="space-y-2.5 text-sm">
               <li>
                 <a
                   href={supportWhatsAppLink("Hi OshiCart, I need help with...")}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
+                  className={`${footerLink} inline-flex items-center gap-2.5`}
                 >
-                  WhatsApp: {SUPPORT_WHATSAPP}
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-[#25D366]">
+                    <WhatsAppIcon size={15} />
+                  </span>
+                  {SUPPORT_WHATSAPP}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={`tel:${SUPPORT_PHONE_E164}`}
+                  className={`${footerLink} inline-flex items-center gap-2.5`}
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-acacia">
+                    <Phone size={14} />
+                  </span>
+                  {SUPPORT_PHONE}
                 </a>
               </li>
               <li>
                 <a
                   href={`mailto:${SUPPORT_EMAIL}`}
-                  className="hover:text-white transition-colors"
+                  className={`${footerLink} inline-flex items-center gap-2.5`}
                 >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-acacia">
+                    <Mail size={14} />
+                  </span>
                   {SUPPORT_EMAIL}
                 </a>
-              </li>
-              <li className="pt-2">
-                <Link
-                  href="/stores"
-                  className="hover:text-white transition-colors"
-                >
-                  Browse Stores
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/help"
-                  className="hover:text-white transition-colors"
-                >
-                  Help
-                </Link>
-              </li>
-              <li>
-                <Link href="/guide" className="hover:text-white transition-colors">
-                  Setup guide
-                </Link>
-              </li>
-              <li>
-                <Link href="/agents" className="hover:text-white transition-colors">
-                  Become an Agent
-                </Link>
-              </li>
-              <li>
-                <Link href="/app" className="hover:text-white transition-colors">
-                  Install as app
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/terms"
-                  className="hover:text-white transition-colors"
-                >
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/privacy"
-                  className="hover:text-white transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/prohibited-products"
-                  className="hover:text-white transition-colors"
-                >
-                  Prohibited Products
-                </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-sm md:flex-row">
+        <div className="mt-8 flex flex-col items-center justify-between gap-2 border-t border-white/10 pt-5 text-xs text-slate-400 md:flex-row">
           <p>&copy; {new Date().getFullYear()} OshiCart. Made in Namibia.</p>
-          <p className="text-slate-500">
-            OshiCart is a product of Octovia Nexus Investments CC
-          </p>
+          <p>A product of Octovia Nexus Investments CC — registered Namibian business</p>
         </div>
       </div>
     </footer>

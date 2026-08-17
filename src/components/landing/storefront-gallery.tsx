@@ -1,7 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
+import { unstable_cache } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
+import { fetchStoreListData, INDUSTRY_LABELS as ROSTER_CATEGORY_LABELS } from "@/lib/storefront/store-list";
+import { TOWN_LABELS } from "@/lib/constants";
 
 type StorePreview = {
   id: string;
@@ -89,8 +93,38 @@ const FALLBACK_STORES: StorePreview[] = [
   },
 ];
 
+/**
+ * The full public roster — the same list /stores shows, so a business on the
+ * homepage is always one a shopper can actually open. Cached like the hero
+ * counts: five minutes stale is invisible, a per-visitor fetch is not.
+ */
+const getStoreRoster = unstable_cache(
+  async () => {
+    try {
+      const stores = await fetchStoreListData(createServiceClient(), {});
+      return stores.map((s) => ({
+        id: s.id,
+        name: s.store_name,
+        slug: s.store_slug,
+        logoUrl: s.logo_url,
+        industry: s.industry,
+        town: s.town,
+      }));
+    } catch (e) {
+      // The featured cards still render; only the roster strip goes quiet —
+      // but say why in the server log, or an empty strip is undebuggable.
+      console.error("landing store roster failed:", e);
+      return [];
+    }
+  },
+  ["landing-store-roster"],
+  { revalidate: 300, tags: ["landing-store-roster"] }
+);
+
 export async function StorefrontGallery() {
-  const stores = await getFeaturedStores();
+  const [stores, roster] = await Promise.all([getFeaturedStores(), getStoreRoster()]);
+  // The three featured cards already show these; don't name them twice.
+  const rosterRest = roster.filter((s) => !FEATURED_SLUGS.includes(s.slug));
 
   return (
     <section className="bg-sand py-16 lg:py-20">
@@ -98,14 +132,14 @@ export async function StorefrontGallery() {
         <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-terracotta">
-              Live marketplace proof
+              Who&apos;s on OshiCart
             </p>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-walnut sm:text-4xl">
-              Featured Namibian stores.
+              Real Namibian businesses, selling right now.
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-walnut-2">
-              A curated look at stores already using OshiCart, with visuals
-              that make the marketplace feel active, local, and ready to shop.
+              These are live stores — open any of them, browse the catalogue,
+              and place an order. Yours could be next to them.
             </p>
           </div>
           <Link
@@ -186,6 +220,60 @@ export async function StorefrontGallery() {
             </Link>
           ))}
         </div>
+
+        {rosterRest.length > 0 && (
+          <div className="mt-10">
+            <p className="mb-4 text-sm font-black uppercase tracking-wide text-walnut-2">
+              Also open on OshiCart
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {rosterRest.slice(0, 9).map((store) => (
+                <Link
+                  key={store.id}
+                  href={`/s/${store.slug}`}
+                  className="group flex items-center gap-3 rounded-xl border border-border-warm bg-white px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                >
+                  {store.logoUrl ? (
+                    <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-border-warm bg-white">
+                      <Image
+                        src={store.logoUrl}
+                        alt=""
+                        fill
+                        sizes="36px"
+                        className="object-cover"
+                      />
+                    </span>
+                  ) : (
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-terracotta-soft text-sm font-black text-terracotta">
+                      {store.name.charAt(0)}
+                    </span>
+                  )}
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-black text-walnut group-hover:text-terracotta">
+                      {store.name}
+                    </span>
+                    <span className="flex items-center gap-1 text-xs font-bold text-walnut-2">
+                      {ROSTER_CATEGORY_LABELS[store.industry || "other"] || "Local store"}
+                      {store.town && TOWN_LABELS[store.town] && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <MapPin size={11} className="shrink-0" /> {TOWN_LABELS[store.town]}
+                        </>
+                      )}
+                    </span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+            {rosterRest.length > 9 && (
+              <p className="mt-4 text-sm font-bold text-walnut-2">
+                <Link href="/stores" className="text-terracotta hover:underline">
+                  See all {roster.length} live stores →
+                </Link>
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

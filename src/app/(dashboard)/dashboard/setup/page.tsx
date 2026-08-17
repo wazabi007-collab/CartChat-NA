@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { slugify, normalizeNamibianPhone } from "@/lib/utils";
 import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, INDUSTRY_GROUP_ORDER, PAYMENT_METHODS, NAMIBIA_REGIONS, townsForRegion, REFERRED_TRIAL_DAYS, STANDARD_TRIAL_DAYS, isCourierAvailable } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
+import { storeSetupBlocker, courierNeedsPickupAddress } from "@/lib/store-setup-gate";
 import { SAFETY_POLICY_VERSION, safetyMessage, scanTextForProhibitedContent } from "@/lib/safety/prohibited-content";
 import { IndustryIcon } from "@/components/industry-icon";
 import { track } from "@/lib/track";
@@ -152,6 +153,12 @@ function StoreSetupForm() {
   const effectiveProviders = enabledProviders.filter((p) =>
     isCourierAvailable(p, form.town)
   );
+  // Both step-2 address fields write the same value, and a courier has to be
+  // told where to collect. Whichever field is on screen has to say so — the
+  // merchant cannot fix a requirement they were never shown. "Required" is
+  // simply "would an empty address block?", asked of the same rule that blocks.
+  const courierPickupRequired =
+    offersDelivery && courierNeedsPickupAddress(enabledProviders, form.town, "");
   const [whatsappStatus, setWhatsappStatus] = useState<"idle" | "checking" | "blocked" | "warning" | "clear">("idle");
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
@@ -304,15 +311,27 @@ function StoreSetupForm() {
       return;
     }
 
-    if (!acceptedPolicy) {
-      setError("Please accept the OshiCart selling rules before creating your store.");
+    if (!form.region || !form.town) {
+      setError("Please choose your region and town");
+      setStep(1);
       setLoading(false);
       return;
     }
 
-    if (!form.region || !form.town) {
-      setError("Please choose your region and town");
-      setStep(1);
+    // Payment methods, the selling rules, and the courier pickup address. The
+    // button stays pressable so each one can say what it wants; a blocker on
+    // an earlier step also sends the merchant to the field it is about.
+    const blocker = storeSetupBlocker({
+      selectedMethods,
+      acceptedPolicy,
+      offersDelivery,
+      enabledProviders,
+      town: form.town,
+      pickupAddress: form.pickup_address,
+    });
+    if (blocker) {
+      setError(blocker.message);
+      if (blocker.step !== step) setStep(blocker.step);
       setLoading(false);
       return;
     }
@@ -719,7 +738,10 @@ function StoreSetupForm() {
 
                 {offersPickup && (
                   <div className="ml-7">
-                    <label className={label}>Pickup Address</label>
+                    <label className={label}>
+                      Pickup Address
+                      {courierPickupRequired && <span className="text-red-500 ml-0.5">*</span>}
+                    </label>
                     <textarea
                       value={form.pickup_address}
                       onChange={(e) => update("pickup_address", e.target.value)}
@@ -727,6 +749,11 @@ function StoreSetupForm() {
                       rows={2}
                       className={`${textareaBase} ${focusGreen}`}
                     />
+                    {courierPickupRequired && (
+                      <p className={helperText}>
+                        Required — Yango/inDrive drivers collect orders here.
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -1011,7 +1038,7 @@ function StoreSetupForm() {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading || selectedMethods.length === 0 || !acceptedPolicy || (offersDelivery && (effectiveProviders.includes("yango") || effectiveProviders.includes("indrive")) && !form.pickup_address.trim())}
+                  disabled={loading}
                   className={`flex-1 ${btnPrimaryGreen} flex items-center justify-center gap-2`}
                 >
                   {loading ? (

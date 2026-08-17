@@ -8,6 +8,7 @@ import { BANKS_NAMIBIA, BANK_BRANCH_CODES, PAYMENT_METHODS, NAMIBIA_REGIONS, tow
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { EwalletProviderPicker } from "@/components/ewallet-provider-picker";
 import { storeSetupSchema } from "@/lib/validations";
+import { courierNeedsPickupAddress, COURIER_PICKUP_MESSAGE } from "@/lib/store-setup-gate";
 import { normalizeNamibianPhone } from "@/lib/utils";
 import { misconfiguredPaymentMethods } from "@/lib/payment-methods";
 import Image from "next/image";
@@ -193,11 +194,8 @@ export default function SettingsPage() {
       return;
     }
 
-    const offersCourier =
-      savedDeliveryProviders.includes("yango") ||
-      savedDeliveryProviders.includes("indrive");
-    if (offersCourier && !form.pickup_address.trim()) {
-      setError("Add a pickup address so Yango/inDrive couriers know where to collect.");
+    if (courierNeedsPickupAddress(savedDeliveryProviders, form.town, form.pickup_address)) {
+      setError(COURIER_PICKUP_MESSAGE);
       setSaving(false);
       return;
     }

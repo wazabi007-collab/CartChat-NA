@@ -136,7 +136,7 @@ export default async function ProductDetailPage({ params }: Props) {
   const tier = (subscription?.tier ?? "oshi_start") as SubscriptionTier;
   const isSoftSuspended = subscription?.status === "soft_suspended";
   const orderingBlocked =
-    isSoftSuspended || (await isOrderLimitReached(supabase, merchant.id, tier));
+    isSoftSuspended || (await isOrderLimitReached(createServiceClient(), merchant.id, tier));
 
   const images = product.images ?? [];
   const productVariants = (variants || []).map((variant) => ({

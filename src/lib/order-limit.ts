@@ -42,11 +42,18 @@ async function resolveBillingPeriod(
   supabase: SupabaseClient,
   merchantId: string
 ): Promise<BillingPeriod> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("subscriptions")
     .select("current_period_start, created_at")
     .eq("merchant_id", merchantId)
     .maybeSingle();
+
+  // No row is a real answer (most merchants never paid). A refused or timed-out
+  // query is not — swallowing it silently moved the merchant onto a calendar
+  // month, which can hand back an allowance they had already spent.
+  if (error) {
+    throw new Error(`Could not read the billing period: ${error.message}`);
+  }
 
   const anchor = data?.current_period_start ?? data?.created_at ?? null;
 
@@ -70,7 +77,7 @@ async function countOrdersInPeriod(
   merchantId: string,
   period: BillingPeriod
 ): Promise<number> {
-  const { count } = await supabase
+  const { count, error } = await supabase
     .from("orders")
     .select("id", { count: "exact", head: true })
     .eq("merchant_id", merchantId)
@@ -78,7 +85,15 @@ async function countOrdersInPeriod(
     .gte("created_at", period.startISO)
     .lt("created_at", period.endISO);
 
-  return count || 0;
+  // A failed count returns null, and `count || 0` used to read that as a store
+  // with a quiet month. Since this is the only place the tier allowance is
+  // enforced -- place_order caps just the first 30 days, as anti-fraud -- that
+  // silently let a capped store keep selling past the plan it paid for.
+  if (error) {
+    throw new Error(`Could not count this cycle's orders: ${error.message}`);
+  }
+
+  return count ?? 0;
 }
 
 /** Full quota picture for a merchant, including when the allowance resets. */

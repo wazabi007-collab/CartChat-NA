@@ -101,7 +101,7 @@ export default async function CheckoutPage({ params }: Props) {
   }
 
   // Shared with the storefront and product pages so the gates can't drift.
-  const quota = await getOrderQuota(supabase, merchant.id, tier);
+  const quota = await getOrderQuota(service, merchant.id, tier);
 
   if (quota.reached) {
     return (

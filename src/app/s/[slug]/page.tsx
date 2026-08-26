@@ -263,7 +263,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   // Same monthly order-limit gate as checkout — block ordering here too
   const orderLimitReached = isSoftSuspended
     ? false
-    : await isOrderLimitReached(supabase, merchant.id, tier);
+    : await isOrderLimitReached(createServiceClient(), merchant.id, tier);
   const orderingBlocked = isSoftSuspended || orderLimitReached;
   const hasBranding = showBranding(tier);
   const theme = getThemeConfig(merchant.industry);

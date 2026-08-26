@@ -68,8 +68,13 @@ export function BroadcastClient({
   const selected = templates.find((t) => t.id === selectedId) ?? templates[0];
   const recentlyMessaged = useMemo(() => new Set(recentlyMessagedIds), [recentlyMessagedIds]);
 
+  // Pinned once per mount. Read inside the memo it silently re-dated the
+  // audience whenever an unrelated dependency changed, so who counted as
+  // "recent" shifted under the merchant mid-session.
+  const [now] = useState(() => Date.now());
+
   const audienceList = useMemo(() => {
-    const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000;
+    const ninetyDaysAgo = now - 90 * 24 * 60 * 60 * 1000;
     return customers
       // Never message someone who has asked not to be marketed to.
       .filter((c) => !c.marketing_opt_out)
@@ -81,7 +86,7 @@ export function BroadcastClient({
         return true;
       })
       .filter((c) => (skipRecent ? !recentlyMessaged.has(c.id) : true));
-  }, [customers, audience, skipRecent, recentlyMessaged]);
+  }, [customers, audience, skipRecent, recentlyMessaged, now]);
 
   const optedOutCount = customers.filter((c) => c.marketing_opt_out).length;
 

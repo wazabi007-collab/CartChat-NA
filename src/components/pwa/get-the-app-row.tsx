@@ -15,6 +15,10 @@ import { CheckCircle2, Smartphone } from "lucide-react";
 export function GetTheAppRow() {
   const [installed, setInstalled] = useState(false);
 
+  // Display mode is browser-only, so it cannot seed useState -- that runs on
+  // the server too and would mismatch the hydrated HTML. One post-hydration
+  // setState is the intended shape here.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const nav = navigator as Navigator & { standalone?: boolean };
     setInstalled(
@@ -22,6 +26,7 @@ export function GetTheAppRow() {
         nav.standalone === true
     );
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <div className="flex items-center justify-between gap-3 text-sm">

@@ -101,7 +101,10 @@ export function IndustryIcon({
   variant = "solid",
   title,
 }: IndustryIconProps) {
-  const Icon = getIndustryIcon(industry);
+  // Read straight from the module-level map rather than through
+  // getIndustryIcon(): a call returning a component looks like a factory to
+  // the React compiler, while a property access is visibly a stable lookup.
+  const Icon = INDUSTRY_ICONS[industry ?? "other"] ?? Store;
   const accent = getIndustryAccent(industry);
   const styles =
     variant === "solid"

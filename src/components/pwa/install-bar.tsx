@@ -60,9 +60,13 @@ export function InstallBar({
       return;
     }
 
+  // localStorage is browser-only, so whether the bar was already dismissed
+  // cannot be known until after hydration.
+  /* eslint-disable react-hooks/set-state-in-effect */
     if (localStorage.getItem(installDismissKey(scope))) return;
 
     setDismissed(false);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
     // iOS fires no install event, so Safari gets written instructions instead.
     const ua = navigator.userAgent;

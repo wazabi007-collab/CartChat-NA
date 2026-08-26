@@ -40,9 +40,13 @@ export function MonthCalendar({ merchantId, value, onChange }: Props) {
   const [days, setDays] = useState<Record<string, DayState>>({});
   const [loading, setLoading] = useState(true);
 
+  // Changing month re-fetches; the spinner has to go up before the request,
+  // which is exactly a synchronous setState in an effect.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+  /* eslint-enable react-hooks/set-state-in-effect */
     fetch(`/api/bookings/month?merchant=${merchantId}&month=${month}`)
       .then((res) => res.json())
       .then((json) => {

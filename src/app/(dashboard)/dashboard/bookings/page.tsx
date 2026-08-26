@@ -107,9 +107,13 @@ export default function BookingsPage() {
     setLoading(false);
   }, [supabase, merchantId, month]);
 
+  // loadMonth commits the month's orders and blocks when they arrive; that
+  // state write is the whole point of the effect, not a cascade.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     loadMonth();
   }, [loadMonth]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const ordersByDay = useMemo(() => {
     const map = new Map<string, BookingRow[]>();

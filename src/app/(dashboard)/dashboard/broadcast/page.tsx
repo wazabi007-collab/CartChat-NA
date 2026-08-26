@@ -50,6 +50,9 @@ export default async function BroadcastPage() {
       .from("broadcast_sends")
       .select("customer_id, sent_at")
       .eq("merchant_id", merchant.id)
+      // Server component: the clock is read once per request, which is the
+      // intended behaviour for "sent in the last 30 days".
+      // eslint-disable-next-line react-hooks/purity
       .gte("sent_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
   ]);
 

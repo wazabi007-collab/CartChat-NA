@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { ShoppingCart, Check } from "lucide-react";
-import { useCart, type CartItem } from "@/components/storefront/cart-provider";
+import { useCart } from "@/components/storefront/cart-provider";
+import { type CartItem } from "@/lib/cart-item";
 import { formatPrice } from "@/lib/utils";
 
 interface Props {

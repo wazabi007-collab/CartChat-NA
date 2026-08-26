@@ -20,7 +20,7 @@ import { calculateVatBreakdown, VAT_RATE_LABEL } from "@/lib/vat";
 import { track } from "@/lib/track";
 import { MAX_IMAGE_SIZE, PAYMENT_METHODS, EWALLET_PROVIDERS, getEwalletProviderLabel, isCourierAvailable } from "@/lib/constants";
 import { PaymentMethodVisual } from "@/components/payment-method-visual";
-import { getCartItemKey, type CartItem } from "@/components/storefront/cart-provider";
+import { getCartItemKey, type CartItem } from "@/lib/cart-item";
 import { rentalDays, rentalLineTotal, formatRentalRange, validateRentalRange } from "@/lib/rentals";
 import { namibianDateString } from "@/lib/date";
 import {

@@ -1,7 +1,8 @@
 "use client";
 
 import { normalizeNamibianPhone } from "@/lib/utils";
-import { useCart, type CartItem } from "./cart-provider";
+import { useCart } from "./cart-provider";
+import { type CartItem } from "@/lib/cart-item";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 /**

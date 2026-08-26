@@ -3,7 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { formatPrice } from "@/lib/utils";
-import { useCart, cartItemFromProduct } from "../cart-provider";
+import { useCart } from "../cart-provider";
+import { cartItemFromProduct } from "@/lib/cart-item";
 import { getCtaText, getDisplayPrice, getStockLabel, type LayoutProps } from "./types";
 import type { ServiceMode } from "@/lib/service-mode";
 

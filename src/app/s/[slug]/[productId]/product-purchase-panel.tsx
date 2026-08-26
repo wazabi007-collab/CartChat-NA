@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Check, ShoppingCart } from "lucide-react";
-import { useCart, cartItemFromProduct } from "@/components/storefront/cart-provider";
+import { useCart } from "@/components/storefront/cart-provider";
+import { cartItemFromProduct } from "@/lib/cart-item";
 import { formatPrice } from "@/lib/utils";
 import {
   displayVariantAttributeName,

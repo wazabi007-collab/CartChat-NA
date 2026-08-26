@@ -14,7 +14,7 @@ import { readPreviewState } from "@/lib/preview";
 import { ProductPurchasePanel } from "./product-purchase-panel";
 import { ProductGallery, VariantImagesProvider } from "./product-gallery";
 import { StickyAddToCart } from "./sticky-add-to-cart";
-import { cartItemFromProduct } from "@/components/storefront/cart-provider";
+import { cartItemFromProduct } from "@/lib/cart-item";
 
 interface Props {
   params: Promise<{ slug: string; productId: string }>;

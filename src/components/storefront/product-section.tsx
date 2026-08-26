@@ -2,7 +2,7 @@
 
 import type { ThemeConfig } from "@/lib/industry";
 import { ProductCard } from "./product-card";
-import { cartItemFromProduct } from "./cart-provider";
+import { cartItemFromProduct } from "@/lib/cart-item";
 import { MenuList } from "./layouts/menu-list";
 import { CompactGrid } from "./layouts/compact-grid";
 import { HorizontalCard } from "./layouts/horizontal-card";

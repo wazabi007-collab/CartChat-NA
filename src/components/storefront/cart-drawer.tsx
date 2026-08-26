@@ -5,7 +5,8 @@ import Image from "next/image";
 import { ShoppingCart, X, Plus, Minus, Trash2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { calculateVatBreakdown, VAT_RATE_LABEL } from "@/lib/vat";
-import { getCartItemKey, useCart } from "./cart-provider";
+import { useCart } from "./cart-provider";
+import { getCartItemKey } from "@/lib/cart-item";
 
 export function CartDrawer({ slug }: { slug: string }) {
   const {

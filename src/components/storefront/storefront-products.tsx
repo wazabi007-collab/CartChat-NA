@@ -1,6 +1,6 @@
 import type { ThemeConfig } from "@/lib/industry";
 import { ProductCard } from "./product-card";
-import { cartItemFromProduct } from "./cart-provider";
+import { cartItemFromProduct } from "@/lib/cart-item";
 import { ProductSection } from "./product-section";
 import { StorefrontSearch } from "./search-bar";
 import { SortSelect } from "./sort-select";

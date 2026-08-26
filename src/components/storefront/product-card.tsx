@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import type { CartItem } from "./cart-provider";
+import type { CartItem } from "@/lib/cart-item";
 import { AddToCartButton } from "./add-to-cart-button";
 
 interface ProductCardProps {

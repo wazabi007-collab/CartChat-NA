@@ -124,7 +124,9 @@ export function HowItWorks() {
             <div className="rounded-2xl border border-[#d4f3dc] bg-[#f4fff7] p-5 shadow-sm">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.14em] text-acacia">
+                  {/* acacia is 4.42:1 on this mint card - just under AA.
+                      acacia-ink is the darker token kept for tinted grounds. */}
+                  <p className="text-xs font-black uppercase tracking-[0.14em] text-acacia-ink">
                     WhatsApp preview
                   </p>
                   <h3 className="mt-1 text-lg font-black text-walnut">
@@ -166,7 +168,7 @@ export function HowItWorks() {
                   <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-white text-terracotta shadow-sm">
                     <Icon size={22} />
                   </span>
-                  <span className="text-sm font-black text-walnut-2/40">
+                  <span className="text-sm font-black text-walnut-2">
                     0{index + 1}
                   </span>
                 </div>
@@ -186,7 +188,7 @@ export function HowItWorks() {
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-border-warm bg-white p-4 shadow-sm">
-      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-walnut-2/60">
+      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-walnut-2">
         {label}
       </p>
       <p className="mt-1 text-sm font-black text-walnut">{value}</p>

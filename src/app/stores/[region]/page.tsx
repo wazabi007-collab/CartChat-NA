@@ -146,7 +146,7 @@ export default async function RegionStoresPage({ params }: Props) {
 
         {/* Other regions — internal links */}
         <div className="mt-10 text-center">
-          <p className="mb-3 text-xs font-black uppercase tracking-wide text-walnut-2/70">
+          <p className="mb-3 text-xs font-black uppercase tracking-wide text-walnut-2">
             Other regions
           </p>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">

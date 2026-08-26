@@ -876,7 +876,7 @@ export default function GuidePage() {
         </header>
 
         <nav className="mt-8 rounded-2xl border border-border-warm bg-sand p-5">
-          <p className="text-xs font-black uppercase tracking-[0.14em] text-walnut-2/70">
+          <p className="text-xs font-black uppercase tracking-[0.14em] text-walnut-2">
             What&apos;s in this guide
           </p>
           <ol className="mt-3 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">

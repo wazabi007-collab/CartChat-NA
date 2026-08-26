@@ -165,7 +165,7 @@ export async function StorefrontGallery() {
                   sizes="(min-width:1024px) 30vw, (min-width:640px) 45vw, 90vw"
                   className="object-cover transition duration-500 group-hover:scale-[1.03]"
                 />
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-walnut/70 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-walnut/85 via-walnut/40 to-transparent" />
                 <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-terracotta shadow-sm backdrop-blur">
                   {INDUSTRY_LABELS[store.industry || ""] || "Local store"}
                 </div>

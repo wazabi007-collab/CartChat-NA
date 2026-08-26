@@ -65,7 +65,7 @@ export function ReportButton({ merchantId, storeName }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"
+        className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-red-500 transition-colors"
       >
         <Flag size={12} />
         Report Store

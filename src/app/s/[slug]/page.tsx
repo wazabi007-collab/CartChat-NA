@@ -619,7 +619,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
 
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white mt-8">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between text-xs text-gray-400">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between text-xs text-gray-500">
           {hasBranding ? (
             <a href={SITE_URL} className="hover:text-gray-600 transition-colors">
               Powered by {SITE_NAME}

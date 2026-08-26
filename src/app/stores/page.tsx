@@ -179,12 +179,29 @@ export default async function StoresPage({ searchParams }: Props) {
           </div>
         )}
 
-        {/* Results */}
-        {q && (
-          <p className="text-sm text-walnut-2 mb-4">
-            {publicStoreList.length} result{publicStoreList.length !== 1 ? "s" : ""} for
-            &ldquo;{q}&rdquo;
-          </p>
+        {/* Results. This is a real <h2> and always rendered: the store cards are
+            <h3>, so without it the outline jumped H1 -> H3 and screen-reader
+            heading navigation misreported the directory. It doubles as the
+            result count, which shoppers wanted anyway. */}
+        {publicStoreList.length > 0 && (
+          <h2 className="mb-4 text-sm font-bold text-walnut-2">
+            {q ? (
+              <>
+                {publicStoreList.length} result
+                {publicStoreList.length !== 1 ? "s" : ""} for &ldquo;{q}&rdquo;
+              </>
+            ) : (
+              <>
+                {publicStoreList.length} store
+                {publicStoreList.length !== 1 ? "s" : ""}
+                {activeTown
+                  ? ` in ${activeTownLabel}`
+                  : activeRegion
+                    ? ` in ${REGION_LABELS[activeRegion]}`
+                    : " open on OshiCart"}
+              </>
+            )}
+          </h2>
         )}
 
         {publicStoreList.length === 0 ? (
@@ -255,7 +272,7 @@ export default async function StoresPage({ searchParams }: Props) {
 
         {/* Browse by region — internal links to the SEO landing pages */}
         <div className="mt-10 text-center">
-          <p className="mb-3 text-xs font-black uppercase tracking-wide text-walnut-2/70">
+          <p className="mb-3 text-xs font-black uppercase tracking-wide text-walnut-2">
             Browse stores by region
           </p>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">

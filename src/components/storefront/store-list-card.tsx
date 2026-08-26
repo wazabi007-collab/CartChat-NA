@@ -8,7 +8,21 @@ import { getThemeConfig } from "@/lib/industry";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
 
 /** One store's card on /stores and /stores/[region]. */
-export function StoreListCard({ store }: { store: EnrichedStore }) {
+/**
+ * The card is used under a results section on /stores and under a region
+ * heading on /stores/[region]. Hard-coding <h3> skipped straight from the page
+ * H1 on the directory, so screen-reader heading navigation misreported the
+ * hierarchy. The caller owns the level because only the caller knows the
+ * outline it sits in.
+ */
+export function StoreListCard({
+  store,
+  headingLevel = "h3",
+}: {
+  store: EnrichedStore;
+  headingLevel?: "h2" | "h3";
+}) {
+  const Heading = headingLevel;
   const sellsServices = getThemeConfig(store.industry)?.isService ?? false;
 
   return (
@@ -31,15 +45,15 @@ export function StoreListCard({ store }: { store: EnrichedStore }) {
             />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="truncate font-black text-walnut transition-colors group-hover:text-terracotta">
+            <Heading className="truncate font-black text-walnut transition-colors group-hover:text-terracotta">
               {store.store_name}
-            </h3>
+            </Heading>
             {store.town && (
               <p className="flex items-center gap-1 text-xs font-semibold text-acacia">
                 <MapPin size={12} /> {TOWN_LABELS[store.town] ?? ""}
               </p>
             )}
-            <p className="text-xs font-semibold text-walnut-2/70">
+            <p className="text-xs font-semibold text-walnut-2">
               {INDUSTRY_LABELS[store.industry || "other"] || "General"} &middot;{" "}
               {store.productCount}{" "}
               {sellsServices
@@ -62,7 +76,7 @@ export function StoreListCard({ store }: { store: EnrichedStore }) {
             <WhatsAppIcon size={14} />
             WhatsApp Store
           </span>
-          <span className="flex items-center gap-1 text-xs font-bold text-walnut-2/70 transition-colors group-hover:text-terracotta">
+          <span className="flex items-center gap-1 text-xs font-bold text-walnut-2 transition-colors group-hover:text-terracotta">
             Visit Store <ArrowRight size={14} />
           </span>
         </div>

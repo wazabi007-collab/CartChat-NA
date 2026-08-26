@@ -81,7 +81,7 @@ export function PublicNavbar() {
           <Link
             href={isLoggedIn ? "/dashboard" : "/signup"}
             onClick={() => !isLoggedIn && track("landing_cta_clicked", { cta_location: "navbar" })}
-            className="inline-flex items-center gap-2 text-sm px-3 sm:px-4 py-2.5 bg-terracotta text-white rounded-lg hover:bg-[#234B86] transition-colors font-bold shadow-sm shadow-terracotta/20 whitespace-nowrap"
+            className="inline-flex min-h-11 items-center gap-2 text-sm px-3 sm:px-4 py-2.5 bg-terracotta text-white rounded-lg hover:bg-[#234B86] transition-colors font-bold shadow-sm shadow-terracotta/20 whitespace-nowrap"
           >
             {isLoggedIn ? <LayoutDashboard size={16} /> : <Store size={16} />}
             <span className="sm:hidden">{isLoggedIn ? "Dashboard" : "Create Store"}</span>
@@ -91,7 +91,7 @@ export function PublicNavbar() {
           {/* Mobile menu button */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden p-1.5 text-walnut-2 hover:text-walnut transition-colors"
+            className="md:hidden -mr-1.5 flex min-h-11 min-w-11 items-center justify-center text-walnut-2 hover:text-walnut transition-colors"
             aria-label="Toggle menu"
           >
             {mobileOpen ? <X size={22} /> : <Menu size={22} />}

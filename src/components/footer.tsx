@@ -12,8 +12,10 @@ import {
 
 /* Column labels are <p>, not headings — as <h4> they followed whatever level
    the page above ended on and failed Lighthouse's heading-order audit. */
+// --acacia is tuned to just clear AA on WHITE (4.53:1). On the dark footer it
+// falls to 4.13:1, so the labels get a lighter green: 6.89:1 on walnut.
 const columnLabel =
-  "mb-3 text-xs font-black uppercase tracking-[0.15em] text-acacia";
+  "mb-3 text-xs font-black uppercase tracking-[0.15em] text-[#22b455]";
 const footerLink =
   "inline-block py-0.5 text-slate-300 transition-colors hover:text-white";
 

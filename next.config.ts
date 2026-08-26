@@ -2,7 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    formats: ["image/webp"],
+    // AVIF first, WebP as the fallback. Photographs encode roughly 20-30%
+    // smaller as AVIF, and a storefront is almost entirely photographs -- the
+    // Octovia grid alone transfers ~750KB of them. Browsers that cannot decode
+    // AVIF get WebP automatically. The slower first encode is paid once per
+    // image thanks to the year-long cache below.
+    formats: ["image/avif", "image/webp"],
     // Product image URLs are content-addressed (random filename per upload), so the
     // optimized output is effectively immutable. Cache it for a year on the Vercel CDN
     // and in the browser instead of revalidating against the storage origin (which

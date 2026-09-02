@@ -86,6 +86,17 @@ interface SendResult {
   error?: string;
 }
 
+/**
+ * Never let a credential reach a log row. In March 2026 a malformed token
+ * produced a fetch error whose message quoted the full Authorization header,
+ * and that string was written verbatim into whatsapp_messages.error_message,
+ * where it sat for six months. Meta access tokens start with "EAA"; strip any
+ * such run before an error string leaves this module.
+ */
+function scrubSecrets(text: string): string {
+  return text.replace(/EAA[A-Za-z0-9]{10,}/g, "[REDACTED]");
+}
+
 export async function sendWhatsAppTemplate(
   recipientPhone: string,
   templateName: string,
@@ -119,9 +130,11 @@ export async function sendWhatsAppTemplate(
       const metaError = data?.error;
       return {
         success: false,
-        error: metaError
-          ? `WhatsApp automation error: ${res.status} ${metaError.code || ""} ${metaError.message || ""}`.trim()
-          : `WhatsApp automation error: ${res.status}`,
+        error: scrubSecrets(
+          metaError
+            ? `WhatsApp automation error: ${res.status} ${metaError.code || ""} ${metaError.message || ""}`.trim()
+            : `WhatsApp automation error: ${res.status}`
+        ),
       };
     }
 
@@ -130,7 +143,7 @@ export async function sendWhatsAppTemplate(
   } catch (err) {
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Unknown error",
+      error: scrubSecrets(err instanceof Error ? err.message : "Unknown error"),
     };
   }
 }

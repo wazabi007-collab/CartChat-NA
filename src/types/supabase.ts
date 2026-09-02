@@ -495,6 +495,7 @@ export type Database = {
           momo_number: string | null
           pay2cell_number: string | null
           paytoday_number: string | null
+          wayame_number: string | null
           pickup_address: string | null
           pop_required: boolean
           prohibited_policy_accepted_at: string | null
@@ -542,6 +543,7 @@ export type Database = {
           momo_number?: string | null
           pay2cell_number?: string | null
           paytoday_number?: string | null
+          wayame_number?: string | null
           pickup_address?: string | null
           pop_required?: boolean
           prohibited_policy_accepted_at?: string | null
@@ -589,6 +591,7 @@ export type Database = {
           momo_number?: string | null
           pay2cell_number?: string | null
           paytoday_number?: string | null
+          wayame_number?: string | null
           pickup_address?: string | null
           pop_required?: boolean
           prohibited_policy_accepted_at?: string | null
@@ -1673,6 +1676,7 @@ export type Database = {
           momo_number: string | null
           pay2cell_number: string | null
           paytoday_number: string | null
+          wayame_number: string | null
           pickup_address: string | null
           pop_required: boolean
           prohibited_policy_accepted_at: string | null
@@ -1805,6 +1809,7 @@ export type Database = {
         | "pay2cell"
         | "dpo"
         | "paytoday"
+        | "wayame"
       store_status: "pending" | "active" | "suspended" | "banned"
       subscription_status:
         | "trial"
@@ -1952,6 +1957,7 @@ export const Constants = {
         "pay2cell",
         "dpo",
         "paytoday",
+        "wayame",
       ],
       store_status: ["pending", "active", "suspended", "banned"],
       subscription_status: [

@@ -116,7 +116,7 @@ const getStorePaymentConfig = (merchantId: string) =>
     async () =>
       createServiceClient()
         .from("merchants")
-        .select("bank_name, bank_account_number, momo_number, ewallet_number, pay2cell_number, paytoday_number")
+        .select("bank_name, bank_account_number, momo_number, ewallet_number, pay2cell_number, paytoday_number, wayame_number")
         .eq("id", merchantId)
         .single(),
     ["store-payment-config", merchantId],

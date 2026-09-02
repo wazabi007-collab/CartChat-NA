@@ -7,6 +7,7 @@ import { slugify, normalizeNamibianPhone } from "@/lib/utils";
 import { BANKS_NAMIBIA, BANK_BRANCH_CODES, INDUSTRIES_NAMIBIA, INDUSTRY_GROUP_ORDER, PAYMENT_METHODS, NAMIBIA_REGIONS, townsForRegion, REFERRED_TRIAL_DAYS, STANDARD_TRIAL_DAYS, isCourierAvailable } from "@/lib/constants";
 import { storeSetupSchema } from "@/lib/validations";
 import { storeSetupBlocker, courierNeedsPickupAddress } from "@/lib/store-setup-gate";
+import { isComingSoon } from "@/lib/payment-methods";
 import { SAFETY_POLICY_VERSION, safetyMessage, scanTextForProhibitedContent } from "@/lib/safety/prohibited-content";
 import { IndustryIcon } from "@/components/industry-icon";
 import { track } from "@/lib/track";
@@ -47,6 +48,7 @@ const INITIAL_FORM = {
   ewallet_number: "",
   pay2cell_number: "",
   paytoday_number: "",
+  wayame_number: "",
   pickup_address: "",
   delivery_fee_display: "",
 };
@@ -406,6 +408,7 @@ function StoreSetupForm() {
         ewallet_number: form.ewallet_number || null,
         pay2cell_number: form.pay2cell_number || null,
         paytoday_number: form.paytoday_number || null,
+        wayame_number: form.wayame_number || null,
         enabled_delivery_providers: effectiveProviders,
         pickup_address: form.pickup_address.trim() || null,
         delivery_fee_nad: offersDelivery ? Math.round((parseFloat(form.delivery_fee_display) || 0) * 100) : 0,
@@ -878,31 +881,46 @@ function StoreSetupForm() {
 
               {/* Payment method checkboxes */}
               <div className="grid grid-cols-2 gap-2">
-                {PAYMENT_METHODS.map((method) => (
-                  <label
-                    key={method.value}
-                    className={`flex items-center gap-2 border rounded-lg p-3 cursor-pointer transition-colors ${
-                      selectedMethods.includes(method.value)
-                        ? "border-green-600 bg-green-50"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedMethods.includes(method.value)}
-                      onChange={(e) => {
-                        setSelectedMethods((prev) =>
-                          e.target.checked
-                            ? [...prev, method.value]
-                            : prev.filter((m) => m !== method.value)
-                        );
-                      }}
-                      className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
-                    />
-                    <PaymentMethodVisual value={method.value} logo={method.logo} label={method.label} />
-                    <span className="text-sm font-medium text-gray-700">{method.label}</span>
-                  </label>
-                ))}
+                {PAYMENT_METHODS.map((method) => {
+                  // Shown so merchants know it is coming, but not selectable
+                  // until the banks switch consumer payments on.
+                  const soon = isComingSoon(method.value);
+                  return (
+                    <label
+                      key={method.value}
+                      title={soon ? "Coming soon — not available yet" : undefined}
+                      className={`flex items-center gap-2 border rounded-lg p-3 transition-colors ${
+                        soon
+                          ? "cursor-not-allowed border-gray-200 bg-gray-50 opacity-60"
+                          : selectedMethods.includes(method.value)
+                            ? "cursor-pointer border-green-600 bg-green-50"
+                            : "cursor-pointer border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        disabled={soon}
+                        checked={!soon && selectedMethods.includes(method.value)}
+                        onChange={(e) => {
+                          if (soon) return;
+                          setSelectedMethods((prev) =>
+                            e.target.checked
+                              ? [...prev, method.value]
+                              : prev.filter((m) => m !== method.value)
+                          );
+                        }}
+                        className="w-4 h-4 text-green-600 rounded focus:ring-green-500 disabled:cursor-not-allowed"
+                      />
+                      <PaymentMethodVisual value={method.value} logo={method.logo} label={method.label} />
+                      <span className="text-sm font-medium text-gray-700">{method.label}</span>
+                      {soon && (
+                        <span className="ml-auto shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-amber-800">
+                          Soon
+                        </span>
+                      )}
+                    </label>
+                  );
+                })}
               </div>
 
               {/* EFT bank details — shown if EFT selected */}
@@ -988,6 +1006,20 @@ function StoreSetupForm() {
                     value={form.pay2cell_number}
                     onChange={(val) => update("pay2cell_number", val)}
                     variant="green"
+                  />
+                </div>
+              )}
+
+              {/* WayaMe number — shown if WayaMe selected */}
+              {selectedMethods.includes("wayame") && (
+                <div className="border-t pt-3">
+                  <PhoneInput
+                    id="wayame-number"
+                    labelText="WayaMe Number"
+                    value={form.wayame_number}
+                    onChange={(val) => update("wayame_number", val)}
+                    variant="green"
+                    hint="Customers send instant WayaMe payments to this number from any bank"
                   />
                 </div>
               )}

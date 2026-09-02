@@ -66,6 +66,18 @@ export const PAYMENT_METHODS = [
   { value: "ewallet", label: "eWallet", icon: "📲", logo: null },
   { value: "pay2cell", label: "FNB Pay2Cell", icon: "💳", logo: "/payment-logos/fnb-ewallet.png" },
   { value: "paytoday", label: "PayToday", icon: "⚡", logo: "/payment-logos/paytoday.png" },
+  // WayaMe: the Bank of Namibia's national instant payment system. Real-time
+  // and interoperable across every participating bank and wallet, so a buyer
+  // pays from whichever app they already have. No API needed on our side --
+  // the merchant publishes an alias and the buyer sends to it, exactly like
+  // the methods above.
+  //
+  // comingSoon: the platform is built and ready, but consumer person-to-person
+  // payments have not been switched on by the banks yet (only government
+  // disbursements are live). Merchants can SEE it is coming; nobody can select
+  // it and no buyer is ever offered it. Delete this flag on the day it goes
+  // live -- nothing else needs to change.
+  { value: "wayame", label: "WayaMe", icon: "⚡", logo: null, comingSoon: true },
 ] as const;
 
 // Bank send-to-cellphone wallets + popular cross-bank apps. Each Namibian bank

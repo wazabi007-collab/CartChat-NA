@@ -48,7 +48,7 @@ export default async function InvoicePage({ params }: Props) {
       merchants (
         store_name, whatsapp_number, logo_url, vat_number, vat_inclusive, town, region,
         bank_name, bank_account_number, bank_account_holder, bank_branch_code,
-        momo_number, ewallet_number, ewallet_provider, pay2cell_number, paytoday_number
+        momo_number, ewallet_number, ewallet_provider, pay2cell_number, paytoday_number, wayame_number
       ),
       coupons (code)
     `)
@@ -74,6 +74,7 @@ export default async function InvoicePage({ params }: Props) {
     ewallet_provider: string | null;
     pay2cell_number: string | null;
     paytoday_number: string | null;
+    wayame_number: string | null;
   } | null;
 
   const coupon = order.coupons as unknown as { code: string } | null;
@@ -448,6 +449,9 @@ export default async function InvoicePage({ params }: Props) {
               <PayGrid rows={[{ label: "Pay2Cell number", value: merchant.pay2cell_number ?? "—" }]} />
             )}
 
+            {order.payment_method === "wayame" && (
+              <PayGrid rows={[{ label: "WayaMe number", value: merchant.wayame_number ?? "—" }]} />
+            )}
             {order.payment_method === "paytoday" && (
               <PayGrid rows={[{ label: "PayToday number", value: merchant.paytoday_number ?? "—" }]} />
             )}

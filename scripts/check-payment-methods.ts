@@ -8,6 +8,7 @@
  *   npx tsx scripts/check-payment-methods.ts
  */
 import {
+  isComingSoon,
   isPaymentMethodUsable,
   usablePaymentMethods,
   misconfiguredPaymentMethods,
@@ -106,6 +107,33 @@ check(
 check(
   "nothing to warn about",
   misconfiguredPaymentMethods(["cod"], NOTHING),
+  []
+);
+
+
+// WayaMe: the Bank of Namibia instant payment system. Same shape as every
+// other method here -- the merchant publishes an alias and the buyer sends to
+// it -- so the same rule applies: never offer it without the number, or the
+// buyer picks it and the order carries "Send to --".
+// WayaMe is built and shipped but marked coming soon until the banks switch
+// consumer payments on. The merchant dashboard shows it greyed out; nothing
+// else may treat it as live. When it goes live, delete `comingSoon` from the
+// PAYMENT_METHODS entry and flip the three expectations below.
+check("wayame is marked coming soon", isComingSoon("wayame"), true);
+check("a live method is not coming soon", isComingSoon("eft"), false);
+check(
+  "coming-soon is NOT usable even with a number configured",
+  isPaymentMethodUsable("wayame", { wayame_number: "+264811234567" }),
+  false
+);
+check(
+  "coming-soon is never offered to a buyer",
+  usablePaymentMethods(["wayame", "cod"], { wayame_number: "+264811234567" }),
+  ["cod"]
+);
+check(
+  "coming-soon is not reported as merchant misconfiguration",
+  misconfiguredPaymentMethods(["wayame", "cod"], { wayame_number: null }),
   []
 );
 

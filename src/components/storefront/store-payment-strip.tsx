@@ -9,6 +9,7 @@ const ICON_BY_METHOD: Record<string, LucideIcon> = {
   ewallet: Wallet,
   pay2cell: Wallet,
   paytoday: Zap,
+  wayame: Zap,
 };
 
 /**

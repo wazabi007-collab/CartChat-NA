@@ -10,7 +10,7 @@ import { EwalletProviderPicker } from "@/components/ewallet-provider-picker";
 import { storeSetupSchema } from "@/lib/validations";
 import { courierNeedsPickupAddress, COURIER_PICKUP_MESSAGE } from "@/lib/store-setup-gate";
 import { normalizeNamibianPhone } from "@/lib/utils";
-import { misconfiguredPaymentMethods } from "@/lib/payment-methods";
+import { misconfiguredPaymentMethods, isComingSoon } from "@/lib/payment-methods";
 import Image from "next/image";
 import { Save, Plus, X, Upload, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { MAX_IMAGE_SIZE } from "@/lib/constants";
@@ -97,6 +97,7 @@ export default function SettingsPage() {
     ewallet_provider: "",
     pay2cell_number: "",
     paytoday_number: "",
+    wayame_number: "",
     enabled_delivery_providers: ["store", "yango", "indrive"] as string[],
     pickup_address: "",
     vat_number: "",
@@ -149,6 +150,7 @@ export default function SettingsPage() {
           ewallet_provider: merchant.ewallet_provider || "",
           pay2cell_number: merchant.pay2cell_number || "",
           paytoday_number: merchant.paytoday_number || "",
+          wayame_number: merchant.wayame_number || "",
           enabled_delivery_providers: merchant.enabled_delivery_providers ?? ["store", "yango", "indrive"],
           pickup_address: merchant.pickup_address || "",
           vat_number: merchant.vat_number || "",
@@ -218,6 +220,7 @@ export default function SettingsPage() {
       ewallet_number: form.ewallet_number,
       pay2cell_number: form.pay2cell_number,
       paytoday_number: form.paytoday_number,
+      wayame_number: form.wayame_number,
     });
 
     if (unusableMethods.length > 0) {
@@ -255,6 +258,7 @@ export default function SettingsPage() {
         ewallet_provider: form.ewallet_provider || null,
         pay2cell_number: form.pay2cell_number || null,
         paytoday_number: form.paytoday_number || null,
+        wayame_number: form.wayame_number || null,
         enabled_delivery_providers: savedDeliveryProviders,
         pickup_address: form.pickup_address.trim() || null,
         vat_number: form.vat_number || null,
@@ -678,25 +682,41 @@ export default function SettingsPage() {
             Choose which payment methods customers can use at checkout
           </p>
           <div className="space-y-3">
-            {PAYMENT_METHODS.map((method) => (
-              <label key={method.value} className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={form.accepted_payment_methods.includes(method.value)}
-                  onChange={(e) => {
-                    setForm((p) => ({
-                      ...p,
-                      accepted_payment_methods: e.target.checked
-                        ? [...p.accepted_payment_methods, method.value]
-                        : p.accepted_payment_methods.filter((m) => m !== method.value),
-                    }));
-                  }}
-                  className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
-                />
-                <PaymentMethodVisual value={method.value} logo={method.logo} label={method.label} size={24} />
-                <span className="text-sm text-gray-700">{method.label}</span>
-              </label>
-            ))}
+            {PAYMENT_METHODS.map((method) => {
+              // Visible so merchants can see it is coming, but not selectable
+              // until consumer payments are switched on by the banks.
+              const soon = isComingSoon(method.value);
+              return (
+                <label
+                  key={method.value}
+                  title={soon ? "Coming soon — not available yet" : undefined}
+                  className={`flex items-center gap-3 ${soon ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+                >
+                  <input
+                    type="checkbox"
+                    disabled={soon}
+                    checked={!soon && form.accepted_payment_methods.includes(method.value)}
+                    onChange={(e) => {
+                      if (soon) return;
+                      setForm((p) => ({
+                        ...p,
+                        accepted_payment_methods: e.target.checked
+                          ? [...p.accepted_payment_methods, method.value]
+                          : p.accepted_payment_methods.filter((m) => m !== method.value),
+                      }));
+                    }}
+                    className="w-4 h-4 text-green-600 rounded focus:ring-green-500 disabled:cursor-not-allowed"
+                  />
+                  <PaymentMethodVisual value={method.value} logo={method.logo} label={method.label} size={24} />
+                  <span className="text-sm text-gray-700">{method.label}</span>
+                  {soon && (
+                    <span className="ml-auto shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-amber-800">
+                      Soon
+                    </span>
+                  )}
+                </label>
+              );
+            })}
           </div>
 
           {form.accepted_payment_methods.includes("momo") && (
@@ -760,6 +780,23 @@ export default function SettingsPage() {
               />
               <p className={helperText}>
                 Your FNB cellphone banking number. Customers will send Pay2Cell payments to this number.
+              </p>
+            </div>
+          )}
+
+          {form.accepted_payment_methods.includes("wayame") && (
+            <div>
+              <label className={label}>WayaMe Number</label>
+              <input
+                type="tel"
+                value={form.wayame_number}
+                onChange={(e) => setForm((p) => ({ ...p, wayame_number: e.target.value }))}
+                placeholder="+264 81 123 4567"
+                className={`${inputBase} ${focusGreen}`}
+              />
+              <p className={helperText}>
+                Customers send instant WayaMe payments to this number from any
+                bank. It can differ from your WhatsApp number.
               </p>
             </div>
           )}

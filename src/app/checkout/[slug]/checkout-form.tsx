@@ -81,6 +81,7 @@ interface Props {
   ewalletProvider: string | null;
   pay2cellNumber: string | null;
   paytodayNumber: string | null;
+  wayameNumber: string | null;
   pickupAddress: string | null;
   enabledDeliveryProviders: string[];
   vatNumber: string | null;
@@ -212,6 +213,7 @@ export function CheckoutForm({
   ewalletProvider,
   pay2cellNumber,
   paytodayNumber,
+  wayameNumber,
   pickupAddress,
   enabledDeliveryProviders,
   vatNumber,
@@ -1730,6 +1732,27 @@ export function CheckoutForm({
               </>
             ) : (
               <p>Contact the merchant for their PayToday number.</p>
+            )}
+          </div>
+        )}
+
+        {paymentMethod === "wayame" && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-sm text-emerald-900 space-y-1">
+            <p className="font-medium">WayaMe Instant Payment</p>
+            {wayameNumber ? (
+              <>
+                <p>
+                  Send <span className="font-bold">{formatPrice(total)}</span> via WayaMe to:
+                </p>
+                <p className="font-bold text-lg">{wayameNumber}</p>
+                <p className="text-xs mt-1">
+                  Open your banking app and send to this number using WayaMe —
+                  it arrives instantly, whichever bank you use. Upload proof of
+                  payment below.
+                </p>
+              </>
+            ) : (
+              <p>Contact the merchant for their WayaMe number.</p>
             )}
           </div>
         )}

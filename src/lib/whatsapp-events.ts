@@ -139,6 +139,20 @@ export async function notifyAdmins(input: {
   merchantId?: string | null;
 }) {
   const phones = adminWhatsAppNumbers();
+
+  // No admins configured is a silent no-op that looks exactly like success.
+  // OSHICART_ADMIN_WHATSAPP_NUMBERS was never set in production, so this loop
+  // ran zero times for 17 merchant signups and nobody was told -- not the
+  // caller, not the logs, not the whatsapp_messages table, which only gets a
+  // row once a send is actually attempted. Say so loudly instead.
+  if (phones.length === 0) {
+    console.error(
+      `[notifyAdmins] ${input.templateName} not sent: OSHICART_ADMIN_WHATSAPP_NUMBERS is empty. ` +
+        `Set it to a comma-separated list of admin numbers in E.164 form (e.g. +264812384424).`
+    );
+    return [];
+  }
+
   const results = [];
   for (const phone of phones) {
     results.push(

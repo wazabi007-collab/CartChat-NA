@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isWhatsAppEnabled, sendWhatsAppTemplate } from "@/lib/whatsapp";
+import { notifyAdmins } from "@/lib/whatsapp-events";
 import { namibianDateString, formatNamibianDate } from "@/lib/date";
 
 /**
@@ -15,6 +16,9 @@ import { namibianDateString, formatNamibianDate } from "@/lib/date";
  *                      said anything. One message, ever.
  *  booking_reminder  — the customer's appointment is tomorrow. Double-booking
  *                      is prevented at order time; no-shows are prevented here.
+ *
+ * It also sweeps up any merchant signup whose admin alert never went out,
+ * because that one is fired from the browser and can be lost on redirect.
  *
  * Dedup is claim-then-send through engagement_notifications' unique indexes:
  * the INSERT happens before the send, so a crashed run can at worst send
@@ -40,7 +44,7 @@ export async function GET(req: NextRequest) {
   }
 
   const service = createServiceClient();
-  const results = { activation: 0, winBack: 0, bookingReminders: 0, failures: [] as string[] };
+  const results = { activation: 0, winBack: 0, bookingReminders: 0, adminSignupCatchUp: 0, failures: [] as string[] };
 
   /** Claim a dedup slot; false means another run already sent this one. */
   async function claim(kind: string, merchantId: string | null, orderId: string | null) {
@@ -157,6 +161,49 @@ export async function GET(req: NextRequest) {
       else {
         results.failures.push(`booking_reminder order ${b.id}: ${r.error}`);
         await release("booking_reminder", null, b.id);
+      }
+    }
+  }
+
+  // ── Admin signup catch-up ────────────────────────────────────────────────
+  // The immediate notification is a fire-and-forget fetch from the browser,
+  // sent moments before the merchant is redirected to their dashboard. If the
+  // tab closes first, or the request is aborted by the redirect, that signup
+  // is never announced and nothing anywhere records the miss.
+  //
+  // Re-attempting is free: notifyAdmins keys each send on
+  // `admin_new_merchant_signup:<merchant>:<phone>`, and sendWhatsAppEvent
+  // returns early when that key already exists. So this re-offers every recent
+  // signup and only the ones that genuinely never went out are sent.
+  const signupWindow = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: recentSignups, error: signupError } = await service
+    .from("merchants")
+    .select("id, store_name, industry, whatsapp_number, created_at")
+    .gte("created_at", signupWindow)
+    .order("created_at", { ascending: true });
+
+  if (signupError) {
+    results.failures.push(`admin signup sweep: ${signupError.message}`);
+  } else {
+    for (const m of recentSignups ?? []) {
+      const sent = await notifyAdmins({
+        supabase: service,
+        merchantId: m.id,
+        eventKeyPrefix: `admin_new_merchant_signup:${m.id}`,
+        templateName: "admin_new_merchant_signup",
+        variables: [
+          m.store_name,
+          m.whatsapp_number || "No WhatsApp",
+          m.industry || "other",
+        ],
+      });
+      // Only count the ones this run actually delivered; the rest were already
+      // announced when the merchant signed up.
+      for (const r of sent) {
+        if (r.ok && !r.skipped) results.adminSignupCatchUp++;
+        else if (!r.ok && r.error) {
+          results.failures.push(`admin_new_merchant_signup ${m.id}: ${r.error}`);
+        }
       }
     }
   }

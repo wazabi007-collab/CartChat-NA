@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, normalizeNamibianPhone } from "@/lib/utils";
 import { getOrderPayableTotal } from "@/lib/vat";
 import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
 
@@ -32,8 +32,14 @@ export async function POST(req: NextRequest) {
 
   const service = createServiceClient();
 
-  // Verify the order belongs to this WhatsApp number
-  const normalized = whatsapp.replace(/\D/g, "");
+  // Verify the order belongs to this WhatsApp number.
+  //
+  // This must use the SAME canonical form the column is stored in. It used to
+  // strip to bare digits, which happened to match while orders held the number
+  // raw as the buyer typed it ("0853484423"). Once the column was normalised to
+  // E.164, digits-only produced "264853484423" and never matched "+264…", so
+  // every proof-of-payment upload failed with "Order not found".
+  const normalized = normalizeNamibianPhone(whatsapp);
   const { data: order } = await service
     .from("orders")
     .select("id, merchant_id, order_number, customer_name, subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, proof_of_payment_url, merchants!inner(store_name, whatsapp_number)")

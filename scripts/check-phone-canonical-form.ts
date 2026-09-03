@@ -96,7 +96,32 @@ for (const [asTyped, asStored] of COLLIDED) {
 }
 if (failures === 0) pass("the number shapes that broke recovery now compare equal");
 
-// ── 4. Customer-facing wa.me links must go through whatsappLink() ───────
+// ── 4. Lookups must compare in the SAME form the column is stored in ────
+// Normalising the column was only half the job. /api/orders/upload-pop looked
+// the order up with `whatsapp.replace(/\D/g,"")`, which strips the "+". That
+// matched while orders held the number raw ("0853484423"), and broke the
+// moment the column became E.164: "264853484423" never equals "+264853484423",
+// so every proof-of-payment upload returned "Order not found". A canonical
+// column is worthless if a reader canonicalises differently.
+const LOOKUPS = [
+  { file: "src/app/api/orders/upload-pop/route.ts", column: "orders.customer_whatsapp" },
+];
+for (const l of LOOKUPS) {
+  const src = readFileSync(join(process.cwd(), l.file), "utf8");
+  // A phone variable reduced to bare digits and then used in an equality filter.
+  const stripsThePlus = /(?:whatsapp|phone)[A-Za-z]*\.replace\(\s*\/\\D\/g\s*,\s*""\s*\)/.test(src);
+  if (stripsThePlus) {
+    fail(
+      `${l.file} strips a phone to bare digits before matching ${l.column}.\n` +
+        `        The column is E.164, so "264…" never equals "+264…" and the lookup\n` +
+        `        silently finds nothing. Use normalizeNamibianPhone() on both sides.`
+    );
+  } else {
+    pass(`${l.file} looks up ${l.column} in its canonical form`);
+  }
+}
+
+// ── 5. Customer-facing wa.me links must go through whatsappLink() ───────
 // Hand-rolling `wa.me/${number.replace(/\D/g,"")}` drops the country code for a
 // number stored as "0816884820", producing a link WhatsApp cannot resolve.
 // Krotoa Leather Goods — a store featured on the homepage — shipped exactly

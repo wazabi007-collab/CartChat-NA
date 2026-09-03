@@ -23,6 +23,25 @@ export const SUPPORT_WHATSAPP = "+264 81 627 4823";
 export const SUPPORT_WHATSAPP_E164 = "+264816274823";
 export const SUPPORT_EMAIL = "info@octovianexus.com";
 
+/**
+ * Where merchants send subscription proof of payment.
+ *
+ * Deliberately NOT the support/sales line: this is money owed to OshiCart, and
+ * it is reconciled by whoever watches the bank account, not by whoever answers
+ * product questions. The subscription checkout hard-coded the sales number for
+ * months, so proofs landed on the wrong phone.
+ */
+export const BILLING_WHATSAPP = "+264 81 238 4424";
+export const BILLING_WHATSAPP_E164 = "+264812384424";
+
+/** wa.me 404s on a leading "+", so the link must carry bare digits. */
+export function billingWhatsAppLink(text?: string): string {
+  const digits = BILLING_WHATSAPP_E164.replace(/\D/g, "");
+  return text
+    ? `https://wa.me/${digits}?text=${encodeURIComponent(text)}`
+    : `https://wa.me/${digits}`;
+}
+
 /** wa.me 404s on a leading "+", so the link must carry bare digits. */
 export function supportWhatsAppLink(text?: string): string {
   const digits = SUPPORT_WHATSAPP_E164.replace(/\D/g, "");

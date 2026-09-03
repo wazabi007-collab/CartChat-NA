@@ -4,7 +4,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { TIER_LIMITS, TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
 import { PUBLIC_PLANS } from "@/lib/plans";
-import { SITE_NAME } from "@/lib/constants";
+import { SITE_NAME, BILLING_WHATSAPP, billingWhatsAppLink } from "@/lib/constants";
 import { isDpoEnabled } from "@/lib/dpo";
 import { Check, ArrowLeft } from "lucide-react";
 import { PaymentSection } from "./payment-section";
@@ -19,7 +19,6 @@ const OSHICART_BANK = {
   accountType: "Current Account",
 };
 
-const OSHICART_WHATSAPP = "+264816274823";
 
 interface Props {
   searchParams: Promise<{ tier?: string }>;
@@ -75,7 +74,8 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
   const waText = merchantName
     ? `Hi OshiCart! I would like to upgrade to the ${tierLabel} plan (${priceDisplay}/mo) for my store "${merchantName}". My reference: ${reference}`
     : `Hi OshiCart! I would like to subscribe to the ${tierLabel} plan (${priceDisplay}/mo). My reference: ${reference}`;
-  const waLink = `https://wa.me/${OSHICART_WHATSAPP.replace(/\D/g, "")}?text=${encodeURIComponent(waText)}`;
+  // Subscription proof of payment goes to the billing line, not sales.
+  const waLink = billingWhatsAppLink(waText);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -161,7 +161,7 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
             )}
 
             <p className="text-center text-xs text-gray-400">
-              Questions? WhatsApp us at {OSHICART_WHATSAPP}
+              Questions about your payment? WhatsApp us at {BILLING_WHATSAPP}
             </p>
           </div>
         </div>

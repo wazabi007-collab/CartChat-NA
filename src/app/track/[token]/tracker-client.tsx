@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Loader2 } from "lucide-react";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, whatsappLink } from "@/lib/utils";
 import { getOrderPayableTotal, VAT_RATE_LABEL } from "@/lib/vat";
 import { ReorderButton } from "@/components/storefront/reorder-button";
 import { ReviewForm } from "@/components/storefront/review-form";
@@ -465,9 +465,10 @@ export function TrackerClient({
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-20">
         <div className="max-w-lg mx-auto px-4 py-3 flex gap-3">
           <a
-            href={`https://wa.me/${merchant.whatsapp_number.replace(/\D/g, "")}?text=${encodeURIComponent(
+            href={whatsappLink(
+              merchant.whatsapp_number,
               `Hi, I'm checking on my order #${order.order_number} from ${merchant.store_name}`
-            )}`}
+            )}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-white font-medium text-sm"

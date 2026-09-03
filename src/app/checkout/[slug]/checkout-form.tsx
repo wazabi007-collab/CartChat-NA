@@ -23,6 +23,7 @@ import { PaymentMethodVisual } from "@/components/payment-method-visual";
 import { getCartItemKey, type CartItem } from "@/lib/cart-item";
 import { rentalDays, rentalLineTotal, formatRentalRange, validateRentalRange } from "@/lib/rentals";
 import { namibianDateString } from "@/lib/date";
+import { normalizeNamibianPhone } from "@/lib/utils";
 import {
   summariseFulfilment,
   fulfilmentSummary,
@@ -704,7 +705,13 @@ export function CheckoutForm({
         {
           p_merchant_id: merchantId,
           p_customer_name: customerName.trim(),
-          p_customer_whatsapp: customerWhatsapp.trim(),
+          // E.164, always. Stored raw-as-typed, this column held 31 of 45
+          // orders in a different shape from abandoned_checkouts (which has
+          // always normalised), so the close-out join in /api/orders/announce
+          // compared "818555667" with "+264818555667" and never matched. Three
+          // real customers were told they had abandoned a cart they had paid
+          // for seconds earlier.
+          p_customer_whatsapp: normalizeNamibianPhone(customerWhatsapp.trim()),
           p_delivery_method: deliveryMethod,
           p_subtotal_nad: subtotal,
           p_delivery_address:

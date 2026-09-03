@@ -3,6 +3,7 @@ import { ShareActions } from "./share-actions";
 import { IndustryIcon } from "@/components/industry-icon";
 import { INDUSTRY_LABELS } from "@/lib/storefront/store-list";
 import { WhatsAppIcon } from "@/components/whatsapp-icon";
+import { whatsappLink } from "@/lib/utils";
 
 type Props = {
   store: {
@@ -26,7 +27,7 @@ type Props = {
 export function StoreHeaderCard({ store, storeUrl, qrUrl }: Props) {
   const initial = store.storeName.charAt(0).toUpperCase();
   const industryLabel = store.industry ? INDUSTRY_LABELS[store.industry] ?? null : null;
-  const waLink = `https://wa.me/${store.whatsappNumber.replace(/\D/g, "")}`;
+  const waLink = whatsappLink(store.whatsappNumber, "");
   const tagline = store.description ?? "Open for orders";
   const taglineSuffix = store.openingHours ? ` - ${store.openingHours}` : "";
 

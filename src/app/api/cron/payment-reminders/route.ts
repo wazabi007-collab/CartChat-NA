@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/utils";
 import { getOrderPayableTotal } from "@/lib/vat";
 import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
 import { hasCartRecovery } from "@/lib/tier-limits";
+import { namibianDateString } from "@/lib/date";
 
 /**
  * Cron job: Payment reminders + auto-cancel unpaid orders.
@@ -196,19 +197,45 @@ export async function GET(req: NextRequest) {
     .order("stock_quantity", { ascending: true })
     .limit(100);
 
+  // One digest per merchant per day, not one message per product per quantity.
+  //
+  // The old key was `low_stock_alert:<product>:<qty>`, so every sale that moved
+  // the count minted a brand-new "event" -- and this cron runs every 15 minutes.
+  // Combined with a loop that sent one message per low product back to back,
+  // one merchant received 85 alerts in 66 seconds on 26 May 2026 until Meta
+  // rate-limited the pair (error 131056) and stopped delivering to them at all.
+  //
+  // Keying on merchant + Namibian date caps it at one message a day per store,
+  // whatever happens to stock in between. The digest names the most urgent
+  // product and counts the rest, so it still fits the approved three-variable
+  // template and needs no Meta change.
+  const byMerchant = new Map<string, { store: string; phone: string | null; products: { name: string; qty: number }[] }>();
   for (const product of (lowStockProducts || [])) {
     const merchant = product.merchants as unknown as { store_name: string; whatsapp_number: string | null };
-    const qty = Number(product.stock_quantity || 0);
+    const entry = byMerchant.get(product.merchant_id) ?? {
+      store: merchant.store_name,
+      phone: merchant.whatsapp_number,
+      products: [],
+    };
+    entry.products.push({ name: product.name || "Product", qty: Number(product.stock_quantity || 0) });
+    byMerchant.set(product.merchant_id, entry);
+  }
+
+  const today = namibianDateString();
+  for (const [merchantId, entry] of byMerchant) {
+    // Query is already ordered by stock ascending, so the first is the most urgent.
+    const worst = entry.products[0];
+    const others = entry.products.length - 1;
     const result = await sendWhatsAppEvent({
       supabase,
-      merchantId: product.merchant_id,
-      eventKey: `low_stock_alert:${product.id}:${qty}`,
+      merchantId,
+      eventKey: `low_stock_alert:${merchantId}:${today}`,
       templateName: "low_stock_alert",
-      recipientPhone: merchant.whatsapp_number,
+      recipientPhone: entry.phone,
       variables: [
-        merchant.store_name,
-        product.name || "Product",
-        String(qty),
+        entry.store,
+        others > 0 ? `${worst.name} (and ${others} other${others === 1 ? "" : "s"} running low)` : worst.name,
+        String(worst.qty),
       ],
     });
     if (result.ok && !result.skipped) lowStockAlertsSent++;

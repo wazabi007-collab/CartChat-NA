@@ -304,7 +304,14 @@ async function getFeaturedStoresFromDatabase(): Promise<StorePreview[]> {
     FEATURED_SLUGS.map(async (slug) => {
       const fallback = FALLBACK_STORES.find((store) => store.slug === slug);
       const merchant = candidates.find((row) => row.store_slug === slug);
-      if (!merchant) return fallback ?? null;
+      // The query ran and deliberately left this slug out — the store is
+      // suspended or deactivated. Falling back to the hardcoded copy here
+      // resurrected it: Krotoa Leather Goods was suspended, yet kept its
+      // featured card on the homepage, and every visitor who clicked it
+      // landed on "Store Not Found". The fallback exists for a database that
+      // did not answer, which is the `candidates.length === 0` case above —
+      // not for a store the database answered about and excluded.
+      if (!merchant) return null;
 
       const { count } = await supabase
         .from("products")

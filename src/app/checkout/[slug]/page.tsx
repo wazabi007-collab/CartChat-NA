@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { whatsappLink } from "@/lib/utils";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -144,7 +145,7 @@ export default async function CheckoutPage({ params }: Props) {
             WhatsApp and they can help you directly.
           </p>
           <a
-            href={`https://wa.me/${merchant.whatsapp_number.replace(/\D/g, "")}`}
+            href={whatsappLink(merchant.whatsapp_number, "")}
             className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-acacia px-4 text-sm font-bold text-white"
           >
             Message {merchant.store_name}

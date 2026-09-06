@@ -1,4 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
+import { namibianMonthKey, namibianMonthRange } from "@/lib/date";
 import { isWhatsAppEnabled, sendWhatsAppTemplate } from "@/lib/whatsapp";
 import {
   getWhatsAppTemplate,
@@ -64,6 +65,42 @@ export async function sendWhatsAppEvent(input: SendEventInput) {
   }
 
   const supabase = input.supabase ?? createServiceClient();
+
+  // All merchant-scoped sends, including order/status routes, share this guard.
+  // Fail closed if we cannot establish whether this is a practice store.
+  if (input.merchantId) {
+    const { data: merchant, error } = await supabase.from("merchants")
+      .select("is_demo").eq("id", input.merchantId).single();
+    if (error || !merchant) return { ok: false, skipped: true, error: "Store notification eligibility unavailable" };
+    if (merchant.is_demo) return { ok: true, skipped: true };
+  }
+
+  // One stock alert per store per Namibian month.
+  //
+  // The key used to carry the product and its quantity, so every sale minted a
+  // fresh event and this cron -- which runs 96 times a day -- kept re-sending:
+  // 85 messages to one store in 66 seconds on 26 May, until Meta rate-limited
+  // the pair. Keying per store fixed the storm but made it one alert EVER, so a
+  // merchant who ran low once would never be warned again.
+  //
+  // A calendar month is the reset: loud enough to be useful, quiet enough that
+  // it can never storm. The window is checked by TIME rather than by key so a
+  // legacy product/day-keyed alert from the old scheme still suppresses a
+  // duplicate in the month it was sent. A queued or failed attempt counts too --
+  // automatic retries must not spam.
+  if (input.templateName === "low_stock_alert") {
+    if (!input.merchantId) return { ok: false, skipped: true, error: "Stock alerts require a store" };
+    const monthKey = namibianMonthKey();
+    const { startISO, endISO } = namibianMonthRange(monthKey);
+    const { data: previous, error } = await supabase.from("whatsapp_messages")
+      .select("id").eq("merchant_id", input.merchantId)
+      .eq("template_name", "low_stock_alert")
+      .gte("created_at", startISO).lt("created_at", endISO).limit(1);
+    if (error) return { ok: false, skipped: true, error: "Stock alert history unavailable" };
+    if (previous?.length) return { ok: true, skipped: true };
+    // The unique event_key index arbitrates concurrent first sends in a month.
+    input = { ...input, eventKey: `low_stock_alert:${input.merchantId}:${monthKey}` };
+  }
 
   if (input.eventKey) {
     const { data: existing } = await supabase

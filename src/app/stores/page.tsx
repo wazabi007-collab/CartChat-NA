@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Store, Search, ArrowRight, ShieldCheck, MapPin } from "lucide-react";
@@ -10,7 +11,7 @@ import { StoreListCard } from "@/components/storefront/store-list-card";
 import { InstallBar } from "@/components/pwa/install-bar";
 
 interface Props {
-  searchParams: Promise<{ q?: string; category?: string; region?: string; town?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; region?: string; town?: string; accepting?: string }>;
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
@@ -37,7 +38,8 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function StoresPage({ searchParams }: Props) {
-  const { q, category, region, town } = await searchParams;
+  const { q, category, region, town, accepting } = await searchParams;
+  const acceptingOnly = accepting === "true";
   const supabase = await createClient();
 
   const activeRegion = region && region !== "all" ? region : "";
@@ -48,10 +50,11 @@ export default async function StoresPage({ searchParams }: Props) {
   const activeTown = regionTowns.some((t) => t.value === town) ? town : undefined;
   const activeTownLabel = regionTowns.find((t) => t.value === activeTown)?.label;
 
-  const publicStoreList = await fetchStoreListData(supabase, { region, q, category, town: activeTown });
+  const storesPromise = fetchStoreListData(supabase, { region, q, category, town: activeTown });
 
   // Same filters minus the town — the escape hatch offered when a town is empty.
   const regionWideParams = new URLSearchParams();
+  if (acceptingOnly) regionWideParams.set("accepting", "true");
   if (q) regionWideParams.set("q", q);
   if (category && category !== "All") regionWideParams.set("category", category);
   if (activeRegion) regionWideParams.set("region", activeRegion);
@@ -62,8 +65,7 @@ export default async function StoresPage({ searchParams }: Props) {
       <PublicNavbar />
 
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-        {/* This is the installed app's home screen, so offer it here too. */}
-        <InstallBar />
+
 
         {/* Page Title & Search */}
         <div className="mx-auto mb-8 max-w-3xl text-center">
@@ -82,6 +84,9 @@ export default async function StoresPage({ searchParams }: Props) {
 
         {/* Search Bar */}
         <form action="/stores" method="GET" className="max-w-lg mx-auto mb-10">
+          {category && <input type="hidden" name="category" value={category} />}
+          {activeRegion && <input type="hidden" name="region" value={activeRegion} />}
+          {activeTown && <input type="hidden" name="town" value={activeTown} />}
           <div className="relative">
             <Search
               size={20}
@@ -90,10 +95,18 @@ export default async function StoresPage({ searchParams }: Props) {
             <input
               type="text"
               name="q"
+              aria-label="Search stores by name"
               defaultValue={q || ""}
               placeholder="Search stores by name..."
             className="w-full rounded-xl border border-border-warm bg-white py-3 pl-10 pr-4 text-walnut shadow-sm placeholder-walnut-2/70 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-terracotta"
             />
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 text-sm text-walnut">
+              <input type="checkbox" name="accepting" value="true" defaultChecked={acceptingOnly} className="h-5 w-5 accent-emerald-700" />
+              Accepting orders only
+            </label>
+            <button type="submit" className="min-h-11 rounded-lg bg-terracotta px-4 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2">Apply filters</button>
           </div>
         </form>
 
@@ -106,6 +119,7 @@ export default async function StoresPage({ searchParams }: Props) {
             if (cat !== "All") params.set("category", cat);
             if (region && region !== "all") params.set("region", region);
             if (activeTown) params.set("town", activeTown);
+            if (acceptingOnly) params.set("accepting", "true");
             const href = `/stores${params.toString() ? `?${params.toString()}` : ""}`;
             return (
               <Link
@@ -134,6 +148,7 @@ export default async function StoresPage({ searchParams }: Props) {
             // Towns belong to exactly one region, so only the region already
             // in effect keeps its town; switching regions clears it.
             if (activeTown && r.value === activeRegion) params.set("town", activeTown);
+            if (acceptingOnly) params.set("accepting", "true");
             const href = `/stores${params.toString() ? `?${params.toString()}` : ""}`;
             return (
               <Link
@@ -161,6 +176,7 @@ export default async function StoresPage({ searchParams }: Props) {
               if (category && category !== "All") params.set("category", category);
               params.set("region", activeRegion);
               if (t.value !== "all") params.set("town", t.value);
+              if (acceptingOnly) params.set("accepting", "true");
               const href = `/stores?${params.toString()}`;
               return (
                 <Link
@@ -179,79 +195,9 @@ export default async function StoresPage({ searchParams }: Props) {
           </div>
         )}
 
-        {/* Results. This is a real <h2> and always rendered: the store cards are
-            <h3>, so without it the outline jumped H1 -> H3 and screen-reader
-            heading navigation misreported the directory. It doubles as the
-            result count, which shoppers wanted anyway. */}
-        {publicStoreList.length > 0 && (
-          <h2 className="mb-4 text-sm font-bold text-walnut-2">
-            {q ? (
-              <>
-                {publicStoreList.length} result
-                {publicStoreList.length !== 1 ? "s" : ""} for &ldquo;{q}&rdquo;
-              </>
-            ) : (
-              <>
-                {publicStoreList.length} store
-                {publicStoreList.length !== 1 ? "s" : ""}
-                {activeTown
-                  ? ` in ${activeTownLabel}`
-                  : activeRegion
-                    ? ` in ${REGION_LABELS[activeRegion]}`
-                    : " open on OshiCart"}
-              </>
-            )}
-          </h2>
-        )}
-
-        {publicStoreList.length === 0 ? (
-          <div className="bg-white rounded-lg border border-border-warm p-12 text-center">
-            <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <Store size={32} className="text-walnut-2/70" />
-            </div>
-            <h2 className="text-lg font-semibold text-walnut mb-2">
-              {activeTown
-                ? `No stores in ${activeTownLabel} yet`
-                : q
-                  ? "No stores found"
-                  : "No stores yet"}
-            </h2>
-            <p className="text-walnut-2 mb-6 max-w-sm mx-auto">
-              {activeTown
-                ? `No store in ${activeTownLabel} matches these filters yet. Other towns in ${REGION_LABELS[activeRegion]} may have what you're looking for.`
-                : q
-                  ? `No stores matching "${q}". Try a different search.`
-                  : "Be the first to create a store on OshiCart!"}
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              {activeTown && (
-                <Link
-                  href={regionWideHref}
-                  className="inline-flex items-center gap-2 bg-terracotta text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity font-medium"
-                >
-                  <MapPin size={16} />
-                  Browse all of {REGION_LABELS[activeRegion]}
-                </Link>
-              )}
-              <Link
-                href="/signup"
-                className={
-                  activeTown
-                    ? "inline-flex items-center gap-2 rounded-lg border border-border-warm bg-white px-6 py-2.5 font-medium text-walnut-2 transition-colors hover:bg-sand-2"
-                    : "inline-flex items-center gap-2 bg-terracotta text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity font-medium"
-                }
-              >
-                Create Your Store
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {publicStoreList.map((store) => (
-              <StoreListCard key={store.id} store={store} />
-            ))}
-          </div>
-        )}
+        <Suspense fallback={<p role="status" className="min-h-48 py-8 text-center text-walnut-2">Loading stores…</p>}>
+          <StoreResults storesPromise={storesPromise} acceptingOnly={acceptingOnly} q={q} category={category} activeRegion={activeRegion} activeTown={activeTown} activeTownLabel={activeTownLabel} regionWideHref={regionWideHref} />
+        </Suspense>
 
         {/* CTA for merchants */}
         <div className="mt-12 rounded-xl border border-border-warm bg-white p-8 text-center shadow-sm">
@@ -287,6 +233,8 @@ export default async function StoresPage({ searchParams }: Props) {
             ))}
           </div>
         </div>
+        {/* Reserve space below the catalogue: a late install event must not move the heading or filters. */}
+        <div className="mt-8 min-h-40 md:min-h-0"><InstallBar /></div>
       </main>
 
       {/* Footer */}
@@ -297,10 +245,10 @@ export default async function StoresPage({ searchParams }: Props) {
               src="/oshicart-logo-v3.webp"
               alt={SITE_NAME}
               width={130}
-              height={18}
-              style={{ width: 130, height: "auto" }}
+              height={32}
+              style={{ width: 130, height: 32, objectFit: "contain" }}
             />
-            <span className="text-gray-500">- Made in Namibia</span>
+            <span className="text-gray-400">- Made in Namibia</span>
           </div>
           <div className="flex gap-6">
             <Link href="/terms" className="hover:text-white transition-colors">
@@ -314,4 +262,96 @@ export default async function StoresPage({ searchParams }: Props) {
       </footer>
     </div>
   );
+}
+
+async function StoreResults({ storesPromise, acceptingOnly, q, category, activeRegion, activeTown, activeTownLabel, regionWideHref }: {
+  storesPromise: ReturnType<typeof fetchStoreListData>;
+  acceptingOnly: boolean;
+  q?: string;
+  category?: string;
+  activeRegion: string;
+  activeTown?: string;
+  activeTownLabel?: string;
+  regionWideHref: string;
+}) {
+  const stores = await storesPromise;
+  const publicStoreList = acceptingOnly ? stores.filter((store) => store.orderingAvailable) : stores;
+  return <>
+        {/* Results. This is a real <h2> and always rendered: the store cards are
+            <h3>, so without it the outline jumped H1 -> H3 and screen-reader
+            heading navigation misreported the directory. It doubles as the
+            result count, which shoppers wanted anyway. */}
+        {publicStoreList.length > 0 && (
+          <h2 className="mb-4 text-sm font-bold text-walnut-2">
+            {q ? (
+              <>
+                {publicStoreList.length} result
+                {publicStoreList.length !== 1 ? "s" : ""} for &ldquo;{q}&rdquo;
+              </>
+            ) : (
+              <>
+                {publicStoreList.length} store
+                {publicStoreList.length !== 1 ? "s" : ""}
+                {activeTown
+                  ? ` in ${activeTownLabel}`
+                  : activeRegion
+                    ? ` in ${REGION_LABELS[activeRegion]}`
+                    : " listed on OshiCart"}
+              </>
+            )}
+          </h2>
+        )}
+
+        {publicStoreList.length === 0 ? (
+          <div className="bg-white rounded-lg border border-border-warm p-12 text-center">
+            <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <Store size={32} className="text-walnut-2/70" />
+            </div>
+            <h2 className="text-lg font-semibold text-walnut mb-2">
+              {acceptingOnly ? "No stores accepting orders match these filters" : activeTown
+                ? `No stores in ${activeTownLabel} yet`
+                : q
+                  ? "No stores found"
+                  : "No stores yet"}
+            </h2>
+            <p className="text-walnut-2 mb-6 max-w-sm mx-auto">
+              {acceptingOnly ? "Try including stores with paused ordering to browse their catalogues, or change your search." : activeTown
+                ? `No store in ${activeTownLabel} matches these filters yet. Other towns in ${REGION_LABELS[activeRegion]} may have what you're looking for.`
+                : q
+                  ? `No stores matching "${q}". Try a different search.`
+                  : "Be the first to create a store on OshiCart!"}
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {acceptingOnly && <Link href={`/stores?${new URLSearchParams({ ...(q ? { q } : {}), ...(category ? { category } : {}), ...(activeRegion ? { region: activeRegion } : {}), ...(activeTown ? { town: activeTown } : {}) })}`} className="inline-flex min-h-11 items-center rounded-lg border border-border-warm px-4 text-sm font-semibold">Include paused stores</Link>}
+              {activeTown && (
+                <Link
+                  href={regionWideHref}
+                  className="inline-flex items-center gap-2 bg-terracotta text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity font-medium"
+                >
+                  <MapPin size={16} />
+                  Browse all of {REGION_LABELS[activeRegion]}
+                </Link>
+              )}
+              <Link
+                href="/signup"
+                className={
+                  activeTown
+                    ? "inline-flex items-center gap-2 rounded-lg border border-border-warm bg-white px-6 py-2.5 font-medium text-walnut-2 transition-colors hover:bg-sand-2"
+                    : "inline-flex items-center gap-2 bg-terracotta text-white px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity font-medium"
+                }
+              >
+                Create Your Store
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {publicStoreList.map((store) => (
+              <StoreListCard key={store.id} store={store} />
+            ))}
+          </div>
+        )}
+
+
+  </>;
 }

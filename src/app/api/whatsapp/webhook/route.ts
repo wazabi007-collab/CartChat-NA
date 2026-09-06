@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { verifyWebhookSignature, sendWhatsAppTemplate } from "@/lib/whatsapp";
-import { adminWhatsAppNumbers } from "@/lib/whatsapp-events";
+import { adminWhatsAppNumbers, sendWhatsAppEvent } from "@/lib/whatsapp-events";
+import { normalizeNamibianPhone } from "@/lib/utils";
 
 /**
  * GET: Meta webhook verification.
@@ -46,11 +47,8 @@ const MEDIA_LABELS: Record<string, string> = {
 /**
  * POST: delivery status updates AND inbound replies from Meta.
  *
- * Statuses update whatsapp_messages rows. Inbound replies are forwarded to
- * the admin numbers (OSHICART_ADMIN_WHATSAPP_NUMBERS) via the
- * inbound_message_alert template — every automated message invites people to
- * "reply here", and until this existed those replies landed on a business
- * number nobody attends.
+ * Statuses update whatsapp_messages rows. Verified, quoted customer replies
+ * go to the order's merchant; ambiguous replies retain the admin fallback.
  */
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -71,13 +69,13 @@ export async function POST(req: NextRequest) {
     for (const entry of entries) {
       const changes = entry?.changes || [];
       for (const change of changes) {
-        // --- Inbound replies: forward to the admins' own phones ----------
+        // --- Inbound replies: resolve merchant ownership before forwarding ---
         const inbound = change?.value?.messages || [];
         const contacts = change?.value?.contacts || [];
         const admins = adminWhatsAppNumbers();
         for (const message of inbound) {
           const from = message?.from as string | undefined;
-          if (!from || admins.length === 0) continue;
+          if (!from) continue;
           // Loop guard: an admin texting the business number should not be
           // forwarded back to the admins.
           if (admins.some((a) => a.replace(/\D/g, "").endsWith(from.replace(/\D/g, "").slice(-9)))) {
@@ -91,6 +89,35 @@ export async function POST(req: NextRequest) {
               ? sanitizeForTemplate(message.text?.body || "")
               : MEDIA_LABELS[message.type as string] || `[${message.type}]`;
           if (!text) continue;
+
+          // Route quoted replies only when the original recipient and order
+          // owner match. A customer's latest order is NOT sufficient context.
+          const contextId = message.context?.id;
+          if (typeof contextId === "string" && typeof message.id === "string") {
+            const { data: original, error } = await supabase.from("whatsapp_messages")
+              .select("merchant_id, order_id, recipient_phone, recipient_type")
+              .eq("meta_message_id", contextId).maybeSingle();
+            if (error) throw new Error("Could not resolve reply context");
+            if (original?.merchant_id && original.order_id && original.recipient_type === "customer"
+              && normalizeNamibianPhone(original.recipient_phone) === normalizeNamibianPhone(from)) {
+              const { data: order, error: orderError } = await supabase.from("orders")
+                .select("id").eq("id", original.order_id).eq("merchant_id", original.merchant_id).maybeSingle();
+              const { data: merchant, error: merchantError } = await supabase.from("merchants")
+                .select("whatsapp_number").eq("id", original.merchant_id).maybeSingle();
+              if (orderError || merchantError) throw new Error("Could not verify reply owner");
+              if (order && merchant?.whatsapp_number) {
+                const result = await sendWhatsAppEvent({
+                  supabase, merchantId: original.merchant_id, orderId: original.order_id,
+                  eventKey: `inbound_reply:${message.id}`,
+                  templateName: "inbound_message_alert", recipientType: "merchant",
+                  recipientPhone: merchant.whatsapp_number,
+                  variables: [sanitizeForTemplate(name, 100), normalizeNamibianPhone(from), text],
+                });
+                if (!result.ok) throw new Error("Could not forward merchant reply");
+                continue;
+              }
+            }
+          }
 
           for (const admin of admins) {
             await sendWhatsAppTemplate(admin, "inbound_message_alert", [
@@ -144,8 +171,9 @@ export async function POST(req: NextRequest) {
     }
   } catch (err) {
     console.error("[WhatsApp Webhook]", err);
+    return new NextResponse("Please retry", { status: 503 });
   }
 
-  // Always return 200 quickly — Meta requires fast response
+  // Acknowledge only successful processing; merchant forwards are idempotent.
   return new NextResponse("OK", { status: 200 });
 }

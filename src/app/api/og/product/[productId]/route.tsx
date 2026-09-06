@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { fetchAsCoverPngDataUri } from "@/lib/og-image";
+import { socialPriceLabel } from "@/lib/quote";
 
 /**
  * A portrait product card for WhatsApp Status.
@@ -26,7 +27,7 @@ export async function GET(
   const { data: product } = await createServiceClient()
     .from("products")
     .select(
-      "name, price_nad, images, is_available, item_type, merchants!inner(store_name, store_slug, is_active, store_status)"
+      "name, price_nad, images, is_available, item_type, product_variants(price_nad, is_available), merchants!inner(store_name, store_slug, is_active, store_status)"
     )
     .eq("id", productId)
     .is("deleted_at", null)
@@ -52,9 +53,7 @@ export async function GET(
   // Product photos are WebP; satori cannot decode WebP. Cover-crop to the
   // hero size through sharp, or fall back to the letter tile.
   const photo = photoUrl ? await fetchAsCoverPngDataUri(photoUrl, 1080, 810) : null;
-  const price = `N$${(product.price_nad / 100).toLocaleString("en-NA", {
-    minimumFractionDigits: 2,
-  })}`;
+  const price = socialPriceLabel(product);
   const isService = product.item_type === "service";
 
   return new ImageResponse(

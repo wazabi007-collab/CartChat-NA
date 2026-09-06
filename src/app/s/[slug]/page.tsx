@@ -36,7 +36,7 @@ import {
 import { readPreviewState } from "@/lib/preview";
 import { normalizeSort } from "@/lib/product-sort";
 
-const PRODUCTS_PER_PAGE = 100;
+const PRODUCTS_PER_PAGE = 24;
 const MAX_SEARCH_PRODUCT_IDS = 300;
 
 interface Props {
@@ -191,21 +191,11 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   // the payment credentials, which anon cannot read (migration 055), so this
   // one small read goes through the service role — the same reason checkout
   // does. Only the booleans derived from it ever reach the browser.
-  const [{ data: paymentDetails }, { data: ratingRows }, { data: reviewRows }] =
-    await Promise.all([
+  const storeDetailsPromise = Promise.all([
       getStorePaymentConfig(merchant.id),
       getStoreRating(merchant.id),
       getStoreReviews(merchant.id),
     ]);
-
-  const advertisedPaymentMethods = usablePaymentMethods(
-    merchant.accepted_payment_methods,
-    paymentDetails ?? {}
-  );
-  const ratingRow = Array.isArray(ratingRows) ? ratingRows[0] : ratingRows;
-  const reviewAverage = ratingRow?.average != null ? Number(ratingRow.average) : null;
-  const reviewTotal = ratingRow?.total != null ? Number(ratingRow.total) : 0;
-  const reviews = (reviewRows ?? []) as StoreReview[];
 
   const isOwner = !!userId && merchant.user_id === userId;
   const isPreview = previewCookie && isOwner;
@@ -244,12 +234,21 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   if (categoryFilter) countQuery.eq("category_id", categoryFilter);
   if (searchFilterParts.length > 0) countQuery.or(searchFilterParts.join(","));
 
-  const [subRes, catRes, countRes] = await Promise.all([
+  const [subRes, catRes, countRes, details, categoryMetaRes] = await Promise.all([
     // See the note below the Promise.all: this must not use the visitor client.
     createServiceClient().from("subscriptions").select("tier, status").eq("merchant_id", merchant.id).single(),
     supabase.from("categories").select("*").eq("merchant_id", merchant.id).order("sort_order", { ascending: true }),
     countQuery,
+    storeDetailsPromise,
+    supabase.rpc("storefront_category_meta", { p_merchant_id: merchant.id }),
   ]);
+  if (catRes.error || countRes.error || categoryMetaRes.error) throw new Error("Could not load the catalogue. Please try again.");
+  const [{ data: paymentDetails }, { data: ratingRows }, { data: reviewRows }] = details;
+  const advertisedPaymentMethods = usablePaymentMethods(merchant.accepted_payment_methods, paymentDetails ?? {});
+  const ratingRow = Array.isArray(ratingRows) ? ratingRows[0] : ratingRows;
+  const reviewAverage = ratingRow?.average != null ? Number(ratingRow.average) : null;
+  const reviewTotal = ratingRow?.total != null ? Number(ratingRow.total) : 0;
+  const reviews = (reviewRows ?? []) as StoreReview[];
 
   const subscription = subRes.data;
   const categories = catRes.data;
@@ -275,9 +274,7 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   const catCountMap = new Map<string, number>();
   const catImageMap = new Map<string, string[]>();
   if (categories && categories.length > 0) {
-    const { data: catMeta } = await supabase.rpc("storefront_category_meta", {
-      p_merchant_id: merchant.id,
-    });
+    const catMeta = categoryMetaRes.data;
     const metaRows = (catMeta ?? []) as {
       category_id: string;
       product_count: number;
@@ -309,7 +306,11 @@ export default async function StorefrontPage({ params, searchParams }: Props) {
   if (!isPreview) productQuery = productQuery.eq("is_available", true);
   if (categoryFilter) productQuery = productQuery.eq("category_id", categoryFilter);
   if (searchFilterParts.length > 0) productQuery = productQuery.or(searchFilterParts.join(","));
-  const { data: products } = await productQuery;
+  // Folder view renders no product cards: skip an otherwise wasted catalogue
+  // query and its variant lookup on the largest stores' landing pages.
+  const { data: products, error: productsError } = showFolders || activeTab === "orders"
+    ? { data: [], error: null } : await productQuery;
+  if (productsError) throw new Error("Could not load products. Please try again.");
   const productIds = (products || []).map((product) => product.id);
   const variantProductIds = new Set<string>();
   if (productIds.length > 0) {

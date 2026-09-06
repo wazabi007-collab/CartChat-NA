@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { isQuoteRequired } from "@/lib/quote";
 import Image from "next/image";
 import { Sparkles } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "../cart-provider";
 import { cartItemFromProduct } from "@/lib/cart-item";
 import { getCtaText, getDisplayPrice, getStockLabel, type LayoutProps } from "./types";
-import type { ServiceMode } from "@/lib/service-mode";
 
 export function HorizontalCard({ products, theme, slug, disabled }: LayoutProps) {
   const { addItem } = useCart();
@@ -70,7 +70,9 @@ export function HorizontalCard({ products, theme, slug, disabled }: LayoutProps)
                 </div>
                 {isOutOfStock || disabled ? (
                   <span className="text-xs text-gray-400">Unavailable</span>
-                ) : product.has_variants ? (
+              ) : isQuoteRequired(product) ? (
+                <Link href={`/s/${slug}/${product.id}`} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-green-700 px-3 py-2 text-xs font-semibold text-white">Request a Quote</Link>
+              ) : product.has_variants ? (
                   <Link
                     href={`/s/${slug}/${product.id}`}
                     className="rounded-full px-4 py-1.5 text-xs font-medium text-white transition-colors"
@@ -83,7 +85,7 @@ export function HorizontalCard({ products, theme, slug, disabled }: LayoutProps)
                     onClick={() =>
                       addItem(cartItemFromProduct(product, { imageUrl }))
                     }
-                    className="min-h-[40px] inline-flex items-center justify-center text-white text-xs font-medium px-4 py-1.5 rounded-full transition-colors"
+                    className="min-h-11 inline-flex items-center justify-center text-white text-xs font-medium px-4 py-1.5 rounded-full transition-colors"
                     style={{ backgroundColor: theme.accent }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = theme.accentHover;

@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     // The tracking_token must match the order — this is the buyer's capability.
     const { data: order } = await service
       .from("orders")
-      .select("id, order_number, merchant_id, merchants!inner(store_name, user_id)")
+      .select("id, order_number, merchant_id, merchants!inner(store_name, user_id, is_demo)")
       .eq("id", order_id)
       .eq("tracking_token", tracking_token)
       .single();
@@ -35,7 +35,8 @@ export async function POST(req: NextRequest) {
     }
 
     const order_number = order.order_number;
-    const merchant = order.merchants as unknown as { store_name: string; user_id: string };
+    const merchant = order.merchants as unknown as { store_name: string; user_id: string; is_demo: boolean };
+    if (merchant.is_demo) return NextResponse.json({ ok: true, email_sent: false, reason: "demo_store" });
 
     const { data: userData } = await service.auth.admin.getUserById(merchant.user_id);
     const merchantEmail = userData?.user?.email;

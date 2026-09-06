@@ -4,6 +4,7 @@ import { ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import type { CartItem } from "@/lib/cart-item";
 import { AddToCartButton } from "./add-to-cart-button";
+import { isQuoteRequired } from "@/lib/quote";
 
 interface ProductCardProps {
   id: string;
@@ -46,7 +47,7 @@ export function ProductCard({
   // Rentals come back, so stock never runs out from selling; skip the goods
   // stock states the same way services do.
   const isRental = itemType === "rental";
-  const isQuoteOnly = isService && price === 0;
+  const isQuoteOnly = isQuoteRequired({ price_nad: price, has_variants: hasVariants });
   const isOutOfStock = !isService && !isRental && trackInventory && (stockQuantity ?? 0) === 0 && !allowBackorder;
   const isLowStock = !isService && !isRental && trackInventory && !isOutOfStock && (stockQuantity ?? 0) > 0 && (stockQuantity ?? 0) <= (lowStockThreshold ?? 5);
   const stockLabel = !isService && !isRental && trackInventory

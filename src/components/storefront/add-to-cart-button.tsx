@@ -40,7 +40,7 @@ export function AddToCartButton({
         onClick={() => {
           if (!whatsappNumber) return;
           const phone = normalizeNamibianPhone(whatsappNumber).replace(/\D/g, "");
-          const msg = `Hi ${storeName || ""}! I'd like to enquire about your service: ${productName}`;
+          const msg = `Hi ${storeName || ""}! I'd like to request a quote for: ${productName}`;
           window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
         }}
         className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700"

@@ -37,16 +37,34 @@ export function GettingStarted({
   const [copied, setCopied] = useState(false);
   const [localShared, setLocalShared] = useState(storeLinkShared);
   const [allSetVisible, setAllSetVisible] = useState(true);
+  const [reviewed, setReviewed] = useState<string[]>([]);
+  const [actionError, setActionError] = useState("");
+  const reviewKey = `oshicart:setup-reviewed:${merchantId}`;
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(reviewKey) || "[]");
+      // Restore this browser session's explicitly confirmed review steps.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (Array.isArray(saved)) setReviewed(saved.filter((value) => value === "settings" || value === "preview"));
+    } catch { /* Review steps remain available when storage is blocked. */ }
+  }, [reviewKey]);
+  function markReviewed(step: string) {
+    const next = [...new Set([...reviewed, step])];
+    setReviewed(next);
+    try { sessionStorage.setItem(reviewKey, JSON.stringify(next)); } catch { /* optional */ }
+  }
 
   const items = [
     { label: "Create your store", done: true, icon: Package },
     { label: labels.firstItem, done: productCount > 0, icon: Package },
+    { label: "Review fulfilment and payment", done: reviewed.includes("settings"), icon: Package },
+    { label: "Preview your customer experience", done: reviewed.includes("preview"), icon: ShoppingCart },
     { label: "Share your store link", done: localShared, icon: Link2 },
     { label: "Get your first order", done: orderCount > 0, icon: ShoppingCart },
   ];
 
   const completedCount = items.filter((i) => i.done).length;
-  const allComplete = completedCount === 4;
+  const allComplete = completedCount === items.length;
 
   useEffect(() => {
     if (allComplete) {
@@ -56,33 +74,38 @@ export function GettingStarted({
   }, [allComplete]);
 
   async function handleDismiss() {
-    await supabase
+    const { error } = await supabase
       .from("merchants")
       .update({ getting_started_dismissed: true })
       .eq("id", merchantId);
+    if (error) { setActionError("Could not save that change. Please try again."); return; }
     router.refresh();
   }
 
   async function markShared() {
     if (localShared) return;
-    setLocalShared(true);
-    await supabase
+    const { error } = await supabase
       .from("merchants")
       .update({ store_link_shared: true })
       .eq("id", merchantId);
+    if (error) throw new Error("Could not save sharing progress.");
+    setLocalShared(true);
   }
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(storeUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    markShared();
+    try {
+      await navigator.clipboard.writeText(storeUrl);
+      setCopied(true);
+      setActionError("");
+      setTimeout(() => setCopied(false), 2000);
+      await markShared();
+    } catch { setActionError("Could not copy the link. Use the Share page to copy or share it."); }
   }
 
   function handleWhatsAppShare() {
     const msg = `Check out my store on OshiCart! ${storeUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
-    markShared();
+    markShared().catch(() => setActionError("The sharing window opened, but progress could not be saved. Please try again later."));
   }
 
   if (dismissed) return null;
@@ -120,28 +143,34 @@ export function GettingStarted({
 
       {/* Header */}
       <h3 className="font-bold text-emerald-950 mb-1 pr-6">Get started with {storeName}</h3>
+      <p className="mb-3 text-sm text-slate-600">Add an item, check how customers will receive and pay for it, preview, then share. Preview mode does not place real orders. Review checks are remembered in this browser session.</p>
+      {actionError && <p role="alert" className="mb-3 text-sm text-red-700">{actionError}</p>}
 
       {/* Progress bar */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex-1 h-2 rounded-full bg-emerald-100">
           <div
             className="h-2 rounded-full bg-gradient-to-r from-acacia to-emerald-400 transition-all duration-500"
-            style={{ width: `${(completedCount / 4) * 100}%` }}
+            style={{ width: `${(completedCount / items.length) * 100}%` }}
           />
         </div>
-        <span className="text-xs font-medium text-slate-500 shrink-0">{completedCount} of 4 complete</span>
+        <span className="text-xs font-medium text-slate-600 shrink-0">{completedCount} of {items.length} complete</span>
       </div>
 
       {/* Checklist items */}
-      <div className="grid gap-2 md:grid-cols-4">
+      <div role="list" className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item, index) => {
           const isAddProduct = index === 1;
-          const isShareLink = index === 2;
-          const isFirstOrder = index === 3;
+          const isSettings = index === 2;
+          const isPreview = index === 3;
+          const isShareLink = index === 4;
+          const isFirstOrder = index === 5;
 
           return (
             <div
               key={item.label}
+              role="listitem"
+              aria-label={`${item.label}: ${item.done ? "Complete" : "Not complete"}`}
               className="flex min-h-32 flex-col rounded-xl border border-emerald-100 bg-white/75 p-3"
             >
               {/* Status icon */}
@@ -169,10 +198,18 @@ export function GettingStarted({
               {/* Action */}
               {!item.done && (
                 <>
+                  {(isSettings || isPreview) && (
+                    <div className="mt-2 flex flex-col gap-1">
+                      <a href={isSettings ? "/dashboard/settings" : `/api/preview/enter?slug=${encodeURIComponent(new URL(storeUrl).pathname.split("/").pop() || "")}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-lg bg-acacia px-3 text-xs font-semibold text-white">
+                        {isSettings ? "Check settings" : "Open safe preview"} (new tab)
+                      </a>
+                      <button type="button" onClick={() => markReviewed(isSettings ? "settings" : "preview")} className="min-h-11 rounded-lg border border-emerald-700 px-3 text-xs font-semibold text-emerald-900">I have reviewed this</button>
+                    </div>
+                  )}
                   {isAddProduct && (
                     <Link
                       href="/dashboard/products/new"
-                      className={`mt-3 inline-flex text-xs px-3 py-1.5 bg-acacia text-white rounded-lg hover:bg-emerald-700 transition-colors ${
+                      className={`mt-3 inline-flex min-h-11 items-center text-xs px-3 py-1.5 bg-acacia text-white rounded-lg hover:bg-emerald-700 transition-colors ${
                         isWelcome ? "animate-pulse" : ""
                       }`}
                     >
@@ -184,14 +221,14 @@ export function GettingStarted({
                     <div className="mt-3 flex flex-wrap items-center gap-1.5">
                       <button
                         onClick={handleCopy}
-                        className="text-xs px-3 py-1.5 bg-acacia text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-1"
+                        className="min-h-11 text-xs px-3 py-1.5 bg-acacia text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-1"
                       >
                         {copied ? <Check size={12} /> : <Link2 size={12} />}
                         {copied ? "Copied!" : "Copy Link"}
                       </button>
                       <button
                         onClick={handleWhatsAppShare}
-                        className="text-xs px-3 py-1.5 bg-acacia text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                        className="min-h-11 text-xs px-3 py-1.5 bg-acacia text-white rounded-lg hover:bg-emerald-700 transition-colors"
                       >
                         WhatsApp
                       </button>
@@ -199,7 +236,7 @@ export function GettingStarted({
                   )}
 
                   {isFirstOrder && (
-                    <span className="mt-3 block text-xs text-slate-400">Waiting for your first order...</span>
+                    <span className="mt-3 block text-xs text-slate-600">Your first customer order completes this step. Do not submit a real order just to test setup.</span>
                   )}
                 </>
               )}

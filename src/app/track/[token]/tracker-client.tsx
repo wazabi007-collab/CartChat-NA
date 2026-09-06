@@ -6,6 +6,7 @@ import { formatPrice, whatsappLink } from "@/lib/utils";
 import { getOrderPayableTotal, VAT_RATE_LABEL } from "@/lib/vat";
 import { ReorderButton } from "@/components/storefront/reorder-button";
 import { ReviewForm } from "@/components/storefront/review-form";
+import { trackingSteps } from "@/lib/tracking-steps";
 
 interface StatusEntry {
   status: string;
@@ -26,6 +27,8 @@ export interface Merchant {
   store_name: string;
   store_slug: string;
   whatsapp_number: string;
+  uses_ready_step?: boolean | null;
+  pickup_address?: string | null;
 }
 
 export interface Order {
@@ -55,7 +58,6 @@ export interface Order {
   order_items: OrderItem[];
 }
 
-const STEPS = ["pending", "confirmed", "ready", "completed"] as const;
 const STEP_LABELS: Record<string, string> = {
   pending: "Order Placed",
   confirmed: "Confirmed",
@@ -63,10 +65,6 @@ const STEP_LABELS: Record<string, string> = {
   completed: "Completed",
 };
 
-function getStepIndex(status: string): number {
-  const idx = STEPS.indexOf(status as typeof STEPS[number]);
-  return idx >= 0 ? idx : 0;
-}
 
 function formatTime(dateStr: string): string {
   const d = new Date(dateStr);
@@ -95,7 +93,8 @@ export function TrackerClient({
 
   const merchant = order.merchants;
   const isCancelled = order.status === "cancelled";
-  const currentStep = getStepIndex(order.status);
+  const steps = trackingSteps(merchant.uses_ready_step, order.status, order.status_history ?? []);
+  const currentStep = Math.max(0, steps.indexOf(order.status));
   const total = getOrderPayableTotal(order);
   const deliveryProviderLabel: Record<string, string> = {
     store: "Store delivery",
@@ -238,12 +237,11 @@ export function TrackerClient({
         {!isCancelled && (
           <div className="bg-white rounded-xl p-5 shadow-sm">
             <div className="space-y-0">
-              {STEPS.map((step, idx) => {
+              {steps.map((step, idx) => {
                 const isCompleted = idx < currentStep;
                 const isCurrent = idx === currentStep;
-                const isUpcoming = idx > currentStep;
                 const ts = statusTimestamp(step);
-                const isLast = idx === STEPS.length - 1;
+                const isLast = idx === steps.length - 1;
 
                 return (
                   <div key={step} className="flex gap-3">
@@ -276,16 +274,16 @@ export function TrackerClient({
                     </div>
 
                     {/* Label + Time */}
-                    <div className={`pt-1 pb-4 ${isUpcoming ? "opacity-40" : ""}`}>
+                    <div className="pt-1 pb-4">
                       <p
                         className={`text-sm font-medium ${
-                          isCurrent ? "text-[#2B5EA7]" : isCompleted ? "text-gray-900" : "text-gray-400"
+                          isCurrent ? "text-[#2B5EA7]" : isCompleted ? "text-gray-900" : "text-gray-600"
                         }`}
                       >
                         {STEP_LABELS[step]}
                       </p>
                       {ts && (
-                        <p className="text-xs text-gray-400 mt-0.5">{formatTime(ts)}</p>
+                        <p className="text-xs text-gray-600 mt-0.5">{formatTime(ts)}</p>
                       )}
                     </div>
                   </div>
@@ -431,7 +429,9 @@ export function TrackerClient({
           </h3>
           <div className="text-sm text-gray-600 space-y-1">
             <p className="capitalize">{order.delivery_method}</p>
-            {order.delivery_address && <p>{order.delivery_address}</p>}
+            {order.delivery_method === "pickup" ? (
+              <p>{merchant.pickup_address?.trim() || "Contact the store to confirm the collection location."}</p>
+            ) : order.delivery_address && <p>{order.delivery_address}</p>}
             {order.delivery_method === "delivery" && (
               <p className="text-xs text-gray-500">
                 {deliveryProviderLabel[order.delivery_provider ?? "store"] ?? "Store delivery"}

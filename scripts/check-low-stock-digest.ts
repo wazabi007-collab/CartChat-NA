@@ -11,10 +11,17 @@
  *   2. The loop sent one message per low product, back to back, so a store with
  *      twenty low products got twenty messages in a row.
  *
- * The fix keys on merchant + Namibian date and sends a single digest. Both
- * properties are load-bearing: keeping the quantity out of the key stops (1),
- * grouping by merchant stops (2). This guards both, plus the variable count,
- * because the digest has to keep fitting the already-approved Meta template.
+ * Keying per store fixed the storm but made it one alert EVER, so a merchant
+ * who ran low once would never be warned again. The key is now per store per
+ * Namibian MONTH: loud enough to stay useful, quiet enough that it can never
+ * storm. sendWhatsAppEvent enforces the same window by TIME rather than by
+ * key, so a legacy product/day-keyed alert still suppresses a duplicate in the
+ * month it was sent.
+ *
+ * Three properties are load-bearing: no quantity in the key stops (1),
+ * grouping by merchant stops (2), and a MONTH -- never a day -- is what makes
+ * the reset safe. This guards all three, plus the variable count, because the
+ * digest has to keep fitting the already-approved Meta template.
  *
  *   npx tsx scripts/check-low-stock-digest.ts
  */
@@ -44,10 +51,20 @@ if (!keyMatch) {
     );
   } else if (!/merchant/i.test(key)) {
     fail(`${CRON}: the low-stock key (${key}) is not per-merchant, so products cannot be grouped.`);
-  } else if (!/today|date/i.test(key)) {
-    fail(`${CRON}: the low-stock key (${key}) has no day component, so it can repeat within a day.`);
+  } else if (/today|namibianDateString|day/i.test(key)) {
+    fail(
+      `${CRON}: the low-stock key (${key}) resets daily.
+` +
+        `        A store low on stock for a week would get seven messages.`
+    );
+  } else if (!/month/i.test(key)) {
+    fail(
+      `${CRON}: the low-stock key (${key}) has no month component, so it never
+` +
+        `        resets — a store warned once would never be warned again.`
+    );
   } else {
-    pass(`low-stock dedup key is per merchant per day (${key})`);
+    pass(`low-stock dedup key is per merchant per month (${key})`);
   }
 }
 
@@ -80,7 +97,7 @@ if (!varsMatch) {
 
 console.log(
   failures === 0
-    ? "\nPASS  Low-stock alerts are capped at one digest per merchant per day."
+    ? "\nPASS  Low-stock alerts are one-time per merchant."
     : `\nFAIL  ${failures} problem(s).`
 );
 process.exit(failures === 0 ? 0 : 1);

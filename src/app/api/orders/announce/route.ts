@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     .from("orders")
     .select(`
       id, order_number, customer_name, customer_whatsapp,
-      subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive, payment_method,
+      subtotal_nad, delivery_fee_nad, callout_fee_nad, deposit_nad, discount_nad, vat_nad, vat_inclusive, payment_method,
       delivery_method, delivery_provider,
       merchant_id, tracking_token,
       merchants!inner(store_name, whatsapp_number),

@@ -19,6 +19,7 @@ import { SITE_URL } from "@/lib/constants";
 import { TIER_LIMITS, TIER_LABELS, type SubscriptionTier } from "@/lib/tier-limits";
 import { getServiceLabels } from "@/lib/service-labels";
 import { GettingStarted } from "@/components/dashboard/getting-started";
+import { WelcomeNotice } from "@/components/dashboard/welcome-notice";
 import { LocationNudge } from "@/components/dashboard/location-nudge";
 import { ShareStoreCard } from "@/components/dashboard/share-store-card";
 import { DashboardCommandPanel } from "@/components/dashboard/dashboard-command-panel";
@@ -36,7 +37,7 @@ import { formatNamibianDate } from "@/lib/date";
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ welcome?: string; resume_checklist?: string }>;
+  searchParams: Promise<{ welcome?: string; resume_checklist?: string; notification?: string }>;
 }) {
   const params = await searchParams;
   const isWelcome = params.welcome === "true";
@@ -185,6 +186,7 @@ export default async function DashboardPage({
 
   return (
     <div className="md:ml-64">
+      <WelcomeNotice merchantId={merchant.id} failed={params.notification === "failed"} />
       <PaymentSetupWarning
         methods={brokenPaymentMethods}
         blocking={paymentSetupBlocking}

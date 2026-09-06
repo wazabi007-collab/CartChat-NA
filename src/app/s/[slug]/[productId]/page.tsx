@@ -4,7 +4,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, whatsappLink } from "@/lib/utils";
+import { isQuoteRequired, socialPriceLabel } from "@/lib/quote";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { showBranding, type SubscriptionTier } from "@/lib/tier-limits";
 import { isOrderLimitReached } from "@/lib/order-limit";
@@ -36,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: product } = await supabase
     .from("products")
-    .select("name, description, price_nad")
+    .select("name, description, price_nad, product_variants(price_nad, is_available)")
     .eq("id", productId)
     .eq("merchant_id", merchant.id)
     .eq("is_available", true)
@@ -50,13 +51,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // products borrowed the store card, which carries no product at all. The
   // route renders PNG, so the declared type is PNG.
   const ogImage = `${SITE_URL}/api/og/product/${productId}/link`;
-  const socialTitle = `${product.name} - ${formatPrice(product.price_nad)}`;
+  const priceLabel = socialPriceLabel(product);
+  const socialTitle = `${product.name} - ${priceLabel}`;
   const socialDescription =
-    product.description || `Buy ${product.name} from ${merchant.store_name}`;
+    product.description || `Enquire about ${product.name} from ${merchant.store_name}`;
 
   return {
     title: `${product.name} | ${merchant.store_name}`,
-    description: product.description || `${product.name} - ${formatPrice(product.price_nad)}, from ${merchant.store_name} on ${SITE_NAME}. Order via WhatsApp.`,
+    description: product.description || `${product.name} - ${priceLabel}, from ${merchant.store_name} on ${SITE_NAME}. Enquire via WhatsApp.`,
     alternates: { canonical: `${SITE_URL}/s/${slug}/${productId}` },
     openGraph: {
       title: socialTitle,
@@ -68,7 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           width: 1200,
           height: 630,
           type: "image/png",
-          alt: `${product.name} — ${formatPrice(product.price_nad)} at ${merchant.store_name}`,
+          alt: `${product.name} — ${priceLabel} at ${merchant.store_name}`,
         },
       ],
       type: "website",
@@ -94,7 +96,7 @@ export default async function ProductDetailPage({ params }: Props) {
   // Fetch merchant — must be active and approved (unless previewing)
   let merchantQuery = supabase
     .from("merchants")
-    .select("id, store_name, industry, user_id")
+    .select("id, store_name, industry, user_id, whatsapp_number")
     .eq("store_slug", slug);
   if (!previewCookie) {
     merchantQuery = merchantQuery.eq("is_active", true).eq("store_status", "active");
@@ -146,6 +148,24 @@ export default async function ProductDetailPage({ params }: Props) {
   }));
 
   const isOutOfStock = product.track_inventory && product.stock_quantity === 0 && !product.allow_backorder;
+  const quoteRequired = isQuoteRequired({ price_nad: product.price_nad, has_variants: productVariants.length > 0 });
+  // A zero-price VARIANT PARENT is not quote-only -- its variants carry the
+  // real prices -- but formatPrice(0) advertised it as "N$0.00" on the one
+  // surface a buyer actually lands on. The grid card already said "Price on
+  // request" and the share preview already said "From N$364.35", so the same
+  // product read three different ways. socialPriceLabel is the shared answer:
+  // "From <cheapest available variant>", or "Request a quote" if none is priced.
+  const headlinePrice = quoteRequired
+    ? "Request a Quote"
+    : product.price_nad > 0
+      ? formatPrice(product.price_nad)
+      : socialPriceLabel({
+          price_nad: product.price_nad,
+          product_variants: productVariants.map((v) => ({
+            price_nad: v.price_nad,
+            is_available: v.is_available,
+          })),
+        });
 
   const productSchema = {
     "@context": "https://schema.org",
@@ -154,7 +174,7 @@ export default async function ProductDetailPage({ params }: Props) {
     description: product.description || `${product.name} from ${merchant.store_name}`,
     ...(images[0] && { image: images }),
     url: `${SITE_URL}/s/${slug}/${productId}`,
-    offers: {
+    ...(!quoteRequired ? { offers: {
       "@type": "Offer",
       price: (product.price_nad / 100).toFixed(2),
       priceCurrency: "NAD",
@@ -165,7 +185,7 @@ export default async function ProductDetailPage({ params }: Props) {
         "@type": "Organization",
         name: merchant.store_name,
       },
-    },
+    } } : {}),
   };
 
   const breadcrumbSchema = {
@@ -221,7 +241,7 @@ export default async function ProductDetailPage({ params }: Props) {
               {product.name}
             </h1>
             <p className="text-2xl font-bold text-acacia mt-2">
-              {formatPrice(product.price_nad)}
+              {headlinePrice}
             </p>
 
             {product.description && (
@@ -271,6 +291,11 @@ export default async function ProductDetailPage({ params }: Props) {
                 >
                   Out of Stock
                 </button>
+              ) : quoteRequired ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-slate-700">Tell the store what you need. They will confirm scope, price and arrangements before you order.</p>
+                  <a href={whatsappLink(merchant.whatsapp_number, `Hi ${merchant.store_name}! I'd like a quote for ${product.name}. ${SITE_URL}/s/${slug}/${productId}`)} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center rounded-xl bg-green-700 px-6 py-3 font-semibold text-white">Request a Quote on WhatsApp</a>
+                </div>
               ) : (
                 <ProductPurchasePanel
                   product={{
@@ -312,7 +337,7 @@ export default async function ProductDetailPage({ params }: Props) {
       <StickyAddToCart
         name={product.name}
         price={product.price_nad}
-        isOutOfStock={isOutOfStock || productVariants.length > 0 || orderingBlocked}
+        isOutOfStock={isOutOfStock || productVariants.length > 0 || orderingBlocked || quoteRequired}
         cartPayload={cartItemFromProduct(product, { imageUrl: images[0] ?? null })}
       />
     </div>

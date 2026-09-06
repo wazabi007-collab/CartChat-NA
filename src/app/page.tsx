@@ -51,7 +51,10 @@ const getLiveCounts = unstable_cache(
           .eq("is_demo", false),
         service
           .from("products")
-          .select("id", { count: "exact", head: true })
+          .select("id, merchants!inner(id)", { count: "exact", head: true })
+          .eq("merchants.is_active", true)
+          .eq("merchants.store_status", "active")
+          .eq("merchants.is_demo", false)
           .eq("is_available", true)
           .is("deleted_at", null),
       ]);
@@ -81,10 +84,10 @@ export default async function Home() {
         <Hero liveStoreCount={liveStoreCount} liveProductCount={liveProductCount} />
         <PaymentTrustBar />
         <HowItWorks />
+        <Pricing />
         <SellAnything />
         <StorefrontGallery />
         <FeatureBlocks />
-        <Pricing />
         <FAQ />
         <CtaBar />
       </main>

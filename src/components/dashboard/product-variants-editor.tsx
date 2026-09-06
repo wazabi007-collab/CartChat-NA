@@ -103,15 +103,11 @@ export function ProductVariantsEditor({
       </div>
 
       {presets.length > 0 && (
-        <div className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Industry presets</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                Start from common option sets for this type of business, then edit the rows below.
-              </p>
-            </div>
-          </div>
+        <details className="mt-4 rounded-xl border border-slate-200 bg-white p-3">
+          <summary className="min-h-11 cursor-pointer rounded-lg p-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700">
+            <span className="text-sm font-semibold text-slate-700">Industry presets (optional)</span>
+          </summary>
+          <p className="mt-1 text-xs leading-5 text-slate-600">Start from common option sets, then edit the rows below.</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {presets.map((preset) => (
               <button
@@ -128,7 +124,7 @@ export function ProductVariantsEditor({
               </button>
             ))}
           </div>
-        </div>
+        </details>
       )}
 
       {variants.length === 0 ? (

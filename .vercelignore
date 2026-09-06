@@ -1,0 +1,25 @@
+# Production configuration comes from the linked Vercel project.
+.env
+.env.*
+**/.env
+**/.env.*
+.git/
+.next/
+.vercel/
+node_modules/
+output/
+tmp/
+test-results/
+playwright-report/
+.playwright-cli/
+.playwright-mcp/
+.superpowers/
+.claude/
+.firecrawl/
+supabase-db-data/
+supabase-storage-data/
+supabase/.temp/
+website Details _images/
+*.log
+*.tsbuildinfo
+*.pem

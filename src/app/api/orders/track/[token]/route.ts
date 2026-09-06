@@ -25,7 +25,7 @@ export async function GET(
       subtotal_nad, delivery_fee_nad, discount_nad, vat_nad, vat_inclusive,
       payment_method, payment_reference, proof_of_payment_url,
       tracking_token,
-      merchants!inner(store_name, store_slug, whatsapp_number),
+      merchants!inner(store_name, store_slug, whatsapp_number, uses_ready_step, pickup_address),
       order_items(id, product_name, product_price, quantity, line_total, variant_sku, variant_attributes)
     `)
     .eq("tracking_token", token)
@@ -35,5 +35,5 @@ export async function GET(
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ order });
+  return NextResponse.json({ order: { ...order, merchants: Array.isArray(order.merchants) ? order.merchants[0] : order.merchants } });
 }

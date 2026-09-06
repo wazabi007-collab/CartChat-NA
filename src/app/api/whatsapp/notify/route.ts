@@ -3,6 +3,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { createClient } from "@/lib/supabase/server";
 import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
 import type { WhatsAppTemplateName } from "@/lib/whatsapp-templates";
+import { normalizeNamibianPhone } from "@/lib/utils";
 
 /**
  * Authenticated merchant-initiated WhatsApp send.
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
   }
 
-  const normalize = (p: string) => (p || "").replace(/\D/g, "");
+  const normalize = (p: string) => p ? normalizeNamibianPhone(p) : "";
   const target = normalize(recipient_phone);
   const merchantPhone = normalize(merchant.whatsapp_number || "");
 
@@ -90,10 +91,10 @@ export async function POST(req: NextRequest) {
     orderId: order_id || null,
     eventKey: event_key,
     templateName: template_name as WhatsAppTemplateName,
-    recipientPhone: recipient_phone,
+    recipientPhone: target,
     variables,
     buttonParams: button_params,
   });
 
-  return NextResponse.json({ ok: result.ok, skipped: result.skipped, error: result.error });
+  return NextResponse.json({ ok: result.ok, skipped: result.skipped, error: result.error }, { status: result.ok ? 200 : 502 });
 }

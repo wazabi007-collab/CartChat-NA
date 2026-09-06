@@ -191,6 +191,11 @@ function StoreSetupForm() {
       // Corrupt draft or storage unavailable — start fresh
     }
     setHydrated(true);
+    // Reuse signup information only as form defaults, never as authorisation.
+    void createClient().auth.getUser().then(({ data }) => {
+      const phone = data.user?.user_metadata?.whatsapp_number;
+      if (typeof phone === "string") setForm((prev) => ({ ...prev, whatsapp_number: prev.whatsapp_number || phone }));
+    }).catch(() => {});
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -409,7 +414,8 @@ function StoreSetupForm() {
         pay2cell_number: form.pay2cell_number || null,
         paytoday_number: form.paytoday_number || null,
         wayame_number: form.wayame_number || null,
-        enabled_delivery_providers: effectiveProviders,
+        enabled_delivery_providers: offersDelivery ? effectiveProviders : [],
+        pickup_enabled: offersPickup,
         pickup_address: form.pickup_address.trim() || null,
         delivery_fee_nad: offersDelivery ? Math.round((parseFloat(form.delivery_fee_display) || 0) * 100) : 0,
         store_status: "active",
@@ -440,19 +446,20 @@ function StoreSetupForm() {
     try { localStorage.removeItem("oshicart_ref"); } catch { /* ignore */ }
 
     // WhatsApp Business API: welcome message (to the merchant's own number)
-    fetch("/api/whatsapp/notify", {
+    const welcomeResult = await fetch("/api/whatsapp/notify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         merchant_id: newMerchant.id,
         template_name: "welcome_merchant",
-        recipient_phone: form.whatsapp_number,
+        recipient_phone: normalizeNamibianPhone(form.whatsapp_number),
+        event_key: `welcome_merchant:${newMerchant.id}`,
         variables: [
           form.store_name,
           `https://oshicart.com/s/${finalSlug}`,
         ],
       }),
-    }).catch(() => {});
+    }).then(async (response) => response.ok && (await response.json()).ok === true).catch(() => false);
 
     fetch("/api/notifications/merchant-signup", {
       method: "POST",
@@ -465,9 +472,9 @@ function StoreSetupForm() {
     clearDraft();
 
     if (tierParam) {
-      router.push(`/pricing/checkout?tier=${tierParam}`);
+      router.push(`/pricing/checkout?tier=${tierParam}${welcomeResult ? "" : "&notification=failed"}`);
     } else {
-      router.push("/dashboard?welcome=true");
+      router.push(`/dashboard?welcome=true${welcomeResult ? "" : "&notification=failed"}`);
     }
     router.refresh();
   }
@@ -497,6 +504,10 @@ function StoreSetupForm() {
         <h1 className="text-2xl font-bold text-gray-900">Set up your store</h1>
         <p className="text-gray-500 text-sm mt-1">
           Takes under 2 minutes
+        </p>
+        <p className="text-gray-600 text-xs mt-3">
+          Your trial lasts 30 days. During a store’s first 30 days, safety limits also apply:
+          10 orders and N$10,000 in order value per calendar month. Contact support if you need a higher limit.
         </p>
       </div>
 

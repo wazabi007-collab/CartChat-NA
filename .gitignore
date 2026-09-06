@@ -39,6 +39,7 @@ yarn-error.log*
 # docker volumes
 supabase-db-data
 supabase-storage-data
+/supabase/.temp/
 
 # vercel
 .vercel

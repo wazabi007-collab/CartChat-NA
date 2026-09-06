@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { fetchAsPngDataUri } from "@/lib/og-image";
+import { socialPriceLabel } from "@/lib/quote";
 
 /**
  * The link-preview card for a single product.
@@ -32,7 +33,7 @@ export async function GET(
   const { data: product } = await createServiceClient()
     .from("products")
     .select(
-      "name, price_nad, images, is_available, item_type, merchants!inner(store_name, store_slug, is_active, store_status)"
+      "name, price_nad, images, is_available, item_type, product_variants(price_nad, is_available), merchants!inner(store_name, store_slug, is_active, store_status)"
     )
     .eq("id", productId)
     .is("deleted_at", null)
@@ -60,9 +61,7 @@ export async function GET(
   // the photo's own aspect ratio: a tall bottle is contained in the tile, not
   // cropped or squashed to fill it.
   const photo = photoUrl ? await fetchAsPngDataUri(photoUrl, 400) : null;
-  const price = `N$${(product.price_nad / 100).toLocaleString("en-NA", {
-    minimumFractionDigits: 2,
-  })}`;
+  const price = socialPriceLabel(product);
   const isService = product.item_type === "service";
   // Merchants type full sentences into product names; past ~72 characters the
   // heading pushes the price out of the frame however small the type gets.
@@ -135,7 +134,7 @@ export async function GET(
           <div
             style={{
               marginTop: 20,
-              fontSize: 64,
+              fontSize: price === "Request a quote" ? 44 : 64,
               fontWeight: 700,
               color: "#008938",
             }}
@@ -154,7 +153,7 @@ export async function GET(
               color: "#b47d00",
             }}
           >
-            <span>{isService ? "Book on WhatsApp" : "Order on WhatsApp"}</span>
+            <span>{price === "Request a quote" ? "Enquire on WhatsApp" : isService ? "Book on WhatsApp" : "Order on WhatsApp"}</span>
             <span style={{ color: "#94a3b8" }}>·</span>
             <span>Pay locally</span>
           </div>

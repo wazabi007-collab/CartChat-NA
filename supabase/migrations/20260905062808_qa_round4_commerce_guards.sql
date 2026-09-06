@@ -1,3 +1,163 @@
+BEGIN;
+
+-- Existing merchants keep pickup enabled. Do not infer intended delivery
+-- settings from a zero fee: free delivery can be intentional.
+ALTER TABLE public.merchants ADD COLUMN IF NOT EXISTS pickup_enabled boolean NOT NULL DEFAULT true;
+GRANT SELECT (pickup_enabled) ON public.merchants TO anon, authenticated;
+GRANT UPDATE (pickup_enabled) ON public.merchants TO authenticated;
+
+CREATE SCHEMA IF NOT EXISTS private;
+
+-- Matches namibianBillingPeriod, including month-end clamping.
+CREATE OR REPLACE FUNCTION private.qa_billing_period(p_anchor timestamptz, p_now timestamptz)
+RETURNS TABLE(start_at timestamptz, end_at timestamptz)
+LANGUAGE plpgsql STABLE SET search_path = ''
+AS $$
+DECLARE
+  v_month date := date_trunc('month', p_now AT TIME ZONE 'Africa/Windhoek')::date;
+  v_day integer := extract(day FROM p_anchor AT TIME ZONE 'Africa/Windhoek')::integer;
+  v_start date; v_end date;
+BEGIN
+  v_start := least(v_month + (v_day - 1), (v_month + interval '1 month - 1 day')::date);
+  IF (p_now AT TIME ZONE 'Africa/Windhoek')::date < v_start THEN
+    v_month := (v_month - interval '1 month')::date;
+    v_start := least(v_month + (v_day - 1), (v_month + interval '1 month - 1 day')::date);
+  END IF;
+  v_month := (v_month + interval '1 month')::date;
+  v_end := least(v_month + (v_day - 1), (v_month + interval '1 month - 1 day')::date);
+  RETURN QUERY SELECT v_start::timestamp AT TIME ZONE 'Africa/Windhoek',
+    v_end::timestamp AT TIME ZONE 'Africa/Windhoek';
+END;
+$$;
+REVOKE ALL ON FUNCTION private.qa_billing_period(timestamptz, timestamptz) FROM PUBLIC;
+
+-- This trigger covers BOTH place_order overloads and every insertion path.
+-- Lock the merchant before counting so concurrent final-quota orders serialize.
+CREATE OR REPLACE FUNCTION private.enforce_order_allowance()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
+AS $$
+DECLARE
+  v_tier text; v_status text; v_anchor timestamptz;
+  v_limit integer; v_count integer; v_start timestamptz; v_end timestamptz;
+BEGIN
+  PERFORM id FROM public.merchants WHERE id = NEW.merchant_id FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Store not found'; END IF;
+  SELECT tier, status, coalesce(current_period_start, created_at)
+    INTO v_tier, v_status, v_anchor FROM public.subscriptions WHERE merchant_id = NEW.merchant_id;
+  IF v_status IN ('soft_suspended', 'hard_suspended') THEN
+    RAISE EXCEPTION 'This store is not currently accepting orders';
+  END IF;
+  SELECT max_orders_per_month INTO v_limit FROM public.tier_limits WHERE tier::text = coalesce(v_tier, 'oshi_start');
+  IF v_limit IS NULL THEN RAISE EXCEPTION 'Store order allowance is temporarily unavailable'; END IF;
+  IF v_limit = -1 OR NEW.status = 'cancelled' THEN RETURN NEW; END IF;
+  v_anchor := coalesce(v_anchor, date_trunc('month', now() AT TIME ZONE 'Africa/Windhoek') AT TIME ZONE 'Africa/Windhoek');
+  SELECT start_at, end_at INTO v_start, v_end FROM private.qa_billing_period(v_anchor, now());
+  SELECT count(*) INTO v_count FROM public.orders
+    WHERE merchant_id = NEW.merchant_id AND status <> 'cancelled'
+      AND created_at >= v_start AND created_at < v_end;
+  IF v_count >= v_limit THEN RAISE EXCEPTION 'This store has reached its order allowance. Please contact the store.'; END IF;
+  RETURN NEW;
+END;
+$$;
+REVOKE ALL ON FUNCTION private.enforce_order_allowance() FROM PUBLIC;
+CREATE TRIGGER enforce_order_allowance BEFORE INSERT ON public.orders
+  FOR EACH ROW EXECUTE FUNCTION private.enforce_order_allowance();
+
+-- Deferred until the courier overload has stored its FINAL delivery provider.
+-- Checking at the first orders INSERT would incorrectly reject courier-only
+-- stores, because the wrapper sets the provider after the core function.
+CREATE OR REPLACE FUNCTION private.enforce_order_item_fulfilment()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
+AS $$
+DECLARE v_row record;
+BEGIN
+  SELECT p.item_type, p.rental_unit, p.merchant_id AS product_merchant,
+         o.merchant_id, o.delivery_method, o.delivery_provider,
+         m.pickup_enabled, m.enabled_delivery_providers
+    INTO v_row FROM public.orders o JOIN public.merchants m ON m.id = o.merchant_id
+      JOIN public.products p ON p.id = NEW.product_id WHERE o.id = NEW.order_id;
+  IF NOT FOUND OR v_row.product_merchant <> v_row.merchant_id THEN
+    RAISE EXCEPTION 'Product does not belong to this store';
+  END IF;
+  IF NEW.product_price <= 0 THEN
+    RAISE EXCEPTION 'This item requires a quote. Contact the store before ordering.';
+  END IF;
+  IF coalesce(v_row.item_type, 'product') = 'product'
+     OR (v_row.item_type = 'rental' AND coalesce(v_row.rental_unit, 'day') <> 'night') THEN
+    IF v_row.delivery_method = 'pickup' AND NOT v_row.pickup_enabled THEN
+      RAISE EXCEPTION 'This store does not offer pickup';
+    ELSIF v_row.delivery_method = 'delivery' AND NOT (
+      coalesce(v_row.delivery_provider, 'store') = ANY(coalesce(v_row.enabled_delivery_providers, ARRAY['store','yango','indrive']))
+    ) THEN
+      RAISE EXCEPTION 'This store does not offer the selected delivery option';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+REVOKE ALL ON FUNCTION private.enforce_order_item_fulfilment() FROM PUBLIC;
+CREATE CONSTRAINT TRIGGER enforce_order_item_fulfilment
+  AFTER INSERT ON public.order_items DEFERRABLE INITIALLY DEFERRED
+  FOR EACH ROW EXECUTE FUNCTION private.enforce_order_item_fulfilment();
+
+-- Private, durable, bounded funnel events; no anonymous table access.
+CREATE TABLE public.funnel_events (
+  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  event text NOT NULL CHECK (length(event) <= 64),
+  session_id uuid NOT NULL,
+  pathname text NOT NULL CHECK (length(pathname) <= 200),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.funnel_events ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.funnel_events FROM anon, authenticated;
+GRANT SELECT, INSERT, DELETE ON public.funnel_events TO service_role;
+GRANT USAGE, SELECT ON SEQUENCE public.funnel_events_id_seq TO service_role;
+CREATE INDEX funnel_events_session_time ON public.funnel_events(session_id, created_at DESC);
+
+CREATE OR REPLACE FUNCTION public.record_funnel_event(p_event text, p_session uuid, p_path text)
+RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
+AS $$
+BEGIN
+  PERFORM pg_advisory_xact_lock(hashtext('funnel:' || p_session::text));
+  IF (SELECT count(*) FROM public.funnel_events WHERE session_id = p_session AND created_at > now() - interval '1 minute') >= 30 THEN
+    RETURN false;
+  END IF;
+  INSERT INTO public.funnel_events(event, session_id, pathname) VALUES (p_event, p_session, p_path);
+  RETURN true;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.record_funnel_event(text, uuid, text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.record_funnel_event(text, uuid, text) TO service_role;
+
+-- Only booleans leave the server; subscriptions themselves stay private.
+CREATE OR REPLACE FUNCTION public.get_store_orderability(p_merchant_ids uuid[])
+RETURNS TABLE(merchant_id uuid, ordering_available boolean)
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = ''
+AS $$
+  SELECT m.id, coalesce(m.is_active AND m.store_status = 'active'
+    AND coalesce(s.status::text, 'active') NOT IN ('soft_suspended','hard_suspended')
+    AND (m.created_at <= now() - interval '30 days' OR (
+      SELECT count(*) < 10 AND coalesce(sum(o.subtotal_nad + o.delivery_fee_nad - o.discount_nad
+        + CASE WHEN o.vat_inclusive THEN 0 ELSE coalesce(o.vat_nad, 0) END), 0) < 1000000
+      FROM public.orders o WHERE o.merchant_id = m.id AND o.status <> 'cancelled'
+        AND o.created_at >= date_trunc('month', now())
+    ))
+    AND (t.max_orders_per_month = -1 OR (
+      SELECT count(*) FROM public.orders o WHERE o.merchant_id = m.id AND o.status <> 'cancelled'
+        AND o.created_at >= b.start_at AND o.created_at < b.end_at
+    ) < t.max_orders_per_month), false)
+  FROM public.merchants m
+  LEFT JOIN public.subscriptions s ON s.merchant_id = m.id
+  LEFT JOIN public.tier_limits t ON t.tier::text = coalesce(s.tier::text, 'oshi_start')
+  CROSS JOIN LATERAL private.qa_billing_period(
+    coalesce(s.current_period_start, s.created_at, date_trunc('month', now() AT TIME ZONE 'Africa/Windhoek') AT TIME ZONE 'Africa/Windhoek'),
+    now()) b
+  WHERE m.id = ANY(p_merchant_ids) AND NOT m.is_demo;
+$$;
+REVOKE ALL ON FUNCTION public.get_store_orderability(uuid[]) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.get_store_orderability(uuid[]) TO service_role;
+
+-- Canonical order RPCs: lock the merchant before the legacy trust checks too.
 -- ============================================================================
 -- place_order — CANONICAL SOURCE (two overloads)
 -- ============================================================================
@@ -437,3 +597,5 @@ BEGIN
   RETURN QUERY SELECT v_order_id, v_order_number, v_payment_reference, v_tracking_token;
 END;
 $function$;
+
+COMMIT;

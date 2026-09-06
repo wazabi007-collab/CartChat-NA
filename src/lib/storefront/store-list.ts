@@ -64,6 +64,7 @@ export interface StoreListMerchant {
 export interface EnrichedStore extends StoreListMerchant {
   productCount: number;
   previewImages: string[];
+  orderingAvailable: boolean;
 }
 
 /**
@@ -121,12 +122,13 @@ export async function fetchStoreListData(
   const countMap = new Map<string, number>();
   if (storeList.length > 0) {
     const countPromises = storeList.map(async (m) => {
-      const { count } = await supabase
+      const { count, error } = await supabase
         .from("products")
         .select("id", { count: "exact", head: true })
         .eq("merchant_id", m.id)
         .eq("is_available", true)
         .is("deleted_at", null);
+      if (error) throw new Error("Could not load store product counts");
       return { id: m.id, count: count || 0 };
     });
     const counts = await Promise.all(countPromises);
@@ -171,7 +173,13 @@ export async function fetchStoreListData(
   // any subscription detail. Grace counts (they have paid); trials of a paid
   // tier count too — the boost is part of what the trial demonstrates.
   const prioritised = new Set<string>();
+  const orderable = new Set<string>();
   if (merchantIds.length > 0) {
+    const { data: availability, error } = await createServiceClient().rpc("get_store_orderability", { p_merchant_ids: merchantIds });
+    if (error) throw new Error("Could not verify store ordering availability");
+    for (const row of availability ?? []) {
+      if (row.ordering_available) orderable.add(row.merchant_id);
+    }
     const { data: subs } = await createServiceClient()
       .from("subscriptions")
       .select("merchant_id, tier, status")
@@ -186,6 +194,7 @@ export async function fetchStoreListData(
     ...merchant,
     productCount: countMap.get(merchant.id) || 0,
     previewImages: previewMap.get(merchant.id) ?? [],
+    orderingAvailable: orderable.has(merchant.id),
   }));
 
   // Stable sort: two bands, newest-first preserved within each.

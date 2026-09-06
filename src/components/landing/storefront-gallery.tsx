@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 import { unstable_cache } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { cache } from "react";
 import { createServiceClient } from "@/lib/supabase/service";
 import { fetchStoreListData, INDUSTRY_LABELS as ROSTER_CATEGORY_LABELS } from "@/lib/storefront/store-list";
 import { TOWN_LABELS } from "@/lib/constants";
@@ -32,11 +32,7 @@ const SHOWCASE_IMAGES: Record<string, string> = {
 };
 
 // Draft quotes pending merchant confirmation (flagged at review before push).
-const STORE_QUOTES: Record<string, string> = {
-  "octovia-nexus": "Orders arrive structured — items, delivery, payment — no more twenty questions in the DMs.",
-  "apatchy-beard-company": "I posted my link on WhatsApp Status and had orders the same day.",
-  "krotoa-leather-goods": "Customers see prices and stock upfront. I just confirm and ship.",
-};
+// Testimonials must be approved by the named merchant before publishing.
 
 const INDUSTRY_LABELS: Record<string, string> = {
   restaurant: "Food",
@@ -98,10 +94,11 @@ const FALLBACK_STORES: StorePreview[] = [
  * homepage is always one a shopper can actually open. Cached like the hero
  * counts: five minutes stale is invisible, a per-visitor fetch is not.
  */
+const getLiveStores = cache(() => fetchStoreListData(createServiceClient(), {}));
 const getStoreRoster = unstable_cache(
   async () => {
     try {
-      const stores = await fetchStoreListData(createServiceClient(), {});
+      const stores = await getLiveStores();
       return stores.map((s) => ({
         id: s.id,
         name: s.store_name,
@@ -135,11 +132,11 @@ export async function StorefrontGallery() {
               Who&apos;s on OshiCart
             </p>
             <h2 className="mt-3 text-3xl font-black tracking-tight text-walnut sm:text-4xl">
-              Real Namibian businesses, selling right now.
+              Explore real Namibian businesses.
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-walnut-2">
-              These are live stores — open any of them, browse the catalogue,
-              and place an order. Yours could be next to them.
+              Browse their catalogues and see how your store could look.
+              Each storefront shows its current ordering availability.
             </p>
           </div>
           <Link
@@ -211,11 +208,6 @@ export async function StorefrontGallery() {
                     {store.description}
                   </p>
                 )}
-                {STORE_QUOTES[store.slug] && (
-                  <p className="mt-3 border-l-2 border-acacia pl-3 text-sm italic leading-6 text-walnut">
-                    &ldquo;{STORE_QUOTES[store.slug]}&rdquo;
-                  </p>
-                )}
               </div>
             </Link>
           ))}
@@ -281,24 +273,19 @@ export async function StorefrontGallery() {
 
 async function getFeaturedStores(): Promise<StorePreview[]> {
   return Promise.race([
-    getFeaturedStoresFromDatabase(),
+    getFeaturedStoresFromDatabase().catch((error) => {
+      console.error("Featured stores unavailable", error);
+      return [];
+    }),
     new Promise<StorePreview[]>((resolve) =>
-      setTimeout(() => resolve(FALLBACK_STORES), 2500)
+      setTimeout(() => resolve([]), 2500)
     ),
   ]);
 }
 
 async function getFeaturedStoresFromDatabase(): Promise<StorePreview[]> {
-  const supabase = await createClient();
-  const { data: merchants } = await supabase
-    .from("merchants")
-    .select("id, store_name, store_slug, description, logo_url, industry")
-    .eq("is_active", true)
-    .eq("store_status", "active")
-    .in("store_slug", FEATURED_SLUGS);
-
-  const candidates = merchants || [];
-  if (candidates.length === 0) return FALLBACK_STORES;
+  const candidates = (await getLiveStores()).filter((store) => store.orderingAvailable);
+  if (candidates.length === 0) return [];
 
   const storeRows = await Promise.all(
     FEATURED_SLUGS.map(async (slug) => {
@@ -313,13 +300,6 @@ async function getFeaturedStoresFromDatabase(): Promise<StorePreview[]> {
       // not for a store the database answered about and excluded.
       if (!merchant) return null;
 
-      const { count } = await supabase
-        .from("products")
-        .select("id", { count: "exact", head: true })
-        .eq("merchant_id", merchant.id)
-        .eq("is_available", true)
-        .is("deleted_at", null);
-
       return {
         id: merchant.id,
         name: merchant.store_name,
@@ -327,7 +307,7 @@ async function getFeaturedStoresFromDatabase(): Promise<StorePreview[]> {
         industry: merchant.industry,
         description: merchant.description,
         logoUrl: merchant.logo_url,
-        productCount: count || fallback?.productCount || 0,
+        productCount: merchant.productCount,
         showcaseImageUrl:
           SHOWCASE_IMAGES[merchant.store_slug] ||
           fallback?.showcaseImageUrl ||
@@ -341,5 +321,5 @@ async function getFeaturedStoresFromDatabase(): Promise<StorePreview[]> {
     (store): store is StorePreview => Boolean(store)
   );
 
-  return activeStores.length > 0 ? activeStores : FALLBACK_STORES;
+  return activeStores;
 }

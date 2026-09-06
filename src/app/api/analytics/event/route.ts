@@ -1,39 +1,41 @@
 import { NextResponse } from "next/server";
+import { createServiceClient } from "@/lib/supabase/service";
+import { isTrustedFunnelOrigin, parseFunnelEvent } from "@/lib/funnel-event";
 
-/**
- * POST /api/analytics/event
- * Receives funnel tracking events from the client.
- * Currently logs to stdout for Vercel log drain ingestion.
- * Replace with DB insert or external analytics service when ready.
- */
 export async function POST(request: Request) {
+  const origin = request.headers.get("origin");
+  if (!isTrustedFunnelOrigin(origin, request.url, process.env.NEXT_PUBLIC_SITE_URL)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   try {
-    const body = await request.json();
-
-    // Validate required fields
-    if (!body.event || typeof body.event !== "string") {
-      return NextResponse.json({ error: "Missing event name" }, { status: 400 });
+    const reader = request.body?.getReader();
+    if (!reader) return NextResponse.json({ error: "Missing body" }, { status: 400 });
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > 4096) {
+        await reader.cancel();
+        return NextResponse.json({ error: "Event too large" }, { status: 413 });
+      }
+      chunks.push(value);
     }
-
-    // Structured log line — picked up by Vercel log drains / runtime logs
-    console.log(
-      JSON.stringify({
-        type: "funnel_event",
-        event: body.event,
-        session_id: body.session_id || null,
-        pathname: body.pathname || null,
-        timestamp: body.timestamp || new Date().toISOString(),
-        // Spread extra payload fields
-        ...Object.fromEntries(
-          Object.entries(body).filter(
-            ([k]) => !["event", "session_id", "pathname", "timestamp"].includes(k)
-          )
-        ),
-      })
-    );
-
-    return NextResponse.json({ ok: true });
+    const bytes = new Uint8Array(size);
+    let offset = 0;
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+    const event = parseFunnelEvent(JSON.parse(new TextDecoder().decode(bytes)));
+    if (!event) return NextResponse.json({ error: "Invalid event" }, { status: 400 });
+    const { data, error } = await createServiceClient().rpc("record_funnel_event", {
+      p_event: event.event, p_session: event.session_id, p_path: event.pathname,
+    });
+    if (error) {
+      console.error("Funnel event storage unavailable", error.code);
+      return NextResponse.json({ error: "Event storage unavailable" }, { status: 503 });
+    }
+    return NextResponse.json({ ok: data === true }, { status: data === true ? 200 : 429 });
   } catch {
-    return NextResponse.json({ ok: true }); // Never fail client
+    return NextResponse.json({ error: "Invalid event" }, { status: 400 });
   }
 }

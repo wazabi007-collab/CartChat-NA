@@ -8,6 +8,7 @@ import { SITE_NAME, BILLING_WHATSAPP, billingWhatsAppLink } from "@/lib/constant
 import { isDpoEnabled } from "@/lib/dpo";
 import { Check, ArrowLeft } from "lucide-react";
 import { PaymentSection } from "./payment-section";
+import { WelcomeNotice } from "@/components/dashboard/welcome-notice";
 
 const VALID_TIERS: SubscriptionTier[] = PUBLIC_PLANS.map((p) => p.tier);
 
@@ -21,11 +22,11 @@ const OSHICART_BANK = {
 
 
 interface Props {
-  searchParams: Promise<{ tier?: string }>;
+  searchParams: Promise<{ tier?: string; notification?: string }>;
 }
 
 export default async function SubscriptionCheckoutPage({ searchParams }: Props) {
-  const { tier: tierParam } = await searchParams;
+  const { tier: tierParam, notification } = await searchParams;
   const tier = (tierParam || "oshi_basic") as SubscriptionTier;
 
   if (!VALID_TIERS.includes(tier)) redirect("/#pricing");
@@ -82,7 +83,7 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
       <header className="bg-white border-b">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
-            <Image src="/oshicart-logo-v3.webp" alt={SITE_NAME} width={140} height={20} />
+            <Image src="/oshicart-logo-v3.webp" alt={SITE_NAME} width={140} height={34} style={{ width: 140, height: 34, objectFit: "contain" }} />
           </Link>
           <Link href="/#pricing" className="text-sm text-gray-500 hover:text-gray-900 flex items-center gap-1">
             <ArrowLeft size={14} />
@@ -92,6 +93,7 @@ export default async function SubscriptionCheckoutPage({ searchParams }: Props) 
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8">
+        {merchantId && <WelcomeNotice merchantId={merchantId} failed={notification === "failed"} />}
         <div className="grid md:grid-cols-5 gap-6">
           {/* Plan summary */}
           <div className="md:col-span-2">

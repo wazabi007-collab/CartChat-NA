@@ -20,8 +20,8 @@ export function Pricing() {
             Plans that scale with your store.
           </h2>
           <p className="mt-3 text-base leading-7 text-walnut-2">
-            OshiCart should stay local, simple, and affordable while charging
-            properly for automation where it creates real value.
+            Create your store with a 30-day trial. Choose the plan that fits
+            your catalogue, order volume and automation needs.
           </p>
         </div>
 
@@ -62,7 +62,7 @@ export function Pricing() {
                   </span>
                 </div>
                 <ul className="mt-6 space-y-3">
-                  {plan.features.map((feature) => (
+                  {plan.features.slice(0, 5).map((feature) => (
                     <li
                       key={feature}
                       className="flex items-start gap-2 text-sm font-semibold leading-5 text-walnut-2"
@@ -72,6 +72,12 @@ export function Pricing() {
                     </li>
                   ))}
                 </ul>
+                <details className="mt-4 text-sm text-walnut-2">
+                  <summary className="min-h-11 cursor-pointer py-3 font-bold">See all included features</summary>
+                  <ul className="space-y-2 pt-2">
+                    {plan.features.slice(5).map((feature) => <li key={feature} className="flex gap-2"><Check size={16} className="shrink-0 text-acacia" />{feature}</li>)}
+                  </ul>
+                </details>
                 <Link
                   href={plan.href}
                   className={`mt-7 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-black transition ${

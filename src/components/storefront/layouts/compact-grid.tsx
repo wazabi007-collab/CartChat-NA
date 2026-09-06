@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { isQuoteRequired } from "@/lib/quote";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "../cart-provider";
 import { cartItemFromProduct } from "@/lib/cart-item";
 import { getCtaText, getDisplayPrice, getStockLabel, type LayoutProps } from "./types";
-import type { ServiceMode } from "@/lib/service-mode";
 
 export function CompactGrid({ products, theme, slug, disabled }: LayoutProps) {
   const { addItem } = useCart();
@@ -62,8 +62,10 @@ export function CompactGrid({ products, theme, slug, disabled }: LayoutProps) {
               )}
               <div className="mt-auto pt-1.5">
                 {isOutOfStock || disabled ? (
-                  <span className="text-xs text-gray-400">Sold out</span>
-                ) : product.has_variants ? (
+                <span className="text-xs text-gray-600">{disabled ? "Ordering paused" : "Sold out"}</span>
+              ) : isQuoteRequired(product) ? (
+                <Link href={`/s/${slug}/${product.id}`} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-green-700 px-3 py-2 text-xs font-semibold text-white">Request a Quote</Link>
+              ) : product.has_variants ? (
                   <Link
                     href={`/s/${slug}/${product.id}`}
                     className="block w-full rounded-md py-1.5 px-2 text-center text-xs font-medium text-white transition-colors"
@@ -76,7 +78,7 @@ export function CompactGrid({ products, theme, slug, disabled }: LayoutProps) {
                     onClick={() =>
                       addItem(cartItemFromProduct(product, { imageUrl }))
                     }
-                    className="w-full min-h-[40px] flex items-center justify-center text-white text-xs font-medium py-1.5 px-2 rounded-md transition-colors"
+                    className="w-full min-h-11 flex items-center justify-center text-white text-xs font-medium py-1.5 px-2 rounded-md transition-colors"
                     style={{ backgroundColor: theme.accent }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.backgroundColor = theme.accentHover;

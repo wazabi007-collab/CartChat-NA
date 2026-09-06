@@ -829,17 +829,19 @@ export default function EditProductPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-700">Track Inventory</p>
-                <p className="text-xs text-gray-400">Enable stock quantity tracking for this product</p>
+                <p id="inventory-description" className="text-xs text-gray-500">Enable stock quantity tracking for this product</p>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
+              <label className="relative inline-flex min-h-11 min-w-11 items-center cursor-pointer">
                 <input
                   type="checkbox"
                   checked={trackInventory}
+                  aria-label="Track Inventory"
+                  aria-describedby="inventory-description"
                   onChange={(e) => setTrackInventory(e.target.checked)}
-                  className="sr-only"
+                  className="peer sr-only"
                 />
-                <div className={`w-10 h-6 rounded-full transition-colors ${trackInventory ? "bg-green-600" : "bg-gray-300"}`} />
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${trackInventory ? "translate-x-5" : "translate-x-1"}`} />
+                <div className={`w-10 h-6 rounded-full transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-green-700 ${trackInventory ? "bg-green-600" : "bg-gray-300"}`} />
+                <div className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow transition-transform ${trackInventory ? "translate-x-5" : "translate-x-1"}`} />
               </label>
             </div>
 

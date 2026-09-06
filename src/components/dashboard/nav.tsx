@@ -49,9 +49,9 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
                 src="/oshicart-logo-v3.webp"
                 alt="OshiCart"
                 width={150}
-                height={21}
+                height={37}
                 priority
-                style={{ width: 150, height: "auto" }}
+                style={{ width: 150, height: 37, objectFit: "contain" }}
               />
             </Link>
             {merchant && (
@@ -139,9 +139,9 @@ export function DashboardNav({ merchant, userPhone, subscriptionTier, industry }
             src="/oshicart-logo-v3.webp"
             alt="OshiCart"
             width={128}
-            height={18}
+            height={31}
             priority
-            style={{ width: 128, height: "auto" }}
+            style={{ width: 128, height: 31, objectFit: "contain" }}
           />
         </Link>
       </div>

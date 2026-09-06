@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { namibianMonthKey } from "@/lib/date";
 import crypto from "crypto";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isWhatsAppEnabled } from "@/lib/whatsapp";
@@ -6,7 +7,6 @@ import { formatPrice } from "@/lib/utils";
 import { getOrderPayableTotal } from "@/lib/vat";
 import { sendWhatsAppEvent } from "@/lib/whatsapp-events";
 import { hasCartRecovery } from "@/lib/tier-limits";
-import { namibianDateString } from "@/lib/date";
 
 /**
  * Cron job: Payment reminders + auto-cancel unpaid orders.
@@ -197,7 +197,7 @@ export async function GET(req: NextRequest) {
     .order("stock_quantity", { ascending: true })
     .limit(100);
 
-  // One digest per merchant per day, not one message per product per quantity.
+  // One stock notification per store, not a daily reminder.
   //
   // The old key was `low_stock_alert:<product>:<qty>`, so every sale that moved
   // the count minted a brand-new "event" -- and this cron runs every 15 minutes.
@@ -205,8 +205,9 @@ export async function GET(req: NextRequest) {
   // one merchant received 85 alerts in 66 seconds on 26 May 2026 until Meta
   // rate-limited the pair (error 131056) and stopped delivering to them at all.
   //
-  // Keying on merchant + Namibian date caps it at one message a day per store,
-  // whatever happens to stock in between. The digest names the most urgent
+  // The stable merchant key and legacy history guard in sendWhatsAppEvent
+  // consume the notification once, across all days and quantities.
+  // The digest names the most urgent
   // product and counts the rest, so it still fits the approved three-variable
   // template and needs no Meta change.
   const byMerchant = new Map<string, { store: string; phone: string | null; products: { name: string; qty: number }[] }>();
@@ -221,7 +222,6 @@ export async function GET(req: NextRequest) {
     byMerchant.set(product.merchant_id, entry);
   }
 
-  const today = namibianDateString();
   for (const [merchantId, entry] of byMerchant) {
     // Query is already ordered by stock ascending, so the first is the most urgent.
     const worst = entry.products[0];
@@ -229,7 +229,7 @@ export async function GET(req: NextRequest) {
     const result = await sendWhatsAppEvent({
       supabase,
       merchantId,
-      eventKey: `low_stock_alert:${merchantId}:${today}`,
+      eventKey: `low_stock_alert:${merchantId}:${namibianMonthKey()}`,
       templateName: "low_stock_alert",
       recipientPhone: entry.phone,
       variables: [

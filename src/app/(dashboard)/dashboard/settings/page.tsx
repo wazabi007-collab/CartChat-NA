@@ -100,6 +100,7 @@ export default function SettingsPage() {
     wayame_number: "",
     enabled_delivery_providers: ["store", "yango", "indrive"] as string[],
     pickup_address: "",
+    pickup_enabled: true,
     vat_number: "",
     vat_inclusive: false,
     pop_required: false,
@@ -153,6 +154,7 @@ export default function SettingsPage() {
           wayame_number: merchant.wayame_number || "",
           enabled_delivery_providers: merchant.enabled_delivery_providers ?? ["store", "yango", "indrive"],
           pickup_address: merchant.pickup_address || "",
+          pickup_enabled: merchant.pickup_enabled ?? true,
           vat_number: merchant.vat_number || "",
           vat_inclusive: merchant.vat_inclusive ?? false,
           pop_required: merchant.pop_required ?? false,
@@ -190,8 +192,8 @@ export default function SettingsPage() {
       isCourierAvailable(p, form.town)
     );
 
-    if (savedDeliveryProviders.length === 0) {
-      setError("Select at least one delivery option (Store, Yango, or inDrive).");
+    if (!form.pickup_enabled && savedDeliveryProviders.length === 0) {
+      setError("Allow pickup or select at least one delivery option.");
       setSaving(false);
       return;
     }
@@ -260,6 +262,7 @@ export default function SettingsPage() {
         paytoday_number: form.paytoday_number || null,
         wayame_number: form.wayame_number || null,
         enabled_delivery_providers: savedDeliveryProviders,
+        pickup_enabled: form.pickup_enabled,
         pickup_address: form.pickup_address.trim() || null,
         vat_number: form.vat_number || null,
         // Never hard-code this: it decides whether 15% is ADDED to every
@@ -961,6 +964,10 @@ export default function SettingsPage() {
           </div>
           <div className="border-t border-gray-100 pt-4">
             <label className={label}>Delivery options shown at checkout</label>
+            <label className="flex min-h-11 items-center gap-3 text-sm text-gray-700">
+              <input type="checkbox" checked={form.pickup_enabled} onChange={(e) => setForm((p) => ({ ...p, pickup_enabled: e.target.checked }))} />
+              Allow pickup / collection
+            </label>
             <div className="mt-2 space-y-2">
               {DELIVERY_OPTIONS.map((opt) => (
                 <label key={opt.value} className="flex items-center gap-3 cursor-pointer">

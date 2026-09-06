@@ -86,9 +86,8 @@ async function countOrdersInPeriod(
     .lt("created_at", period.endISO);
 
   // A failed count returns null, and `count || 0` used to read that as a store
-  // with a quiet month. Since this is the only place the tier allowance is
-  // enforced -- place_order caps just the first 30 days, as anti-fraud -- that
-  // silently let a capped store keep selling past the plan it paid for.
+  // with a quiet month. Database insertion now also enforces the allowance
+  // atomically; this read still needs to fail closed for truthful UI state.
   if (error) {
     throw new Error(`Could not count this cycle's orders: ${error.message}`);
   }

@@ -85,6 +85,7 @@ interface Props {
   wayameNumber: string | null;
   pickupAddress: string | null;
   enabledDeliveryProviders: string[];
+  pickupEnabled?: boolean;
   vatNumber: string | null;
   vatInclusive: boolean;
   popRequired: boolean;
@@ -217,6 +218,7 @@ export function CheckoutForm({
   wayameNumber,
   pickupAddress,
   enabledDeliveryProviders,
+  pickupEnabled = true,
   vatNumber,
   vatInclusive,
   popRequired,
@@ -235,7 +237,7 @@ export function CheckoutForm({
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [customerName, setCustomerName] = useState("");
   const [customerWhatsapp, setCustomerWhatsapp] = useState("");
-  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("pickup");
+  const [selectedDeliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>(pickupEnabled ? "pickup" : "delivery");
 
   // What this specific basket needs, which is not the same as what the
   // merchant sells: a salon cart can hold an online consult, an in-salon
@@ -257,6 +259,8 @@ export function CheckoutForm({
   // purely a stay or purely a service must not show them at all.
   const goodsFulfilmentNeeded =
     fulfilment.hasGoods || (!fulfilment.hasServices && !fulfilment.hasStay);
+  // Pure services/stays use their own fulfilment flow, even at delivery-only shops.
+  const deliveryMethod: DeliveryMethod = goodsFulfilmentNeeded ? selectedDeliveryMethod : "pickup";
 
   // --- Rentals: one date range for every hired line in the cart -----------
   // Modelled per line in the database, asked once here: a marquee and chairs
@@ -402,6 +406,7 @@ export function CheckoutForm({
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<CheckoutStep>("form");
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [trackingToken, setTrackingToken] = useState<string | null>(null);
   const [orderNumber, setOrderNumber] = useState<number | null>(null);
   const [paymentRef, setPaymentRef] = useState<string | null>(null);
   const [proofUploadWarning, setProofUploadWarning] = useState(false);
@@ -590,6 +595,14 @@ export function CheckoutForm({
 
     if (cartItems.length === 0) {
       setError("Your cart is empty");
+      return;
+    }
+    if (cartItems.some((item) => item.price <= 0)) {
+      setError("This basket includes an item priced on request. Return to the store and request a quote before ordering.");
+      return;
+    }
+    if (goodsFulfilmentNeeded && (deliveryMethod === "pickup" ? !pickupEnabled : effectiveDeliveryProviders.length === 0)) {
+      setError("This fulfilment option is not available. Please choose an available option or contact the store.");
       return;
     }
     if (!customerName.trim()) {
@@ -854,6 +867,7 @@ export function CheckoutForm({
       localStorage.removeItem(`oshicart-cart-${storeSlug}`);
 
       setOrderId(order.order_id);
+      setTrackingToken(order.tracking_token);
       setOrderNumber(order.order_number);
       setPaymentRef(order.payment_reference);
       track("checkout_completed", { merchant_id: merchantId, order_number: order.order_number, total_nad: total, payment_method: paymentMethod });
@@ -928,8 +942,11 @@ export function CheckoutForm({
       <div className={`${card} text-center`}>
         <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
         <h2 className="text-xl font-bold text-gray-900 mt-4">
-          Order Confirmed!
+          Order received
         </h2>
+        <p className="text-gray-600 mt-2">
+          Awaiting store confirmation. The store will confirm availability and the next steps.
+        </p>
         <p className="text-gray-600 mt-2">
           Your order number is{" "}
           <span className="font-bold text-gray-900">#{orderNumber}</span>
@@ -960,6 +977,12 @@ export function CheckoutForm({
         </p>
 
         <div className="mt-6 space-y-3">
+          {trackingToken && (
+            <Link href={`/track/${trackingToken}`} className="block rounded-lg bg-green-700 px-4 py-3 font-semibold text-white">Track order</Link>
+          )}
+          {orderId && (
+            <Link href={`/invoice/${orderId}`} className="block rounded-lg border border-gray-300 px-4 py-3 font-semibold text-gray-900">View invoice</Link>
+          )}
           <a
             href={waUrl}
             target="_blank"
@@ -1183,6 +1206,7 @@ export function CheckoutForm({
 
         {goodsFulfilmentNeeded && (
         <div className="flex gap-3">
+          {pickupEnabled && (
           <label
             className={`flex-1 ${radioCardBase} ${
               deliveryMethod === "pickup" ? radioCardSelected : radioCardUnselected
@@ -1201,6 +1225,8 @@ export function CheckoutForm({
             />
             Pickup
           </label>
+          )}
+          {effectiveDeliveryProviders.length > 0 && (
           <label
             className={`flex-1 ${radioCardBase} ${
               deliveryMethod === "delivery" ? radioCardSelected : radioCardUnselected
@@ -1216,6 +1242,7 @@ export function CheckoutForm({
             />
             Delivery
           </label>
+          )}
         </div>
         )}
 

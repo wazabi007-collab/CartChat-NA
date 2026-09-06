@@ -74,7 +74,7 @@ export function StoreListCard({
         <div className="flex items-center justify-between border-t border-border-warm pt-3">
           <span className="inline-flex items-center gap-1 text-xs font-bold text-acacia">
             <WhatsAppIcon size={14} />
-            WhatsApp Store
+            {store.orderingAvailable ? "Accepting orders" : "Ordering paused · browse catalogue"}
           </span>
           <span className="flex items-center gap-1 text-xs font-bold text-walnut-2 transition-colors group-hover:text-terracotta">
             Visit Store <ArrowRight size={14} />

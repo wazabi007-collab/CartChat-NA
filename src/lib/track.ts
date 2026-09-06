@@ -12,7 +12,7 @@ function getSessionId(): string {
   if (typeof window === "undefined") return "server";
   let sid = sessionStorage.getItem("oshi_sid");
   if (!sid) {
-    sid = crypto.randomUUID?.() || Math.random().toString(36).slice(2);
+    sid = crypto.randomUUID();
     sessionStorage.setItem("oshi_sid", sid);
   }
   return sid;
@@ -45,6 +45,7 @@ export function track(
 ) {
   if (typeof window === "undefined") return;
 
+  try {
   const data = {
     event,
     session_id: getSessionId(),
@@ -54,7 +55,6 @@ export function track(
   };
 
   // Fire and forget — never block UI
-  try {
     if (navigator.sendBeacon) {
       navigator.sendBeacon(
         "/api/analytics/event",
